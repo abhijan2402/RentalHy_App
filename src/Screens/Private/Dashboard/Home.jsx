@@ -11,10 +11,16 @@ import {
   SafeAreaView,
   Platform,
   TextInput,
+  Animated,
+  ScrollView,
 } from 'react-native';
 import {COLOR} from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
 import CustomButton from '../../../Components/CustomButton';
+import MultiModal from '../../../Components/MultiModal';
+import SortModal from '../../../Components/SortModal';
+import LottieView from 'lottie-react-native';
+import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
 
 const {width} = Dimensions.get('window');
 
@@ -24,6 +30,7 @@ const Home = ({navigation}) => {
     'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1200',
     'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
   ];
+  const [loader, setloader] = useState(true);
 
   const properties = [
     {
@@ -62,25 +69,135 @@ const Home = ({navigation}) => {
       image:
         'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
+
+    {
+      id: '4',
+      name: 'Beach View Villa',
+      location: 'Goa, India',
+      description: 'Luxury property with private beach.',
+      price: '₹ 3 Cr',
+      image:
+        'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
+    },
   ];
 
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);
+  const [multiFilter, setMultiFilter] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState([
     'Family',
     '2 BHK',
     'Jaipur',
   ]); // demo filters
   // Auto-scroll banners
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const nextIndex = (bannerIndex + 1) % banners.length;
-      setBannerIndex(nextIndex);
-      bannerRef.current.scrollToIndex({index: nextIndex, animated: true});
-    }, 3000);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     const nextIndex = (bannerIndex + 1) % banners.length;
+  //     setBannerIndex(nextIndex);
+  //     bannerRef.current.scrollToIndex({index: nextIndex, animated: true});
+  //   }, 3000);
 
-    return () => clearInterval(timer);
-  }, [bannerIndex]);
+  //   return () => clearInterval(timer);
+  // }, [bannerIndex]);
 
   const toggleLike = id => {
     setLikedProperties(prev =>
@@ -96,6 +213,81 @@ const Home = ({navigation}) => {
   const removeFilter = filter => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
+  const animationRef = useRef(null);
+
+  const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
+  const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -10, // move up 10px
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0, // move back down
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+  const [attendedFilter, setAttendedFilter] = useState([]);
+  const [sortVisible, setSortVisible] = useState(false);
+
+  const [avaialbleFilter, setavaialbleFilter] = useState([
+    {
+      id: 'bhkOptions',
+      type: 'bhk',
+      data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
+    },
+    {
+      id: 'propertyTypes',
+      type: 'property Type',
+      data: ['Apartment', 'Flat', 'Villa'],
+    },
+    {
+      id: 'furnishingOptions',
+      type: 'furnishing',
+      data: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
+    },
+    {
+      id: 'availabilityOptions',
+      type: 'availability',
+      data: ['Ready to Move', 'Under Construction'],
+    },
+    {
+      id: 'bathroomOptions',
+      type: 'bathroom',
+      data: ['1', '2', '3', '4+'],
+    },
+    {
+      id: 'parkingOptions',
+      type: 'parking',
+      data: ['Car', 'Bike', 'Both', 'None'],
+    },
+    {
+      id: 'advance',
+      type: 'advance',
+      data: ['1 month', '2 months', '3 months+'],
+    },
+    {
+      id: 'familyType',
+      type: 'family Type',
+      data: ['Family', 'Bachelors male', 'Bachelors female'],
+    },
+  ]);
+
+  useEffect(() => {
+    animationRef.current?.play(30, 120);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setloader(false);
+    }, 3000);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,21 +317,6 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      {/* Banner Slider */}
-      <View style={{marginVertical: 10}}>
-        <FlatList
-          ref={bannerRef}
-          data={banners}
-          renderItem={({item}) => (
-            <Image source={{uri: item}} style={styles.banner} />
-          )}
-          keyExtractor={(_, index) => index.toString()}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 15}}
-        />
-      </View>
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -148,10 +325,18 @@ const Home = ({navigation}) => {
           style={styles.searchIcon}
         />
         <TextInput
-          placeholder="Search Properties” or Location"
+          placeholder="Search Properties or Location"
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+        <TouchableOpacity onPress={() => setSortVisible(true)}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/4662/4662255.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('Filter', {onApplyFilter: handleFilterChange})
@@ -164,61 +349,120 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
-      {/* Applied Filters */}
-      {appliedFilters.length > 0 && (
-        <View style={styles.filterTagsContainer}>
-          {appliedFilters.map((filter, index) => (
-            <View key={index} style={styles.filterTag}>
-              <Text style={styles.filterText}>{filter}</Text>
-              <TouchableOpacity onPress={() => removeFilter(filter)}>
-                <Image
-                  source={{
-                    uri: 'https://cdn-icons-png.flaticon.com/128/1828/1828778.png',
-                  }}
-                  style={styles.crossIcon}
-                />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      )}
 
       {/* Trending Properties Title */}
-      <Text style={styles.sectionTitle}>Trending Properties</Text>
+      {/* <Text style={styles.sectionTitle}>Trending Properties</Text> */}
 
       {/* Properties Grid */}
-      <FlatList
-        data={properties}
-        renderItem={({item}) => (
-          <PropertyCard item={item} toggleLike={toggleLike} />
-        )}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
-        showsVerticalScrollIndicator={false}
-      />
-      <TouchableOpacity
-        onPress={() => {
-          console.log('hi');
-
-          navigation.navigate('PostProperty');
-        }}>
-        <Image
-          source={{
-            uri: 'https://cdn-icons-png.flaticon.com/128/753/753317.png',
-          }}
-          style={{
-            width: 70,
-            height: 70,
-            position: 'absolute',
-            bottom: 50,
-            right: 30,
-            borderRadius: 25,
-            // backgroundColor: COLOR.primary,
-            padding: 10,
-          }}
+      {loader ? (
+        <LottieView
+          ref={animationRef}
+          source={require('../../../assets/Lottie/Loading.json')}
+          style={styles.image}
         />
-      </TouchableOpacity>
+      ) : (
+        <>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{marginVertical: 2, marginLeft: 20}}>
+            {avaialbleFilter.map(filterGroup => (
+              <TouchableOpacity
+                onPress={() => {
+                  console.log(filterGroup, 'IFIFIFIFFI');
+                  setAttendedFilter(filterGroup.data);
+                  setMultiFilter(true);
+                }}
+                key={filterGroup.id}
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  paddingHorizontal: 10,
+                  paddingVertical: 8,
+                  borderRadius: 5,
+                  backgroundColor: COLOR.white,
+                  marginRight: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    color: '#333',
+                    height: 20,
+                    textTransform: 'capitalize',
+                    textAlignVertical: 'center',
+                  }}>
+                  {filterGroup.type}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <FlatList
+            data={properties}
+            renderItem={({item}) => (
+              <PropertyCard item={item} toggleLike={toggleLike} />
+            )}
+            keyExtractor={item => item.id}
+            numColumns={2}
+            contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
+            showsVerticalScrollIndicator={false}
+          />
+        </>
+      )}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          bottom: 50,
+          right: 20,
+          opacity: fadeAnim,
+          transform: [{translateY: floatAnim}],
+        }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: COLOR.primary,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            borderRadius: 10,
+            elevation: 4,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+          onPress={() => navigation.navigate('PostProperty')}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/2163/2163350.png',
+            }}
+            style={{width: 25, height: 25}}
+          />
+          <Text
+            style={{
+              color: '#fff',
+              fontWeight: 'bold',
+              marginLeft: 10,
+            }}>
+            Post Property
+          </Text>
+        </TouchableOpacity>
+      </Animated.View>
+      <MultiModal
+        filterValueData={attendedFilter}
+        visible={multiFilter}
+        initialSelected={[]} // pass existing selected if you want to preselect
+        onClose={() => setMultiFilter(false)}
+        onSelectSort={selectedFilters => {
+          console.log('Applied Filters:', selectedFilters); // array of filters
+        }}
+      />
+      <SortModal
+        visible={sortVisible}
+        onClose={() => setSortVisible(false)}
+        onSelectSort={sortType => {
+          console.log('Selected Sort:', sortType);
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -275,7 +519,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLOR.black,
     paddingHorizontal: 15,
-    marginTop: 15, // extra space from top
+    // marginTop: 15, // extra space from top
     marginBottom: 5,
   },
   card: {
@@ -365,5 +609,9 @@ const styles = StyleSheet.create({
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,
+  },
+  image: {
+    width: windowWidth,
+    height: windowHeight * 0.55,
   },
 });

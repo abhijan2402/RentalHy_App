@@ -12,6 +12,7 @@ import Header from '../../Components/FeedHeader';
 import {COLOR} from '../../Constants/Colors';
 import PropertyCard from '../../Components/PropertyCard';
 import SortModal from '../../Components/SortModal';
+import {windowHeight} from '../../Constants/Dimensions';
 
 // Demo property data
 const propertyData = [
@@ -125,16 +126,18 @@ const Properties = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Header
+      {/* <Header
         title={'Properties on Rent'}
         showBack
         onBackPress={() => {
           navigation.goBack();
         }}
-      />
-
+      /> */}
+      <Text style={{marginTop: windowHeight / 2, textAlign: 'center'}}>
+        Convention Hall Section is coming soon
+      </Text>
       {/* Search & Filter */}
-      <View style={styles.searchContainer}>
+      {/* <View style={styles.searchContainer}>
         <Image
           source={{
             uri: 'https://cdn-icons-png.flaticon.com/128/622/622669.png',
@@ -165,10 +168,10 @@ const Properties = ({navigation}) => {
             style={styles.filterIcon}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Applied Filters */}
-      {appliedFilters.length > 0 && (
+      {/* {appliedFilters.length > 0 && (
         <View style={styles.filterTagsContainer}>
           {appliedFilters.map((filter, index) => (
             <View key={index} style={styles.filterTag}>
@@ -184,10 +187,10 @@ const Properties = ({navigation}) => {
             </View>
           ))}
         </View>
-      )}
+      )} */}
 
       {/* Property Grid */}
-      <FlatList
+      {/* <FlatList
         data={propertyData}
         renderItem={({item}) => (
           <PropertyCard item={item} toggleLike={toggleLike} />
@@ -196,14 +199,14 @@ const Properties = ({navigation}) => {
         numColumns={2}
         columnWrapperStyle={styles.row}
         showsVerticalScrollIndicator={false}
-      />
-      <SortModal
+      /> */}
+      {/* <SortModal
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
           console.log('Selected Sort:', sortType);
         }}
-      />
+      /> */}
     </View>
   );
 };

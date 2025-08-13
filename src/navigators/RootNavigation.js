@@ -10,6 +10,7 @@ import SupportList from '../Screens/Private/Account/SupportList';
 import CreateTicket from '../Screens/Private/Account/CreateTicket';
 import Filter from '../Screens/Private/Dashboard/Filter';
 import Chat from '../Screens/Private/Dashboard/Chat';
+import PropertyAnalytics from '../Screens/Private/Account/PropertyAnalytics';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -30,6 +31,7 @@ const RootNavigation = () => {
                 <Stack.Screen name="CreateTicket" component={CreateTicket} />
                 <Stack.Screen name="Filter" component={Filter} />
                 <Stack.Screen name="Chat" component={Chat} />
+                <Stack.Screen name="PropertyAnalytics" component={PropertyAnalytics} />
 
 
             </Stack.Navigator>

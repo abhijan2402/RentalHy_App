@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Linking,
   ScrollView,
+  ImageBackground,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../../../Components/FeedHeader';
@@ -121,6 +122,39 @@ const PropertyDetail = ({navigation}) => {
               <Text style={styles.locationHighlighted}>{location}</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity onPress={handleLocation} activeOpacity={0.8}>
+            <ImageBackground
+              source={{
+                uri: 'https://media.wired.com/photos/59269cd37034dc5f91bec0f1/191:100/w_1280,c_limit/GoogleMapTA.jpg?mbid=social_retweet',
+              }}
+              blurRadius={5}
+              style={{
+                width: '100%',
+                height: 200,
+                borderRadius: 10,
+                overflow: 'hidden',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: 15,
+              }}>
+              <View
+                style={{
+                  backgroundColor: 'rgba(0,0,0,0.4)',
+                  paddingHorizontal: 15,
+                  paddingVertical: 8,
+                  borderRadius: 20,
+                }}>
+                <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                  }}>
+                  📍 Click here to get directions
+                </Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
 
           {/* Specifications */}
           <View style={styles.specsContainer}>
@@ -141,14 +175,14 @@ const PropertyDetail = ({navigation}) => {
             ))}
           </View>
         </View>
-      </ScrollView>
 
-      <CustomButton
-        title={'Contact Landlord in Chat'}
-        onPress={() => {
-          navigation.navigate('Chat');
-        }}
-      />
+        <CustomButton
+          title={'Contact Landlord in Chat'}
+          onPress={() => {
+            navigation.navigate('Chat');
+          }}
+        />
+      </ScrollView>
     </View>
   );
 };

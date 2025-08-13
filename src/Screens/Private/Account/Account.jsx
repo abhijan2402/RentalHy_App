@@ -34,6 +34,12 @@ const Account = ({navigation}) => {
       navigate: 'Wishlist',
     },
     {
+      id: 7,
+      title: 'Property Analytics',
+      icon: 'https://cdn-icons-png.flaticon.com/128/602/602175.png',
+      navigate: 'PropertyAnalytics',
+    },
+    {
       id: 3,
       title: 'Terms & Conditions',
       icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828940.png',

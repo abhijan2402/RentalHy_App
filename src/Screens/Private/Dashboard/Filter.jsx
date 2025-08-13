@@ -10,6 +10,7 @@ import React, {useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const Filter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter; // Get callback from Properties
@@ -19,6 +20,7 @@ const Filter = ({navigation, route}) => {
   const [roomSize, setRoomSize] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [priceRange, setPriceRange] = useState([5000, 100000]); // default min and max
 
   const [furnishing, setFurnishing] = useState('');
   const [availability, setAvailability] = useState('');
@@ -144,8 +146,8 @@ const Filter = ({navigation, route}) => {
         />
 
         {/* Price Range */}
-        <Text style={styles.label}>Price Range</Text>
-        <View style={styles.priceRow}>
+        {/* <Text style={styles.label}>Price Range</Text> */}
+        {/* <View style={styles.priceRow}>
           <TextInput
             style={[styles.input, styles.priceInput]}
             placeholder="Min"
@@ -162,6 +164,35 @@ const Filter = ({navigation, route}) => {
             value={maxPrice}
             onChangeText={setMaxPrice}
           />
+        </View> */}
+        <Text style={styles.label}>Price Range (₹)</Text>
+        <View style={{paddingHorizontal: 10}}>
+          <MultiSlider
+            values={priceRange}
+            onValuesChange={setPriceRange}
+            min={1000} // minimum possible value
+            max={100000} // maximum possible value
+            step={5000}
+            selectedStyle={{
+              backgroundColor: COLOR.primary,
+            }}
+            markerStyle={{
+              backgroundColor: COLOR.primary,
+              height: 20,
+              width: 20,
+            }}
+            trackStyle={{
+              height: 4,
+            }}
+          />
+          <View style={styles.priceLabelRow}>
+            <Text style={styles.priceLabel}>
+              ₹{priceRange[0].toLocaleString()}
+            </Text>
+            <Text style={styles.priceLabel}>
+              ₹{priceRange[1].toLocaleString()}
+            </Text>
+          </View>
         </View>
 
         {renderOptions(
@@ -269,5 +300,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     gap: 10,
+  },
+
+  priceLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  priceLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLOR.black,
   },
 });

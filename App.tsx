@@ -3,11 +3,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaView, StatusBar, StyleSheet, Text} from 'react-native';
 import MainNavigation from './src/navigators/MainNavigation';
 import {AuthProvider} from './src/Backend/AuthContent';
-import {LanguageProvider} from './src/localization/LanguageContext';
 
 const App = () => {
   return (
-    <LanguageProvider>
+    // <LanguageProvider>
       <AuthProvider>
         <SafeAreaView style={styles.safeArea}>
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -16,7 +15,7 @@ const App = () => {
           </NavigationContainer>
         </SafeAreaView>
       </AuthProvider>
-    </LanguageProvider>
+    {/* </LanguageProvider> */}
   );
 };
 
