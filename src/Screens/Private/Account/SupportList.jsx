@@ -73,6 +73,7 @@ const SupportList = ({navigation}) => {
       <CustomButton
         title={'Create Ticket'}
         onPress={() => navigation.navigate('CreateTicket')}
+        style={{marginBottom: 45}}
       />
     </View>
   );

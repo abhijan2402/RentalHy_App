@@ -19,10 +19,67 @@ const PostProperty = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
-  const [bedrooms, setBedrooms] = useState('');
-  const [bathrooms, setBathrooms] = useState('');
   const [area, setArea] = useState('');
   const [images, setImages] = useState([]);
+
+  // Filter-style selections
+  const [selectedBHK, setSelectedBHK] = useState('');
+  const [propertyType, setPropertyType] = useState('');
+  const [furnishing, setFurnishing] = useState('');
+  const [availability, setAvailability] = useState('');
+  const [bathrooms, setBathrooms] = useState('');
+  const [parking, setParking] = useState('');
+  const [facing, setFacing] = useState('');
+  const [advanceValue, setAdvanceValue] = useState('');
+  const [familyTypeValue, setFamilyTypeValue] = useState('');
+  const [landmark, setLandmark] = useState('');
+  // Options
+  const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
+  const propertyTypes = ['Apartment', 'Flat', 'Villa'];
+  const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
+  const availabilityOptions = ['Ready to Move', 'Under Construction'];
+  const bathroomOptions = ['1', '2', '3', '4+'];
+  const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
+  const advance = ['1 month', '2 months', '3 months+'];
+  const familyType = ['Family', 'Bachelors male', 'Bachelors female'];
+  const facingOptions = [
+    'North',
+    'East',
+    'West',
+    'South',
+    'North-East',
+    'South-East',
+    'North-West',
+    'South-West',
+  ];
+
+  const renderOptions = (label, options, selected, setSelected) => (
+    <>
+      <Text style={styles.label}>{label}</Text>
+      <ScrollView
+        showsHorizontalScrollIndicator={false}
+        horizontal
+        style={styles.optionRow}>
+        {options.map(option => (
+          <TouchableOpacity
+            key={option}
+            style={[
+              styles.optionButton,
+              selected === option && styles.optionSelected,
+            ]}
+            onPress={() => setSelected(option)}>
+            <Text
+              style={[
+                styles.optionText,
+                selected === option && styles.optionTextSelected,
+              ]}>
+              {option}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </>
+  );
 
   const pickImages = () => {
     ImagePicker.openPicker({
@@ -48,7 +105,26 @@ const PostProperty = ({navigation}) => {
       return;
     }
 
-    // API Call can go here
+    const propertyData = {
+      title,
+      description,
+      price,
+      location,
+      area,
+      BHK: selectedBHK,
+      propertyType,
+      furnishing,
+      availability,
+      bathrooms,
+      parking,
+      facing,
+      advanceValue,
+      familyTypeValue,
+      images,
+    };
+
+    console.log('Property Data:', propertyData);
+
     Alert.alert('Success', 'Your property has been posted successfully!');
     navigation.goBack();
   };
@@ -62,7 +138,7 @@ const PostProperty = ({navigation}) => {
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Title */}
+        {/* Basic Details */}
         <Text style={styles.label}>Property Title *</Text>
         <TextInput
           style={styles.input}
@@ -72,7 +148,6 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
         />
 
-        {/* Description */}
         <Text style={styles.label}>Description *</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
@@ -83,7 +158,6 @@ const PostProperty = ({navigation}) => {
           multiline
         />
 
-        {/* Price */}
         <Text style={styles.label}>Price *</Text>
         <TextInput
           style={styles.input}
@@ -94,7 +168,6 @@ const PostProperty = ({navigation}) => {
           keyboardType="numeric"
         />
 
-        {/* Location */}
         <Text style={styles.label}>Location *</Text>
         <TextInput
           style={styles.input}
@@ -104,30 +177,7 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
         />
 
-        {/* Bedrooms */}
-        <Text style={styles.label}>Bedrooms</Text>
-        <TextInput
-          style={styles.input}
-          value={bedrooms}
-          onChangeText={setBedrooms}
-          placeholder="Number of bedrooms"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="numeric"
-        />
-
-        {/* Bathrooms */}
-        <Text style={styles.label}>Bathrooms</Text>
-        <TextInput
-          style={styles.input}
-          value={bathrooms}
-          onChangeText={setBathrooms}
-          placeholder="Number of bathrooms"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="numeric"
-        />
-
-        {/* Area */}
-        <Text style={styles.label}>Area (sq ft)</Text>
+        <Text style={styles.label}>Area (sq ft) *</Text>
         <TextInput
           style={styles.input}
           value={area}
@@ -136,14 +186,57 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
           keyboardType="numeric"
         />
+        <Text style={styles.label}>landmark</Text>
+        <TextInput
+          style={styles.input}
+          value={landmark}
+          onChangeText={setLandmark}
+          placeholder="Enter landmark"
+          placeholderTextColor={COLOR.grey}
+        />
+
+        {/* Filter-style Selections */}
+        {renderOptions('BHK*', bhkOptions, selectedBHK, setSelectedBHK)}
+        {renderOptions(
+          'Property Type*',
+          propertyTypes,
+          propertyType,
+          setPropertyType,
+        )}
+        {renderOptions(
+          'Furnishing Status',
+          furnishingOptions,
+          furnishing,
+          setFurnishing,
+        )}
+        {renderOptions(
+          'Availability',
+          availabilityOptions,
+          availability,
+          setAvailability,
+        )}
+        {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms)}
+        {renderOptions(
+          'Parking Available',
+          parkingOptions,
+          parking,
+          setParking,
+        )}
+        {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
+        {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
+        {renderOptions(
+          'Preferred Tenant Type',
+          familyType,
+          familyTypeValue,
+          setFamilyTypeValue,
+        )}
 
         {/* Upload Images */}
-        <Text style={styles.label}>Property Images</Text>
+        <Text style={styles.label}>Property Images*</Text>
         <TouchableOpacity style={styles.uploadBtn} onPress={pickImages}>
           <Text style={styles.uploadText}>+ Add Images</Text>
         </TouchableOpacity>
 
-        {/* Images Preview */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {images.map((img, index) => (
             <View key={index} style={styles.imageWrapper}>
@@ -163,7 +256,11 @@ const PostProperty = ({navigation}) => {
         </ScrollView>
 
         {/* Post Button */}
-        <CustomButton title={'Post Property'} style={{marginTop: 20}} />
+        <CustomButton
+          title={'Post Property'}
+          style={{marginTop: 20}}
+          onPress={handlePostProperty}
+        />
       </ScrollView>
     </View>
   );
@@ -198,6 +295,29 @@ const styles = StyleSheet.create({
   textArea: {
     height: 100,
     textAlignVertical: 'top',
+  },
+  optionRow: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  optionButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: COLOR.grey,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  optionSelected: {
+    backgroundColor: COLOR.primary,
+    borderColor: COLOR.primary,
+  },
+  optionText: {
+    color: COLOR.black,
+    fontSize: 13,
+  },
+  optionTextSelected: {
+    color: COLOR.white,
   },
   uploadBtn: {
     borderWidth: 1,
@@ -234,17 +354,5 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     tintColor: COLOR.black,
-  },
-  postBtn: {
-    backgroundColor: COLOR.primary,
-    paddingVertical: 14,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  postBtnText: {
-    color: COLOR.white,
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
   },
 });

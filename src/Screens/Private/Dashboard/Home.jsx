@@ -238,6 +238,11 @@ const Home = ({navigation}) => {
 
   const [avaialbleFilter, setavaialbleFilter] = useState([
     {
+      id: 'price',
+      type: 'price',
+      data: [],
+    },
+    {
       id: 'bhkOptions',
       type: 'bhk',
       data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
@@ -275,7 +280,7 @@ const Home = ({navigation}) => {
     {
       id: 'familyType',
       type: 'family Type',
-      data: ['Family', 'Bachelors male', 'Bachelors female'],
+      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
     },
   ]);
 
@@ -286,7 +291,7 @@ const Home = ({navigation}) => {
   useEffect(() => {
     setTimeout(() => {
       setloader(false);
-    }, 3000);
+    }, 1000);
   }, []);
 
   return (
@@ -316,7 +321,42 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+      <View
+        style={{
+          borderWidth: 0.5,
+          borderColor: COLOR.lightGrey,
+          marginHorizontal: 20,
+          marginVertical: 8,
+          padding: 15,
+          paddingVertical: 10,
+          backgroundColor: COLOR.primary,
+          borderRadius: 15,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+        <Text
+          style={{
+            color: '#fff',
+            fontSize: 16,
+            // marginBottom: 10,
+            fontWeight: '500',
+          }}>
+          App Demo video{' '}
+        </Text>
 
+        <TouchableOpacity
+          onPress={() => {}} // blank onPress
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            paddingVertical: 8,
+            paddingHorizontal: 15,
+            borderRadius: 10,
+            alignSelf: 'flex-start',
+          }}>
+          <Text style={{color: '#fff', fontWeight: '600'}}>Click here</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.searchContainer}>
         <Image
           source={{

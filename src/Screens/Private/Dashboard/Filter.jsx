@@ -37,7 +37,7 @@ const Filter = ({navigation, route}) => {
   const bathroomOptions = ['1', '2', '3', '4+'];
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
   const advance = ['1 month', '2 months', '3 months+'];
-  const familyType = ['Family', 'Bachelors male', 'Bachelors female'];
+  const familyType = ['Family', 'Bachelors Male', 'Bachelors Female'];
 
   const facingOptions = [
     'North',
