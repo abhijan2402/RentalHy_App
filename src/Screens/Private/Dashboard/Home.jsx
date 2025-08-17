@@ -179,7 +179,7 @@ const Home = ({navigation}) => {
         'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
   ];
-
+  const animationRef = useRef();
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);
   const [multiFilter, setMultiFilter] = useState(false);
@@ -213,26 +213,7 @@ const Home = ({navigation}) => {
   const removeFilter = filter => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
-  const animationRef = useRef(null);
 
-  const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
-  const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -10, // move up 10px
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0, // move back down
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, []);
   const [attendedFilter, setAttendedFilter] = useState([]);
   const [sortVisible, setSortVisible] = useState(false);
 
@@ -452,41 +433,10 @@ const Home = ({navigation}) => {
           />
         </>
       )}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          bottom: 50,
-          right: 20,
-          opacity: fadeAnim,
-          transform: [{translateY: floatAnim}],
-        }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: COLOR.primary,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            borderRadius: 10,
-            elevation: 4,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-          onPress={() => navigation.navigate('PostProperty')}>
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/2163/2163350.png',
-            }}
-            style={{width: 25, height: 25}}
-          />
-          <Text
-            style={{
-              color: '#fff',
-              fontWeight: 'bold',
-              marginLeft: 10,
-            }}>
-            Post Property
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
+      <AnimatedButton
+        onPress={() => navigation.navigate('PostProperty')}
+        iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
+      />
       <MultiModal
         filterValueData={attendedFilter}
         visible={multiFilter}
@@ -508,6 +458,63 @@ const Home = ({navigation}) => {
 };
 
 export default Home;
+export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
+  const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
+  const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -10, // move up 10px
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0, // move back down
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        bottom: 50,
+        right: 20,
+        opacity: fadeAnim,
+        transform: [{translateY: floatAnim}],
+      }}>
+      <TouchableOpacity
+        style={{
+          backgroundColor: COLOR.primary,
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderRadius: 10,
+          elevation: 4,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+        onPress={onPress}>
+        <Image
+          source={{
+            uri: iconUrl,
+          }}
+          style={{width: 25, height: 25}}
+        />
+        <Text
+          style={{
+            color: '#fff',
+            fontWeight: 'bold',
+            marginLeft: 10,
+          }}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,

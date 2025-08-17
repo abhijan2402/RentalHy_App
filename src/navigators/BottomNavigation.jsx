@@ -7,8 +7,8 @@ import {LanguageContext} from '../localization/LanguageContext';
 import Home from '../Screens/Private/Dashboard/Home';
 import Account from '../Screens/Private/Account/Account';
 import {COLOR} from '../Constants/Colors';
-import Properties from '../Screens/Private/Properties';
 import Wishlist from '../Screens/Private/Wishlist';
+import Convention from '../Screens/Private/ConventionSection/Convention';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +18,7 @@ const BottomNavigation = () => {
 
   const icons = {
     [strings.home]: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
-    Properties: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
+    Convention: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
     Wishlist: 'https://cdn-icons-png.flaticon.com/128/833/833314.png',
     [strings.analytics]:
       'https://cdn-icons-png.flaticon.com/128/2099/2099058.png',
@@ -68,7 +68,7 @@ const BottomNavigation = () => {
         },
       })}>
       <Tab.Screen name={strings.home} component={Home} />
-      <Tab.Screen name={'Properties'} component={Properties} />
+      <Tab.Screen name={'Convention'} component={Convention} />
       <Tab.Screen name={'Wishlist'} component={Wishlist} />
       {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}
       <Tab.Screen name={'Profile'} component={Account} />
