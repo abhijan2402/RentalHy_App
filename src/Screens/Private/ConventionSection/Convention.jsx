@@ -198,7 +198,7 @@ const Convention = ({navigation}) => {
         <FarmHouse navigation={navigation} />
       )}
       <AnimatedButton
-        title="Create Space"
+        title="Upload a Hall/Farm"
         onPress={() => navigation.navigate('CreateConvention')}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
       />
