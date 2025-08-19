@@ -212,6 +212,20 @@ const SignUp = ({navigation}) => {
             </Text>
           </View>
 
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SupportList')} // or your query screen
+          >
+            <Text
+              style={{
+                color: COLOR.royalBlue,
+                fontSize: 13,
+                textAlign: 'center',
+                marginTop: 10,
+                textDecorationLine: 'underline',
+              }}>
+              Facing issues while signing up? Raise a ticket
+            </Text>
+          </TouchableOpacity>
           {/* OTP Modal */}
           <Modal visible={showOtpModal} transparent animationType="slide">
             <View style={styles.modalContainer}>

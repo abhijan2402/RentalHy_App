@@ -41,6 +41,18 @@ const Account = ({navigation}) => {
       navigate: 'PropertyAnalytics',
     },
     {
+      id: 8,
+      title: 'Convention Space Orders',
+      icon: 'https://cdn-icons-png.flaticon.com/128/9752/9752284.png',
+      navigate: 'SpaceOrders',
+    },
+    {
+      id: 9,
+      title: 'My Bookings',
+      icon: 'https://cdn-icons-png.flaticon.com/128/2460/2460875.png',
+      navigate: 'MyBooking',
+    },
+    {
       id: 3,
       title: 'Terms & Conditions',
       icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828940.png',

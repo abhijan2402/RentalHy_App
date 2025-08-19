@@ -7,8 +7,8 @@ import {LanguageContext} from '../localization/LanguageContext';
 import Home from '../Screens/Private/Dashboard/Home';
 import Account from '../Screens/Private/Account/Account';
 import {COLOR} from '../Constants/Colors';
-import Properties from '../Screens/Private/Properties';
 import Wishlist from '../Screens/Private/Wishlist';
+import Convention from '../Screens/Private/ConventionSection/Convention';
 
 const Tab = createBottomTabNavigator();
 

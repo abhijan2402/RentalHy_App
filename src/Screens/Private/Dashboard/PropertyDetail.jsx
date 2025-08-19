@@ -14,8 +14,9 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 
-const PropertyDetail = ({navigation}) => {
+const PropertyDetail = ({navigation, route}) => {
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const type = route?.params?.type;
 
   // Sample data
   const images = [
@@ -94,7 +95,7 @@ const PropertyDetail = ({navigation}) => {
 
           <Text style={styles.price}>{price}</Text>
 
-          {/* Highlighted Contact Details */}
+          {/* Contact Section */}
           <View style={styles.contactContainer}>
             <Text style={styles.contactTitle}>Contact Options</Text>
 
@@ -108,11 +109,14 @@ const PropertyDetail = ({navigation}) => {
               />
               <Text style={styles.phoneHighlighted}>{phoneNumber}</Text>
             </TouchableOpacity>
+          </View>
 
-            {/* Location */}
-            <TouchableOpacity
-              style={styles.locationRow}
-              onPress={handleLocation}>
+          {/* Location Section */}
+          <View style={styles.locationContainer}>
+            <Text style={styles.contactTitle}>Location</Text>
+
+            {/* Address */}
+            <View style={styles.locationRow}>
               <Image
                 source={{
                   uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
@@ -120,41 +124,24 @@ const PropertyDetail = ({navigation}) => {
                 style={styles.iconLarge}
               />
               <Text style={styles.locationHighlighted}>{location}</Text>
+            </View>
+
+            {/* Map Preview */}
+            <TouchableOpacity onPress={handleLocation} activeOpacity={0.8}>
+              <ImageBackground
+                source={{
+                  uri: 'https://media.wired.com/photos/59269cd37034dc5f91bec0f1/191:100/w_1280,c_limit/GoogleMapTA.jpg',
+                }}
+                blurRadius={3}
+                style={styles.mapPreview}>
+                <View style={styles.mapOverlay}>
+                  <Text style={styles.mapText}>
+                    📍 Click to open in Google Maps
+                  </Text>
+                </View>
+              </ImageBackground>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={handleLocation} activeOpacity={0.8}>
-            <ImageBackground
-              source={{
-                uri: 'https://media.wired.com/photos/59269cd37034dc5f91bec0f1/191:100/w_1280,c_limit/GoogleMapTA.jpg?mbid=social_retweet',
-              }}
-              blurRadius={5}
-              style={{
-                width: '100%',
-                height: 200,
-                borderRadius: 10,
-                overflow: 'hidden',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: 15,
-              }}>
-              <View
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.4)',
-                  paddingHorizontal: 15,
-                  paddingVertical: 8,
-                  borderRadius: 20,
-                }}>
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                  }}>
-                  📍 Click here to get directions
-                </Text>
-              </View>
-            </ImageBackground>
-          </TouchableOpacity>
 
           {/* Specifications */}
           <View style={styles.specsContainer}>
@@ -182,6 +169,15 @@ const PropertyDetail = ({navigation}) => {
             navigation.navigate('Chat');
           }}
         />
+        {type == 'convention' && (
+          <CustomButton
+            style={{marginTop: 20}}
+            title={'Book Now'}
+            onPress={() => {
+              navigation.navigate('Booking');
+            }}
+          />
+        )}
       </ScrollView>
     </View>
   );
@@ -234,6 +230,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  locationContainer: {
+    backgroundColor: '#f1f8ff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
+    elevation: 1,
+  },
   contactTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -251,7 +258,6 @@ const styles = StyleSheet.create({
     color: COLOR.black,
     fontWeight: '600',
     marginLeft: 8,
-    textDecorationLine: 'underline',
   },
   iconLarge: {
     width: 28,
@@ -291,5 +297,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
+  },
+  mapPreview: {
+    width: '100%',
+    height: 180,
+    borderRadius: 10,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  mapOverlay: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  mapText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

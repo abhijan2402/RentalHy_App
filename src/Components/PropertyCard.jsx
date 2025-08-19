@@ -33,6 +33,7 @@ const PropertyCard = ({item, toggleLike}) => {
 
       <Text style={styles.propertyName}>{item.name}</Text>
       <Text style={styles.propertyLocation}>{item.location}</Text>
+      <Text style={styles.propertyLocation}>Family </Text>
       <Text style={styles.propertyPrice}>{item.price}</Text>
     </TouchableOpacity>
   );

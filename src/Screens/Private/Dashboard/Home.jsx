@@ -179,7 +179,7 @@ const Home = ({navigation}) => {
         'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
   ];
-
+  const animationRef = useRef();
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);
   const [multiFilter, setMultiFilter] = useState(false);
@@ -213,30 +213,16 @@ const Home = ({navigation}) => {
   const removeFilter = filter => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
-  const animationRef = useRef(null);
 
-  const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
-  const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -10, // move up 10px
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0, // move back down
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, []);
   const [attendedFilter, setAttendedFilter] = useState([]);
   const [sortVisible, setSortVisible] = useState(false);
 
   const [avaialbleFilter, setavaialbleFilter] = useState([
+    {
+      id: 'price',
+      type: 'price',
+      data: [],
+    },
     {
       id: 'bhkOptions',
       type: 'bhk',
@@ -275,7 +261,7 @@ const Home = ({navigation}) => {
     {
       id: 'familyType',
       type: 'family Type',
-      data: ['Family', 'Bachelors male', 'Bachelors female'],
+      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
     },
   ]);
 
@@ -286,7 +272,7 @@ const Home = ({navigation}) => {
   useEffect(() => {
     setTimeout(() => {
       setloader(false);
-    }, 3000);
+    }, 1000);
   }, []);
 
   return (
@@ -316,7 +302,42 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+      <View
+        style={{
+          borderWidth: 0.5,
+          borderColor: COLOR.lightGrey,
+          marginHorizontal: 20,
+          marginVertical: 8,
+          padding: 15,
+          paddingVertical: 10,
+          backgroundColor: COLOR.primary,
+          borderRadius: 15,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+        <Text
+          style={{
+            color: '#fff',
+            fontSize: 16,
+            // marginBottom: 10,
+            fontWeight: '500',
+          }}>
+          App Demo video{' '}
+        </Text>
 
+        <TouchableOpacity
+          onPress={() => {}} // blank onPress
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            paddingVertical: 8,
+            paddingHorizontal: 15,
+            borderRadius: 10,
+            alignSelf: 'flex-start',
+          }}>
+          <Text style={{color: '#fff', fontWeight: '600'}}>Click here</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -412,41 +433,10 @@ const Home = ({navigation}) => {
           />
         </>
       )}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          bottom: 50,
-          right: 20,
-          opacity: fadeAnim,
-          transform: [{translateY: floatAnim}],
-        }}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: COLOR.primary,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            borderRadius: 10,
-            elevation: 4,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-          onPress={() => navigation.navigate('PostProperty')}>
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/2163/2163350.png',
-            }}
-            style={{width: 25, height: 25}}
-          />
-          <Text
-            style={{
-              color: '#fff',
-              fontWeight: 'bold',
-              marginLeft: 10,
-            }}>
-            Post Property
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
+      <AnimatedButton
+        onPress={() => navigation.navigate('PostProperty')}
+        iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
+      />
       <MultiModal
         filterValueData={attendedFilter}
         visible={multiFilter}
@@ -468,6 +458,63 @@ const Home = ({navigation}) => {
 };
 
 export default Home;
+export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
+  const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
+  const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -10, // move up 10px
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0, // move back down
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+  return (
+    <Animated.View
+      style={{
+        position: 'absolute',
+        bottom: 50,
+        right: 20,
+        opacity: fadeAnim,
+        transform: [{translateY: floatAnim}],
+      }}>
+      <TouchableOpacity
+        style={{
+          backgroundColor: COLOR.primary,
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderRadius: 10,
+          elevation: 4,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+        onPress={onPress}>
+        <Image
+          source={{
+            uri: iconUrl,
+          }}
+          style={{width: 25, height: 25}}
+        />
+        <Text
+          style={{
+            color: '#fff',
+            fontWeight: 'bold',
+            marginLeft: 10,
+          }}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,

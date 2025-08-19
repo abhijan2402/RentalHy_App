@@ -21,7 +21,7 @@ import {AuthContext} from '../../Backend/AuthContent';
 import {useApi} from '../../Backend/Api';
 import {useToast} from '../../Constants/ToastContext';
 import Header from '../../Components/FeedHeader';
-import {windowHeight} from '../../Constants/Dimensions';
+import {windowHeight, windowWidth} from '../../Constants/Dimensions';
 
 const {height, width} = Dimensions.get('window');
 
@@ -109,15 +109,13 @@ const Login = ({navigation}) => {
           /> */}
           <Image
             style={{
-              width: 200,
+              width: windowWidth,
               height: 200,
               alignSelf: 'center',
               marginBottom: windowHeight / 9,
               marginTop: windowHeight * 0.08,
             }}
-            source={{
-              uri: 'https://play-lh.googleusercontent.com/f7Vn1B4R8Nmjk8XOP2QjO_6Rx3n2KyX6vdYjhYn33DaYQgOTCl8HhxUPHQiQA5eVCg',
-            }}
+            source={{uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg'}}
           />
           <Text
             style={{
