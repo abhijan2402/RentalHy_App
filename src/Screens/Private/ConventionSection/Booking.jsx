@@ -7,6 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import React, {useState} from 'react';
+import {Calendar} from 'react-native-calendars';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
@@ -18,44 +19,14 @@ const Booking = ({navigation}) => {
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
   const [attendees, setAttendees] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
   const [dayTime, setDayTime] = useState('both');
   const [catering, setCatering] = useState('no');
   const [chef, setChef] = useState('no');
   const [decorations, setDecorations] = useState('no');
   const [groceries, setGroceries] = useState('no');
 
-  // Months from current to December
-  const currentMonthIndex = new Date().getMonth();
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ].slice(currentMonthIndex);
-
-  // Dummy dates
-  const dates = Array.from({length: 31}, (_, i) => (i + 1).toString());
-
-  // Dummy times
-  const times = [
-    '10:00 - 11:00',
-    '11:00 - 12:00',
-    '12:00 - 01:00',
-    '01:00 - 02:00',
-    '02:00 - 03:00',
-    '03:00 - 04:00',
-  ];
+  const today = new Date().toISOString().split('T')[0]; // today's date in YYYY-MM-DD
 
   const handleBooking = () => {
     if (
@@ -64,9 +35,7 @@ const Booking = ({navigation}) => {
       !address ||
       !pincode ||
       !attendees ||
-      !selectedMonth ||
-      !selectedDate ||
-      !selectedTime
+      !selectedDate
     ) {
       alert('Please fill all required fields!');
       return;
@@ -79,9 +48,7 @@ Alt Mobile: ${altMobile || 'N/A'}
 Address: ${address}
 Pincode: ${pincode}
 Attendees: ${attendees}
-Month: ${selectedMonth}
 Date: ${selectedDate}
-Time: ${selectedTime}
 Event Time: ${dayTime.toUpperCase()}
 Catering: ${catering.toUpperCase()}
 Chef: ${chef.toUpperCase()}
@@ -184,84 +151,28 @@ Groceries: ${groceries.toUpperCase()}
           </ScrollView>
         </View>
 
-        {/* Month */}
+        {/* Calendar Date Picker */}
         <View style={styles.section}>
-          <Text style={styles.label}>Select Month</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {months.map(m => (
-              <TouchableOpacity
-                key={m}
-                style={[
-                  styles.dateBox,
-                  selectedMonth === m && styles.selectedBox,
-                ]}
-                onPress={() => {
-                  setSelectedMonth(m);
-                  setSelectedDate(null);
-                }}>
-                <Text
-                  style={[
-                    styles.dateText,
-                    selectedMonth === m && styles.selectedText,
-                  ]}>
-                  {m}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          <Text style={styles.label}>Select Booking Date</Text>
+          <Calendar
+            minDate={today}
+            onDayPress={day => {
+              setSelectedDate(day.dateString);
+            }}
+            markedDates={{
+              [selectedDate]: {
+                selected: true,
+                marked: true,
+                selectedColor: COLOR.primary || '#007AFF',
+              },
+            }}
+            theme={{
+              todayTextColor: COLOR.primary || '#007AFF',
+              selectedDayBackgroundColor: COLOR.primary || '#007AFF',
+              arrowColor: COLOR.primary || '#007AFF',
+            }}
+          />
         </View>
-
-        {/* Date */}
-        {selectedMonth && (
-          <View style={styles.section}>
-            <Text style={styles.label}>Select Date</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {dates.map(d => (
-                <TouchableOpacity
-                  key={d}
-                  style={[
-                    styles.dateBox,
-                    selectedDate === d && styles.selectedBox,
-                  ]}
-                  onPress={() => setSelectedDate(d)}>
-                  <Text
-                    style={[
-                      styles.dateText,
-                      selectedDate === d && styles.selectedText,
-                    ]}>
-                    {d}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-
-        {/* Time */}
-        {selectedDate && (
-          <View style={styles.section}>
-            <Text style={styles.label}>Select Time</Text>
-            <View style={styles.timeContainer}>
-              {times.map(t => (
-                <TouchableOpacity
-                  key={t}
-                  style={[
-                    styles.timeBox,
-                    selectedTime === t && styles.selectedBox,
-                  ]}
-                  onPress={() => setSelectedTime(t)}>
-                  <Text
-                    style={[
-                      styles.timeText,
-                      selectedTime === t && styles.selectedText,
-                    ]}>
-                    {t}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
 
         {/* Event Time Filter */}
         <View style={styles.section}>
@@ -413,18 +324,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
   },
   dateText: {fontSize: 14, color: '#333'},
-  timeContainer: {flexDirection: 'row', flexWrap: 'wrap'},
-  timeBox: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#f9f9f9',
-    marginRight: 10,
-    marginBottom: 10,
-  },
-  timeText: {fontSize: 14, color: '#333'},
   selectedBox: {
     backgroundColor: COLOR.primary || '#007AFF',
     borderColor: COLOR.primary || '#007AFF',
@@ -432,7 +331,6 @@ const styles = StyleSheet.create({
   selectedText: {color: '#fff', fontWeight: '600'},
   toggleRow: {flexDirection: 'row', marginTop: 10},
   toggleBtn: {
-    // flex: 1,
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderWidth: 1,

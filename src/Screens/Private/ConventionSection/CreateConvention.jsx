@@ -12,6 +12,7 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
 import CustomButton from '../../../Components/CustomButton';
+import {Calendar} from 'react-native-calendars';
 
 const getYears = () => {
   const currentYear = new Date().getFullYear();
@@ -104,7 +105,23 @@ const CreateConvention = ({navigation}) => {
   const [kitchenSetup, setKitchenSetup] = useState(false);
   const [area, setArea] = useState(null);
   const years = getYears();
+  const [unavailableDates, setUnavailableDates] = useState({});
 
+  const toggleDate = day => {
+    const date = day.dateString;
+    setUnavailableDates(prev => {
+      const newDates = {...prev};
+      if (newDates[date]) {
+        delete newDates[date]; // unselect if already selected
+      } else {
+        newDates[date] = {
+          selected: true,
+          selectedColor: 'red',
+        };
+      }
+      return newDates;
+    });
+  };
   const pickImages = setter => {
     ImagePicker.openPicker({
       multiple: true,
@@ -508,87 +525,17 @@ const CreateConvention = ({navigation}) => {
 
         {/* Availability Slot */}
         <View style={styles.section}>
-          <Text style={styles.label}>Add Availability Slot</Text>
-          {/* Year */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {years.map(y => (
-              <TouchableOpacity
-                key={y}
-                style={[
-                  styles.dateBox,
-                  selectedYear === y && styles.selectedBox,
-                ]}
-                onPress={() => {
-                  setSelectedYear(y);
-                  setSelectedMonth(null);
-                  setSelectedDate(null);
-                }}>
-                <Text
-                  style={[
-                    styles.dateText,
-                    selectedYear === y && styles.selectedText,
-                  ]}>
-                  {y}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-          {/* Month */}
-          {selectedYear && (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {months.map(m => (
-                <TouchableOpacity
-                  key={m}
-                  style={[
-                    styles.dateBox,
-                    selectedMonth === m && styles.selectedBox,
-                  ]}
-                  onPress={() => {
-                    setSelectedMonth(m);
-                    setSelectedDate(null);
-                  }}>
-                  <Text
-                    style={[
-                      styles.dateText,
-                      selectedMonth === m && styles.selectedText,
-                    ]}>
-                    {m}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
-          {/* Date */}
-          {selectedMonth && (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {Array.from({length: 31}, (_, i) => i + 1).map(d => (
-                <TouchableOpacity
-                  key={d}
-                  style={[
-                    styles.dateBox,
-                    selectedDate === d && styles.selectedBox,
-                  ]}
-                  onPress={() => setSelectedDate(d)}>
-                  <Text
-                    style={[
-                      styles.dateText,
-                      selectedDate === d && styles.selectedText,
-                    ]}>
-                    {d}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
-          <CustomButton title="Add Slot" onPress={addSlot} />
-          {slots.length > 0 && (
-            <View style={{marginTop: 10}}>
-              <Text>Selected Slots:</Text>
-              {slots.map((s, i) => (
-                <Text key={i}>{s}</Text>
-              ))}
-            </View>
-          )}
+          {/* <View style={styles.section}> */}
+          <Text style={styles.label}>Mark Unavailable Dates</Text>
+          <Calendar
+            onDayPress={toggleDate}
+            markedDates={unavailableDates}
+            markingType={'multi-dot'}
+          />
+          <Text style={styles.note}>
+            Note: Please select only those dates on which your hall is NOT
+            available for booking. All other dates will be considered available.
+          </Text>
         </View>
         {/* Post Space */}
         <CustomButton title="Post Hall" onPress={postSpace} />
