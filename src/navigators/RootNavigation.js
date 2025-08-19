@@ -15,6 +15,8 @@ import Booking from '../Screens/Private/ConventionSection/Booking';
 import CreateConvention from '../Screens/Private/ConventionSection/CreateConvention';
 import SpaceOrders from '../Screens/Private/ConventionSection/SpaceOrders';
 import MyBooking from '../Screens/Private/ConventionSection/MyBooking';
+import ConventionFilter from '../Screens/Private/Dashboard/ConventionFilter';
+import ConventionMainFilter from '../Screens/Private/Dashboard/ConventionMainFilter';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -40,6 +42,8 @@ const RootNavigation = () => {
                 <Stack.Screen name="CreateConvention" component={CreateConvention} />
                 <Stack.Screen name="SpaceOrders" component={SpaceOrders} />
                 <Stack.Screen name="MyBooking" component={MyBooking} />
+                <Stack.Screen name="ConventionFilter" component={ConventionFilter} />
+                <Stack.Screen name="ConventionMainFilter" component={ConventionMainFilter} />
 
 
             </Stack.Navigator>

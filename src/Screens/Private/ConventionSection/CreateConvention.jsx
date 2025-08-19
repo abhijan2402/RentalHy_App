@@ -55,6 +55,12 @@ const CreateConvention = ({navigation}) => {
     'Meeting <250',
     'Meeting >250',
     'Corporate Outing/Meeting',
+    'Any Other',
+  ];
+  const priceOptionsFarm = [
+    'Day Visit',
+    'For Occasion',
+    'Each Extra Room Charges',
   ];
   const [prices, setPrices] = useState({});
 
@@ -76,13 +82,27 @@ const CreateConvention = ({navigation}) => {
   const [normalWater, setNormalWater] = useState('no');
   const [drinkingWater, setDrinkingWater] = useState('no');
   const [catering, setCatering] = useState('no');
-
+  const [PhotographersReq, setPhotographersReq] = useState('no');
+  const [acAvailable, setAcAvailable] = useState('no');
   // Availability Slots
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [slots, setSlots] = useState([]);
 
+  const [swimmingPool, setSwimmingPool] = useState(false);
+  const [foodAvailable, setFoodAvailable] = useState(false);
+  const [foodDescription, setFoodDescription] = useState('');
+  const [outsideFood, setOutsideFood] = useState(false);
+  const [cctv, setCctv] = useState(false);
+  const [soundSystem, setSoundSystem] = useState(false);
+  const [soundSystemAllowed, setSoundSystemAllowed] = useState(false);
+  const [childrenGames, setChildrenGames] = useState(false);
+  const [childrenGamesDesc, setChildrenGamesDesc] = useState('');
+  const [adultGames, setAdultGames] = useState(false);
+  const [adultGamesDesc, setAdultGamesDesc] = useState('');
+  const [kitchenSetup, setKitchenSetup] = useState(false);
+  const [area, setArea] = useState(null);
   const years = getYears();
 
   const pickImages = setter => {
@@ -194,7 +214,7 @@ const CreateConvention = ({navigation}) => {
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
-        title="Create Space"
+        title="Upload Hall"
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -231,9 +251,25 @@ const CreateConvention = ({navigation}) => {
           ))}
         </View>
         {/* Images */}
-        {renderImagePicker('Hall Images', hallImages, setHallImages)}
-        {renderImagePicker('Kitchen Images', kitchenImages, setKitchenImages)}
-        {renderImagePicker('Parking Images', parkingImages, setParkingImages)}
+        {renderImagePicker(
+          `${uploadType == 'Farm House' ? 'Upload Images' : 'Hall Images'}`,
+          hallImages,
+          setHallImages,
+        )}
+        {uploadType !== 'Farm House' && (
+          <>
+            {renderImagePicker(
+              'Kitchen Images',
+              kitchenImages,
+              setKitchenImages,
+            )}
+            {renderImagePicker(
+              'Parking Images',
+              parkingImages,
+              setParkingImages,
+            )}
+          </>
+        )}
 
         {/* Title & Description */}
         <View style={styles.section}>
@@ -255,102 +291,220 @@ const CreateConvention = ({navigation}) => {
             placeholder="Enter description"
           />
         </View>
-
         {/* Price Options */}
         <View style={styles.section}>
           <Text style={styles.label}>Price Options</Text>
-          {priceOptions.map(opt => (
-            <View
-              key={opt}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 8,
-              }}>
-              <Text style={{flex: 1}}>{opt}</Text>
+          {uploadType == 'Farm House'
+            ? priceOptionsFarm.map(opt => (
+                <View
+                  key={opt}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}>
+                  <Text style={{flex: 1}}>{opt}</Text>
+                  <TextInput
+                    style={[styles.input, {flex: 1}]}
+                    placeholder="Enter Price"
+                    keyboardType="numeric"
+                    value={prices[opt] || ''}
+                    onChangeText={val => setPrices({...prices, [opt]: val})}
+                  />
+                </View>
+              ))
+            : priceOptions.map(opt => (
+                <View
+                  key={opt}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}>
+                  <Text style={{flex: 1}}>{opt}</Text>
+                  <TextInput
+                    style={[styles.input, {flex: 1}]}
+                    placeholder="Enter Price"
+                    keyboardType="numeric"
+                    value={prices[opt] || ''}
+                    onChangeText={val => setPrices({...prices, [opt]: val})}
+                  />
+                </View>
+              ))}
+        </View>
+        {uploadType == 'Farm House' && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Room Available *</Text>
+            <TextInput
+              style={styles.input}
+              value={capacity}
+              keyboardType="numeric"
+              onChangeText={setCapacity}
+              placeholder="Enter Capacity"
+            />
+          </View>
+        )}
+        {uploadType != 'Farm House' && (
+          <>
+            <View style={styles.section}>
+              <Text style={styles.label}>Seating Capacity *</Text>
               <TextInput
-                style={[styles.input, {flex: 1}]}
-                placeholder="Enter Price"
+                style={styles.input}
+                value={capacity}
                 keyboardType="numeric"
-                value={prices[opt] || ''}
-                onChangeText={val => setPrices({...prices, [opt]: val})}
+                onChangeText={setCapacity}
+                placeholder="Enter Capacity"
               />
             </View>
-          ))}
-        </View>
+            {renderToggle('Ac Available', acAvailable, setAcAvailable)}
+            {/* Parking */}
 
-        {/* Seating Capacity */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Seating Capacity: {capacity}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {Array.from({length: 20}, (_, i) => 50 + i * 100).map(num => (
-              <TouchableOpacity
-                key={num}
-                style={[styles.dateBox, capacity === num && styles.selectedBox]}
-                onPress={() => setCapacity(num)}>
-                <Text
-                  style={[
-                    styles.dateText,
-                    capacity === num && styles.selectedText,
-                  ]}>
-                  {num}+
+            {/* Facilities */}
+            {renderToggle(
+              'Royalty for Decoration',
+              royaltyDecoration,
+              setRoyaltyDecoration,
+              true,
+              decorationContact,
+              setDecorationContact,
+            )}
+            {renderToggle(
+              'Royalty for Kitchen',
+              royaltyKitchen,
+              setRoyaltyKitchen,
+            )}
+            {renderToggle('Generator Available', generator, setGenerator)}
+            {renderToggle(
+              'Normal Water for Cooking',
+              normalWater,
+              setNormalWater,
+            )}
+            {renderToggle(
+              'Drinking Water Available',
+              drinkingWater,
+              setDrinkingWater,
+            )}
+            {renderToggle('Provides Catering Persons', catering, setCatering)}
+            {renderToggle(
+              'Photographers Required',
+              PhotographersReq,
+              setPhotographersReq,
+            )}
+          </>
+        )}
+
+        {uploadType == 'Farm House' && (
+          <>
+            {renderToggle('Swimming Pool', swimmingPool, setSwimmingPool)}
+
+            {renderToggle('Food Available', foodAvailable, setFoodAvailable)}
+            {foodAvailable && (
+              <View style={styles.section}>
+                <Text style={styles.label}>
+                  Mention if any (Tiffins, Lunch, Snacks, Dinner)
                 </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+                <TextInput
+                  style={styles.input}
+                  value={foodDescription}
+                  onChangeText={setFoodDescription}
+                  placeholder="Food Available"
+                />
+              </View>
+            )}
 
-        {/* Parking */}
+            {renderToggle('Outside Food Allowed', outsideFood, setOutsideFood)}
+
+            {renderToggle('CCTV Available', cctv, setCctv)}
+
+            {renderToggle(
+              'Sound System Available',
+              soundSystem,
+              setSoundSystem,
+            )}
+
+            {renderToggle(
+              'Sound System Allowed',
+              soundSystemAllowed,
+              setSoundSystemAllowed,
+            )}
+
+            {renderToggle('Children Games', childrenGames, setChildrenGames)}
+            {childrenGames && (
+              <View style={styles.section}>
+                <Text style={styles.label}>
+                  Mention if any (Children Games)
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  value={childrenGamesDesc}
+                  onChangeText={setChildrenGamesDesc}
+                  placeholder="Children Games"
+                />
+              </View>
+            )}
+            {renderToggle('Adult Games', adultGames, setAdultGames)}
+            {adultGames && (
+              <View style={styles.section}>
+                <Text style={styles.label}>Mention if any (Adult Games)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={adultGamesDesc}
+                  onChangeText={setAdultGamesDesc}
+                  placeholder="Adult Games"
+                />
+              </View>
+            )}
+
+            {renderToggle(
+              'Kitchen Setup with all Materials',
+              kitchenSetup,
+              setKitchenSetup,
+            )}
+            <View style={styles.section}>
+              <Text style={styles.label}>Area (in sq. fts)</Text>
+              <TextInput
+                style={styles.input}
+                value={area}
+                onChangeText={setArea}
+                placeholder="Enter Area"
+              />
+            </View>
+          </>
+        )}
         {renderToggle(
           'Parking Available',
           parkingAvailable,
           setParkingAvailable,
         )}
+
         {parkingAvailable === 'yes' && (
           <>
-            <TextInput
-              style={styles.input}
-              value={cars}
-              onChangeText={setCars}
-              keyboardType="numeric"
-              placeholder="Cars"
-            />
-            <TextInput
-              style={styles.input}
-              value={bikes}
-              onChangeText={setBikes}
-              keyboardType="numeric"
-              placeholder="Bikes"
-            />
-            <TextInput
-              style={styles.input}
-              value={buses}
-              onChangeText={setBuses}
-              keyboardType="numeric"
-              placeholder="Buses"
-            />
+            <View style={{marginHorizontal: 20}}>
+              <TextInput
+                style={styles.input}
+                value={cars}
+                onChangeText={setCars}
+                keyboardType="numeric"
+                placeholder="Cars"
+              />
+              <TextInput
+                style={styles.input}
+                value={bikes}
+                onChangeText={setBikes}
+                keyboardType="numeric"
+                placeholder="Bikes"
+              />
+              <TextInput
+                style={styles.input}
+                value={buses}
+                onChangeText={setBuses}
+                keyboardType="numeric"
+                placeholder="Buses"
+              />
+            </View>
             {renderToggle('Valet Parking Available', valet, setValet)}
           </>
         )}
-
-        {/* Facilities */}
-        {renderToggle(
-          'Royalty for Decoration',
-          royaltyDecoration,
-          setRoyaltyDecoration,
-          true,
-          decorationContact,
-          setDecorationContact,
-        )}
-        {renderToggle('Royalty for Kitchen', royaltyKitchen, setRoyaltyKitchen)}
-        {renderToggle('Generator Available', generator, setGenerator)}
-        {renderToggle('Normal Water for Cooking', normalWater, setNormalWater)}
-        {renderToggle(
-          'Drinking Water Available',
-          drinkingWater,
-          setDrinkingWater,
-        )}
-        {renderToggle('Provides Catering Persons', catering, setCatering)}
 
         {/* Availability Slot */}
         <View style={styles.section}>
@@ -436,9 +590,8 @@ const CreateConvention = ({navigation}) => {
             </View>
           )}
         </View>
-
         {/* Post Space */}
-        <CustomButton title="Post Space" onPress={postSpace} />
+        <CustomButton title="Post Hall" onPress={postSpace} />
       </ScrollView>
     </View>
   );

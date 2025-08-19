@@ -5,11 +5,14 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  StatusBar,
+  TextInput,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {AnimatedButton} from '../Dashboard/Home';
+import SortModal from '../../../Components/SortModal';
 
 // ---------------- Tab Button Component ----------------
 const TabButton = ({title, isActive, onPress}) => {
@@ -71,7 +74,7 @@ const HallCard = ({
 };
 
 // ---------------- Convention Hall Component ----------------
-const ConventionHall = ({navigation}) => {
+const ConventionHall = ({navigation, onPressSort, onPressFilter}) => {
   const halls = [
     {
       id: 1,
@@ -100,6 +103,38 @@ const ConventionHall = ({navigation}) => {
 
   return (
     <ScrollView style={styles.content}>
+      <View style={styles.searchContainer}>
+        <Image
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/128/622/622669.png',
+          }}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          placeholder="Search Convention Halls or Location"
+          style={styles.searchInput}
+          placeholderTextColor={COLOR.grey}
+        />
+        <TouchableOpacity onPress={onPressSort}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/4662/4662255.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPressFilter}>
+          {/* // () =>
+            // navigation.navigate('Filter', {onApplyFilter: handleFilterChange}) */}
+
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
+      </View>
       {halls.map(hall => (
         <HallCard
           key={hall.id}
@@ -111,7 +146,9 @@ const ConventionHall = ({navigation}) => {
           price={hall.price}
           priceType={hall.priceType}
           ac={hall.ac}
-          onPress={() => navigation.navigate('PropertyDetail')}
+          onPress={() =>
+            navigation.navigate('PropertyDetail', {type: 'convention'})
+          }
           onBook={() => navigation.navigate('Booking')}
         />
       ))}
@@ -120,7 +157,7 @@ const ConventionHall = ({navigation}) => {
 };
 
 // ---------------- Farm House Component ----------------
-const FarmHouse = ({navigation}) => {
+const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
   const farms = [
     {
       id: 1,
@@ -150,6 +187,39 @@ const FarmHouse = ({navigation}) => {
 
   return (
     <ScrollView style={styles.content}>
+      <View style={styles.searchContainer}>
+        <Image
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/128/622/622669.png',
+          }}
+          style={styles.searchIcon}
+        />
+        <TextInput
+          placeholder="Search Farm Houses or Location"
+          style={styles.searchInput}
+          placeholderTextColor={COLOR.grey}
+        />
+        <TouchableOpacity onPress={onPressSort}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/4662/4662255.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          // onPress={() =>
+          //   navigation.navigate('Filter', {onApplyFilter: handleFilterChange})
+          // }
+          onPress={onPressFilter}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
+      </View>
       {farms.map(farm => (
         <HallCard
           key={farm.id}
@@ -162,7 +232,9 @@ const FarmHouse = ({navigation}) => {
           priceType={farm.priceType}
           ac={farm.ac}
           onBook={() => navigation.navigate('Booking')}
-          onPress={() => navigation.navigate('PropertyDetail')}
+          onPress={() =>
+            navigation.navigate('PropertyDetail', {type: 'convention'})
+          }
         />
       ))}
     </ScrollView>
@@ -172,11 +244,49 @@ const FarmHouse = ({navigation}) => {
 // ---------------- Main Convention Screen ----------------
 const Convention = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('convention'); // default tab
-
+  const [sortVisible, setSortVisible] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState([
+    'Family',
+    '2 BHK',
+    'Jaipur',
+  ]); // demo filters
+  const handleFilterChange = newFilters => {
+    console.log('Applied Filters:', newFilters);
+    setAppliedFilters(newFilters);
+  };
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
-      <Header title={'Convention Space'} />
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#fff',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+      }}>
+      {/* <Header title={'Convention Space'} /> */}
+      <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.locationContainer}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/1865/1865269.png',
+            }}
+            style={styles.locationIcon}
+          />
+          <View>
+            <Text style={styles.locationCity}>Jaipur</Text>
+            <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
+          </View>
+        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <Image
+            source={{
+              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?w=100',
+            }}
+            style={styles.profileIcon}
+          />
+        </TouchableOpacity>
+      </View>
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TabButton
@@ -193,14 +303,39 @@ const Convention = ({navigation}) => {
 
       {/* Render Components */}
       {activeTab === 'convention' ? (
-        <ConventionHall navigation={navigation} />
+        <ConventionHall
+          navigation={navigation}
+          onPressSort={() => {
+            setSortVisible(true);
+          }}
+          onPressFilter={() =>
+            navigation.navigate('ConventionMainFilter', {
+              onApplyFilter: handleFilterChange,
+            })
+          }
+        />
       ) : (
-        <FarmHouse navigation={navigation} />
+        <FarmHouse
+          navigation={navigation}
+          onPressSort={() => setSortVisible(true)}
+          onPressFilter={() => {
+            navigation.navigate('ConventionFilter', {
+              onApplyFilter: handleFilterChange,
+            });
+          }}
+        />
       )}
       <AnimatedButton
         title="Upload a Hall/Farm"
         onPress={() => navigation.navigate('CreateConvention')}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
+      />
+      <SortModal
+        visible={sortVisible}
+        onClose={() => setSortVisible(false)}
+        onSelectSort={sortType => {
+          console.log('Selected Sort:', sortType);
+        }}
       />
     </View>
   );
@@ -213,6 +348,7 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
+
     borderColor: '#ddd',
   },
   tab: {
@@ -300,4 +436,62 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: COLOR.white,
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLOR.lightGrey,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  locationIcon: {
+    width: 22,
+    height: 22,
+    marginRight: 8,
+  },
+  locationCity: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLOR.black,
+  },
+  locationAddress: {
+    fontSize: 12,
+    color: COLOR.grey,
+  },
+  profileIcon: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+  },
+
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // margin: 12,
+    marginVertical: 10,
+    backgroundColor: COLOR.white,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    paddingVertical: 8,
+    // marginHorizontal: 20,
+  },
+  searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
+  searchInput: {
+    flex: 1,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: COLOR.black,
+  },
+  filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
 });
