@@ -13,7 +13,8 @@ import CustomButton from '../../../Components/CustomButton';
 import {AuthContext} from '../../../Backend/AuthContent';
 
 const Account = ({navigation}) => {
-  const {setUser} = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
+  const { user  } =  useContext(AuthContext);
 
   const profileImage =
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'; // default profile icon
@@ -75,9 +76,9 @@ const Account = ({navigation}) => {
       <ScrollView contentContainerStyle={{paddingBottom: 20}}>
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <Image source={{uri: profileImage}} style={styles.profileImage} />
-          <Text style={styles.profileName}>John Doe</Text>
-          <Text style={styles.profileEmail}>john@example.com</Text>
+          <Image source={{uri: user?.image || profileImage}} style={styles.profileImage} />
+          <Text style={styles.profileName}>{user?.name}</Text>
+          <Text style={styles.profileEmail}>{user?.email}</Text>
         </View>
 
         {/* Tabs */}
@@ -100,7 +101,7 @@ const Account = ({navigation}) => {
           title={'Log Out'}
           style={{marginTop: '10%'}}
           onPress={() => {
-            setUser('ABCC');
+            setUser('');
           }}
         />
       </ScrollView>

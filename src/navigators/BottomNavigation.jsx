@@ -13,15 +13,15 @@ import Wishlist from '../Screens/Private/Wishlist';
 const Tab = createBottomTabNavigator();
 
 const BottomNavigation = () => {
-  const {strings} = useContext(LanguageContext);
+  // const {strings} = useContext(LanguageContext);
   const insets = useSafeAreaInsets();
 
   const icons = {
-    [strings.home]: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
+    Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
     Properties: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
     Wishlist: 'https://cdn-icons-png.flaticon.com/128/833/833314.png',
-    [strings.analytics]:
-      'https://cdn-icons-png.flaticon.com/128/2099/2099058.png',
+    // [strings.analytics]:
+    //   'https://cdn-icons-png.flaticon.com/128/2099/2099058.png',
     Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
   };
 
@@ -67,7 +67,7 @@ const BottomNavigation = () => {
           );
         },
       })}>
-      <Tab.Screen name={strings.home} component={Home} />
+      <Tab.Screen name={'Home'} component={Home} />
       <Tab.Screen name={'Properties'} component={Properties} />
       <Tab.Screen name={'Wishlist'} component={Wishlist} />
       {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}

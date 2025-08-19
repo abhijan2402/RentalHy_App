@@ -15,7 +15,7 @@ const App = () => {
           </NavigationContainer>
         </SafeAreaView>
       </AuthProvider>
-    {/* </LanguageProvider> */}
+    // {/* </LanguageProvider> */}
   );
 };
 

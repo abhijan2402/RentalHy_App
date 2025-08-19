@@ -15,6 +15,7 @@ const MainNavigation = () => {
 
   const {user, loading} = auth;
 
+
   if (loading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -26,7 +27,7 @@ const MainNavigation = () => {
   return (
     <View style={{flex: 1}}>
       <ToastProvider>
-        {!user ? <RootNavigation /> : <AuthStack />}
+        {user ? <RootNavigation /> : <AuthStack />}
       </ToastProvider>
     </View>
   );
