@@ -18,7 +18,7 @@ const BottomNavigation = () => {
 
   const icons = {
     Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
-    Properties: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
+    Convention: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
     Wishlist: 'https://cdn-icons-png.flaticon.com/128/833/833314.png',
     // [strings.analytics]:
     //   'https://cdn-icons-png.flaticon.com/128/2099/2099058.png',
@@ -68,7 +68,7 @@ const BottomNavigation = () => {
         },
       })}>
       <Tab.Screen name={'Home'} component={Home} />
-      <Tab.Screen name={'Properties'} component={Properties} />
+      <Tab.Screen name={'Convention'} component={Convention} />
       <Tab.Screen name={'Wishlist'} component={Wishlist} />
       {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}
       <Tab.Screen name={'Profile'} component={Account} />
