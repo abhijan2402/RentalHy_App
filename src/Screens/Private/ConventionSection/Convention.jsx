@@ -13,6 +13,7 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {AnimatedButton} from '../Dashboard/Home';
 import SortModal from '../../../Components/SortModal';
+import {windowWidth} from '../../../Constants/Dimensions';
 
 // ---------------- Tab Button Component ----------------
 const TabButton = ({title, isActive, onPress}) => {
@@ -115,6 +116,15 @@ const ConventionHall = ({navigation, onPressSort, onPressFilter}) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+
+        <TouchableOpacity onPress={onPressSort}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onPressSort}>
           <Image
             source={{
@@ -195,10 +205,18 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           style={styles.searchIcon}
         />
         <TextInput
-          placeholder="Search Farm Houses or Location"
+          placeholder="Search Farm "
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+        <TouchableOpacity onPress={onPressSort}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onPressSort}>
           <Image
             source={{
@@ -269,7 +287,7 @@ const Convention = ({navigation}) => {
         <View style={styles.locationContainer}>
           <Image
             source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/1865/1865269.png',
+              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
             }}
             style={styles.locationIcon}
           />
@@ -452,8 +470,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationIcon: {
-    width: 22,
-    height: 22,
+    width: 45,
+    height: 30,
     marginRight: 8,
   },
   locationCity: {
@@ -488,10 +506,11 @@ const styles = StyleSheet.create({
   },
   searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
   searchInput: {
-    flex: 1,
+    // flex: 0.7,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
+    width: windowWidth / 2,
   },
   filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
 });

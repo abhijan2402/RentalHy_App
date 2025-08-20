@@ -229,6 +229,11 @@ const Home = ({navigation}) => {
       data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
     },
     {
+      id: 'familyType',
+      type: 'Tenant Type',
+      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
+    },
+    {
       id: 'propertyTypes',
       type: 'property Type',
       data: ['Apartment', 'Flat', 'Villa'],
@@ -256,15 +261,31 @@ const Home = ({navigation}) => {
     {
       id: 'advance',
       type: 'advance',
-      data: ['1 month', '2 months', '3 months+'],
+      data: ['1 month', '2 months', '3 months+', 'No Advance'],
     },
     {
-      id: 'familyType',
-      type: 'family Type',
-      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
+      id: 'commercialSpace',
+      type: 'Commercial Space',
+      data: ['Yes', 'No'],
     },
   ]);
-
+  const showPost = [
+    {
+      id: 1,
+      image: 'https://cdn-icons-png.flaticon.com/128/602/602175.png',
+      title: 'To-Let',
+    },
+    {
+      id: 2,
+      image: 'https://cdn-icons-png.flaticon.com/128/3033/3033357.png',
+      title: 'Convention/Funtional Hall',
+    },
+    {
+      id: 3,
+      image: 'https://cdn-icons-png.flaticon.com/128/3033/3033239.png',
+      title: 'Farm House',
+    },
+  ];
   useEffect(() => {
     animationRef.current?.play(30, 120);
   }, []);
@@ -284,7 +305,7 @@ const Home = ({navigation}) => {
         <View style={styles.locationContainer}>
           <Image
             source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/1865/1865269.png',
+              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
             }}
             style={styles.locationIcon}
           />
@@ -302,6 +323,64 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-evenly',
+          alignItems: 'center',
+          alignSelf: 'center',
+          // width: windowWidth * 0.95,
+        }}>
+        {showPost?.map((i, index) => (
+          <TouchableOpacity
+            onPress={() => {
+              if (index == 0) return;
+              else {
+                navigation.navigate('Convention');
+              }
+            }}
+            key={index}
+            style={{
+              width: windowWidth / 3.3,
+              borderRadius: 8,
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: windowHeight * 0.12,
+              marginHorizontal: 4,
+              marginVertical: 10,
+              elevation: 4,
+              backgroundColor: COLOR.white,
+              shadowColor: COLOR.primary,
+              borderBottomLeftRadius: 8,
+              borderBottomRightRadius: 8,
+            }}>
+            <Image
+              source={{uri: i?.image}}
+              style={{width: 45, height: 45, marginBottom: 5}}
+            />
+            <View
+              style={{
+                backgroundColor: COLOR.primary,
+                width: '100%',
+                paddingVertical: 6,
+                borderBottomLeftRadius: 8,
+                borderBottomRightRadius: 8,
+                height: 45,
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'white',
+                  textAlignVertical: 'center',
+                }}>
+                {i?.title}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <View
         style={{
           borderWidth: 0.5,
@@ -350,6 +429,14 @@ const Home = ({navigation}) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+        <TouchableOpacity onPress={() => {}}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => setSortVisible(true)}>
           <Image
             source={{
@@ -559,8 +646,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationIcon: {
-    width: 22,
-    height: 22,
+    width: 45,
+    height: 30,
     marginRight: 8,
   },
   locationCity: {
@@ -691,14 +778,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#FF9933', // saffron
-    backgroundColor: '#fdfdfd',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: {width: 0, height: 3},
-    shadowRadius: 5,
-    elevation: 4,
+    // borderWidth: 2,
+    // borderColor: '#FF9933', // saffron
+    // backgroundColor: '#fdfdfd',
+    // shadowColor: '#000',
+    // shadowOpacity: 0.15,
+    // shadowOffset: {width: 0, height: 3},
+    // shadowRadius: 5,
+    // elevation: 4,
     marginHorizontal: 20,
     marginBottom: 5,
   },

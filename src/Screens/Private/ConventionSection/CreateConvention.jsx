@@ -39,7 +39,7 @@ const CreateConvention = ({navigation}) => {
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
   const [parkingImages, setParkingImages] = useState([]);
-  const [uploadType, setUploadType] = useState(null);
+  const [uploadType, setUploadType] = useState('Function/Convention Hall');
 
   // General info
   const [title, setTitle] = useState('');
@@ -167,7 +167,9 @@ const CreateConvention = ({navigation}) => {
       slots,
     };
     console.log(payload);
-    alert('Space posted successfully!');
+    alert(
+      'Hall / Farm Submitted for admin Approval, after approval it will Display.   If any, please contact admin through WhatsApp (+91 7674036244)',
+    );
   };
 
   const renderImagePicker = (label, imagesArray, setter) => (
@@ -223,7 +225,7 @@ const CreateConvention = ({navigation}) => {
           style={styles.input}
           value={descriptionVal}
           onChangeText={setDescriptionVal}
-          placeholder="Enter contact or details"
+          placeholder="Enter Name and Number of hall decorator"
         />
       )}
     </View>
@@ -240,7 +242,7 @@ const CreateConvention = ({navigation}) => {
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
-        title="Upload Hall"
+        title="Upload Farm"
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -321,24 +323,59 @@ const CreateConvention = ({navigation}) => {
         <View style={styles.section}>
           <Text style={styles.label}>Price Options</Text>
           {uploadType == 'Farm House' ? (
-            priceOptionsFarm.map(opt => (
-              <View
-                key={opt}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 8,
-                }}>
-                <Text style={{flex: 1}}>{opt}</Text>
-                <TextInput
-                  style={[styles.input, {flex: 1}]}
-                  placeholder="Enter Price"
-                  keyboardType="numeric"
-                  value={prices[opt] || ''}
-                  onChangeText={val => setPrices({...prices, [opt]: val})}
-                />
-              </View>
-            ))
+            <>
+              {priceOptionsFarm.map(opt => (
+                <View
+                  key={opt}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                  }}>
+                  <Text style={{flex: 1}}>{opt}</Text>
+                  <TextInput
+                    style={[styles.input, {flex: 1}]}
+                    placeholder="Enter Price"
+                    keyboardType="numeric"
+                    value={prices[opt] || ''}
+                    onChangeText={val => setPrices({...prices, [opt]: val})}
+                  />
+                </View>
+              ))}
+              {
+                <View style={{marginTop: 10}}>
+                  {rows.map((row, index) => (
+                    <View key={index} style={styles.row}>
+                      <TextInput
+                        style={[styles.inputVal, {flex: 1}]}
+                        placeholder="Enter Field Name"
+                        value={row.field}
+                        onChangeText={text =>
+                          handleChange(text, index, 'field')
+                        }
+                      />
+                      <TextInput
+                        style={[styles.inputVal, {flex: 1}]}
+                        placeholder="Enter Price"
+                        value={row.value}
+                        keyboardType="numeric"
+                        onChangeText={text =>
+                          handleChange(text, index, 'value')
+                        }
+                      />
+                      <TouchableOpacity onPress={addRow}>
+                        <Image
+                          source={{
+                            uri: 'https://cdn-icons-png.flaticon.com/512/992/992651.png', // + icon
+                          }}
+                          style={styles.icon}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              }
+            </>
           ) : (
             <>
               {priceOptions.map(opt => (
@@ -584,7 +621,7 @@ const CreateConvention = ({navigation}) => {
           </Text>
         </View>
         {/* Post Space */}
-        <CustomButton title="Post Hall" onPress={postSpace} />
+        <CustomButton title="Post Farm" onPress={postSpace} />
       </ScrollView>
     </View>
   );
