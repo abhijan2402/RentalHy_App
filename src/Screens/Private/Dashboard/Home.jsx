@@ -371,16 +371,37 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
-      {/* Trending Properties Title */}
-      {/* <Text style={styles.sectionTitle}>Trending Properties</Text> */}
-
       {/* Properties Grid */}
       {loader ? (
-        <LottieView
-          ref={animationRef}
-          source={require('../../../assets/Lottie/Loading.json')}
-          style={styles.image}
-        />
+        <>
+          <LottieView
+            ref={animationRef}
+            source={require('../../../assets/Lottie/Loading.json')}
+            style={styles.image}
+          />
+          <View style={styles.flagcontainer}>
+            <Image
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              style={styles.flag}
+            />
+            <Text style={styles.text}>Made in India</Text>
+            <Image
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              style={styles.flag}
+            />
+          </View>
+          <View style={styles.flagcontainer}>
+            <Image
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              style={styles.flag}
+            />
+            <Text style={styles.text}>Made for India</Text>
+            <Image
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              style={styles.flag}
+            />
+          </View>
+        </>
       ) : (
         <>
           <ScrollView
@@ -433,10 +454,12 @@ const Home = ({navigation}) => {
           />
         </>
       )}
-      <AnimatedButton
-        onPress={() => navigation.navigate('PostProperty')}
-        iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
-      />
+      {!loader && (
+        <AnimatedButton
+          onPress={() => navigation.navigate('PostProperty')}
+          iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
+        />
+      )}
       <MultiModal
         filterValueData={attendedFilter}
         visible={multiFilter}
@@ -659,6 +682,36 @@ const styles = StyleSheet.create({
   },
   image: {
     width: windowWidth,
-    height: windowHeight * 0.55,
+    height: windowHeight * 0.4,
+  },
+
+  flagcontainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#FF9933', // saffron
+    backgroundColor: '#fdfdfd',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 5,
+    elevation: 4,
+    marginHorizontal: 20,
+    marginBottom: 5,
+  },
+  flag: {
+    width: 20,
+    height: 15,
+    resizeMode: 'contain',
+    marginHorizontal: 10,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#138808', // green
+    letterSpacing: 1,
   },
 });

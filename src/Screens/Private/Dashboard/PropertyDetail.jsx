@@ -110,7 +110,22 @@ const PropertyDetail = ({navigation, route}) => {
               <Text style={styles.phoneHighlighted}>{phoneNumber}</Text>
             </TouchableOpacity>
           </View>
+          <View style={styles.contactContainer}>
+            <Text style={styles.contactTitle}>Address</Text>
 
+            {/* Phone */}
+            <TouchableOpacity style={styles.locationRow}>
+              <Image
+                source={{
+                  uri: 'https://cdn-icons-png.flaticon.com/128/8105/8105423.png',
+                }}
+                style={styles.iconLarge}
+              />
+              <Text style={styles.phoneHighlighted}>
+                Abc, Hyderabad, 785556
+              </Text>
+            </TouchableOpacity>
+          </View>
           {/* Location Section */}
           <View style={styles.locationContainer}>
             <Text style={styles.contactTitle}>Location</Text>
@@ -223,6 +238,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f8ff',
     borderRadius: 10,
     padding: 15,
+    paddingVertical: 5,
     marginBottom: 15,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -242,26 +258,26 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   contactTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
   },
   phoneHighlighted: {
-    fontSize: 18,
+    fontSize: 13,
     fontWeight: 'bold',
     color: COLOR.black,
     marginLeft: 8,
   },
   locationHighlighted: {
-    fontSize: 16,
+    fontSize: 13,
     color: COLOR.black,
     fontWeight: '600',
     marginLeft: 8,
   },
   iconLarge: {
-    width: 28,
-    height: 28,
+    width: 23,
+    height: 23,
     tintColor: COLOR.primary,
   },
   specsContainer: {
@@ -296,7 +312,7 @@ const styles = StyleSheet.create({
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 5,
   },
   mapPreview: {
     width: '100%',

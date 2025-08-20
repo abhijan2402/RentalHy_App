@@ -56,7 +56,7 @@ const CreateConvention = ({navigation}) => {
     'Meeting <250',
     'Meeting >250',
     'Corporate Outing/Meeting',
-    'Any Other',
+    // 'Any Other',
   ];
   const priceOptionsFarm = [
     'Day Visit',
@@ -106,6 +106,7 @@ const CreateConvention = ({navigation}) => {
   const [area, setArea] = useState(null);
   const years = getYears();
   const [unavailableDates, setUnavailableDates] = useState({});
+  const [rows, setRows] = useState([{field: 'Any Other', value: ''}]);
 
   const toggleDate = day => {
     const date = day.dateString;
@@ -227,7 +228,15 @@ const CreateConvention = ({navigation}) => {
       )}
     </View>
   );
+  const handleChange = (text, index, key) => {
+    const updatedRows = [...rows];
+    updatedRows[index][key] = text;
+    setRows(updatedRows);
+  };
 
+  const addRow = () => {
+    setRows([...rows, {field: '', value: ''}]);
+  };
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
@@ -311,26 +320,28 @@ const CreateConvention = ({navigation}) => {
         {/* Price Options */}
         <View style={styles.section}>
           <Text style={styles.label}>Price Options</Text>
-          {uploadType == 'Farm House'
-            ? priceOptionsFarm.map(opt => (
-                <View
-                  key={opt}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginBottom: 8,
-                  }}>
-                  <Text style={{flex: 1}}>{opt}</Text>
-                  <TextInput
-                    style={[styles.input, {flex: 1}]}
-                    placeholder="Enter Price"
-                    keyboardType="numeric"
-                    value={prices[opt] || ''}
-                    onChangeText={val => setPrices({...prices, [opt]: val})}
-                  />
-                </View>
-              ))
-            : priceOptions.map(opt => (
+          {uploadType == 'Farm House' ? (
+            priceOptionsFarm.map(opt => (
+              <View
+                key={opt}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginBottom: 8,
+                }}>
+                <Text style={{flex: 1}}>{opt}</Text>
+                <TextInput
+                  style={[styles.input, {flex: 1}]}
+                  placeholder="Enter Price"
+                  keyboardType="numeric"
+                  value={prices[opt] || ''}
+                  onChangeText={val => setPrices({...prices, [opt]: val})}
+                />
+              </View>
+            ))
+          ) : (
+            <>
+              {priceOptions.map(opt => (
                 <View
                   key={opt}
                   style={{
@@ -348,6 +359,41 @@ const CreateConvention = ({navigation}) => {
                   />
                 </View>
               ))}
+              {
+                <View style={{marginTop: 10}}>
+                  {rows.map((row, index) => (
+                    <View key={index} style={styles.row}>
+                      <TextInput
+                        style={[styles.inputVal, {flex: 1}]}
+                        placeholder="Enter Field Name"
+                        value={row.field}
+                        onChangeText={text =>
+                          handleChange(text, index, 'field')
+                        }
+                      />
+                      <TextInput
+                        style={[styles.inputVal, {flex: 1}]}
+                        placeholder="Enter Price"
+                        value={row.value}
+                        keyboardType="numeric"
+                        onChangeText={text =>
+                          handleChange(text, index, 'value')
+                        }
+                      />
+                      <TouchableOpacity onPress={addRow}>
+                        <Image
+                          source={{
+                            uri: 'https://cdn-icons-png.flaticon.com/512/992/992651.png', // + icon
+                          }}
+                          style={styles.icon}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              }
+            </>
+          )}
         </View>
         {uploadType == 'Farm House' && (
           <View style={styles.section}>
@@ -373,7 +419,7 @@ const CreateConvention = ({navigation}) => {
                 placeholder="Enter Capacity"
               />
             </View>
-            {renderToggle('Ac Available', acAvailable, setAcAvailable)}
+            {renderToggle('A/C Available', acAvailable, setAcAvailable)}
             {/* Parking */}
 
             {/* Facilities */}
@@ -617,5 +663,23 @@ const styles = StyleSheet.create({
   selectedBox: {
     backgroundColor: COLOR.primary || '#007AFF',
     borderColor: COLOR.primary || '#007AFF',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  inputVal: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    borderRadius: 6,
+    marginRight: 6,
+    paddingVertical: 10,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: 'green',
   },
 });
