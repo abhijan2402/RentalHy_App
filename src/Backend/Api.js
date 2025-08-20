@@ -2,7 +2,7 @@
 import { useContext } from 'react';
 import { AuthContext } from './AuthContent';
 
-const BASE_URL = 'http://82.112.236.195:3000/';
+const BASE_URL = 'https://hotpink-rook-901841.hostingersite.com/';
 
 
 export const IMAGEURL = 'http://82.112.236.195:3000/uploads/profiles/'

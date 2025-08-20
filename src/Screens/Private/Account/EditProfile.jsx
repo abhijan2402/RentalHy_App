@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,15 +11,34 @@ import {
 import Header from '../../../Components/FeedHeader';
 import ImagePicker from 'react-native-image-crop-picker';
 import {COLOR} from '../../../Constants/Colors';
+import { AuthContext } from '../../../Backend/AuthContent';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
 
 const EditProfile = ({navigation}) => {
-  const [name, setName] = useState('John Doe');
-  const [phone, setPhone] = useState('+91 9876543210');
-  const [email, setEmail] = useState('abhishek.jangid2222@gmail.com');
+  const {postRequest} = useApi();
+  const [loading, setLoading] = useState(false);
+  const { user  , setUser } =  useContext(AuthContext)
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const {showToast} = useToast();
+  
+  console.log(user,"useruser")
 
   const [profilePic, setProfilePic] = useState(
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
   );
+
+
+  useEffect(() => {
+    if(user){
+      setName(user?.name)
+      setPhone(user?.phone_number)
+      setEmail(user?.email)
+      setProfilePic(user?.image)
+    }
+  },[user])
 
   const pickImage = () => {
     ImagePicker.openPicker({
@@ -38,12 +57,40 @@ const EditProfile = ({navigation}) => {
       });
   };
 
-  const handleSave = () => {
-    Alert.alert(
-      'Profile Updated',
-      'Your profile has been successfully updated!',
-    );
-    navigation.goBack();
+  const handleSave = async () => {
+    const trimmedName = name?.trim();
+    const trimmedEmail = email?.trim(); 
+    const trimmedNumber = phone?.trim(); 
+
+    if(!trimmedEmail || !trimmedNumber){
+      showToast('Email or Mobile number is required', 'error');
+      return
+    }
+
+    // if(!trimmedNumber){
+    //   showToast('Email or Mobile number is required', 'error');
+    //   return
+    // }
+
+    if(!trimmedName){
+      showToast('Name is required', 'error');
+      return
+    }
+
+    setLoading(true)
+
+    const formData = new FormData();
+      formData?.append('email',trimmedEmail);
+      formData.append('phone_number',phone);
+      formData.append('name',trimmedName);
+
+      const response = await postRequest('public/api/profile' , formData , true);
+
+      console.log(response?.data?.message,"responseresponse")
+      if(response?.data?.status){
+        setUser(response?.data?.user)
+        showToast(response?.data?.message,"success")
+      }
   };
 
   return (

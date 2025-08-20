@@ -41,7 +41,6 @@ const Login = ({navigation}) => {
 
   const loginUser = async () => {
     setUser(null);
-    return;
     const trimmedIdentifier = identifier?.trim();
     const trimmedPassword = password?.trim();
 
@@ -56,16 +55,15 @@ const Login = ({navigation}) => {
     }
 
     setLoading(true);
-    const payload = {
-      identifier: trimmedIdentifier,
-      password: trimmedPassword,
-    };
+    const formData = new FormData();
+    formData.append('email', trimmedIdentifier);
+    formData.append('password', trimmedPassword);
 
-    const response = await postRequest('api/vendor-login', payload);
-    console.log(response, 'RESPPPPPP');
+    const response = await postRequest('public/api/login', formData , true);
 
     if (response?.data?.token) {
       setToken(response?.data?.token);
+      setUser(response?.data?.user)
       // console.log(response?.data?.user?.registration_step, 'LOOFFFFF');
 
       // setUser(response?.data);

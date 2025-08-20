@@ -29,7 +29,7 @@ const SignUp = ({navigation}) => {
   const animationRef = useRef(null);
   const {showToast} = useToast();
 
-  const [email, setEmail] = useState('');
+  const [ email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -41,15 +41,22 @@ const SignUp = ({navigation}) => {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpTarget, setOtpTarget] = useState(''); // 'email' or 'phone'
   const [otpInput, setOtpInput] = useState('');
+  const [UserID, setUserID] = useState(null);
 
   useEffect(() => {
     animationRef.current?.play(30, 120);
   }, []);
 
   const sendOtp = async type => {
-    const payload = type === 'email' ? {email} : {phone};
+    const formData = new FormData();
+      if (type === 'email') {
+        formData.append('email', email);
+      } else {
+        formData.append('phone', phone);
+      }
+
     const endpoint =
-      type === 'email' ? 'api/send-email-otp' : 'api/send-phone-otp';
+      type === 'email' ? 'public/api/signup/email' : 'api/send-phone-otp';
 
     if ((type === 'email' && !email) || (type === 'phone' && !phone)) {
       // Alert.alert('Validation', `Please enter ${type} first`);
@@ -57,10 +64,12 @@ const SignUp = ({navigation}) => {
       return;
     }
 
-    const res = await postRequest(endpoint, payload);
+    const res = await postRequest(endpoint, formData , true);
     if (res.success) {
+      setUserID(res?.data?.user_id)
       setOtpTarget(type);
       setShowOtpModal(true);
+      showToast(res?.data?.message, "success")
       // Alert.alert('Success', `OTP sent to your ${type}`);
     } else {
       Alert.alert('Error', res.error || `Failed to send ${type} OTP`);
@@ -68,12 +77,19 @@ const SignUp = ({navigation}) => {
   };
 
   const verifyOtp = async () => {
-    const payload =
-      otpTarget === 'email' ? {email, otp: otpInput} : {phone, otp: otpInput};
-    const endpoint =
-      otpTarget === 'email' ? 'api/verify-email-otp' : 'api/verify-phone-otp';
+      const formData = new FormData();
+      if (otpTarget === 'email') {
+            formData.append('user_id', UserID);
+            formData.append('verification_code', otpInput);
+          } else {
+            formData.append('user_id', UserID);
+            formData.append('verification_code', otpInput);
+        }
 
-    const res = await postRequest(endpoint, payload);
+    const endpoint =
+      otpTarget === 'email' ? 'public/api/signup/verify-email' : 'api/verify-phone-otp';
+
+    const res = await postRequest(endpoint, formData , true);
     if (res.success) {
       showToast(`${otpTarget} verified successfully`, 'success');
       // Alert.alert('Verified', `${otpTarget} verified successfully`);
@@ -87,15 +103,15 @@ const SignUp = ({navigation}) => {
   };
 
   const registerUser = async () => {
-    if (!emailVerified || !phoneVerified) {
+    if (!emailVerified) {
       // Alert.alert('Verification', 'Please verify both email and phone number');
       // showToast(`Please verify both email and phone number`, 'error');
-      showToast(`Please verify both email and phone number`, 'error');
+      showToast(`Please verify email first`, 'error');
       return;
     }
-    if (password.length < 6) {
+    if (password.length < 8) {
       // Alert.alert('Validation', 'Password must be at least 6 characters');
-      showToast(`Password must be at least 6 characters`, 'error');
+      showToast(`Password must be at least 8 characters`, 'error');
       return;
     }
     if (password !== confirmPassword) {
@@ -103,15 +119,15 @@ const SignUp = ({navigation}) => {
       return;
     }
 
-    const payload = {
-      phone,
-      email,
-      password,
-      confirm_password: confirmPassword,
-    };
+      const formData = new FormData();
+      formData.append('user_id', UserID);
+      formData.append('phone_number', phone);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('password_confirmation', confirmPassword);
 
     setLoading(true);
-    const res = await postRequest('api/register-user', payload);
+    const res = await postRequest('public/api/signup/complete', formData , true);
     setLoading(false);
 
     if (res.success) {
