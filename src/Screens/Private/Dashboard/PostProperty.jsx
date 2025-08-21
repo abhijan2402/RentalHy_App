@@ -53,7 +53,26 @@ const PostProperty = ({navigation}) => {
     'South-West',
   ];
 
-  const renderOptions = (label, options, selected, setSelected) => (
+  const renderOptions = (label, options, selected, setSelected, multiSelect = false) => {
+  const handlePress = (option) => {
+    if (multiSelect) {
+      // Toggle selection for multi-select
+      if (selected.includes(option)) {
+        setSelected(selected.filter(item => item !== option));
+      } else {
+        setSelected([...selected, option]);
+      }
+    } else {
+      // Single-select behavior
+      setSelected(option);
+    }
+  };
+
+  const isSelected = (option) => {
+    return multiSelect ? selected.includes(option) : selected === option;
+  };
+
+  return (
     <>
       <Text style={styles.label}>{label}</Text>
       <ScrollView
@@ -65,13 +84,13 @@ const PostProperty = ({navigation}) => {
             key={option}
             style={[
               styles.optionButton,
-              selected === option && styles.optionSelected,
+              isSelected(option) && styles.optionSelected,
             ]}
-            onPress={() => setSelected(option)}>
+            onPress={() => handlePress(option)}>
             <Text
               style={[
                 styles.optionText,
-                selected === option && styles.optionTextSelected,
+                isSelected(option) && styles.optionTextSelected,
               ]}>
               {option}
             </Text>
@@ -80,6 +99,8 @@ const PostProperty = ({navigation}) => {
       </ScrollView>
     </>
   );
+};
+
 
   const pickImages = () => {
     ImagePicker.openPicker({
@@ -112,21 +133,37 @@ const PostProperty = ({navigation}) => {
       location,
       area,
       BHK: selectedBHK,
-      propertyType,
-      furnishing,
-      availability,
-      bathrooms,
-      parking,
-      facing,
-      advanceValue,
-      familyTypeValue,
+      propertyType: propertyType,
+      furnishing : furnishing,
+      availability : availability,
+      bathrooms : bathrooms,
+      parking : parking,
+      facing : facing,
+      advanceValue : advanceValue,
+      familyTypeValue : familyTypeValue,
       images,
     };
 
-    console.log('Property Data:', propertyData);
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('location', location);
+    formData.append('area_sqft',area);
+    formData.append('bhk[0]',selectedBHK);
+    formData.append('property_type',propertyType);
+    formData.append('furnishing_status[0]',furnishing);
+    formData.append('availability',availability);
+    formData.append('bathrooms',bathrooms);
+    formData.append('parking_available',parking);
+    formData.append('facing_direction',facing);
+    formData.append('advance',advanceValue);
+    formData.append('preferred_tenant_type[0]',familyTypeValue);
+    formData.append('image',images);
 
-    Alert.alert('Success', 'Your property has been posted successfully!');
-    navigation.goBack();
+    console.log('Property Data:', formData);
+
+    // Alert.alert('Success', 'Your property has been posted successfully!');
+    // navigation.goBack();
   };
 
   return (
@@ -229,6 +266,7 @@ const PostProperty = ({navigation}) => {
           familyType,
           familyTypeValue,
           setFamilyTypeValue,
+          true
         )}
 
         {/* Upload Images */}

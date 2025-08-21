@@ -21,10 +21,14 @@ import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
 import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
+import { useIsFocused } from '@react-navigation/native';
+import { useApi } from '../../../Backend/Api';
 
 const {width} = Dimensions.get('window');
 
 const Home = ({navigation}) => {
+  const {postRequest} = useApi();
+  const focus = useIsFocused();
   const banners = [
     'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1200',
     'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1200',
@@ -32,7 +36,7 @@ const Home = ({navigation}) => {
   ];
   const [loader, setloader] = useState(true);
 
-  const properties = [
+  const [properties , setProperties] = useState([
     {
       id: '1',
       name: 'Luxury Villa',
@@ -178,7 +182,22 @@ const Home = ({navigation}) => {
       image:
         'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
-  ];
+  ]);
+
+  const GetProperties = async () => {
+    setloader(true);
+    const response = await postRequest('public/api/properties');
+    console.log(response?.data?.data?.data,"responseresponseresponseresponse")
+    setProperties(response?.data?.data?.data);
+  }
+
+  useEffect(() => {
+    if(focus){
+      GetProperties();
+    }
+  },[focus])
+
+
   const animationRef = useRef();
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);

@@ -31,6 +31,7 @@ const SignUp = ({navigation}) => {
 
   const [ email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [FullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,7 +60,6 @@ const SignUp = ({navigation}) => {
       type === 'email' ? 'public/api/signup/email' : 'api/send-phone-otp';
 
     if ((type === 'email' && !email) || (type === 'phone' && !phone)) {
-      // Alert.alert('Validation', `Please enter ${type} first`);
       showToast(`Please enter ${type} first`, 'error');
       return;
     }
@@ -102,41 +102,56 @@ const SignUp = ({navigation}) => {
     }
   };
 
-  const registerUser = async () => {
-    if (!emailVerified) {
-      // Alert.alert('Verification', 'Please verify both email and phone number');
-      // showToast(`Please verify both email and phone number`, 'error');
-      showToast(`Please verify email first`, 'error');
-      return;
-    }
-    if (password.length < 8) {
-      // Alert.alert('Validation', 'Password must be at least 6 characters');
-      showToast(`Password must be at least 8 characters`, 'error');
-      return;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert('Validation', 'Passwords do not match');
-      return;
-    }
+const registerUser = async () => {
+  if (!emailVerified) {
+    showToast(`Please verify email first`, 'error');
+    return;
+  }
 
-      const formData = new FormData();
-      formData.append('user_id', UserID);
-      formData.append('phone_number', phone);
-      formData.append('email', email);
-      formData.append('password', password);
-      formData.append('password_confirmation', confirmPassword);
+  if (password.length < 6) {
+    showToast(`Password must be at least 8 characters`, 'error');
+    return;
+  }
 
-    setLoading(true);
-    const res = await postRequest('public/api/signup/complete', formData , true);
+  if (password !== confirmPassword) {
+    Alert.alert('Validation', 'Passwords do not match');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('name', FullName);
+  formData.append('user_id', UserID);
+  formData.append('phone_number', phone);
+  formData.append('email', email);
+  formData.append('password', password);
+  formData.append('password_confirmation', confirmPassword);
+
+  setLoading(true);
+  
+  try {
+    const res = await postRequest('public/api/signup/complete', formData, true);
     setLoading(false);
 
     if (res.success) {
       Alert.alert('Success', 'Account created successfully, please login!');
       navigation.goBack();
     } else {
-      Alert.alert('Error', res.error || 'Registration failed');
+      if (res.errors) {
+        const errorMessages = Object.values(res.errors)
+          .flat()
+          .join('\n');
+        showToast(errorMessages, 'error');
+      } else {
+        // Alert.alert('Error', res.error || 'Registration failed');
+      }
     }
-  };
+  } catch (error) {
+    setLoading(false);
+    console.error('Registration error:', error);
+    showToast('Something went wrong. Please try again later.', 'error');
+  }
+};
+
 
   return (
     <KeyboardAvoidingView
@@ -150,8 +165,19 @@ const SignUp = ({navigation}) => {
             source={require('../../assets/Lottie/SignUp.json')}
             style={styles.image}
           /> */}
+
+
           <View style={{paddingTop: 15}}>
             {/* <Text style={styles.heading}>Create New Account</Text> */}
+
+
+             <Input
+              mainStyle={{}}
+              label="Full name"
+              placeholder="Enter your full name"
+              value={FullName}
+              onChangeText={setFullName}
+            />
 
             <Input
               mainStyle={{}}

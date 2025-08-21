@@ -14,17 +14,17 @@ import {COLOR} from '../../../Constants/Colors';
 import { AuthContext } from '../../../Backend/AuthContent';
 import { useApi } from '../../../Backend/Api';
 import { useToast } from '../../../Constants/ToastContext';
+import CustomButton from '../../../Components/CustomButton';
 
 const EditProfile = ({navigation}) => {
   const {postRequest} = useApi();
   const [loading, setLoading] = useState(false);
-  const { user  , setUser } =  useContext(AuthContext)
+  const { user  , setUser , token } =  useContext(AuthContext)
+  console.log(user,"tokentoken")
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const {showToast} = useToast();
-  
-  console.log(user,"useruser")
 
   const [profilePic, setProfilePic] = useState(
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
@@ -40,15 +40,33 @@ const EditProfile = ({navigation}) => {
     }
   },[user])
 
+  const uploadImage = async (image) => {
+    const formData = new FormData();
+    formData.append('image',{
+      type:image?.mime,
+      uri:image?.path,
+      name:'image'
+    })
+
+    const response  = await postRequest('public/api/profile/image', formData , true);
+
+    console.log(response?.data,"responseresponseresponseresponse")
+    if(response?.data?.status){
+      setUser(response?.data?.user)
+    }
+
+  }
+
   const pickImage = () => {
     ImagePicker.openPicker({
       width: 300,
       height: 300,
-      cropping: true,
+      cropping: false,
       compressImageQuality: 0.8,
     })
       .then(image => {
         setProfilePic(image.path);
+         uploadImage(image)
       })
       .catch(err => {
         if (err.code !== 'E_PICKER_CANCELLED') {
@@ -58,26 +76,23 @@ const EditProfile = ({navigation}) => {
   };
 
   const handleSave = async () => {
+    setLoading(true)
     const trimmedName = name?.trim();
     const trimmedEmail = email?.trim(); 
     const trimmedNumber = phone?.trim(); 
 
     if(!trimmedEmail || !trimmedNumber){
+      setLoading(false);
       showToast('Email or Mobile number is required', 'error');
       return
     }
 
-    // if(!trimmedNumber){
-    //   showToast('Email or Mobile number is required', 'error');
-    //   return
-    // }
-
     if(!trimmedName){
+      setLoading(false);
       showToast('Name is required', 'error');
       return
     }
 
-    setLoading(true)
 
     const formData = new FormData();
       formData?.append('email',trimmedEmail);
@@ -86,10 +101,12 @@ const EditProfile = ({navigation}) => {
 
       const response = await postRequest('public/api/profile' , formData , true);
 
-      console.log(response?.data?.message,"responseresponse")
       if(response?.data?.status){
         setUser(response?.data?.user)
         showToast(response?.data?.message,"success")
+         setLoading(false)
+      }else{
+         setLoading(false)
       }
   };
 
@@ -146,9 +163,10 @@ const EditProfile = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
         />
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+        {/* <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
           <Text style={styles.saveBtnText}>Save Changes</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <CustomButton title={'Save Changes'} style={styles.saveBtn} loading={loading} onPress={handleSave} />
       </View>
     </View>
   );

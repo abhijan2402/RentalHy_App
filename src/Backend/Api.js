@@ -1,6 +1,7 @@
 // src/hooks/useApi.js
 import { useContext } from 'react';
 import { AuthContext } from './AuthContent';
+import { useToast } from '../Constants/ToastContext';
 
 const BASE_URL = 'https://hotpink-rook-901841.hostingersite.com/';
 
@@ -10,7 +11,7 @@ export const IMAGEURL = 'http://82.112.236.195:3000/uploads/profiles/'
 export const SERVICE_LIST_URL = "http://82.112.236.195:3000/uploads/"
 export const useApi = () => {
   const { token } = useContext(AuthContext);
-
+  const {showToast} = useToast();
   const postRequest = async (endpoint, data = {}, isMultipart = false) => {
     console.log(data, 'DATA');
     console.log(token, 'TOKEN');
@@ -30,9 +31,22 @@ export const useApi = () => {
       console.log(json, 'JSON');
 
       if (!response.ok) {
+            let errorMessages = 'An unknown error occurred.';
+
+        if (json.errors && typeof json.errors === 'object' && !Array.isArray(json.errors)) {
+          errorMessages = Object.values(json.errors)
+            .flat()
+            .join('\n');
+        } else if (json.msg) {
+          errorMessages = json.msg;
+}
+
+          showToast(errorMessages, 'error');
+
+
         return {
           success: false,
-          error: json.message || json?.error || 'Something went wrong',
+          error: json.message || json.msg || json?.error || 'Something went wrong',
           status: response.status,
         };
       }
@@ -59,6 +73,8 @@ export const useApi = () => {
       });
 
       const json = await response.json();
+
+      console.log(json,"jsonjson")
 
       if (!response.ok) {
         return {
