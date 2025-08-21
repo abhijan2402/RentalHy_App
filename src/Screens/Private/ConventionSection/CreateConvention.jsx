@@ -242,7 +242,9 @@ const CreateConvention = ({navigation}) => {
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
-        title="Upload Farm"
+        title={
+          uploadType !== 'Farm House' ? 'Upload Convention Hall' : 'Upload Farm'
+        }
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -621,7 +623,12 @@ const CreateConvention = ({navigation}) => {
           </Text>
         </View>
         {/* Post Space */}
-        <CustomButton title="Post Farm" onPress={postSpace} />
+        <CustomButton
+          title={
+            uploadType !== 'Farm House' ? 'Post Convention Hall' : 'Post Farm'
+          }
+          onPress={postSpace}
+        />
       </ScrollView>
     </View>
   );

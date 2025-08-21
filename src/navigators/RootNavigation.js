@@ -18,6 +18,7 @@ import MyBooking from '../Screens/Private/ConventionSection/MyBooking';
 import ConventionFilter from '../Screens/Private/Dashboard/ConventionFilter';
 import ConventionMainFilter from '../Screens/Private/Dashboard/ConventionMainFilter';
 import Convention from '../Screens/Private/ConventionSection/Convention';
+import Home from '../Screens/Private/Dashboard/Home';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -47,6 +48,7 @@ const RootNavigation = () => {
                 <Stack.Screen name="ConventionMainFilter" component={ConventionMainFilter} />
                 <Stack.Screen name="Convention" component={Convention} />
 
+                <Stack.Screen name="Home" component={Home} />
 
 
             </Stack.Navigator>
