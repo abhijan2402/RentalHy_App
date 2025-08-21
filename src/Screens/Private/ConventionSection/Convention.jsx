@@ -8,11 +8,15 @@ import {
   StatusBar,
   TextInput,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {AnimatedButton} from '../Dashboard/Home';
 import SortModal from '../../../Components/SortModal';
+import {windowWidth} from '../../../Constants/Dimensions';
+import OptionSelector from '../Dashboard/OptionSelector';
+import {showPost} from '../../../Constants/Data';
+import {useIsFocused} from '@react-navigation/native';
 
 // ---------------- Tab Button Component ----------------
 const TabButton = ({title, isActive, onPress}) => {
@@ -115,6 +119,15 @@ const ConventionHall = ({navigation, onPressSort, onPressFilter}) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+
+        <TouchableOpacity onPress={onPressSort}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onPressSort}>
           <Image
             source={{
@@ -195,10 +208,18 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           style={styles.searchIcon}
         />
         <TextInput
-          placeholder="Search Farm Houses or Location"
+          placeholder="Search Farm "
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+        <TouchableOpacity onPress={onPressSort}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onPressSort}>
           <Image
             source={{
@@ -242,9 +263,14 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
 };
 
 // ---------------- Main Convention Screen ----------------
-const Convention = ({navigation}) => {
+const Convention = ({navigation, route}) => {
+  const type = route?.params?.type;
+  console.log(type, type == 'farm', 'TYTYPYPYPYPYP');
+
   const [activeTab, setActiveTab] = useState('convention'); // default tab
   const [sortVisible, setSortVisible] = useState(false);
+  const [tabLoader, settabLoader] = useState(false);
+  const [defaultIndex, setdefaultIndex] = useState(type == 'farm' ? 2 : 1);
   const [appliedFilters, setAppliedFilters] = useState([
     'Family',
     '2 BHK',
@@ -254,6 +280,21 @@ const Convention = ({navigation}) => {
     console.log('Applied Filters:', newFilters);
     setAppliedFilters(newFilters);
   };
+  const isFocus = useIsFocused();
+  useEffect(() => {
+    settabLoader(true);
+    setTimeout(() => {
+      console.log(type, 'TYYYYYYYY');
+
+      if (type == 'farm') {
+        setdefaultIndex(2);
+      }
+      if (type == 'conv') {
+        setdefaultIndex(1);
+      }
+      settabLoader(false);
+    }, 0);
+  }, [isFocus]);
   return (
     <View
       style={{
@@ -269,7 +310,7 @@ const Convention = ({navigation}) => {
         <View style={styles.locationContainer}>
           <Image
             source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/1865/1865269.png',
+              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
             }}
             style={styles.locationIcon}
           />
@@ -287,8 +328,27 @@ const Convention = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+      {tabLoader ? (
+        <View style={{height: 115}}></View>
+      ) : (
+        <OptionSelector
+          navigation={navigation}
+          defaultIndex={defaultIndex}
+          data={showPost}
+          onSelect={(item, index) => {
+            console.log('Selected:', item, index);
+            if (index == 1) {
+              setActiveTab('convention');
+              setdefaultIndex(1);
+            } else {
+              setActiveTab('farmhouse');
+              setdefaultIndex(2);
+            }
+          }}
+        />
+      )}
       {/* Tabs */}
-      <View style={styles.tabContainer}>
+      {/* <View style={styles.tabContainer}>
         <TabButton
           title="Convention Hall"
           isActive={activeTab === 'convention'}
@@ -299,7 +359,7 @@ const Convention = ({navigation}) => {
           isActive={activeTab === 'farmhouse'}
           onPress={() => setActiveTab('farmhouse')}
         />
-      </View>
+      </View> */}
 
       {/* Render Components */}
       {activeTab === 'convention' ? (
@@ -452,8 +512,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationIcon: {
-    width: 22,
-    height: 22,
+    width: 45,
+    height: 30,
     marginRight: 8,
   },
   locationCity: {
@@ -488,10 +548,11 @@ const styles = StyleSheet.create({
   },
   searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
   searchInput: {
-    flex: 1,
+    // flex: 0.7,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
+    width: windowWidth / 2,
   },
   filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
 });

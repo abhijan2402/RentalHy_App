@@ -16,7 +16,7 @@ const ConventionMainFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
 
   // Price & Seating sliders
-  const [priceRange, setPriceRange] = useState([5000, 200000]);
+  const [priceRange, setPriceRange] = useState(['5000', '500000+']);
   const [seatingCapacity, setSeatingCapacity] = useState([50, 2000]);
 
   // Parking counts
@@ -204,7 +204,7 @@ const ConventionMainFilter = ({navigation, route}) => {
           <MultiSlider
             values={priceRange}
             onValuesChange={setPriceRange}
-            min={1000}
+            min={5000}
             max={500000}
             step={5000}
             selectedStyle={{backgroundColor: COLOR.primary}}

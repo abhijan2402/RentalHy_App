@@ -15,7 +15,7 @@ const FarmHouseFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
 
   // price range
-  const [priceRange, setPriceRange] = useState([5000, 200000]);
+  const [priceRange, setPriceRange] = useState(['5000', '500000+']);
 
   // all yes/no options
   const [swimmingPool, setSwimmingPool] = useState('');
@@ -131,7 +131,7 @@ const FarmHouseFilter = ({navigation, route}) => {
           <MultiSlider
             values={priceRange}
             onValuesChange={setPriceRange}
-            min={1000}
+            min={5000}
             max={500000}
             step={5000}
             selectedStyle={{backgroundColor: COLOR.primary}}

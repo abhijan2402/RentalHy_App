@@ -17,7 +17,7 @@ import CustomButton from '../../../Components/CustomButton';
 const PropertyDetail = ({navigation, route}) => {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const type = route?.params?.type;
-
+  const [isliked, setIsLiked] = useState(false);
   // Sample data
   const images = [
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
@@ -81,7 +81,30 @@ const PropertyDetail = ({navigation, route}) => {
 
         {/* Content */}
         <View style={styles.content}>
-          <Text style={styles.title}>{title}</Text>
+          <View
+            style={{
+              justifyContent: 'center',
+              marginBottom: 8,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+            <Text style={styles.title}>{title}</Text>
+            <TouchableOpacity
+              style={styles.wishlistIcon}
+              onPress={() => setIsLiked(!isliked)}>
+              <Image
+                source={{
+                  uri: 'https://cdn-icons-png.flaticon.com/128/13369/13369080.png',
+                }}
+                style={{
+                  width: 20,
+                  height: 20,
+                  tintColor: isliked ? COLOR.primary : COLOR.grey,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
 
           {/* Read More / Less */}
           <Text style={styles.description}>
@@ -216,7 +239,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
+    // marginBottom: 8,
   },
   description: {
     fontSize: 15,
@@ -333,5 +356,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  wishlistIcon: {
+    // position: 'absolute',
+    // top: 10,
+    // right: 10,
   },
 });

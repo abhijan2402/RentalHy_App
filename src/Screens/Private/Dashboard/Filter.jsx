@@ -29,6 +29,7 @@ const Filter = ({navigation, route}) => {
   const [facing, setFacing] = useState('');
   const [advanceValue, setAdvanceValue] = useState('');
   const [familyTypeValue, setFamilyTypeValue] = useState('');
+  const [selectedCommercialSpace, setselectedCommercialSpace] = useState('');
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
@@ -38,6 +39,7 @@ const Filter = ({navigation, route}) => {
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
   const advance = ['1 month', '2 months', '3 months+'];
   const familyType = ['Family', 'Bachelors Male', 'Bachelors Female'];
+  const commercialSpace = ['Yes', 'No'];
 
   const facingOptions = [
     'North',
@@ -133,7 +135,12 @@ const Filter = ({navigation, route}) => {
           propertyType,
           setPropertyType,
         )}
-
+        {renderOptions(
+          'Preferred Tenant Type',
+          familyType,
+          familyTypeValue,
+          setFamilyTypeValue,
+        )}
         {/* Room Size */}
         <Text style={styles.label}>Room Size (sq.ft.)</Text>
         <TextInput
@@ -217,10 +224,10 @@ const Filter = ({navigation, route}) => {
         {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
         {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
         {renderOptions(
-          'Preferred Tenant Type',
-          familyType,
-          familyTypeValue,
-          setFamilyTypeValue,
+          'Commercial Space',
+          commercialSpace,
+          selectedCommercialSpace,
+          setselectedCommercialSpace,
         )}
 
         {/* Buttons */}

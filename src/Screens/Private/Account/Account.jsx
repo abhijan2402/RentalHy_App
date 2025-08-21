@@ -13,8 +13,8 @@ import CustomButton from '../../../Components/CustomButton';
 import {AuthContext} from '../../../Backend/AuthContent';
 
 const Account = ({navigation}) => {
-  const { setUser } = useContext(AuthContext);
-  const { user  } =  useContext(AuthContext);
+  const {setUser} = useContext(AuthContext);
+  const {user} = useContext(AuthContext);
 
   const profileImage =
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'; // default profile icon
@@ -42,7 +42,7 @@ const Account = ({navigation}) => {
     },
     {
       id: 8,
-      title: 'Convention Space Orders',
+      title: 'Convention/Hall Orders',
       icon: 'https://cdn-icons-png.flaticon.com/128/9752/9752284.png',
       navigate: 'SpaceOrders',
     },
@@ -88,7 +88,10 @@ const Account = ({navigation}) => {
       <ScrollView contentContainerStyle={{paddingBottom: 20}}>
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <Image source={{uri: user?.image || profileImage}} style={styles.profileImage} />
+          <Image
+            source={{uri: user?.image || profileImage}}
+            style={styles.profileImage}
+          />
           <Text style={styles.profileName}>{user?.name}</Text>
           <Text style={styles.profileEmail}>{user?.email}</Text>
         </View>

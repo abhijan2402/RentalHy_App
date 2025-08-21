@@ -190,3 +190,23 @@ export const ExploreEvent = [
         dateTime: '2025-05-20 5:00 PM',
     },
 ];
+
+
+
+export const showPost = [
+    {
+        id: 1,
+        image: 'https://cdn-icons-png.flaticon.com/128/602/602175.png',
+        title: 'To-Let',
+    },
+    {
+        id: 2,
+        image: 'https://cdn-icons-png.flaticon.com/128/3033/3033357.png',
+        title: 'Convention/Funtional Hall',
+    },
+    {
+        id: 3,
+        image: 'https://cdn-icons-png.flaticon.com/128/3033/3033239.png',
+        title: 'Farm House',
+    },
+];

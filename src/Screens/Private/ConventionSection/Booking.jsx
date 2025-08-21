@@ -25,6 +25,7 @@ const Booking = ({navigation}) => {
   const [chef, setChef] = useState('no');
   const [decorations, setDecorations] = useState('no');
   const [groceries, setGroceries] = useState('no');
+  const [PhotographersReq, setPhotographersReq] = useState('no');
 
   const today = new Date().toISOString().split('T')[0]; // today's date in YYYY-MM-DD
 
@@ -41,7 +42,7 @@ const Booking = ({navigation}) => {
       return;
     }
     const summary = `
-Booking Confirmed!
+Booking Requested!
 Name: ${name}
 Mobile: ${mobile}
 Alt Mobile: ${altMobile || 'N/A'}
@@ -238,6 +239,34 @@ Groceries: ${groceries.toUpperCase()}
                   style={[
                     styles.toggleText,
                     chef === option && styles.selectedText,
+                  ]}>
+                  {option.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        {/* {renderToggle(
+              'Photographers Required',
+              PhotographersReq,
+              setPhotographersReq,
+            )} */}
+        {/* Decorations */}
+        <View style={styles.section}>
+          <Text style={styles.label}>Photographers Required?</Text>
+          <View style={styles.toggleRow}>
+            {['yes', 'no'].map(option => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.toggleBtn,
+                  PhotographersReq === option && styles.selectedBtn,
+                ]}
+                onPress={() => setPhotographersReq(option)}>
+                <Text
+                  style={[
+                    styles.toggleText,
+                    decorations === option && styles.selectedText,
                   ]}>
                   {option.toUpperCase()}
                 </Text>

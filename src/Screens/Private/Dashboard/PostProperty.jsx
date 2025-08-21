@@ -33,12 +33,15 @@ const PostProperty = ({navigation}) => {
   const [advanceValue, setAdvanceValue] = useState('');
   const [familyTypeValue, setFamilyTypeValue] = useState('');
   const [landmark, setLandmark] = useState('');
+
+  const [commercialSpace, setCommercialSpace] = useState('no');
+
   // Options
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
   const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
   const availabilityOptions = ['Ready to Move', 'Under Construction'];
-  const bathroomOptions = ['1', '2', '3', '4+'];
+  const bathroomOptions = ['1', '2', '3', '4+', 'No Advance'];
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
   const advance = ['1 month', '2 months', '3 months+'];
   const familyType = ['Family', 'Bachelors male', 'Bachelors female'];
@@ -268,6 +271,28 @@ const PostProperty = ({navigation}) => {
           setFamilyTypeValue,
           true
         )}
+        <View style={styles.section}>
+          <Text style={styles.label}>Commercial Space</Text>
+          <View style={styles.toggleRow}>
+            {['yes', 'no'].map(option => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.toggleBtn,
+                  commercialSpace === option && styles.selectedBtn,
+                ]}
+                onPress={() => setCommercialSpace(option)}>
+                <Text
+                  style={[
+                    styles.toggleText,
+                    commercialSpace === option && styles.selectedText,
+                  ]}>
+                  {option.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
         {/* Upload Images */}
         <Text style={styles.label}>Property Images*</Text>
@@ -393,4 +418,45 @@ const styles = StyleSheet.create({
     height: 10,
     tintColor: COLOR.black,
   },
+
+  section: {marginVertical: 10},
+  label: {fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333'},
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    backgroundColor: '#fafafa',
+  },
+  dateBox: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginRight: 10,
+    backgroundColor: '#f9f9f9',
+  },
+  dateText: {fontSize: 14, color: '#333'},
+  selectedBox: {
+    backgroundColor: COLOR.primary || '#007AFF',
+    borderColor: COLOR.primary || '#007AFF',
+  },
+  selectedText: {color: '#fff', fontWeight: '600'},
+  toggleRow: {flexDirection: 'row', marginTop: 10},
+  toggleBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  selectedBtn: {
+    backgroundColor: COLOR.primary || '#007AFF',
+    borderColor: COLOR.primary || '#007AFF',
+  },
+  toggleText: {fontSize: 14, color: '#333'},
 });

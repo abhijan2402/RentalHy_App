@@ -21,7 +21,9 @@ import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
 import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
-import { useIsFocused } from '@react-navigation/native';
+import OptionSelector from './OptionSelector';
+import {showPost} from '../../../Constants/Data';
+import {useIsFocused} from '@react-navigation/native';
 import { useApi } from '../../../Backend/Api';
 
 const {width} = Dimensions.get('window');
@@ -199,6 +201,7 @@ const Home = ({navigation}) => {
 
 
   const animationRef = useRef();
+  const [tabLoader, settabLoader] = useState(false);
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);
   const [multiFilter, setMultiFilter] = useState(false);
@@ -248,6 +251,16 @@ const Home = ({navigation}) => {
       data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
     },
     {
+      id: 'commercialSpace',
+      type: 'Commercial Space',
+      data: ['Yes', 'No'],
+    },
+    {
+      id: 'familyType',
+      type: 'Tenant Type',
+      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
+    },
+    {
       id: 'propertyTypes',
       type: 'property Type',
       data: ['Apartment', 'Flat', 'Villa'],
@@ -275,12 +288,7 @@ const Home = ({navigation}) => {
     {
       id: 'advance',
       type: 'advance',
-      data: ['1 month', '2 months', '3 months+'],
-    },
-    {
-      id: 'familyType',
-      type: 'family Type',
-      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
+      data: ['1 month', '2 months', '3 months+', 'No Advance'],
     },
   ]);
 
@@ -293,6 +301,13 @@ const Home = ({navigation}) => {
       setloader(false);
     }, 1000);
   }, []);
+  const isFocus = useIsFocused();
+  useEffect(() => {
+    settabLoader(true);
+    setTimeout(() => {
+      settabLoader(false);
+    }, 10);
+  }, [isFocus]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -303,7 +318,7 @@ const Home = ({navigation}) => {
         <View style={styles.locationContainer}>
           <Image
             source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/1865/1865269.png',
+              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
             }}
             style={styles.locationIcon}
           />
@@ -321,42 +336,19 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
-      <View
-        style={{
-          borderWidth: 0.5,
-          borderColor: COLOR.lightGrey,
-          marginHorizontal: 20,
-          marginVertical: 8,
-          padding: 15,
-          paddingVertical: 10,
-          backgroundColor: COLOR.primary,
-          borderRadius: 15,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 16,
-            // marginBottom: 10,
-            fontWeight: '500',
-          }}>
-          App Demo video{' '}
-        </Text>
-
-        <TouchableOpacity
-          onPress={() => {}} // blank onPress
-          style={{
-            backgroundColor: 'rgba(255,255,255,0.2)',
-            paddingVertical: 8,
-            paddingHorizontal: 15,
-            borderRadius: 10,
-            alignSelf: 'flex-start',
-          }}>
-          <Text style={{color: '#fff', fontWeight: '600'}}>Click here</Text>
-        </TouchableOpacity>
-      </View>
+      {tabLoader ? (
+        <View style={{height: 115}}></View>
+      ) : (
+        <OptionSelector
+          navigation={navigation}
+          defaultIndex={0}
+          data={showPost}
+          onSelect={(item, index) => {
+            console.log('Selected:', item, index);
+          }}
+        />
+      )}
+      <DemoCard />
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -369,6 +361,14 @@ const Home = ({navigation}) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
+        <TouchableOpacity onPress={() => {}}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+            }}
+            style={styles.filterIcon}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => setSortVisible(true)}>
           <Image
             source={{
@@ -395,7 +395,7 @@ const Home = ({navigation}) => {
         <>
           <LottieView
             ref={animationRef}
-            source={require('../../../assets/Lottie/Loading.json')}
+            source={require('../../../assets/Lottie/Loading1.json')}
             style={styles.image}
           />
           <View style={styles.flagcontainer}>
@@ -557,6 +557,49 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
     </Animated.View>
   );
 };
+export const DemoCard = ({
+  title = 'App Demo video',
+  buttonText = 'Click here',
+  onPress,
+}) => {
+  return (
+    <View
+      style={{
+        borderWidth: 0.5,
+        borderColor: COLOR.lightGrey,
+        marginHorizontal: 20,
+        marginVertical: 8,
+        padding: 15,
+        paddingVertical: 10,
+        backgroundColor: COLOR.primary,
+        borderRadius: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+      <Text
+        style={{
+          color: '#fff',
+          fontSize: 16,
+          fontWeight: '500',
+        }}>
+        {title}
+      </Text>
+
+      <TouchableOpacity
+        onPress={onPress}
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.2)',
+          paddingVertical: 8,
+          paddingHorizontal: 15,
+          borderRadius: 10,
+          alignSelf: 'flex-start',
+        }}>
+        <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -578,8 +621,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationIcon: {
-    width: 22,
-    height: 22,
+    width: 45,
+    height: 30,
     marginRight: 8,
   },
   locationCity: {
@@ -701,7 +744,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: windowWidth,
-    height: windowHeight * 0.4,
+    height: windowHeight * 0.3,
   },
 
   flagcontainer: {
@@ -710,14 +753,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#FF9933', // saffron
-    backgroundColor: '#fdfdfd',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: {width: 0, height: 3},
-    shadowRadius: 5,
-    elevation: 4,
+    // borderWidth: 2,
+    // borderColor: '#FF9933', // saffron
+    // backgroundColor: '#fdfdfd',
+    // shadowColor: '#000',
+    // shadowOpacity: 0.15,
+    // shadowOffset: {width: 0, height: 3},
+    // shadowRadius: 5,
+    // elevation: 4,
     marginHorizontal: 20,
     marginBottom: 5,
   },
