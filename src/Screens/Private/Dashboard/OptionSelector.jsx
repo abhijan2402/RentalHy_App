@@ -5,12 +5,11 @@ import {COLOR} from '../../../Constants/Colors';
 const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
 
 const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
-  console.log(defaultIndex, 'IDNEXXX');
-
+ 
   const [selectedIndex, setSelectedIndex] = useState(defaultIndex);
 
   const handlePress = (item, index) => {
-    setSelectedIndex(index); // ✅ update immediately
+    setSelectedIndex(index);
     onSelect?.(item, index);
 
     // navigation logic

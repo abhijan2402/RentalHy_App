@@ -8,36 +8,58 @@ import {
   Linking,
   ScrollView,
   ImageBackground,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
+import { useApi } from '../../../Backend/Api';
 
 const PropertyDetail = ({navigation, route}) => {
+  const {getRequest} = useApi();
   const [showFullDesc, setShowFullDesc] = useState(false);
-  const type = route?.params?.type;
-  const [isliked, setIsLiked] = useState(false);
-  // Sample data
-  const images = [
+  const [loading,setLoading] = useState(true);
+  const [AllData,setAllData] = useState();
+   const [images , setImages] = useState([
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
     'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80',
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  ];
+  ])
+  const { type , propertyData} = route?.params;
+
+
+  const getPropertyDetails = async (id) => {
+    setLoading(true);
+    const response = await getRequest(`public/api/properties/${id}`)
+    if(response?.data?.status){
+      setImages(response?.data?.data?.images?.map((e) => e?.image_url))
+      setAllData(response?.data?.data)
+      setLoading(false);
+    }
+      setLoading(false);
+
+  }
+
+  useEffect(() =>{
+    if(propertyData?.id){
+      getPropertyDetails(propertyData?.id)
+    }
+  },[propertyData?.id])
+
+  const [isliked, setIsLiked] = useState(false);
+  // Sample data
+ 
 
   const phoneNumber = '+919876543210';
   const location = 'Jaipur, Rajasthan';
-  const price = '₹ 25,00,000';
-  const title = 'Luxury 2 BHK Apartment';
-  const description =
-    'A beautiful luxury apartment with all modern amenities and a prime location. This spacious apartment offers ample sunlight, cross ventilation, and premium fittings. Located close to schools, hospitals, and shopping malls, it is an ideal choice for families. The property includes modular kitchen, false ceiling, high-quality flooring, and designer bathrooms. Additional facilities include 24/7 water supply, security, and reserved parking.';
-
+ 
   const specifications = {
-    bhk: '2 BHK',
-    bathrooms: 2,
-    area: '1200 sq.ft',
+    bhk: AllData?.bhk,
+    bathrooms: AllData?.bathrooms,
+    area: `${AllData?.area_sqft} sq.ft`,
     floor: '3rd',
-    furnished: 'Semi-Furnished',
+    furnished: AllData?.furnishing_status,
   };
 
   const amenities = [
@@ -65,8 +87,11 @@ const PropertyDetail = ({navigation, route}) => {
         showBack
         onBackPress={() => navigation.goBack()}
       />
-
-      <ScrollView>
+      {
+        loading ? 
+        <ActivityIndicator size={'large'} color={COLOR?.primary} style={{top:'30%'}} />
+        :
+        <ScrollView>
         {/* Horizontal Image Carousel */}
         <FlatList
           data={images}
@@ -89,7 +114,7 @@ const PropertyDetail = ({navigation, route}) => {
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.title}>{AllData?.title}</Text>
             <TouchableOpacity
               style={styles.wishlistIcon}
               onPress={() => setIsLiked(!isliked)}>
@@ -108,7 +133,7 @@ const PropertyDetail = ({navigation, route}) => {
 
           {/* Read More / Less */}
           <Text style={styles.description}>
-            {showFullDesc ? description : description.slice(0, 120) + '...'}
+            {showFullDesc ? AllData?.description : AllData?.description.slice(0, 120) + '...'}
           </Text>
           <TouchableOpacity onPress={() => setShowFullDesc(!showFullDesc)}>
             <Text style={styles.readMore}>
@@ -116,7 +141,7 @@ const PropertyDetail = ({navigation, route}) => {
             </Text>
           </TouchableOpacity>
 
-          <Text style={styles.price}>{price}</Text>
+          <Text style={styles.price}>{'₹' + AllData?.price}</Text>
 
           {/* Contact Section */}
           <View style={styles.contactContainer}>
@@ -145,7 +170,7 @@ const PropertyDetail = ({navigation, route}) => {
                 style={styles.iconLarge}
               />
               <Text style={styles.phoneHighlighted}>
-                Abc, Hyderabad, 785556
+               {AllData?.location}
               </Text>
             </TouchableOpacity>
           </View>
@@ -161,7 +186,7 @@ const PropertyDetail = ({navigation, route}) => {
                 }}
                 style={styles.iconLarge}
               />
-              <Text style={styles.locationHighlighted}>{location}</Text>
+              <Text style={styles.locationHighlighted}>{AllData?.location}</Text>
             </View>
 
             {/* Map Preview */}
@@ -217,6 +242,8 @@ const PropertyDetail = ({navigation, route}) => {
           />
         )}
       </ScrollView>
+      }
+      
     </View>
   );
 };

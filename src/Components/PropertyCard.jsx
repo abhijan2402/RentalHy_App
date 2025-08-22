@@ -11,10 +11,10 @@ const PropertyCard = ({item, toggleLike}) => {
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate('PropertyDetail', {propertyId: item.id});
+        navigation.navigate('PropertyDetail', {propertyData: item});
       }}
       style={styles.card}>
-      <Image source={{uri: item.image}} style={styles.propertyImage} />
+      <Image source={{uri: item.images[0]?.image_url}} style={styles.propertyImage} />
 
       <TouchableOpacity
         style={styles.wishlistIcon}
@@ -31,7 +31,7 @@ const PropertyCard = ({item, toggleLike}) => {
         />
       </TouchableOpacity>
 
-      <Text style={styles.propertyName}>{item.name}</Text>
+      <Text style={styles.propertyName}>{item.title}</Text>
       <Text style={styles.propertyLocation}>{item.location}</Text>
       <Text style={styles.propertyLocation}>Family </Text>
       <Text style={styles.propertyPrice}>{item.price}</Text>

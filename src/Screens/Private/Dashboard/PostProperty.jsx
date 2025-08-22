@@ -13,14 +13,19 @@ import Header from '../../../Components/FeedHeader';
 import ImagePicker from 'react-native-image-crop-picker';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
 
 const PostProperty = ({navigation}) => {
+  const {postRequest} = useApi();
+  const {showToast} = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [area, setArea] = useState('');
   const [images, setImages] = useState([]);
+  const [loading,setLoading] = useState(false);
 
   // Filter-style selections
   const [selectedBHK, setSelectedBHK] = useState('');
@@ -113,7 +118,8 @@ const PostProperty = ({navigation}) => {
     }).then(selectedImages => {
       const newImages = selectedImages.map(img => ({
         uri: img.path,
-        mime: img.mime,
+        type: img.mime,
+        name:'images'
       }));
       setImages(prev => [...prev, ...newImages]);
     });
@@ -123,51 +129,74 @@ const PostProperty = ({navigation}) => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handlePostProperty = () => {
-    if (!title || !description || !price || !location) {
-      Alert.alert('Error', 'Please fill all required fields.');
-      return;
-    }
+  const handlePostProperty = async () => {
+  if (!title || !description || !price || !location) {
+    Alert.alert('Error', 'Please fill all required fields.');
+    return;
+  }
+  setLoading(true);
 
-    const propertyData = {
-      title,
-      description,
-      price,
-      location,
-      area,
-      BHK: selectedBHK,
-      propertyType: propertyType,
-      furnishing : furnishing,
-      availability : availability,
-      bathrooms : bathrooms,
-      parking : parking,
-      facing : facing,
-      advanceValue : advanceValue,
-      familyTypeValue : familyTypeValue,
-      images,
-    };
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('price', price);
+  formData.append('location', location);
+  formData.append('area_sqft', area);
+  formData.append('property_type', propertyType);
+  formData.append('availability', availability);
+  formData.append('bathrooms', bathrooms);
+  formData.append('parking_available', parking);
+  formData.append('facing_direction', facing);
+  formData.append('advance', advanceValue);
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('location', location);
-    formData.append('area_sqft',area);
-    formData.append('bhk[0]',selectedBHK);
-    formData.append('property_type',propertyType);
-    formData.append('furnishing_status[0]',furnishing);
-    formData.append('availability',availability);
-    formData.append('bathrooms',bathrooms);
-    formData.append('parking_available',parking);
-    formData.append('facing_direction',facing);
-    formData.append('advance',advanceValue);
-    formData.append('preferred_tenant_type[0]',familyTypeValue);
-    formData.append('image',images);
+  if (Array.isArray(selectedBHK)) {
+    selectedBHK.forEach((item, index) => {
+      formData.append(`bhk[${index}]`, item);
+    });
+  } else {
+    formData.append('bhk[0]', selectedBHK);
+  }
 
-    console.log('Property Data:', formData);
+  if (Array.isArray(furnishing)) {
+    furnishing.forEach((item, index) => {
+      formData.append(`furnishing_status[${index}]`, item);
+    });
+  } else {
+    formData.append('furnishing_status[0]', furnishing);
+  }
 
-    // Alert.alert('Success', 'Your property has been posted successfully!');
-    // navigation.goBack();
-  };
+  if (Array.isArray(familyTypeValue)) {
+    familyTypeValue.forEach((item, index) => {
+      formData.append(`preferred_tenant_type[${index}]`, item);
+    });
+  } else {
+    formData.append('preferred_tenant_type[0]', familyTypeValue);
+  }
+
+  images.forEach((img, index) => {
+    formData.append(`images[${index}]`, {
+      uri: img.uri,
+      type: img.type || 'image/jpeg',
+      name: img.name || `image_${index}.jpg`,
+    });
+  });
+
+  console.log(formData,"formDataformData")
+
+  const response = await postRequest('public/api/properties/add', formData, true);
+  if(response?.data?.status == true){
+    showToast(response?.data?.message, "success")
+    setLoading(false);
+  }
+    setLoading(false);
+
+  console.log(response, 'responseresponseresponseresponseresponseresponse');
+
+  // Uncomment if you want to show alert and go back on success
+  // Alert.alert('Success', 'Your property has been posted successfully!');
+  // navigation.goBack();
+};
+
 
   return (
     <View style={styles.container}>
@@ -241,26 +270,26 @@ const PostProperty = ({navigation}) => {
           'Property Type*',
           propertyTypes,
           propertyType,
-          setPropertyType,
+          setPropertyType
         )}
         {renderOptions(
           'Furnishing Status',
           furnishingOptions,
           furnishing,
-          setFurnishing,
+          setFurnishing
         )}
         {renderOptions(
           'Availability',
           availabilityOptions,
           availability,
-          setAvailability,
+          setAvailability
         )}
         {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms)}
         {renderOptions(
           'Parking Available',
           parkingOptions,
           parking,
-          setParking,
+          setParking
         )}
         {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
         {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
@@ -268,8 +297,7 @@ const PostProperty = ({navigation}) => {
           'Preferred Tenant Type',
           familyType,
           familyTypeValue,
-          setFamilyTypeValue,
-          true
+          setFamilyTypeValue
         )}
         <View style={styles.section}>
           <Text style={styles.label}>Commercial Space</Text>
@@ -320,6 +348,7 @@ const PostProperty = ({navigation}) => {
 
         {/* Post Button */}
         <CustomButton
+        loading={loading}
           title={'Post Property'}
           style={{marginTop: 20}}
           onPress={handlePostProperty}

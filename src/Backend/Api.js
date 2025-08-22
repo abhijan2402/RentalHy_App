@@ -74,7 +74,6 @@ export const useApi = () => {
 
       const json = await response.json();
 
-      console.log(json,"jsonjson")
 
       if (!response.ok) {
         return {

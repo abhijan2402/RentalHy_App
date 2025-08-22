@@ -19,8 +19,7 @@ import CustomButton from '../../../Components/CustomButton';
 const EditProfile = ({navigation}) => {
   const {postRequest} = useApi();
   const [loading, setLoading] = useState(false);
-  const { user  , setUser , token } =  useContext(AuthContext)
-  console.log(user,"tokentoken")
+  const { user  , setUser } =  useContext(AuthContext)
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -50,7 +49,6 @@ const EditProfile = ({navigation}) => {
 
     const response  = await postRequest('public/api/profile/image', formData , true);
 
-    console.log(response?.data,"responseresponseresponseresponse")
     if(response?.data?.status){
       setUser(response?.data?.user)
     }
