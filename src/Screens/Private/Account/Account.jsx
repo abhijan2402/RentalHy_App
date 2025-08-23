@@ -59,18 +59,18 @@ const Account = ({navigation}) => {
       navigate: 'Cms',
       params: {
         title: `Terms & Conditions`,
-        slug: 'terms-condition',
+        slug: 'terms-conditions',
       },
     },
 
     {
       id: 4,
-      title: 'About Us',
+      title: 'Privacy Policy',
       icon: 'https://cdn-icons-png.flaticon.com/512/471/471662.png',
       navigate: 'Cms',
       params: {
-        title: `About Us`,
-        slug: 'about-us',
+        title: `Privacy Policy`,
+        slug: 'privacy-policy',
       },
     },
     {

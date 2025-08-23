@@ -6,116 +6,23 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from '../../Components/FeedHeader';
 import {COLOR} from '../../Constants/Colors';
 import {renderProperty} from './Dashboard/Home';
 import PropertyCard from '../../Components/PropertyCard';
+import { useApi } from '../../Backend/Api';
+import { useIsFocused } from '@react-navigation/native';
 
-// Demo property data
-const propertyData = [
-  {
-    id: '1',
-    name: 'Luxury Villa',
-    location: 'Jaipur',
-    price: '₹ 75,00,000',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  },
-  {
-    id: '2',
-    name: 'Modern Apartment',
-    location: 'Delhi',
-    price: '₹ 45,00,000',
-    image:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80',
-  },
-  {
-    id: '3',
-    name: 'Beach House',
-    location: 'Goa',
-    price: '₹ 1,20,00,000',
-    image:
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80',
-  },
-  {
-    id: '4',
-    name: 'Penthouse Suite',
-    location: 'Mumbai',
-    price: '₹ 2,50,00,000',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  },
-  {
-    id: '3',
-    name: 'Beach House',
-    location: 'Goa',
-    price: '₹ 1,20,00,000',
-    image:
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80',
-  },
-  {
-    id: '4',
-    name: 'Penthouse Suite',
-    location: 'Mumbai',
-    price: '₹ 2,50,00,000',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  },
-  {
-    id: '3',
-    name: 'Beach House',
-    location: 'Goa',
-    price: '₹ 1,20,00,000',
-    image:
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80',
-  },
-  {
-    id: '4',
-    name: 'Penthouse Suite',
-    location: 'Mumbai',
-    price: '₹ 2,50,00,000',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  },
-  {
-    id: '3',
-    name: 'Beach House',
-    location: 'Goa',
-    price: '₹ 1,20,00,000',
-    image:
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80',
-  },
-  {
-    id: '4',
-    name: 'Penthouse Suite',
-    location: 'Mumbai',
-    price: '₹ 2,50,00,000',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  },
-  {
-    id: '3',
-    name: 'Beach House',
-    location: 'Goa',
-    price: '₹ 1,20,00,000',
-    image:
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80',
-  },
-  {
-    id: '4',
-    name: 'Penthouse Suite',
-    location: 'Mumbai',
-    price: '₹ 2,50,00,000',
-    image:
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-  },
-];
 
 const Wishlist = ({navigation}) => {
+  const {getRequest} = useApi();
+  const isFocus = useIsFocused();
   const [likedProperties, setLikedProperties] = useState([]);
-
+  const [isLoading,setIsLoading] = useState(false);
+  const [propertyData, setPropertyData] = useState([]);
   const toggleLike = id => {
     if (likedProperties.includes(id)) {
       setLikedProperties(likedProperties.filter(pid => pid !== id));
@@ -123,6 +30,26 @@ const Wishlist = ({navigation}) => {
       setLikedProperties([...likedProperties, id]);
     }
   };
+
+  const getData = async () => {
+    setIsLoading(true)
+    const response = await getRequest('public/api/wishlist/stats');
+    if(response.data?.status){
+          setPropertyData(response.data?.data);
+          setIsLoading(false)
+    }else{
+      setPropertyData([]);
+      setIsLoading(false)
+    }
+    setIsLoading(false)
+
+  };
+
+  useEffect(() => {
+    if(isFocus){
+        getData();
+    }
+  }, [isFocus]);
 
   return (
     <View style={styles.container}>
@@ -135,16 +62,21 @@ const Wishlist = ({navigation}) => {
       />
 
       {/* Property Grid */}
-      <FlatList
-        data={propertyData}
-        renderItem={({item}) => (
-          <PropertyCard item={item} toggleLike={toggleLike} />
-        )}
-        keyExtractor={item => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
-      />
+    {
+      isLoading ? (
+        <ActivityIndicator size={'large'} color={COLOR?.primary} style={{top:'30%'}} />
+      ) : (
+        <FlatList
+          data={propertyData}
+          renderItem={({item}) => (
+            <PropertyCard item={item} toggleLike={toggleLike} type={'wishlist'} />
+          )}
+          keyExtractor={item => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };

@@ -17,14 +17,11 @@ import CustomButton from '../../../Components/CustomButton';
 import { useApi } from '../../../Backend/Api';
 
 const PropertyDetail = ({navigation, route}) => {
-  const {getRequest} = useApi();
+  const {getRequest , postRequest} = useApi();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [loading,setLoading] = useState(true);
   const [AllData,setAllData] = useState();
    const [images , setImages] = useState([
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80',
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80',
   ])
   const { type , propertyData} = route?.params;
 
@@ -38,38 +35,45 @@ const PropertyDetail = ({navigation, route}) => {
       setLoading(false);
     }
       setLoading(false);
+  }
 
+  const propertyViewed  = async (id) => {
+    const formData = new FormData();
+    formData.append('property_id', id);
+    const response = await postRequest(`public/api/property-views/store`, formData , true)
+    console.log(response)
   }
 
   useEffect(() =>{
     if(propertyData?.id){
       getPropertyDetails(propertyData?.id)
+      propertyViewed(propertyData?.id)
+
     }
   },[propertyData?.id])
 
   const [isliked, setIsLiked] = useState(false);
-  // Sample data
  
 
   const phoneNumber = '+919876543210';
   const location = 'Jaipur, Rajasthan';
  
   const specifications = {
-    bhk: AllData?.bhk,
+    bhk: AllData?.bhk && JSON.parse(AllData?.bhk),
     bathrooms: AllData?.bathrooms,
     area: `${AllData?.area_sqft} sq.ft`,
     floor: '3rd',
-    furnished: AllData?.furnishing_status,
+    furnished: AllData?.furnishing_status && JSON.parse(AllData?.furnishing_status),
   };
 
-  const amenities = [
-    '24/7 Security',
-    'Lift',
-    'Gym',
-    'Swimming Pool',
-    'Parking',
-    'Power Backup',
-  ];
+  const amenities = {
+    Security : '24/7 Security',
+    Lift : 'Lift',
+    Gym : 'Gym',
+    Pool : 'Swimming Pool',
+    Parking : AllData?.parking_available,
+    // PwrBckup : 'Power Backup',
+  };
 
   const handleCall = () => {
     Linking.openURL(`tel:${phoneNumber}`);
@@ -135,11 +139,11 @@ const PropertyDetail = ({navigation, route}) => {
           <Text style={styles.description}>
             {showFullDesc ? AllData?.description : AllData?.description.slice(0, 120) + '...'}
           </Text>
-          <TouchableOpacity onPress={() => setShowFullDesc(!showFullDesc)}>
+          {AllData?.description?.length > 100 && <TouchableOpacity onPress={() => setShowFullDesc(!showFullDesc)}>
             <Text style={styles.readMore}>
               {showFullDesc ? 'Show Less' : 'Read More'}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity>}
 
           <Text style={styles.price}>{'₹' + AllData?.price}</Text>
 
@@ -218,9 +222,10 @@ const PropertyDetail = ({navigation, route}) => {
           {/* Amenities */}
           <Text style={styles.sectionTitle}>Amenities</Text>
           <View style={styles.amenitiesContainer}>
-            {amenities.map((item, index) => (
-              <Text key={index} style={styles.amenity}>
-                • {item}
+           
+            {Object?.entries(amenities)?.map(([key,value]) => (
+              <Text key={key} style={styles.specText}>
+                • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
               </Text>
             ))}
           </View>
@@ -283,6 +288,7 @@ const styles = StyleSheet.create({
     color: COLOR.primary,
     fontWeight: 'bold',
     marginBottom: 15,
+    marginVertical:5
   },
   contactContainer: {
     backgroundColor: '#f1f8ff',

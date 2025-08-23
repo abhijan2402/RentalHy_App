@@ -28,7 +28,7 @@ export const useApi = () => {
       });
 
       const json = await response.json();
-      console.log(json, 'JSON');
+      // console.log(json, 'JSON');
 
       if (!response.ok) {
             let errorMessages = 'An unknown error occurred.';
@@ -138,7 +138,7 @@ export const useApi = () => {
       });
 
       const json = await response.json();
-      console.log(json, 'JSON');
+      // console.log(json, 'JSON');
 
       if (!response.ok) {
         return {

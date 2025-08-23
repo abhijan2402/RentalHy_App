@@ -14,22 +14,23 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const Filter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter; // Get callback from Properties
+  const existingFilters = route?.params?.existingFilters || {};
 
-  const [selectedBHK, setSelectedBHK] = useState('');
-  const [propertyType, setPropertyType] = useState('');
-  const [roomSize, setRoomSize] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [priceRange, setPriceRange] = useState([5000, 100000]); // default min and max
+   const [selectedBHK, setSelectedBHK] = useState(existingFilters.BHK || '');
+  const [propertyType, setPropertyType] = useState(existingFilters.propertyType || '');
+  const [roomSize, setRoomSize] = useState(existingFilters.roomSize || '');
+  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || '');
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || '');
+  const [priceRange, setPriceRange] = useState(existingFilters.priceRange || [5000, 100000]);
 
-  const [furnishing, setFurnishing] = useState('');
-  const [availability, setAvailability] = useState('');
-  const [bathrooms, setBathrooms] = useState('');
-  const [parking, setParking] = useState('');
-  const [facing, setFacing] = useState('');
-  const [advanceValue, setAdvanceValue] = useState('');
-  const [familyTypeValue, setFamilyTypeValue] = useState('');
-  const [selectedCommercialSpace, setselectedCommercialSpace] = useState('');
+  const [furnishing, setFurnishing] = useState(existingFilters.furnishing || '');
+  const [availability, setAvailability] = useState(existingFilters.availability || '');
+  const [bathrooms, setBathrooms] = useState(existingFilters.bathrooms || '');
+  const [parking, setParking] = useState(existingFilters.parking || '');
+  const [facing, setFacing] = useState(existingFilters.facing || '');
+  const [advanceValue, setAdvanceValue] = useState(existingFilters.advanceValue || '');
+  const [familyTypeValue, setFamilyTypeValue] = useState(existingFilters.familyTypeValue || '');
+  const [selectedCommercialSpace, setselectedCommercialSpace] = useState(existingFilters.selectedCommercialSpace || '');
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
@@ -65,6 +66,9 @@ const Filter = ({navigation, route}) => {
     setFacing('');
     setAdvanceValue('');
     setFamilyTypeValue('');
+    onApplyFilter({})
+    navigation.goBack();
+
   };
 
   const handleApply = () => {
@@ -86,7 +90,7 @@ const Filter = ({navigation, route}) => {
     console.log('Applied Filters:', filters);
 
     if (onApplyFilter) {
-      onApplyFilter(filters); // Send filters back to Properties screen
+      onApplyFilter(filters); 
     }
     navigation.goBack();
   };

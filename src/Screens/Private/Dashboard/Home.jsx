@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,76 +14,50 @@ import {
   Animated,
   ScrollView,
 } from 'react-native';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
 import CustomButton from '../../../Components/CustomButton';
 import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
-import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
+import { windowHeight, windowWidth } from '../../../Constants/Dimensions';
 import OptionSelector from './OptionSelector';
-import {showPost} from '../../../Constants/Data';
-import {useIsFocused} from '@react-navigation/native';
+import { showPost } from '../../../Constants/Data';
+import { useIsFocused } from '@react-navigation/native';
 import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-const Home = ({navigation}) => {
-  const {postRequest} = useApi();
+const Home = ({ navigation }) => {
+  const { postRequest } = useApi();
+  const {showToast} = useToast();
   const focus = useIsFocused();
-  const banners = [
-    'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1200',
-    'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1200',
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200',
-  ];
   const [loader, setloader] = useState(true);
+  const [properties, setProperties] = useState([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [likedProperties, setLikedProperties] = useState([]);
 
-  const [properties , setProperties] = useState([]);
+    const [appliedFilters, setAppliedFilters] = useState({}); // {bhk: ['2 BHK'], ...}
 
-  const GetProperties = async () => {
-    setloader(true);
-    const response = await postRequest('public/api/properties');
-    setProperties(response?.data?.data?.data);
-    setloader(false)
-  }
-
-
-  useEffect(() => {
-    if(focus){
-      GetProperties();
+  const toggleLike = async id => {
+    const formdata = new FormData();
+    formdata.append('property_id', id);
+    const response = await postRequest('public/api/wishlist/add', formdata , true);
+    console.log(response)
+    if (response?.data?.status) {
+      showToast(response?.data?.message , "success");
+      setLikedProperties(prev =>
+        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
+      );
+    }else{
+      showToast(response?.error , "error");
     }
-  },[focus])
-
-
-  const animationRef = useRef();
-  const [tabLoader, settabLoader] = useState(false);
-  const [bannerIndex, setBannerIndex] = useState(0);
-  const bannerRef = useRef(null);
-  const [multiFilter, setMultiFilter] = useState(false);
-  const [appliedFilters, setAppliedFilters] = useState([
-    'Family',
-    '2 BHK',
-    'Jaipur',
-  ]); // demo filters
-  // Auto-scroll banners
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     const nextIndex = (bannerIndex + 1) % banners.length;
-  //     setBannerIndex(nextIndex);
-  //     bannerRef.current.scrollToIndex({index: nextIndex, animated: true});
-  //   }, 3000);
-
-  //   return () => clearInterval(timer);
-  // }, [bannerIndex]);
-
-  const toggleLike = id => {
-    setLikedProperties(prev =>
-      prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
-    );
   };
 
   const handleFilterChange = newFilters => {
-    console.log('Applied Filters:', newFilters);
     setAppliedFilters(newFilters);
   };
 
@@ -91,7 +65,78 @@ const Home = ({navigation}) => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
 
-  const [attendedFilter, setAttendedFilter] = useState([]);
+
+    const buildFormData = (filters, pageNum = 1) => {
+    const formData = new FormData();
+    formData.append('page', pageNum);
+
+    if (filters.BHK) formData.append('bhk', filters.BHK);
+    if (filters.propertyType) formData.append('property_type', filters.propertyType);
+    if (filters.roomSize) formData.append('area_sqft', filters.roomSize);
+    if (filters.minPrice) formData.append('min_price', filters.minPrice);
+    if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
+    if (filters.furnishing) formData.append('furnishing_status', filters.furnishing);
+    if (filters.availability) formData.append('availability', filters.availability);
+    if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
+    if (filters.parking) formData.append('parking_available', filters.parking);
+    if (filters.facing) formData.append('facing_direction', filters.facing);
+    if (filters.advanceValue) formData.append('advance', filters.advanceValue);
+    if (filters.familyTypeValue) formData.append('preferred_tenant_type', filters.familyTypeValue);
+
+    return formData;
+  };
+
+const GetProperties = async (pageNum = 1, append = false, filters = appliedFilters) => {
+    if (pageNum === 1) setloader(true);
+    else setLoadingMore(true);
+
+    const formData = buildFormData(filters, pageNum);
+    const response = await postRequest('public/api/properties', formData , true);
+    const resData = response?.data?.data;
+    const newProperties = resData?.data || [];
+    setLastPage(resData?.last_page || 1);
+
+    if (append) {
+      setProperties(prev => [...prev, ...newProperties]);
+    } else {
+      setProperties(newProperties);
+    }
+
+    setPage(resData?.current_page || 1);
+    setloader(false);
+    setLoadingMore(false);
+  };
+
+ useEffect(() => {
+    if (focus) {
+      GetProperties(1, false);
+    }
+  }, [focus]);
+
+    useEffect(() => {
+    GetProperties(1, false, appliedFilters);
+  }, [appliedFilters]);
+
+   const handleLoadMore = () => {
+    if (!loadingMore && page < lastPage) {
+      GetProperties(page + 1, true, appliedFilters);
+    }
+  };
+
+  const animationRef = useRef();
+  const [tabLoader, settabLoader] = useState(false);
+  const [bannerIndex, setBannerIndex] = useState(0);
+  const bannerRef = useRef(null);
+
+  const [multiModalState, setMultiModalState] = useState({
+    visible: false,
+    filterType: '',
+    filterValueData: [],
+    initialSelected: [],
+  });
+
+
+
   const [sortVisible, setSortVisible] = useState(false);
 
   const [avaialbleFilter, setavaialbleFilter] = useState([
@@ -102,7 +147,7 @@ const Home = ({navigation}) => {
     },
     {
       id: 'bhkOptions',
-      type: 'bhk',
+      type: 'BHK',
       data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
     },
     {
@@ -164,6 +209,8 @@ const Home = ({navigation}) => {
     }, 10);
   }, [isFocus]);
 
+  const getSelectedValues = type => appliedFilters[type] || [];
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
@@ -192,7 +239,7 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
       {tabLoader ? (
-        <View style={{height: 115}}></View>
+        <View style={{ height: 115 }}></View>
       ) : (
         <OptionSelector
           navigation={navigation}
@@ -216,7 +263,7 @@ const Home = ({navigation}) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => { }}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -234,7 +281,7 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('Filter', {onApplyFilter: handleFilterChange})
+            navigation.navigate('Filter', { onApplyFilter: handleFilterChange, existingFilters: appliedFilters, })
           }>
           <Image
             source={{
@@ -255,23 +302,23 @@ const Home = ({navigation}) => {
           />
           <View style={styles.flagcontainer}>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
             <Text style={styles.text}>Made in India</Text>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
           </View>
           <View style={styles.flagcontainer}>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
             <Text style={styles.text}>Made for India</Text>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
           </View>
@@ -281,13 +328,16 @@ const Home = ({navigation}) => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={{marginVertical: 2, marginLeft: 20}}>
+            style={{ marginVertical: 2, marginLeft: 20 }}>
             {avaialbleFilter.map(filterGroup => (
               <TouchableOpacity
                 onPress={() => {
-                  console.log(filterGroup, 'IFIFIFIFFI');
-                  setAttendedFilter(filterGroup.data);
-                  setMultiFilter(true);
+                  setMultiModalState({
+                    visible: true,
+                    filterType: filterGroup.type,
+                    filterValueData: filterGroup.data,
+                    initialSelected: appliedFilters[filterGroup.type] || [],
+                  });
                 }}
                 key={filterGroup.id}
                 style={{
@@ -318,13 +368,22 @@ const Home = ({navigation}) => {
 
           <FlatList
             data={properties}
-            renderItem={({item}) => (
-              <PropertyCard item={item} toggleLike={toggleLike} />
+            renderItem={({ item }) => (
+              <PropertyCard item={item} toggleLike={toggleLike} type={'home'} />
             )}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.id?.toString()}
             numColumns={2}
-            contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
+            contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
             showsVerticalScrollIndicator={false}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loadingMore ? (
+                <View style={{ padding: 16 }}>
+                  <ActivityIndicator size="small" color={COLOR.primary} />
+                </View>
+              ) : null
+            }
           />
         </>
       )}
@@ -335,12 +394,18 @@ const Home = ({navigation}) => {
         />
       )}
       <MultiModal
-        filterValueData={attendedFilter}
-        visible={multiFilter}
-        initialSelected={[]} // pass existing selected if you want to preselect
-        onClose={() => setMultiFilter(false)}
+        filterValueData={multiModalState.filterValueData}
+        visible={multiModalState.visible}
+        initialSelected={multiModalState.initialSelected}
+        onClose={() =>
+          setMultiModalState(prev => ({ ...prev, visible: false }))
+        }
         onSelectSort={selectedFilters => {
-          console.log('Applied Filters:', selectedFilters); // array of filters
+          setAppliedFilters(prev => ({
+            ...prev,
+            [multiModalState.filterType]: selectedFilters,
+          }));
+          setMultiModalState(prev => ({ ...prev, visible: false }));
         }}
       />
       <SortModal
@@ -355,7 +420,7 @@ const Home = ({navigation}) => {
 };
 
 export default Home;
-export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
+export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
   const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
   useEffect(() => {
@@ -381,7 +446,7 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
         bottom: 50,
         right: 20,
         opacity: fadeAnim,
-        transform: [{translateY: floatAnim}],
+        transform: [{ translateY: floatAnim }],
       }}>
       <TouchableOpacity
         style={{
@@ -398,7 +463,7 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
           source={{
             uri: iconUrl,
           }}
-          style={{width: 25, height: 25}}
+          style={{ width: 25, height: 25 }}
         />
         <Text
           style={{
@@ -450,7 +515,7 @@ export const DemoCard = ({
           borderRadius: 10,
           alignSelf: 'flex-start',
         }}>
-        <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
+        <Text style={{ color: '#fff', fontWeight: '600' }}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -506,7 +571,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLOR.black,
     paddingHorizontal: 15,
-    // marginTop: 15, // extra space from top
     marginBottom: 5,
   },
   card: {
@@ -519,7 +583,7 @@ const styles = StyleSheet.create({
     shadowColor: COLOR.black,
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
   },
   propertyImage: {
     width: '100%',
@@ -567,14 +631,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginHorizontal: 20,
   },
-  searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
+  searchIcon: { width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8 },
   searchInput: {
     flex: 1,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
   },
-  filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
+  filterIcon: { width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8 },
   filterTagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -591,8 +655,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 6,
   },
-  filterText: {fontSize: 12, color: COLOR.white, marginRight: 6},
-  crossIcon: {width: 11, height: 11, tintColor: COLOR.white},
+  filterText: { fontSize: 12, color: COLOR.white, marginRight: 6 },
+  crossIcon: { width: 11, height: 11, tintColor: COLOR.white },
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,
@@ -608,14 +672,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 30,
-    // borderWidth: 2,
-    // borderColor: '#FF9933', // saffron
-    // backgroundColor: '#fdfdfd',
-    // shadowColor: '#000',
-    // shadowOpacity: 0.15,
-    // shadowOffset: {width: 0, height: 3},
-    // shadowRadius: 5,
-    // elevation: 4,
     marginHorizontal: 20,
     marginBottom: 5,
   },

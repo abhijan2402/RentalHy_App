@@ -181,16 +181,14 @@ const PostProperty = ({navigation}) => {
     });
   });
 
-  console.log(formData,"formDataformData")
 
   const response = await postRequest('public/api/properties/add', formData, true);
   if(response?.data?.status == true){
     showToast(response?.data?.message, "success")
     setLoading(false);
+    navigation?.goBack();
   }
     setLoading(false);
-
-  console.log(response, 'responseresponseresponseresponseresponseresponse');
 
   // Uncomment if you want to show alert and go back on success
   // Alert.alert('Success', 'Your property has been posted successfully!');

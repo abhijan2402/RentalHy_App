@@ -9,39 +9,29 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import RenderHTML from 'react-native-render-html';
 import Header from './FeedHeader';
+import { useApi } from '../Backend/Api';
 
 const Cms = ({route}) => {
+  const {getRequest} = useApi();
   const navigation = useNavigation();
   const {width} = useWindowDimensions();
-  const {title, slug} = route.params;
+  const {title, slug , type} = route.params;
 
   const [htmlContent, setHtmlContent] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Simulate fetching static CMS content
-  useEffect(() => {
-    setTimeout(() => {
-      const staticHTML = `
-        <h2>About Our Property App</h2>
-        <p>Welcome to <strong>PropertyPro</strong>, your one-stop destination for buying, selling, and renting properties with ease. We connect buyers and sellers through a simple and efficient platform.</p>
 
-        <h3>Why Choose Us?</h3>
-        <ul>
-          <li>Wide range of verified properties</li>
-          <li>Trusted by thousands of buyers and sellers</li>
-          <li>Secure and transparent transactions</li>
-        </ul>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam quis ante at elit facilisis malesuada. Sed nec felis ut nunc ultrices tincidunt. Vivamus et lorem nec magna fermentum elementum a eu ligula.</p>
-
-        <h3>Contact Information</h3>
-        <p>Email: <a href="mailto:support@propertypro.com">support@propertypro.com</a></p>
-        <p>Phone: +91-9876543210</p>
-      `;
-      setHtmlContent(staticHTML);
+  const cmsData = async (slug) => {
+      setLoading(true);
+    const response = await getRequest(`public/api/cms/${slug}`);
+       setHtmlContent(response?.data?.data?.content)
+      console.log(response, 'CMS RESPONSE');
       setLoading(false);
-    }, 1000);
-  }, []);
+  }
+
+  useEffect( () => {
+       cmsData(slug)
+  },[])
 
   return (
     <View style={styles.container}>

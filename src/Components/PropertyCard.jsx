@@ -4,17 +4,17 @@ import {TouchableOpacity, Image, Text, View, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {COLOR} from '../Constants/Colors';
 
-const PropertyCard = ({item, toggleLike}) => {
+const PropertyCard = ({item, toggleLike , type}) => {
   const navigation = useNavigation();
-  const isLiked = true; // replace with real like state
+  const isLiked = true; 
 
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate('PropertyDetail', {propertyData: item});
+        navigation.navigate('PropertyDetail', {propertyData: type === 'wishlist' ? item?.property : item});
       }}
       style={styles.card}>
-      <Image source={{uri: item.images[0]?.image_url}} style={styles.propertyImage} />
+      <Image source={{uri: item?.property?.images[0]?.image_url || item?.images[0]?.image_url}} style={styles.propertyImage} />
 
       <TouchableOpacity
         style={styles.wishlistIcon}
@@ -31,11 +31,16 @@ const PropertyCard = ({item, toggleLike}) => {
         />
       </TouchableOpacity>
 
-      <Text style={styles.propertyName}>{item.title}</Text>
-      <Text style={styles.propertyLocation}>{item.location}</Text>
+      <Text style={styles.propertyName}>{item.title || item?.property?.title}</Text>
+      <Text style={styles.propertyLocation}>{item?.property?.location || item.location}</Text>
       <Text style={styles.propertyLocation}>Family </Text>
-      <Text style={styles.propertyPrice}>{item.price}</Text>
-    </TouchableOpacity>
+<Text style={styles.propertyPrice}>
+  {item?.property?.price != null && item?.property?.price !== undefined
+    ? '₹' + item.property.price
+    : item?.price != null && item?.price !== undefined
+    ? '₹' + item.price
+    : ''}
+</Text>    </TouchableOpacity>
   );
 };
 
