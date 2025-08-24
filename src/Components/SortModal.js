@@ -5,10 +5,10 @@ import { COLOR } from '../Constants/Colors';
 
 const SortModal = ({ visible, onClose, onSelectSort }) => {
     const sortOptions = [
-        { label: 'Price: Low to High', value: 'price_low_high' },
-        { label: 'Price: High to Low', value: 'price_high_low' },
-        { label: 'Nearby', value: 'nearby' },
-        { label: 'Relevance', value: 'relevance' },
+        { label: 'Price: Low to High', value: 'price_low_to_high' },
+        { label: 'Price: High to Low', value: 'price_high_to_low' },
+        { label: 'Newest', value: 'newest_first' },
+        { label: 'Oldest', value: 'oldest_first' },
     ];
 
     return (

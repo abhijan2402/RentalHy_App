@@ -44,6 +44,7 @@ const Home = ({ navigation }) => {
   const [likedProperties, setLikedProperties] = useState([]);
   const [appliedFilters, setAppliedFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortQuery, setSortQuery] = useState('');
 
   const toggleLike = async id => {
     const formdata = new FormData();
@@ -54,6 +55,7 @@ const Home = ({ navigation }) => {
       setLikedProperties(prev =>
         prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
       );
+        GetProperties(1, false, appliedFilters, searchQuery, sortQuery);  
     } else {
       showToast(response?.error, "error");
     }
@@ -67,8 +69,8 @@ const Home = ({ navigation }) => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
 
-  // Build form data for API including filters and search
-  const buildFormData = (filters, pageNum = 1, search = '') => {
+  // Build form data for API including filters, search, and sort
+  const buildFormData = (filters, pageNum = 1, search = '', sort = '') => {
     const formData = new FormData();
     formData.append('page', pageNum);
 
@@ -90,20 +92,26 @@ const Home = ({ navigation }) => {
       formData.append('search', search.trim());
     }
 
+    // Add sort_by if present
+    if (sort && sort.trim() !== '') {
+      formData.append('sort_by', sort.trim());
+    }
+
     return formData;
   };
 
-  // Fetch properties with filters, search, and pagination
+  // Fetch properties with filters, search, sort, and pagination
   const GetProperties = async (
     pageNum = 1,
     append = false,
     filters = appliedFilters,
-    search = searchQuery
+    search = searchQuery,
+    sort = sortQuery
   ) => {
     if (pageNum === 1) setloader(true);
     else setLoadingMore(true);
 
-    const formData = buildFormData(filters, pageNum, search);
+    const formData = buildFormData(filters, pageNum, search, sort);
     const response = await postRequest('public/api/properties', formData, true);
     const resData = response?.data?.data;
     const newProperties = resData?.data || [];
@@ -123,20 +131,20 @@ const Home = ({ navigation }) => {
   // Initial load and reload on focus
   useEffect(() => {
     if (focus) {
-      GetProperties(1, false, appliedFilters, searchQuery);
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
       setShowDemoCard(false);
     }
   }, [focus]);
 
-  // Reload when filters or search change
+  // Reload when filters, search, or sort change
   useEffect(() => {
-    GetProperties(1, false, appliedFilters, searchQuery);
-  }, [appliedFilters, searchQuery]);
+    GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
+  }, [appliedFilters, searchQuery, sortQuery]);
 
   // Pagination handler
   const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
-      GetProperties(page + 1, true, appliedFilters, searchQuery);
+      GetProperties(page + 1, true, appliedFilters, searchQuery, sortQuery);
     }
   };
 
@@ -280,7 +288,7 @@ const Home = ({ navigation }) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
-        <TouchableOpacity onPress={() => { GetProperties(1, false, appliedFilters, searchQuery); }}>
+        <TouchableOpacity onPress={() => { GetProperties(1, false, appliedFilters, searchQuery, sortQuery); }}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -429,7 +437,7 @@ const Home = ({ navigation }) => {
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
-          console.log('Selected Sort:', sortType);
+          setSortQuery(sortType);
         }}
       />
     </SafeAreaView>
@@ -705,4 +713,4 @@ const styles = StyleSheet.create({
     color: '#138808',
     letterSpacing: 1
       },
-});
+    });

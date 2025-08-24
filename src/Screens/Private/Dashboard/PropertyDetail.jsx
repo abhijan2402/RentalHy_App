@@ -67,6 +67,7 @@ const PropertyDetail = ({navigation, route}) => {
       setLikedProperties(prev =>
         prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
       );
+       getPropertyDetails(propertyData?.id)
     }else{
       showToast(response?.error , "error");
     }
@@ -149,11 +150,12 @@ const PropertyDetail = ({navigation, route}) => {
                 style={{
                   width: 20,
                   height: 20,
-                  tintColor: isliked ? COLOR.primary : COLOR.grey,
+                  tintColor: AllData?.is_wishlist ? COLOR.primary : COLOR.grey,
                 }}
               />
             </TouchableOpacity>
           </View>
+
 
           {/* Read More / Less */}
           <Text style={styles.description}>
@@ -165,7 +167,10 @@ const PropertyDetail = ({navigation, route}) => {
             </Text>
           </TouchableOpacity>}
 
-          <Text style={styles.price}>{'₹' + AllData?.price}</Text>
+                <View style={styles.MainStyle}>
+              <Text style={styles.price}>{'₹' + AllData?.price}</Text>
+                {AllData?.status == 1 && <Text style={styles.TagStyle}>Featured</Text>}
+                </View>
 
           {/* Contact Section */}
           <View style={styles.contactContainer}>
@@ -415,4 +420,6 @@ const styles = StyleSheet.create({
     // top: 10,
     // right: 10,
   },
+  MainStyle:{flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
+  TagStyle:{backgroundColor:COLOR.primary,width:'20%',color:'white',fontWeight:500,textAlign:'center',borderRadius:2}
 });
