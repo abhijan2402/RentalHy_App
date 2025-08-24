@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,6 +13,7 @@ import {
   TextInput,
   Animated,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { COLOR } from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
@@ -26,12 +27,14 @@ import { showPost } from '../../../Constants/Data';
 import { useIsFocused } from '@react-navigation/native';
 import { useApi } from '../../../Backend/Api';
 import { useToast } from '../../../Constants/ToastContext';
+import { AuthContext } from '../../../Backend/AuthContent';
 
 const { width } = Dimensions.get('window');
 
 const Home = ({ navigation }) => {
   const { postRequest } = useApi();
-  const {showToast} = useToast();
+  const { user, showDemoCard, setShowDemoCard } = useContext(AuthContext);
+  const { showToast } = useToast();
   const focus = useIsFocused();
   const [loader, setloader] = useState(true);
   const [properties, setProperties] = useState([]);
@@ -39,21 +42,20 @@ const Home = ({ navigation }) => {
   const [lastPage, setLastPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [likedProperties, setLikedProperties] = useState([]);
-
-    const [appliedFilters, setAppliedFilters] = useState({}); // {bhk: ['2 BHK'], ...}
+  const [appliedFilters, setAppliedFilters] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
-    const response = await postRequest('public/api/wishlist/add', formdata , true);
-    console.log(response)
+    const response = await postRequest('public/api/wishlist/add', formdata, true);
     if (response?.data?.status) {
-      showToast(response?.data?.message , "success");
+      showToast(response?.data?.message, "success");
       setLikedProperties(prev =>
-        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
+        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
       );
-    }else{
-      showToast(response?.error , "error");
+    } else {
+      showToast(response?.error, "error");
     }
   };
 
@@ -65,8 +67,8 @@ const Home = ({ navigation }) => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
 
-
-    const buildFormData = (filters, pageNum = 1) => {
+  // Build form data for API including filters and search
+  const buildFormData = (filters, pageNum = 1, search = '') => {
     const formData = new FormData();
     formData.append('page', pageNum);
 
@@ -83,15 +85,26 @@ const Home = ({ navigation }) => {
     if (filters.advanceValue) formData.append('advance', filters.advanceValue);
     if (filters.familyTypeValue) formData.append('preferred_tenant_type', filters.familyTypeValue);
 
+    // Add search query if present
+    if (search && search.trim() !== '') {
+      formData.append('search', search.trim());
+    }
+
     return formData;
   };
 
-const GetProperties = async (pageNum = 1, append = false, filters = appliedFilters) => {
+  // Fetch properties with filters, search, and pagination
+  const GetProperties = async (
+    pageNum = 1,
+    append = false,
+    filters = appliedFilters,
+    search = searchQuery
+  ) => {
     if (pageNum === 1) setloader(true);
     else setLoadingMore(true);
 
-    const formData = buildFormData(filters, pageNum);
-    const response = await postRequest('public/api/properties', formData , true);
+    const formData = buildFormData(filters, pageNum, search);
+    const response = await postRequest('public/api/properties', formData, true);
     const resData = response?.data?.data;
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
@@ -107,19 +120,23 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
     setLoadingMore(false);
   };
 
- useEffect(() => {
+  // Initial load and reload on focus
+  useEffect(() => {
     if (focus) {
-      GetProperties(1, false);
+      GetProperties(1, false, appliedFilters, searchQuery);
+      setShowDemoCard(false);
     }
   }, [focus]);
 
-    useEffect(() => {
-    GetProperties(1, false, appliedFilters);
-  }, [appliedFilters]);
+  // Reload when filters or search change
+  useEffect(() => {
+    GetProperties(1, false, appliedFilters, searchQuery);
+  }, [appliedFilters, searchQuery]);
 
-   const handleLoadMore = () => {
+  // Pagination handler
+  const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
-      GetProperties(page + 1, true, appliedFilters);
+      GetProperties(page + 1, true, appliedFilters, searchQuery);
     }
   };
 
@@ -134,8 +151,6 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
     filterValueData: [],
     initialSelected: [],
   });
-
-
 
   const [sortVisible, setSortVisible] = useState(false);
 
@@ -232,7 +247,7 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <Image
             source={{
-              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?w=100',
+              uri: user?.image,
             }}
             style={styles.profileIcon}
           />
@@ -250,7 +265,7 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
           }}
         />
       )}
-      <DemoCard />
+      {showDemoCard && <DemoCard />}
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -260,10 +275,12 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
         />
         <TextInput
           placeholder="Search Properties or Location"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
-        <TouchableOpacity onPress={() => { }}>
+        <TouchableOpacity onPress={() => { GetProperties(1, false, appliedFilters, searchQuery); }}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -293,7 +310,7 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
       </View>
 
       {/* Properties Grid */}
-      {loader ? (
+      {(showDemoCard && loader) ? (
         <>
           <LottieView
             ref={animationRef}
@@ -420,19 +437,20 @@ const GetProperties = async (pageNum = 1, append = false, filters = appliedFilte
 };
 
 export default Home;
+
 export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
-  const fadeAnim = useRef(new Animated.Value(1)).current; // fully visible
-  const floatAnim = useRef(new Animated.Value(0)).current; // initial Y position
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(floatAnim, {
-          toValue: -10, // move up 10px
+          toValue: -10,
           duration: 1000,
           useNativeDriver: true,
         }),
         Animated.timing(floatAnim, {
-          toValue: 0, // move back down
+          toValue: 0,
           duration: 1000,
           useNativeDriver: true,
         }),
@@ -477,6 +495,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
     </Animated.View>
   );
 };
+
 export const DemoCard = ({
   title = 'App Demo video',
   buttonText = 'Click here',
@@ -520,6 +539,7 @@ export const DemoCard = ({
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -616,7 +636,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     marginBottom: 5,
   },
-
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -665,7 +684,6 @@ const styles = StyleSheet.create({
     width: windowWidth,
     height: windowHeight * 0.3,
   },
-
   flagcontainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -684,7 +702,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#138808', // green
-    letterSpacing: 1,
-  },
+    color: '#138808',
+    letterSpacing: 1
+      },
 });

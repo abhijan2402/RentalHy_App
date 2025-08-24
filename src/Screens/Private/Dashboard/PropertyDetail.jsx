@@ -15,9 +15,11 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
 
 const PropertyDetail = ({navigation, route}) => {
   const {getRequest , postRequest} = useApi();
+  const {showToast} = useToast();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [loading,setLoading] = useState(true);
   const [AllData,setAllData] = useState();
@@ -41,7 +43,10 @@ const PropertyDetail = ({navigation, route}) => {
     const formData = new FormData();
     formData.append('property_id', id);
     const response = await postRequest(`public/api/property-views/store`, formData , true)
-    console.log(response)
+    if(response?.success == false){
+    showToast(response?.error,"error")
+
+    }
   }
 
   useEffect(() =>{
@@ -51,6 +56,21 @@ const PropertyDetail = ({navigation, route}) => {
 
     }
   },[propertyData?.id])
+
+    const toggleLike = async id => {
+    const formdata = new FormData();
+    formdata.append('property_id', id);
+    const response = await postRequest('public/api/wishlist/add', formdata , true);
+    console.log(response)
+    if (response?.data?.status) {
+      showToast(response?.data?.message , "success");
+      setLikedProperties(prev =>
+        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
+      );
+    }else{
+      showToast(response?.error , "error");
+    }
+  };
 
   const [isliked, setIsLiked] = useState(false);
  
@@ -121,7 +141,7 @@ const PropertyDetail = ({navigation, route}) => {
             <Text style={styles.title}>{AllData?.title}</Text>
             <TouchableOpacity
               style={styles.wishlistIcon}
-              onPress={() => setIsLiked(!isliked)}>
+              onPress={() => toggleLike(AllData?.id)}>
               <Image
                 source={{
                   uri: 'https://cdn-icons-png.flaticon.com/128/13369/13369080.png',

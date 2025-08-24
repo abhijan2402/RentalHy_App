@@ -6,7 +6,6 @@ import {COLOR} from '../Constants/Colors';
 
 const PropertyCard = ({item, toggleLike , type}) => {
   const navigation = useNavigation();
-  const isLiked = true; 
 
   return (
     <TouchableOpacity
@@ -26,14 +25,14 @@ const PropertyCard = ({item, toggleLike , type}) => {
           style={{
             width: 20,
             height: 20,
-            tintColor: isLiked ? COLOR.primary : COLOR.grey,
+            tintColor: COLOR.grey,
           }}
         />
       </TouchableOpacity>
 
       <Text style={styles.propertyName}>{item.title || item?.property?.title}</Text>
       <Text style={styles.propertyLocation}>{item?.property?.location || item.location}</Text>
-      <Text style={styles.propertyLocation}>Family </Text>
+      <Text style={styles.propertyLocation}>{item?.preferred_tenant_type || JSON.parse(item?.property?.preferred_tenant_type)} </Text>
 <Text style={styles.propertyPrice}>
   {item?.property?.price != null && item?.property?.price !== undefined
     ? '₹' + item.property.price

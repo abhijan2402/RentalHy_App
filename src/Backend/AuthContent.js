@@ -8,14 +8,27 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 👇 New state for DemoCard
+  const [showDemoCard, setShowDemoCard] = useState(false);
+
   useEffect(() => {
     const loadUserData = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('user');
         const storedToken = await AsyncStorage.getItem('token');
+        const seenDemo = await AsyncStorage.getItem('seenDemo'); // 👈 check demo flag
+
         if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
           setToken(storedToken);
+
+          // show demo only if user has not seen it yet
+          if (!seenDemo) {
+            setShowDemoCard(true);
+            await AsyncStorage.setItem('seenDemo', 'true');
+          } else {
+            setShowDemoCard(false);
+          }
         }
       } catch (e) {
         console.log('Error loading user data:', e);
@@ -33,9 +46,18 @@ export const AuthProvider = ({ children }) => {
       if (userData) {
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
+
+        // Reset demo when user logs in again
+        await AsyncStorage.removeItem('seenDemo');
+        setShowDemoCard(true);
+        await AsyncStorage.setItem('seenDemo', 'true');
       } else {
         await AsyncStorage.removeItem('user');
         setUser(null);
+
+        // Reset demo flag on logout
+        await AsyncStorage.removeItem('seenDemo');
+        setShowDemoCard(false);
       }
     } catch (e) {
       console.log('Error saving user', e);
@@ -64,6 +86,8 @@ export const AuthProvider = ({ children }) => {
         token,
         setToken: saveToken,
         loading,
+        showDemoCard,      // 👈 expose state
+        setShowDemoCard,   // 👈 expose setter
       }}
     >
       {children}
