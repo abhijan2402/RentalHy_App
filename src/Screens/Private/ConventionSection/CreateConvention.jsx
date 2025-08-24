@@ -39,6 +39,7 @@ const CreateConvention = ({navigation}) => {
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
   const [parkingImages, setParkingImages] = useState([]);
+  const [BridGroomImages, setBridGroomImages] = useState([]);
   const [uploadType, setUploadType] = useState('Function/Convention Hall');
 
   // General info
@@ -47,21 +48,76 @@ const CreateConvention = ({navigation}) => {
 
   // Price options
   const priceOptions = [
-    'Marriage',
-    'Reception',
+    'Wedding',
+    'Wedding Anniversary',
+    'Wedding Reception',
+    'Pre Wedding Mehendi Party',
+    'Birthday Party',
+    'Ring Ceremony',
     'Engagement',
-    'Birthday',
-    '21 Days Function',
-    'Saree Function',
-    'Meeting <250',
-    'Meeting >250',
-    'Corporate Outing/Meeting',
-    // 'Any Other',
+    'Family Function',
+    'First Birthday Party',
+    'Naming Ceremony',
+    'Sangeet Ceremony',
+    'Baby Shower',
+    'Bridal Shower',
+    'Kids Birthday Party',
+    'Dhoti Event',
+    'Upanayam',
+    'Corporate Event',
+    'Corporate Party',
+    'Farewell',
+    'Stage Event',
+    'Childrens Party',
+    'Annual Fest',
+    'Family Get Together',
+    'New Year Party',
+    'Freshers Party',
+    'Brand Promotion',
+    'Get Together',
+    'Meeting',
+    'Diwali Party',
+    'Conference',
+    'Kitty Party',
+    'Bachelor Party',
+    'Christmas Party',
+    'Product Launch',
+    'Corporate Offsite',
+    'Lohri Party',
+    'Class Reunion',
+    "Valentine's Day",
+    'Dealers Meet',
+    'House Party',
+    'MICE',
+    'Group Dining',
+    'Adventure Party',
+    'Residential Conference',
+    'Corporate Training',
+    'Business Dinner',
+    'Musical Concert',
+    'Exhibition',
+    'Cocktail Dinner',
+    'Holi Party',
+    'Team Outing',
+    'Social Mixer',
+    'Photo Shoots',
+    'Fashion Show',
+    'Team Building',
+    'Training',
+    'Aqueeqa Ceremony',
+    'Video Shoots',
+    'Walkin Interview',
+    'Game Watch',
+    'Pool Party',
   ];
+
   const priceOptionsFarm = [
-    'Day Visit',
-    'For Occasion',
-    'Each Extra Room Charges',
+    'Day Visit Price',
+    'Night Visit Price',
+    '24 Hours Visit Price',
+    'Corporate Outing Price',
+    'Banquet Hall Charges',
+    'Occasion Charges',
   ];
   const [prices, setPrices] = useState({});
 
@@ -107,6 +163,33 @@ const CreateConvention = ({navigation}) => {
   const years = getYears();
   const [unavailableDates, setUnavailableDates] = useState({});
   const [rows, setRows] = useState([{field: 'Any Other', value: ''}]);
+
+  const [parkingGuard, setParkingGuard] = useState(false);
+  const [alcoholAllowed, setAlcoholAllowed] = useState(false);
+  const [roomImages, setRoomImages] = useState([]);
+
+  //Farm houses
+  const [freeCancellation, setFreeCancellation] = useState(false);
+  const [payLater, setPayLater] = useState(false);
+  const [childPool, setChildPool] = useState(false);
+  const [securityGuard, setSecurityGuard] = useState(false);
+  const [petFriendly, setPetFriendly] = useState(false);
+  const [breakfastIncluded, setBreakfastIncluded] = useState(false);
+  const [restaurant, setRestaurant] = useState(false);
+  const [cafeteria, setCafeteria] = useState(false);
+  const [elevator, setElevator] = useState(false);
+  const [reception24, setReception24] = useState(false);
+  const [gym, setGym] = useState(false);
+  const [tvAvailable, setTvAvailable] = useState(false);
+  const [meetingRoom, setMeetingRoom] = useState(false);
+  const [wifi, setWifi] = useState(false);
+  const [playGround, setPlayGround] = useState(false);
+  const [kitchen, setKitchen] = useState(false);
+  const [refrigerator, setRefrigerator] = useState(false);
+  const [spa, setSpa] = useState(false);
+  const [wellnessCentre, setWellnessCentre] = useState(false);
+  const [wheelChair, setWheelChair] = useState(false);
+  const [otherFacilities, setOtherFacilities] = useState('');
 
   const toggleDate = day => {
     const date = day.dateString;
@@ -243,7 +326,9 @@ const CreateConvention = ({navigation}) => {
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
         title={
-          uploadType !== 'Farm House' ? 'Upload Convention Hall' : 'Upload Farm'
+          uploadType !== 'Farm House'
+            ? 'Upload Convention Hall'
+            : 'Upload Resort/Farm House'
         }
         showBack
         onBackPress={() => navigation.goBack()}
@@ -275,23 +360,30 @@ const CreateConvention = ({navigation}) => {
                   styles.toggleText,
                   uploadType === type && styles.selectedText,
                 ]}>
-                {type}
+                {type == 'Farm House' ? 'Resort/Farm House' : type}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
         {/* Images */}
         {renderImagePicker(
-          `${uploadType == 'Farm House' ? 'Upload Images' : 'Hall Images'}`,
+          `${uploadType == 'Farm House' ? 'Farm Images' : 'Hall Images'}`,
           hallImages,
           setHallImages,
         )}
+        {uploadType == 'Farm House' &&
+          renderImagePicker('Room Images', roomImages, setRoomImages)}
         {uploadType !== 'Farm House' && (
           <>
             {renderImagePicker(
               'Kitchen Images',
               kitchenImages,
               setKitchenImages,
+            )}
+            {renderImagePicker(
+              'Bride / Groom Room Images',
+              BridGroomImages,
+              setBridGroomImages,
             )}
             {renderImagePicker(
               'Parking Images',
@@ -476,11 +568,7 @@ const CreateConvention = ({navigation}) => {
               setRoyaltyKitchen,
             )}
             {renderToggle('Generator Available', generator, setGenerator)}
-            {renderToggle(
-              'Normal Water for Cooking',
-              normalWater,
-              setNormalWater,
-            )}
+            {renderToggle('Water for Cooking', normalWater, setNormalWater)}
             {renderToggle(
               'Drinking Water Available',
               drinkingWater,
@@ -497,6 +585,7 @@ const CreateConvention = ({navigation}) => {
 
         {uploadType == 'Farm House' && (
           <>
+            {/* Existing ones */}
             {renderToggle('Swimming Pool', swimmingPool, setSwimmingPool)}
 
             {renderToggle('Food Available', foodAvailable, setFoodAvailable)}
@@ -530,20 +619,6 @@ const CreateConvention = ({navigation}) => {
               setSoundSystemAllowed,
             )}
 
-            {renderToggle('Children Games', childrenGames, setChildrenGames)}
-            {childrenGames && (
-              <View style={styles.section}>
-                <Text style={styles.label}>
-                  Mention if any (Children Games)
-                </Text>
-                <TextInput
-                  style={styles.input}
-                  value={childrenGamesDesc}
-                  onChangeText={setChildrenGamesDesc}
-                  placeholder="Children Games"
-                />
-              </View>
-            )}
             {renderToggle('Adult Games', adultGames, setAdultGames)}
             {adultGames && (
               <View style={styles.section}>
@@ -562,6 +637,85 @@ const CreateConvention = ({navigation}) => {
               kitchenSetup,
               setKitchenSetup,
             )}
+
+            {/* New ones */}
+            {renderToggle(
+              'Free Cancellation',
+              freeCancellation,
+              setFreeCancellation,
+            )}
+
+            {renderToggle('Pay Later', payLater, setPayLater)}
+
+            {renderToggle('Child Pool', childPool, setChildPool)}
+
+            {renderToggle('Security Guard', securityGuard, setSecurityGuard)}
+
+            {renderToggle('Pet Friendly', petFriendly, setPetFriendly)}
+
+            {renderToggle(
+              'Breakfast Included',
+              breakfastIncluded,
+              setBreakfastIncluded,
+            )}
+
+            {renderToggle('Restaurant', restaurant, setRestaurant)}
+
+            {renderToggle('Cafeteria', cafeteria, setCafeteria)}
+
+            {renderToggle('Elevator', elevator, setElevator)}
+
+            {renderToggle('24 Hours Reception', reception24, setReception24)}
+
+            {renderToggle('Gym / Fitness Available', gym, setGym)}
+
+            {renderToggle('A/C Available', acAvailable, setAcAvailable)}
+
+            {renderToggle('TV Available', tvAvailable, setTvAvailable)}
+
+            {renderToggle('Meeting Room', meetingRoom, setMeetingRoom)}
+
+            {renderToggle('Free Wifi', wifi, setWifi)}
+
+            {renderToggle('Play Ground', playGround, setPlayGround)}
+
+            {renderToggle('Children Games', childrenGames, setChildrenGames)}
+            {childrenGames && (
+              <View style={styles.section}>
+                <Text style={styles.label}>
+                  Mention if any (Children Games)
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  value={childrenGamesDesc}
+                  onChangeText={setChildrenGamesDesc}
+                  placeholder="Children Games"
+                />
+              </View>
+            )}
+
+            {renderToggle('Kitchen', kitchen, setKitchen)}
+
+            {renderToggle('Refrigerator', refrigerator, setRefrigerator)}
+
+            {renderToggle('Spa', spa, setSpa)}
+
+            {renderToggle('Wellness Centre', wellnessCentre, setWellnessCentre)}
+
+            {renderToggle('Wheel Chair Access', wheelChair, setWheelChair)}
+
+            {/* Add other if any */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Other (if any)</Text>
+              <TextInput
+                style={styles.input}
+                value={otherFacilities}
+                onChangeText={setOtherFacilities}
+                placeholder="Mention other facilities"
+              />
+            </View>
+
+            {/* Area */}
             <View style={styles.section}>
               <Text style={styles.label}>Area (in sq. fts)</Text>
               <TextInput
@@ -572,6 +726,19 @@ const CreateConvention = ({navigation}) => {
               />
             </View>
           </>
+        )}
+
+        {renderToggle('Children Games', childrenGames, setChildrenGames)}
+        {childrenGames && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Mention if any (Children Games)</Text>
+            <TextInput
+              style={styles.input}
+              value={childrenGamesDesc}
+              onChangeText={setChildrenGamesDesc}
+              placeholder="Children Games"
+            />
+          </View>
         )}
         {renderToggle(
           'Parking Available',
@@ -607,7 +774,13 @@ const CreateConvention = ({navigation}) => {
             {renderToggle('Valet Parking Available', valet, setValet)}
           </>
         )}
+        {uploadType != 'Farm House' && (
+          <>
+            {renderToggle('Parking Guard', parkingGuard, setParkingGuard)}
 
+            {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
+          </>
+        )}
         {/* Availability Slot */}
         <View style={styles.section}>
           {/* <View style={styles.section}> */}

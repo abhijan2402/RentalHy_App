@@ -7,8 +7,8 @@ const SortModal = ({ visible, onClose, onSelectSort }) => {
     const sortOptions = [
         { label: 'Price: Low to High', value: 'price_low_high' },
         { label: 'Price: High to Low', value: 'price_high_low' },
-        { label: 'Newest First', value: 'newest' },
-        { label: 'Oldest First', value: 'oldest' },
+        { label: 'Nearby', value: 'nearby' },
+        { label: 'Relevance', value: 'relevance' },
     ];
 
     return (

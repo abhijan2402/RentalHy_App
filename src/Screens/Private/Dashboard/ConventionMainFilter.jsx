@@ -16,8 +16,8 @@ const ConventionMainFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
 
   // Price & Seating sliders
-  const [priceRange, setPriceRange] = useState(['5000', '500000+']);
-  const [seatingCapacity, setSeatingCapacity] = useState([50, 2000]);
+  const [priceRange, setPriceRange] = useState(['1000', '10,00,000+']);
+  const [seatingCapacity, setSeatingCapacity] = useState([1000, 1000000]);
 
   // Parking counts
   const [carParking, setCarParking] = useState('');
@@ -33,30 +33,55 @@ const ConventionMainFilter = ({navigation, route}) => {
   const [normalWater, setNormalWater] = useState('');
   const [drinkingWater, setDrinkingWater] = useState('');
   const [cateringPersons, setCateringPersons] = useState('');
+  const [acAvailable, setAcAvailable] = useState(false);
+  const [roomsAvailable, setRoomsAvailable] = useState(false);
+  const [alcoholAllowed, setAlcoholAllowed] = useState(false);
+  const [photoShootsAllowed, setPhotoShootsAllowed] = useState(false);
+  const [childrenGames, setChildrenGames] = useState(false);
+  const [timeOfOccasion, setTimeOfOccasion] = useState('');
 
   const yesNoOptions = ['Yes', 'No'];
+  const timeOfOccasionOptions = ['Daytime', 'Night time', '24 Hours'];
 
-  const renderOptions = (label, selected, setSelected) => (
+  const renderOptions = (label, selected, setSelected, data = []) => (
     <>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.optionRow}>
-        {yesNoOptions.map(option => (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              selected === option && styles.optionSelected,
-            ]}
-            onPress={() => setSelected(option)}>
-            <Text
-              style={[
-                styles.optionText,
-                selected === option && styles.optionTextSelected,
-              ]}>
-              {option}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {data?.length == 0
+          ? yesNoOptions.map(option => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.optionButton,
+                  selected === option && styles.optionSelected,
+                ]}
+                onPress={() => setSelected(option)}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    selected === option && styles.optionTextSelected,
+                  ]}>
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            ))
+          : data.map(option => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.optionButton,
+                  selected === option && styles.optionSelected,
+                ]}
+                onPress={() => setSelected(option)}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    selected === option && styles.optionTextSelected,
+                  ]}>
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            ))}
       </View>
     </>
   );
@@ -111,14 +136,14 @@ const ConventionMainFilter = ({navigation, route}) => {
 
       <ScrollView contentContainerStyle={styles.form}>
         {/* Seating Capacity */}
-        <Text style={styles.label}>Seating Capacity (50 - 2000+)</Text>
+        <Text style={styles.label}>Seating Capacity (1000 - 1000000+)</Text>
         <View style={{marginHorizontal: 15}}>
           <MultiSlider
             values={seatingCapacity}
             onValuesChange={setSeatingCapacity}
-            min={50}
-            max={2000}
-            step={50}
+            min={1000}
+            max={1000000}
+            step={1000}
             selectedStyle={{backgroundColor: COLOR.primary}}
             markerStyle={{
               backgroundColor: COLOR.primary,
@@ -164,6 +189,9 @@ const ConventionMainFilter = ({navigation, route}) => {
           valetParking,
           setValetParking,
         )}
+        {renderOptions('A/C Available', acAvailable, setAcAvailable)}
+
+        {renderOptions('Rooms Available', roomsAvailable, setRoomsAvailable)}
         {renderOptions(
           'Royalty for Decoration',
           royaltyDecoration,
@@ -197,7 +225,21 @@ const ConventionMainFilter = ({navigation, route}) => {
           cateringPersons,
           setCateringPersons,
         )}
+        {renderOptions('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
 
+        {renderOptions(
+          'Photo Shoots Allowed',
+          photoShootsAllowed,
+          setPhotoShootsAllowed,
+        )}
+
+        {renderOptions('Children Games', childrenGames, setChildrenGames)}
+        {renderOptions(
+          'Time of Occasion',
+          timeOfOccasion,
+          setTimeOfOccasion,
+          timeOfOccasionOptions,
+        )}
         {/* Price Range */}
         <Text style={styles.label}>Price Range (₹)</Text>
         <View style={{marginHorizontal: 15}}>
