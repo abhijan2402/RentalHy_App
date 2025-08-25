@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,11 +11,15 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import {AuthContext} from '../../../Backend/AuthContent';
+import CreateAccountModal from '../../../Modals/CreateAccountModal';
+import {useIsFocused} from '@react-navigation/native';
 
 const Account = ({navigation}) => {
   const {setUser} = useContext(AuthContext);
   const {user} = useContext(AuthContext);
-
+  const {currentStatus} = useContext(AuthContext);
+  const isFocus = useIsFocused();
+  const [modalVisible, setModalVisible] = useState(false);
   const profileImage =
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'; // default profile icon
 
@@ -80,6 +84,13 @@ const Account = ({navigation}) => {
       navigate: 'SupportList',
     },
   ];
+  useEffect(() => {
+    if (isFocus) {
+      if (currentStatus == -1) {
+        setModalVisible(true);
+      }
+    }
+  }, [isFocus]);
 
   return (
     <View style={styles.container}>
@@ -117,6 +128,17 @@ const Account = ({navigation}) => {
           style={{marginTop: '10%'}}
           onPress={() => {
             setUser('');
+          }}
+        />
+        <CreateAccountModal
+          visible={modalVisible}
+          onCreateAccount={() => {
+            console.log('Navigate to signup screen');
+            setModalVisible(false);
+          }}
+          onCancel={() => {
+            setModalVisible(false);
+            navigation.goBack();
           }}
         />
       </ScrollView>

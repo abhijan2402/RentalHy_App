@@ -5,7 +5,6 @@ import {COLOR} from '../../../Constants/Colors';
 const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
 
 const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
- 
   const [selectedIndex, setSelectedIndex] = useState(defaultIndex);
 
   const handlePress = (item, index) => {
@@ -42,7 +41,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
               borderRadius: 8,
               alignItems: 'center',
               justifyContent: 'center',
-              height: windowHeight * 0.12,
+              height: windowHeight * 0.09,
               marginHorizontal: 4,
               marginVertical: 10,
               elevation: 4,
@@ -53,7 +52,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
             }}>
             <Image
               source={{uri: item?.image}}
-              style={{width: 45, height: 45, marginBottom: 5}}
+              style={{width: 30, height: 30, marginBottom: 5}}
             />
             <View
               style={{
@@ -62,7 +61,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
                 paddingVertical: 6,
                 borderBottomLeftRadius: 8,
                 borderBottomRightRadius: 8,
-                height: 45,
+                height: 38,
                 justifyContent: 'center',
               }}>
               <Text
@@ -70,6 +69,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
                   textAlign: 'center',
                   color: 'white',
                   textAlignVertical: 'center',
+                  fontSize: 11,
                 }}>
                 {item?.title}
               </Text>

@@ -7,6 +7,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentStatus, setCurrentStatus] = useState(-1);
+
 
   // 👇 New state for DemoCard
   const [showDemoCard, setShowDemoCard] = useState(false);
@@ -88,6 +90,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         showDemoCard,      // 👈 expose state
         setShowDemoCard,   // 👈 expose setter
+        currentStatus,
+        setCurrentStatus: setCurrentStatus
       }}
     >
       {children}

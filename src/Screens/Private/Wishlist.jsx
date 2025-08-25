@@ -8,21 +8,24 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Header from '../../Components/FeedHeader';
 import {COLOR} from '../../Constants/Colors';
 import {renderProperty} from './Dashboard/Home';
 import PropertyCard from '../../Components/PropertyCard';
-import { useApi } from '../../Backend/Api';
-import { useIsFocused } from '@react-navigation/native';
-
+import {useApi} from '../../Backend/Api';
+import {useIsFocused} from '@react-navigation/native';
+import {AuthContext} from '../../Backend/AuthContent';
+import CreateAccountModal from '../../Modals/CreateAccountModal';
 
 const Wishlist = ({navigation}) => {
   const {getRequest} = useApi();
   const isFocus = useIsFocused();
   const [likedProperties, setLikedProperties] = useState([]);
-  const [isLoading,setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [propertyData, setPropertyData] = useState([]);
+  const {currentStatus} = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
   const toggleLike = id => {
     if (likedProperties.includes(id)) {
       setLikedProperties(likedProperties.filter(pid => pid !== id));
@@ -32,22 +35,28 @@ const Wishlist = ({navigation}) => {
   };
 
   const getData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const response = await getRequest('public/api/wishlist/stats');
-    if(response.data?.status){
-          setPropertyData(response.data?.data);
-          setIsLoading(false)
-    }else{
+    if (response.data?.status) {
+      setPropertyData(response.data?.data);
+      setIsLoading(false);
+    } else {
       setPropertyData([]);
-      setIsLoading(false)
+      setIsLoading(false);
     }
-    setIsLoading(false)
-
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    if(isFocus){
-        getData();
+    if (isFocus) {
+      getData();
+    }
+  }, [isFocus]);
+  useEffect(() => {
+    if (isFocus) {
+      if (currentStatus == -1) {
+        setModalVisible(true);
+      }
     }
   }, [isFocus]);
 
@@ -62,14 +71,21 @@ const Wishlist = ({navigation}) => {
       />
 
       {/* Property Grid */}
-    {
-      isLoading ? (
-        <ActivityIndicator size={'large'} color={COLOR?.primary} style={{top:'30%'}} />
+      {isLoading ? (
+        <ActivityIndicator
+          size={'large'}
+          color={COLOR?.primary}
+          style={{top: '30%'}}
+        />
       ) : (
         <FlatList
           data={propertyData}
           renderItem={({item}) => (
-            <PropertyCard item={item} toggleLike={toggleLike} type={'wishlist'} />
+            <PropertyCard
+              item={item}
+              toggleLike={toggleLike}
+              type={'wishlist'}
+            />
           )}
           keyExtractor={item => item.id}
           numColumns={2}
@@ -77,6 +93,17 @@ const Wishlist = ({navigation}) => {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <CreateAccountModal
+        visible={modalVisible}
+        onCreateAccount={() => {
+          console.log('Navigate to signup screen');
+          setModalVisible(false);
+        }}
+        onCancel={() => {
+          setModalVisible(false);
+          navigation.goBack();
+        }}
+      />
     </View>
   );
 };

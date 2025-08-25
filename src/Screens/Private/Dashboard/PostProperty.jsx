@@ -13,8 +13,8 @@ import Header from '../../../Components/FeedHeader';
 import ImagePicker from 'react-native-image-crop-picker';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
-import { useApi } from '../../../Backend/Api';
-import { useToast } from '../../../Constants/ToastContext';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
 
 const PostProperty = ({navigation}) => {
   const {postRequest} = useApi();
@@ -25,7 +25,7 @@ const PostProperty = ({navigation}) => {
   const [location, setLocation] = useState('');
   const [area, setArea] = useState('');
   const [images, setImages] = useState([]);
-  const [loading,setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Filter-style selections
   const [selectedBHK, setSelectedBHK] = useState('');
@@ -46,9 +46,9 @@ const PostProperty = ({navigation}) => {
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
   const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
   const availabilityOptions = ['Ready to Move', 'Under Construction'];
-  const bathroomOptions = ['1', '2', '3', '4+', 'No Advance'];
+  const bathroomOptions = ['1', '2', '3', '4+'];
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
-  const advance = ['1 month', '2 months', '3 months+'];
+  const advance = ['1 month', '2 months', '3 months+', 'No Advance'];
   const familyType = ['Family', 'Bachelors male', 'Bachelors female'];
   const facingOptions = [
     'North',
@@ -61,54 +61,59 @@ const PostProperty = ({navigation}) => {
     'South-West',
   ];
 
-  const renderOptions = (label, options, selected, setSelected, multiSelect = false) => {
-  const handlePress = (option) => {
-    if (multiSelect) {
-      // Toggle selection for multi-select
-      if (selected.includes(option)) {
-        setSelected(selected.filter(item => item !== option));
+  const renderOptions = (
+    label,
+    options,
+    selected,
+    setSelected,
+    multiSelect = false,
+  ) => {
+    const handlePress = option => {
+      if (multiSelect) {
+        // Toggle selection for multi-select
+        if (selected.includes(option)) {
+          setSelected(selected.filter(item => item !== option));
+        } else {
+          setSelected([...selected, option]);
+        }
       } else {
-        setSelected([...selected, option]);
+        // Single-select behavior
+        setSelected(option);
       }
-    } else {
-      // Single-select behavior
-      setSelected(option);
-    }
-  };
+    };
 
-  const isSelected = (option) => {
-    return multiSelect ? selected.includes(option) : selected === option;
-  };
+    const isSelected = option => {
+      return multiSelect ? selected.includes(option) : selected === option;
+    };
 
-  return (
-    <>
-      <Text style={styles.label}>{label}</Text>
-      <ScrollView
-        showsHorizontalScrollIndicator={false}
-        horizontal
-        style={styles.optionRow}>
-        {options.map(option => (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              isSelected(option) && styles.optionSelected,
-            ]}
-            onPress={() => handlePress(option)}>
-            <Text
+    return (
+      <>
+        <Text style={styles.label}>{label}</Text>
+        <ScrollView
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          style={styles.optionRow}>
+          {options.map(option => (
+            <TouchableOpacity
+              key={option}
               style={[
-                styles.optionText,
-                isSelected(option) && styles.optionTextSelected,
-              ]}>
-              {option}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </>
-  );
-};
-
+                styles.optionButton,
+                isSelected(option) && styles.optionSelected,
+              ]}
+              onPress={() => handlePress(option)}>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSelected(option) && styles.optionTextSelected,
+                ]}>
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </>
+    );
+  };
 
   const pickImages = () => {
     ImagePicker.openPicker({
@@ -119,7 +124,7 @@ const PostProperty = ({navigation}) => {
       const newImages = selectedImages.map(img => ({
         uri: img.path,
         type: img.mime,
-        name:'images'
+        name: 'images',
       }));
       setImages(prev => [...prev, ...newImages]);
     });
@@ -130,71 +135,73 @@ const PostProperty = ({navigation}) => {
   };
 
   const handlePostProperty = async () => {
-  if (!title || !description || !price || !location) {
-    Alert.alert('Error', 'Please fill all required fields.');
-    return;
-  }
-  setLoading(true);
+    if (!title || !description || !price || !location) {
+      Alert.alert('Error', 'Please fill all required fields.');
+      return;
+    }
+    setLoading(true);
 
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('description', description);
-  formData.append('price', price);
-  formData.append('location', location);
-  formData.append('area_sqft', area);
-  formData.append('property_type', propertyType);
-  formData.append('availability', availability);
-  formData.append('bathrooms', bathrooms);
-  formData.append('parking_available', parking);
-  formData.append('facing_direction', facing);
-  formData.append('advance', advanceValue);
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('location', location);
+    formData.append('area_sqft', area);
+    formData.append('property_type', propertyType);
+    formData.append('availability', availability);
+    formData.append('bathrooms', bathrooms);
+    formData.append('parking_available', parking);
+    formData.append('facing_direction', facing);
+    formData.append('advance', advanceValue);
 
-  if (Array.isArray(selectedBHK)) {
-    selectedBHK.forEach((item, index) => {
-      formData.append(`bhk[${index}]`, item);
+    if (Array.isArray(selectedBHK)) {
+      selectedBHK.forEach((item, index) => {
+        formData.append(`bhk[${index}]`, item);
+      });
+    } else {
+      formData.append('bhk[0]', selectedBHK);
+    }
+
+    if (Array.isArray(furnishing)) {
+      furnishing.forEach((item, index) => {
+        formData.append(`furnishing_status[${index}]`, item);
+      });
+    } else {
+      formData.append('furnishing_status[0]', furnishing);
+    }
+
+    if (Array.isArray(familyTypeValue)) {
+      familyTypeValue.forEach((item, index) => {
+        formData.append(`preferred_tenant_type[${index}]`, item);
+      });
+    } else {
+      formData.append('preferred_tenant_type[0]', familyTypeValue);
+    }
+
+    images.forEach((img, index) => {
+      formData.append(`images[${index}]`, {
+        uri: img.uri,
+        type: img.type || 'image/jpeg',
+        name: img.name || `image_${index}.jpg`,
+      });
     });
-  } else {
-    formData.append('bhk[0]', selectedBHK);
-  }
 
-  if (Array.isArray(furnishing)) {
-    furnishing.forEach((item, index) => {
-      formData.append(`furnishing_status[${index}]`, item);
-    });
-  } else {
-    formData.append('furnishing_status[0]', furnishing);
-  }
-
-  if (Array.isArray(familyTypeValue)) {
-    familyTypeValue.forEach((item, index) => {
-      formData.append(`preferred_tenant_type[${index}]`, item);
-    });
-  } else {
-    formData.append('preferred_tenant_type[0]', familyTypeValue);
-  }
-
-  images.forEach((img, index) => {
-    formData.append(`images[${index}]`, {
-      uri: img.uri,
-      type: img.type || 'image/jpeg',
-      name: img.name || `image_${index}.jpg`,
-    });
-  });
-
-
-  const response = await postRequest('public/api/properties/add', formData, true);
-  if(response?.data?.status == true){
-    showToast(response?.data?.message, "success")
+    const response = await postRequest(
+      'public/api/properties/add',
+      formData,
+      true,
+    );
+    if (response?.data?.status == true) {
+      showToast(response?.data?.message, 'success');
+      setLoading(false);
+      navigation?.goBack();
+    }
     setLoading(false);
-    navigation?.goBack();
-  }
-    setLoading(false);
 
-  // Uncomment if you want to show alert and go back on success
-  // Alert.alert('Success', 'Your property has been posted successfully!');
-  // navigation.goBack();
-};
-
+    // Uncomment if you want to show alert and go back on success
+    // Alert.alert('Success', 'Your property has been posted successfully!');
+    // navigation.goBack();
+  };
 
   return (
     <View style={styles.container}>
@@ -268,26 +275,26 @@ const PostProperty = ({navigation}) => {
           'Property Type*',
           propertyTypes,
           propertyType,
-          setPropertyType
+          setPropertyType,
         )}
         {renderOptions(
           'Furnishing Status',
           furnishingOptions,
           furnishing,
-          setFurnishing
+          setFurnishing,
         )}
         {renderOptions(
           'Availability',
           availabilityOptions,
           availability,
-          setAvailability
+          setAvailability,
         )}
         {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms)}
         {renderOptions(
           'Parking Available',
           parkingOptions,
           parking,
-          setParking
+          setParking,
         )}
         {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
         {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
@@ -295,7 +302,7 @@ const PostProperty = ({navigation}) => {
           'Preferred Tenant Type',
           familyType,
           familyTypeValue,
-          setFamilyTypeValue
+          setFamilyTypeValue,
         )}
         <View style={styles.section}>
           <Text style={styles.label}>Commercial Space</Text>
@@ -346,7 +353,7 @@ const PostProperty = ({navigation}) => {
 
         {/* Post Button */}
         <CustomButton
-        loading={loading}
+          loading={loading}
           title={'Post Property'}
           style={{marginTop: 20}}
           onPress={handlePostProperty}

@@ -8,7 +8,7 @@ import {
   StatusBar,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {AnimatedButton} from '../Dashboard/Home';
@@ -17,6 +17,8 @@ import {windowWidth} from '../../../Constants/Dimensions';
 import OptionSelector from '../Dashboard/OptionSelector';
 import {showPost} from '../../../Constants/Data';
 import {useIsFocused} from '@react-navigation/native';
+import {AuthContext} from '../../../Backend/AuthContent';
+import CreateAccountModal from '../../../Modals/CreateAccountModal';
 
 // ---------------- Tab Button Component ----------------
 const TabButton = ({title, isActive, onPress}) => {
@@ -78,7 +80,13 @@ const HallCard = ({
 };
 
 // ---------------- Convention Hall Component ----------------
-const ConventionHall = ({navigation, onPressSort, onPressFilter}) => {
+const ConventionHall = ({
+  navigation,
+  onPressSort,
+  onPressFilter,
+  currentStatus,
+  setShowModal,
+}) => {
   const halls = [
     {
       id: 1,
@@ -159,9 +167,13 @@ const ConventionHall = ({navigation, onPressSort, onPressFilter}) => {
           price={hall.price}
           priceType={hall.priceType}
           ac={hall.ac}
-          onPress={() =>
-            navigation.navigate('PropertyDetail', {type: 'convention'})
-          }
+          onPress={() => {
+            if (currentStatus == -1) {
+              setShowModal(true);
+            } else {
+              navigation.navigate('PropertyDetail', {type: 'convention'});
+            }
+          }}
           onBook={() => navigation.navigate('Booking')}
         />
       ))}
@@ -253,9 +265,13 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           priceType={farm.priceType}
           ac={farm.ac}
           onBook={() => navigation.navigate('Booking')}
-          onPress={() =>
-            navigation.navigate('PropertyDetail', {type: 'convention'})
-          }
+          onPress={() => {
+            if (currentStatus == -1) {
+              setShowModal(true);
+            } else {
+              navigation.navigate('PropertyDetail', {type: 'convention'});
+            }
+          }}
         />
       ))}
     </ScrollView>
@@ -265,8 +281,8 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
 // ---------------- Main Convention Screen ----------------
 const Convention = ({navigation, route}) => {
   const type = route?.params?.type;
-  console.log(type, type == 'farm', 'TYTYPYPYPYPYP');
-
+  const {currentStatus} = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('convention'); // default tab
   const [sortVisible, setSortVisible] = useState(false);
   const [tabLoader, settabLoader] = useState(false);
@@ -347,19 +363,6 @@ const Convention = ({navigation, route}) => {
           }}
         />
       )}
-      {/* Tabs */}
-      {/* <View style={styles.tabContainer}>
-        <TabButton
-          title="Convention Hall"
-          isActive={activeTab === 'convention'}
-          onPress={() => setActiveTab('convention')}
-        />
-        <TabButton
-          title="Farm House"
-          isActive={activeTab === 'farmhouse'}
-          onPress={() => setActiveTab('farmhouse')}
-        />
-      </View> */}
 
       {/* Render Components */}
       {activeTab === 'convention' ? (
@@ -367,6 +370,10 @@ const Convention = ({navigation, route}) => {
           navigation={navigation}
           onPressSort={() => {
             setSortVisible(true);
+          }}
+          currentStatus={currentStatus}
+          setShowModal={() => {
+            setModalVisible(true);
           }}
           onPressFilter={() =>
             navigation.navigate('ConventionMainFilter', {
@@ -376,6 +383,10 @@ const Convention = ({navigation, route}) => {
         />
       ) : (
         <FarmHouse
+          currentStatus={currentStatus}
+          setShowModal={() => {
+            setModalVisible(true);
+          }}
           navigation={navigation}
           onPressSort={() => setSortVisible(true)}
           onPressFilter={() => {
@@ -396,6 +407,14 @@ const Convention = ({navigation, route}) => {
         onSelectSort={sortType => {
           console.log('Selected Sort:', sortType);
         }}
+      />
+      <CreateAccountModal
+        visible={modalVisible}
+        onCreateAccount={() => {
+          console.log('Navigate to signup screen');
+          setModalVisible(false);
+        }}
+        onCancel={() => setModalVisible(false)}
       />
     </View>
   );

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, {useRef, useEffect, useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,26 +15,30 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { COLOR } from '../../../Constants/Colors';
+import {COLOR} from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
 import CustomButton from '../../../Components/CustomButton';
 import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
-import { windowHeight, windowWidth } from '../../../Constants/Dimensions';
+import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
 import OptionSelector from './OptionSelector';
-import { showPost } from '../../../Constants/Data';
-import { useIsFocused } from '@react-navigation/native';
-import { useApi } from '../../../Backend/Api';
-import { useToast } from '../../../Constants/ToastContext';
-import { AuthContext } from '../../../Backend/AuthContent';
+import {showPost} from '../../../Constants/Data';
+import {useIsFocused} from '@react-navigation/native';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
+import {AuthContext} from '../../../Backend/AuthContent';
+import CreateAccountModal from '../../../Modals/CreateAccountModal';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const Home = ({ navigation }) => {
-  const { postRequest } = useApi();
-  const { user, showDemoCard, setShowDemoCard } = useContext(AuthContext);
-  const { showToast } = useToast();
+const Home = ({navigation}) => {
+  const {postRequest} = useApi();
+  const {user, showDemoCard, setShowDemoCard} = useContext(AuthContext);
+  const {currentStatus} = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const {showToast} = useToast();
   const focus = useIsFocused();
   const [loader, setloader] = useState(true);
   const [properties, setProperties] = useState([]);
@@ -49,15 +53,19 @@ const Home = ({ navigation }) => {
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
-    const response = await postRequest('public/api/wishlist/add', formdata, true);
+    const response = await postRequest(
+      'public/api/wishlist/add',
+      formdata,
+      true,
+    );
     if (response?.data?.status) {
-      showToast(response?.data?.message, "success");
+      showToast(response?.data?.message, 'success');
       setLikedProperties(prev =>
-        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
       );
-        GetProperties(1, false, appliedFilters, searchQuery, sortQuery);  
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
     } else {
-      showToast(response?.error, "error");
+      showToast(response?.error, 'error');
     }
   };
 
@@ -75,17 +83,21 @@ const Home = ({ navigation }) => {
     formData.append('page', pageNum);
 
     if (filters.BHK) formData.append('bhk', filters.BHK);
-    if (filters.propertyType) formData.append('property_type', filters.propertyType);
+    if (filters.propertyType)
+      formData.append('property_type', filters.propertyType);
     if (filters.roomSize) formData.append('area_sqft', filters.roomSize);
     if (filters.minPrice) formData.append('min_price', filters.minPrice);
     if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
-    if (filters.furnishing) formData.append('furnishing_status', filters.furnishing);
-    if (filters.availability) formData.append('availability', filters.availability);
+    if (filters.furnishing)
+      formData.append('furnishing_status', filters.furnishing);
+    if (filters.availability)
+      formData.append('availability', filters.availability);
     if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
     if (filters.parking) formData.append('parking_available', filters.parking);
     if (filters.facing) formData.append('facing_direction', filters.facing);
     if (filters.advanceValue) formData.append('advance', filters.advanceValue);
-    if (filters.familyTypeValue) formData.append('preferred_tenant_type', filters.familyTypeValue);
+    if (filters.familyTypeValue)
+      formData.append('preferred_tenant_type', filters.familyTypeValue);
 
     // Add search query if present
     if (search && search.trim() !== '') {
@@ -106,7 +118,7 @@ const Home = ({ navigation }) => {
     append = false,
     filters = appliedFilters,
     search = searchQuery,
-    sort = sortQuery
+    sort = sortQuery,
   ) => {
     if (pageNum === 1) setloader(true);
     else setLoadingMore(true);
@@ -262,7 +274,7 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       {tabLoader ? (
-        <View style={{ height: 115 }}></View>
+        <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
           navigation={navigation}
@@ -288,7 +300,10 @@ const Home = ({ navigation }) => {
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
         />
-        <TouchableOpacity onPress={() => { GetProperties(1, false, appliedFilters, searchQuery, sortQuery); }}>
+        <TouchableOpacity
+          onPress={() => {
+            GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
+          }}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -306,7 +321,10 @@ const Home = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('Filter', { onApplyFilter: handleFilterChange, existingFilters: appliedFilters, })
+            navigation.navigate('Filter', {
+              onApplyFilter: handleFilterChange,
+              existingFilters: appliedFilters,
+            })
           }>
           <Image
             source={{
@@ -318,7 +336,7 @@ const Home = ({ navigation }) => {
       </View>
 
       {/* Properties Grid */}
-      {(showDemoCard && loader) ? (
+      {showDemoCard && loader ? (
         <>
           <LottieView
             ref={animationRef}
@@ -327,23 +345,23 @@ const Home = ({ navigation }) => {
           />
           <View style={styles.flagcontainer}>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
             <Text style={styles.text}>Made in India</Text>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
           </View>
           <View style={styles.flagcontainer}>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
             <Text style={styles.text}>Made for India</Text>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
           </View>
@@ -353,7 +371,7 @@ const Home = ({ navigation }) => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={{ marginVertical: 2, marginLeft: 20 }}>
+            style={{marginVertical: 2, marginLeft: 20}}>
             {avaialbleFilter.map(filterGroup => (
               <TouchableOpacity
                 onPress={() => {
@@ -375,6 +393,7 @@ const Home = ({ navigation }) => {
                   marginRight: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
+                  height: properties?.length == 0 && 45,
                 }}>
                 <Text
                   style={{
@@ -393,18 +412,18 @@ const Home = ({ navigation }) => {
 
           <FlatList
             data={properties}
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <PropertyCard item={item} toggleLike={toggleLike} type={'home'} />
             )}
             keyExtractor={item => item.id?.toString()}
             numColumns={2}
-            contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
+            contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
             showsVerticalScrollIndicator={false}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
             ListFooterComponent={
               loadingMore ? (
-                <View style={{ padding: 16 }}>
+                <View style={{padding: 16}}>
                   <ActivityIndicator size="small" color={COLOR.primary} />
                 </View>
               ) : null
@@ -422,15 +441,13 @@ const Home = ({ navigation }) => {
         filterValueData={multiModalState.filterValueData}
         visible={multiModalState.visible}
         initialSelected={multiModalState.initialSelected}
-        onClose={() =>
-          setMultiModalState(prev => ({ ...prev, visible: false }))
-        }
+        onClose={() => setMultiModalState(prev => ({...prev, visible: false}))}
         onSelectSort={selectedFilters => {
           setAppliedFilters(prev => ({
             ...prev,
             [multiModalState.filterType]: selectedFilters,
           }));
-          setMultiModalState(prev => ({ ...prev, visible: false }));
+          setMultiModalState(prev => ({...prev, visible: false}));
         }}
       />
       <SortModal
@@ -440,13 +457,21 @@ const Home = ({ navigation }) => {
           setSortQuery(sortType);
         }}
       />
+      <CreateAccountModal
+        visible={modalVisible}
+        onCreateAccount={() => {
+          console.log('Navigate to signup screen');
+          setModalVisible(false);
+        }}
+        onCancel={() => setModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
 
 export default Home;
 
-export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
+export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -472,7 +497,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
         bottom: 50,
         right: 20,
         opacity: fadeAnim,
-        transform: [{ translateY: floatAnim }],
+        transform: [{translateY: floatAnim}],
       }}>
       <TouchableOpacity
         style={{
@@ -489,7 +514,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
           source={{
             uri: iconUrl,
           }}
-          style={{ width: 25, height: 25 }}
+          style={{width: 25, height: 25}}
         />
         <Text
           style={{
@@ -542,7 +567,7 @@ export const DemoCard = ({
           borderRadius: 10,
           alignSelf: 'flex-start',
         }}>
-        <Text style={{ color: '#fff', fontWeight: '600' }}>{buttonText}</Text>
+        <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -611,7 +636,7 @@ const styles = StyleSheet.create({
     shadowColor: COLOR.black,
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
   },
   propertyImage: {
     width: '100%',
@@ -658,14 +683,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginHorizontal: 20,
   },
-  searchIcon: { width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8 },
+  searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
   searchInput: {
     flex: 1,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
   },
-  filterIcon: { width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8 },
+  filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
   filterTagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -682,8 +707,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 6,
   },
-  filterText: { fontSize: 12, color: COLOR.white, marginRight: 6 },
-  crossIcon: { width: 11, height: 11, tintColor: COLOR.white },
+  filterText: {fontSize: 12, color: COLOR.white, marginRight: 6},
+  crossIcon: {width: 11, height: 11, tintColor: COLOR.white},
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,
@@ -711,6 +736,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#138808',
-    letterSpacing: 1
-      },
-    });
+    letterSpacing: 1,
+  },
+});

@@ -33,7 +33,7 @@ const Login = ({navigation}) => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const {setUser, setToken} = useContext(AuthContext);
+  const {setUser, setToken, setCurrentStatus} = useContext(AuthContext);
 
   useEffect(() => {
     animationRef.current?.play(30, 120);
@@ -59,11 +59,12 @@ const Login = ({navigation}) => {
     formData.append('email', trimmedIdentifier);
     formData.append('password', trimmedPassword);
 
-    const response = await postRequest('public/api/login', formData , true);
+    const response = await postRequest('public/api/login', formData, true);
 
     if (response?.data?.token) {
       setToken(response?.data?.token);
-      setUser(response?.data?.user)
+      setUser(response?.data?.user);
+      setCurrentStatus(1);
       // console.log(response?.data?.user?.registration_step, 'LOOFFFFF');
 
       // setUser(response?.data);

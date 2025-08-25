@@ -7,6 +7,7 @@ import {ToastProvider, useToast} from '../Constants/ToastContext';
 
 const MainNavigation = () => {
   const auth = useContext(AuthContext);
+  const {currentStatus} = useContext(AuthContext);
 
   if (!auth) {
     console.error('AuthContext not found');
@@ -14,7 +15,6 @@ const MainNavigation = () => {
   }
 
   const {user, loading} = auth;
-
 
   if (loading) {
     return (
@@ -27,7 +27,7 @@ const MainNavigation = () => {
   return (
     <View style={{flex: 1}}>
       <ToastProvider>
-        {user ? <RootNavigation /> : <AuthStack />}
+        {user || currentStatus == -1 ? <RootNavigation /> : <AuthStack />}
       </ToastProvider>
     </View>
   );
