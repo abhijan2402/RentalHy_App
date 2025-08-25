@@ -17,21 +17,22 @@ import {useApi} from '../../Backend/Api';
 import {useIsFocused} from '@react-navigation/native';
 import {AuthContext} from '../../Backend/AuthContent';
 import CreateAccountModal from '../../Modals/CreateAccountModal';
+import { useToast } from '../../Constants/ToastContext';
 
 const Wishlist = ({navigation}) => {
-  const {getRequest} = useApi();
+  const {getRequest , postRequest} = useApi();
+  const {showToast} = useToast();
   const isFocus = useIsFocused();
-  const [likedProperties, setLikedProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [propertyData, setPropertyData] = useState([]);
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
-  const toggleLike = id => {
-    if (likedProperties.includes(id)) {
-      setLikedProperties(likedProperties.filter(pid => pid !== id));
-    } else {
-      setLikedProperties([...likedProperties, id]);
-    }
+  const removewishlist = async (id) => {
+   const response = await postRequest(`public/api/wishlist/remove/${id}`);
+   if (response.data?.status) {
+    showToast('Removed from wishlist successfully' , 'success');
+    getData();
+   }  
   };
 
   const getData = async () => {
@@ -52,13 +53,13 @@ const Wishlist = ({navigation}) => {
       getData();
     }
   }, [isFocus]);
-  useEffect(() => {
-    if (isFocus) {
-      if (currentStatus == -1) {
-        setModalVisible(true);
-      }
-    }
-  }, [isFocus]);
+  // useEffect(() => {
+  //   if (isFocus) {
+  //     if (currentStatus == -1) {
+  //       setModalVisible(true);
+  //     }
+  //   }
+  // }, [isFocus]);
 
   return (
     <View style={styles.container}>
@@ -83,14 +84,19 @@ const Wishlist = ({navigation}) => {
           renderItem={({item}) => (
             <PropertyCard
               item={item}
-              toggleLike={toggleLike}
               type={'wishlist'}
+              removewishlist={removewishlist}
             />
           )}
           keyExtractor={item => item.id}
           numColumns={2}
           columnWrapperStyle={styles.row}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>No properties found</Text>
+            </View>
+          )}
         />
       )}
       <CreateAccountModal
@@ -184,5 +190,16 @@ const styles = StyleSheet.create({
     color: COLOR.primary,
     fontWeight: 'bold',
     marginBottom: 6,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 400,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: COLOR.black,
+    fontWeight:500,
   },
 });

@@ -14,6 +14,7 @@ import {
   Animated,
   ScrollView,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {COLOR} from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
@@ -49,7 +50,9 @@ const Home = ({navigation}) => {
   const [appliedFilters, setAppliedFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [sortQuery, setSortQuery] = useState('');
-
+  const [multiFilter, setMultiFilter] = useState(false);
+  const [attendedFilter, setAttendedFilter] = useState([]);
+  
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
@@ -77,17 +80,34 @@ const Home = ({navigation}) => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
 
-  // Build form data for API including filters, search, and sort
-  const buildFormData = (filters, pageNum = 1, search = '', sort = '') => {
-    const formData = new FormData();
-    formData.append('page', pageNum);
+const buildFormData = (
+  filters,
+  pageNum = 1,
+  search = '',
+  sort = '',
+  isDynamic = false 
+) => {
+  const formData = new FormData();
+  formData.append('page', pageNum);
 
+  if (isDynamic) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach(v => {
+          formData.append(key.toLowerCase(), v);
+        });
+      } else if (value) {
+        formData.append(key.toLowerCase(), value);
+      }
+    });
+  } else {
     if (filters.BHK) formData.append('bhk', filters.BHK);
     if (filters.propertyType)
       formData.append('property_type', filters.propertyType);
-    if (filters.roomSize) formData.append('area_sqft', filters.roomSize);
     if (filters.minPrice) formData.append('min_price', filters.minPrice);
     if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
+    if (filters.minRoomSize) formData.append('min_area', filters.minRoomSize);
+    if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
     if (filters.furnishing)
       formData.append('furnishing_status', filters.furnishing);
     if (filters.availability)
@@ -98,32 +118,32 @@ const Home = ({navigation}) => {
     if (filters.advanceValue) formData.append('advance', filters.advanceValue);
     if (filters.familyTypeValue)
       formData.append('preferred_tenant_type', filters.familyTypeValue);
+  }
 
-    // Add search query if present
-    if (search && search.trim() !== '') {
-      formData.append('search', search.trim());
-    }
+  if (search && search.trim() !== '') {
+    formData.append('search', search.trim());
+  }
 
-    // Add sort_by if present
-    if (sort && sort.trim() !== '') {
-      formData.append('sort_by', sort.trim());
-    }
+  if (sort && sort.trim() !== '') {
+    formData.append('sort_by', sort.trim());
+  }
 
-    return formData;
-  };
+  return formData;
+};
 
-  // Fetch properties with filters, search, sort, and pagination
+
   const GetProperties = async (
     pageNum = 1,
     append = false,
     filters = appliedFilters,
     search = searchQuery,
     sort = sortQuery,
+    isDynamic = false
   ) => {
     if (pageNum === 1) setloader(true);
     else setLoadingMore(true);
 
-    const formData = buildFormData(filters, pageNum, search, sort);
+    const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
     const response = await postRequest('public/api/properties', formData, true);
     const resData = response?.data?.data;
     const newProperties = resData?.data || [];
@@ -140,90 +160,75 @@ const Home = ({navigation}) => {
     setLoadingMore(false);
   };
 
-  // Initial load and reload on focus
   useEffect(() => {
     if (focus) {
-      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery , false);
       setShowDemoCard(false);
     }
   }, [focus]);
 
-  // Reload when filters, search, or sort change
   useEffect(() => {
-    GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
+    GetProperties(1, false, appliedFilters, searchQuery, sortQuery , false);
   }, [appliedFilters, searchQuery, sortQuery]);
 
-  // Pagination handler
   const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
-      GetProperties(page + 1, true, appliedFilters, searchQuery, sortQuery);
+      GetProperties(page + 1, true, appliedFilters, searchQuery, sortQuery , false);
     }
   };
 
   const animationRef = useRef();
   const [tabLoader, settabLoader] = useState(false);
-  const [bannerIndex, setBannerIndex] = useState(0);
-  const bannerRef = useRef(null);
-
-  const [multiModalState, setMultiModalState] = useState({
-    visible: false,
-    filterType: '',
-    filterValueData: [],
-    initialSelected: [],
-  });
-
   const [sortVisible, setSortVisible] = useState(false);
 
   const [avaialbleFilter, setavaialbleFilter] = useState([
     {
-      id: 'price',
-      type: 'price',
-      data: [],
-    },
-    {
       id: 'bhkOptions',
       type: 'BHK',
+      name:'BHK',
       data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
     },
     {
-      id: 'commercialSpace',
-      type: 'Commercial Space',
-      data: ['Yes', 'No'],
-    },
-    {
-      id: 'familyType',
-      type: 'Tenant Type',
-      data: ['Family', 'Bachelors Male', 'Bachelors Female'],
-    },
-    {
       id: 'propertyTypes',
-      type: 'property Type',
+      type: 'property_type',
+      name:'Property Type',
       data: ['Apartment', 'Flat', 'Villa'],
     },
     {
       id: 'furnishingOptions',
-      type: 'furnishing',
+      type: 'furnishing_status',
+      name:'Furnishing Status',
       data: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
     },
     {
       id: 'availabilityOptions',
       type: 'availability',
+      name:'Availability',
       data: ['Ready to Move', 'Under Construction'],
     },
     {
       id: 'bathroomOptions',
-      type: 'bathroom',
+      type: 'bathrooms',
+      name:'Bathrooms',
       data: ['1', '2', '3', '4+'],
     },
     {
       id: 'parkingOptions',
-      type: 'parking',
+      type: 'parking_available',
+      name:'Parking Available',
       data: ['Car', 'Bike', 'Both', 'None'],
     },
     {
       id: 'advance',
       type: 'advance',
-      data: ['1 month', '2 months', '3 months+', 'No Advance'],
+      name:'Advance',
+      data: ['1 month', '2 months', '3 months+'],
+    },
+    {
+      id: 'familyType',
+      type: 'preferred_tenant_type',
+      name:'Family Type',
+      data: ['Family', 'Bachelors male', 'Bachelors female'],
     },
   ]);
 
@@ -302,7 +307,7 @@ const Home = ({navigation}) => {
         />
         <TouchableOpacity
           onPress={() => {
-            GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
+            GetProperties(1, false, appliedFilters, searchQuery, sortQuery ,false);
           }}>
           <Image
             source={{
@@ -368,19 +373,15 @@ const Home = ({navigation}) => {
         </>
       ) : (
         <>
-          <ScrollView
+     <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             style={{marginVertical: 2, marginLeft: 20}}>
             {avaialbleFilter.map(filterGroup => (
               <TouchableOpacity
                 onPress={() => {
-                  setMultiModalState({
-                    visible: true,
-                    filterType: filterGroup.type,
-                    filterValueData: filterGroup.data,
-                    initialSelected: appliedFilters[filterGroup.type] || [],
-                  });
+                  setAttendedFilter(filterGroup);
+                  setMultiFilter(true);
                 }}
                 key={filterGroup.id}
                 style={{
@@ -389,46 +390,58 @@ const Home = ({navigation}) => {
                   paddingHorizontal: 10,
                   paddingVertical: 8,
                   borderRadius: 5,
-                  backgroundColor: COLOR.white,
+                  backgroundColor: attendedFilter?.id == filterGroup?.id ? COLOR.primary : '#fff',
                   marginRight: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: properties?.length == 0 && 45,
                 }}>
                 <Text
                   style={{
                     fontSize: 12,
                     fontWeight: 'bold',
-                    color: '#333',
+                    color: attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
                     height: 20,
                     textTransform: 'capitalize',
                     textAlignVertical: 'center',
                   }}>
-                  {filterGroup.type}
+                  {filterGroup.name}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
           <FlatList
-            data={properties}
-            renderItem={({item}) => (
-              <PropertyCard item={item} toggleLike={toggleLike} type={'home'} />
-            )}
-            keyExtractor={item => item.id?.toString()}
-            numColumns={2}
-            contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
-            showsVerticalScrollIndicator={false}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={
-              loadingMore ? (
-                <View style={{padding: 16}}>
-                  <ActivityIndicator size="small" color={COLOR.primary} />
-                </View>
-              ) : null
-            }
-          />
+  data={properties}
+  renderItem={({item}) => (
+    <PropertyCard item={item} toggleLike={toggleLike} type={'home'} />
+  )}
+  keyExtractor={item => item.id?.toString()}
+  numColumns={2}
+  contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
+  showsVerticalScrollIndicator={false}
+  onEndReached={handleLoadMore}
+  onEndReachedThreshold={0.5}
+  refreshControl={
+    <RefreshControl
+      refreshing={loader}
+      onRefresh={() =>
+      {
+        setAttendedFilter(null);
+        GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
+      }
+      }
+      colors={[COLOR.primary]} // Android
+      tintColor={COLOR.primary} // iOS
+    />
+  }
+  ListFooterComponent={
+    loadingMore ? (
+      <View style={{padding: 16}}>
+        <ActivityIndicator size="small" color={COLOR.primary} />
+      </View>
+    ) : null
+  }
+/>
         </>
       )}
       {!loader && (
@@ -437,24 +450,21 @@ const Home = ({navigation}) => {
           iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
         />
       )}
-      <MultiModal
-        filterValueData={multiModalState.filterValueData}
-        visible={multiModalState.visible}
-        initialSelected={multiModalState.initialSelected}
-        onClose={() => setMultiModalState(prev => ({...prev, visible: false}))}
+   <MultiModal
+        filterValueData={attendedFilter}
+        visible={multiFilter}
+        initialSelected={[]} 
+        onClose={() => {setMultiFilter(false)}}
         onSelectSort={selectedFilters => {
-          setAppliedFilters(prev => ({
-            ...prev,
-            [multiModalState.filterType]: selectedFilters,
-          }));
-          setMultiModalState(prev => ({...prev, visible: false}));
+          console.log('selectedFilters:', selectedFilters);
+          GetProperties(1, false, selectedFilters, searchQuery, sortQuery, true); 
         }}
       />
-      <SortModal
+        <SortModal
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
-          setSortQuery(sortType);
+          console.log('Selected Sort:', sortType);
         }}
       />
       <CreateAccountModal

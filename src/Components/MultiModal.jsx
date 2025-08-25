@@ -1,33 +1,44 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Modal,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
 import {COLOR} from '../Constants/Colors';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const MultiModal = ({
   visible,
   onClose,
   onSelectSort,
   filterValueData,
-  initialSelected = [],
+  initialSelected = {},
 }) => {
   const [selectedFilters, setSelectedFilters] = useState(initialSelected);
 
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [priceRange, setPriceRange] = useState([5000, 100000]); // default min and max
-  const toggleFilter = filter => {
-    if (selectedFilters.includes(filter)) {
-      setSelectedFilters(selectedFilters.filter(f => f !== filter));
-    } else {
-      setSelectedFilters([...selectedFilters, filter]);
+  useEffect(() => {
+    if (visible) {
+      setSelectedFilters(initialSelected);
     }
+  }, [visible]);
+
+  const toggleFilter = (filter, filterType) => {
+    const currentFilters = selectedFilters[filterType] || [];
+
+    let updatedFilters;
+    if (currentFilters.includes(filter)) {
+      // remove if exists
+      updatedFilters = currentFilters.filter(f => f !== filter);
+    } else {
+      // add new
+      updatedFilters = [filter]; // ...currentFilters
+    }
+
+    setSelectedFilters({
+      ...selectedFilters,
+      [filterType]: updatedFilters,
+    });
   };
 
   return (
@@ -38,84 +49,43 @@ const MultiModal = ({
       onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Select Filters</Text>
+          <Text style={styles.title}>
+            Select Filters : {filterValueData?.name}
+          </Text>
 
-          {/* Horizontal scroll filter options */}
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              marginBottom: 20,
-            }}>
-            {filterValueData?.length == 0 ? (
-              <View style={{paddingHorizontal: 10}}>
-                <MultiSlider
-                  values={priceRange}
-                  onValuesChange={setPriceRange}
-                  min={1000} // minimum possible value
-                  max={100000} // maximum possible value
-                  step={5000}
-                  selectedStyle={{
-                    backgroundColor: COLOR.primary,
-                  }}
-                  markerStyle={{
-                    backgroundColor: COLOR.primary,
-                    height: 20,
-                    width: 20,
-                  }}
-                  trackStyle={{
-                    height: 4,
-                  }}
-                />
-                <View style={styles.priceLabelRow}>
-                  <Text style={styles.priceLabel}>
-                    ₹{priceRange[0].toLocaleString()}
-                  </Text>
-                  <Text style={styles.priceLabel}>
-                    ₹{priceRange[1].toLocaleString()}
-                  </Text>
-                </View>
-              </View>
-            ) : (
-              filterValueData?.map(option => (
+          {/* Options */}
+          <View style={styles.optionRow}>
+            {filterValueData?.data?.map(option => {
+              const isSelected =
+                selectedFilters[filterValueData?.type]?.includes(option);
+              return (
                 <TouchableOpacity
                   key={option}
                   style={[
-                    {
-                      borderWidth: 1,
-                      borderColor: COLOR.grey,
-                      borderRadius: 8,
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      backgroundColor: COLOR.white,
-                      marginRight: 10,
-                      marginBottom: 10, // space between rows
-                    },
-                    selectedFilters.includes(option) && {
-                      backgroundColor: COLOR.primary,
-                      borderColor: COLOR.primary,
-                    },
+                    styles.optionButton,
+                    isSelected && styles.optionSelected,
                   ]}
-                  onPress={() => toggleFilter(option)}>
+                  onPress={() =>
+                    toggleFilter(option, filterValueData?.type)
+                  }>
                   <Text
                     style={[
-                      {color: COLOR.black},
-                      selectedFilters.includes(option) && {color: COLOR.white},
+                      styles.optionText,
+                      isSelected && styles.optionTextSelected,
                     ]}>
                     {option}
                   </Text>
                 </TouchableOpacity>
-              ))
-            )}
+              );
+            })}
           </View>
 
-          {/* Two buttons side-by-side */}
+          {/* Buttons */}
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={[styles.actionButton, {backgroundColor: COLOR.lightGrey}]}
               onPress={onClose}>
-              <Text
-                style={{fontSize: 16, fontWeight: 'bold', color: COLOR.black}}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: COLOR.black}}>
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -123,11 +93,10 @@ const MultiModal = ({
             <TouchableOpacity
               style={[styles.actionButton, {backgroundColor: COLOR.primary}]}
               onPress={() => {
-                onSelectSort(selectedFilters); // pass array
+                onSelectSort(selectedFilters); // ✅ key-value pair object
                 onClose();
               }}>
-              <Text
-                style={{fontSize: 16, fontWeight: 'bold', color: COLOR.white}}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: COLOR.white}}>
                 Apply
               </Text>
             </TouchableOpacity>
@@ -171,6 +140,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: COLOR.white,
     marginRight: 10,
+    marginBottom: 10,
   },
   optionSelected: {
     backgroundColor: COLOR.primary,
@@ -193,15 +163,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     marginHorizontal: 5,
-  },
-  priceLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  priceLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLOR.black,
   },
 });

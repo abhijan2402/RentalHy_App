@@ -6,7 +6,7 @@ import {COLOR} from '../Constants/Colors';
 import {AuthContext} from '../Backend/AuthContent';
 import CreateAccountModal from '../Modals/CreateAccountModal';
 
-const PropertyCard = ({item, toggleLike, type}) => {
+const PropertyCard = ({item, toggleLike, type , removewishlist}) => {
   const navigation = useNavigation();
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -32,7 +32,7 @@ const PropertyCard = ({item, toggleLike, type}) => {
 
       <TouchableOpacity
         style={styles.wishlistIcon}
-        onPress={() => toggleLike(item.id)}>
+        onPress={() => type == 'wishlist' ?  removewishlist(item.id) : toggleLike(item.id)}>
         <Image
           source={{
             uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',

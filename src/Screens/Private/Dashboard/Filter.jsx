@@ -18,8 +18,9 @@ const Filter = ({navigation, route}) => {
 
   const [selectedBHK, setSelectedBHK] = useState(existingFilters.BHK || '');
   const [propertyType, setPropertyType] = useState(existingFilters.propertyType || '');
-  const [roomSize, setRoomSize] = useState(existingFilters.roomSize || '');
-
+  const [roomSize, setRoomSize] = useState(existingFilters.roomSize || [100, 5000]);
+  const [minRoomSize, setMinRoomSize] = useState(existingFilters.minRoomSize || 0);
+  const [maxRoomSize, setMaxRoomSize] = useState(existingFilters.maxRoomSize || 5000); 
   // ✅ use numbers not strings
   const [priceRange, setPriceRange] = useState(
     existingFilters.priceRange || [5000, 1000000]
@@ -35,6 +36,8 @@ const Filter = ({navigation, route}) => {
   const [advanceValue, setAdvanceValue] = useState(existingFilters.advanceValue || '');
   const [familyTypeValue, setFamilyTypeValue] = useState(existingFilters.familyTypeValue || '');
   const [selectedCommercialSpace, setselectedCommercialSpace] = useState(existingFilters.selectedCommercialSpace || '');
+
+
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
@@ -53,8 +56,10 @@ const Filter = ({navigation, route}) => {
   const handleReset = () => {
     setSelectedBHK('');
     setPropertyType('');
-    setRoomSize('');
     setPriceRange([5000, 15000]);
+    setRoomSize([100,5000])
+    setMinRoomSize(0);
+    setMaxRoomSize(5000);
     setMinPrice(5000);
     setMaxPrice(15000);
     setFurnishing('');
@@ -75,6 +80,13 @@ const Filter = ({navigation, route}) => {
     setMaxPrice(values[1]);
   };
 
+   const handleValuesChangeSQT = (values) => {
+    setRoomSize(values);
+    setMinRoomSize(values[0]);
+    setMaxRoomSize(values[1]);
+  };
+
+
   const handleApply = () => {
     const filters = {
       BHK: selectedBHK,
@@ -88,6 +100,8 @@ const Filter = ({navigation, route}) => {
       bathrooms,
       parking,
       facing,
+      minRoomSize,
+      maxRoomSize,
       advanceValue,
       familyTypeValue,
       selectedCommercialSpace,
@@ -128,14 +142,24 @@ const Filter = ({navigation, route}) => {
 
         {/* Room Size */}
         <Text style={styles.label}>Room Size (sq.ft.)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter room size"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="numeric"
-          value={roomSize}
-          onChangeText={setRoomSize}
-        />
+        <View style={{paddingHorizontal: 10}}>
+          <MultiSlider
+            values={roomSize}
+            onValuesChange={handleValuesChangeSQT}
+            min={100}
+            max={5000} 
+            step={10}
+            selectedStyle={{ backgroundColor: COLOR.primary }}
+            markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+            trackStyle={{ height: 4 }}
+          />
+          <View style={styles.priceLabelRow}>
+            <Text style={styles.priceLabel}>{minRoomSize.toLocaleString()}</Text>
+            <Text style={styles.priceLabel}>{maxRoomSize.toLocaleString()}</Text>
+          </View>
+        </View>
+   
+
 
         {/* Price Range */}
         <Text style={styles.label}>Price Range (₹)</Text>
@@ -144,7 +168,7 @@ const Filter = ({navigation, route}) => {
             values={priceRange}
             onValuesChange={handleValuesChange}
             min={1000}
-            max={15000}   // ✅ realistic max value
+            max={15000} 
             step={5000}
             selectedStyle={{ backgroundColor: COLOR.primary }}
             markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
