@@ -64,12 +64,26 @@ const PropertyCard = ({
       <Text style={styles.propertyLocation}>
         {item?.property?.location || item.location}
       </Text>
-      <Text style={styles.propertyLocation}>
-        {
-          item?.preferred_tenant_type
-          //  ||JSON?.parse(item?.property?.preferred_tenant_type)
-        }{' '}
-      </Text>
+<Text style={styles.propertyLocation}>
+  {
+    (() => {
+      const tenantType =
+        item?.preferred_tenant_type ?? item?.property?.preferred_tenant_type;
+      if (
+        typeof tenantType === 'string' &&
+        tenantType.trim().startsWith('[')
+      ) {
+        try {
+          return JSON.parse(tenantType).join(', ');
+        } catch {
+          return tenantType;
+        }
+      }
+      return tenantType;
+    })()
+  }{' '}
+</Text>
+
       <View style={styles.MainStyle}>
         <Text style={styles.propertyPrice}>
           {item?.property?.price != null && item?.property?.price !== undefined

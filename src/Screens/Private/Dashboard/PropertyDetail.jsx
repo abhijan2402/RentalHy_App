@@ -27,6 +27,8 @@ const PropertyDetail = ({navigation, route}) => {
   const {type, propertyData} = route?.params;
 
   const getPropertyDetails = async id => {
+
+    console.log(id,"idididididid")
     setLoading(true);
     const response = await getRequest(`public/api/properties/${id}`);
     if (response?.data?.status) {
@@ -65,19 +67,31 @@ const PropertyDetail = ({navigation, route}) => {
       formdata,
       true,
     );
-    console.log(response);
+
+    console.log(response?.data?.data?.property_id,"responseresponseresponse")
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
       setLikedProperties(prev =>
         prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
       );
-      getPropertyDetails(propertyData?.id);
+      getPropertyDetails(response?.data?.data?.property_id);
     } else {
       showToast(response?.error, 'error');
     }
   };
 
-  const [isliked, setIsLiked] = useState(false);
+  const removeLike = async id => {
+    const response = await postRequest(
+      `public/api/wishlist/remove/${id}`
+    );
+    if (response?.data?.status) {
+      showToast(response?.data?.message, 'success');
+      setLikedProperties(prev => prev.filter(pid => pid !== id));
+      getPropertyDetails(propertyData?.id);
+    } else {
+      showToast(response?.error, 'error');
+    }
+  };
 
   const phoneNumber = '+919876543210';
   const location = 'Jaipur, Rajasthan';
@@ -149,7 +163,7 @@ const PropertyDetail = ({navigation, route}) => {
               <Text style={styles.title}>{AllData?.title}</Text>
               <TouchableOpacity
                 style={styles.wishlistIcon}
-                onPress={() => toggleLike(AllData?.id)}>
+                onPress={() => AllData?.is_wishlist == 1 ? removeLike(AllData?.id) : toggleLike(AllData?.id)}>
                 <Image
                   source={{
                     uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',

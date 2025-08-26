@@ -21,12 +21,11 @@ const Filter = ({navigation, route}) => {
   const [roomSize, setRoomSize] = useState(existingFilters.roomSize || [100, 5000]);
   const [minRoomSize, setMinRoomSize] = useState(existingFilters.minRoomSize || 0);
   const [maxRoomSize, setMaxRoomSize] = useState(existingFilters.maxRoomSize || 5000); 
-  // ✅ use numbers not strings
   const [priceRange, setPriceRange] = useState(
     existingFilters.priceRange || [5000, 1000000]
   );
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 5000);
-  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 15000);
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
 
   const [furnishing, setFurnishing] = useState(existingFilters.furnishing || '');
   const [availability, setAvailability] = useState(existingFilters.availability || '');
@@ -56,7 +55,7 @@ const Filter = ({navigation, route}) => {
   const handleReset = () => {
     setSelectedBHK('');
     setPropertyType('');
-    setPriceRange([5000, 15000]);
+    setPriceRange([5000, 1000000]);
     setRoomSize([100,5000])
     setMinRoomSize(0);
     setMaxRoomSize(5000);
@@ -168,8 +167,8 @@ const Filter = ({navigation, route}) => {
             values={priceRange}
             onValuesChange={handleValuesChange}
             min={1000}
-            max={15000} 
-            step={5000}
+            max={1000000} 
+            step={1000}
             selectedStyle={{ backgroundColor: COLOR.primary }}
             markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
             trackStyle={{ height: 4 }}

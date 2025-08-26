@@ -53,6 +53,8 @@ const Home = ({navigation}) => {
   const [multiFilter, setMultiFilter] = useState(false);
   const [attendedFilter, setAttendedFilter] = useState([]);
 
+  const [AppliedModalFilter,setAppliedModalFilter] = useState({})
+
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
@@ -368,8 +370,14 @@ const Home = ({navigation}) => {
               // width: windowWidth,
             }
           }>
-          {avaialbleFilter.map(filterGroup => (
-            <TouchableOpacity
+          {avaialbleFilter.map(filterGroup => {
+            const selectedValues = AppliedModalFilter[filterGroup.type] || [];
+          const displayText =
+            selectedValues.length > 0
+              ? selectedValues.join(', ')
+              : filterGroup.name;
+            return (
+               <TouchableOpacity
               onPress={() => {
                 setAttendedFilter(filterGroup);
                 setMultiFilter(true);
@@ -400,10 +408,11 @@ const Home = ({navigation}) => {
                   textTransform: 'capitalize',
                   textAlignVertical: 'center',
                 }}>
-                {filterGroup.name}
+                {displayText}
               </Text>
             </TouchableOpacity>
-          ))}
+            )
+          })}
         </ScrollView>
       </View>
 
@@ -460,7 +469,9 @@ const Home = ({navigation}) => {
                 <RefreshControl
                   refreshing={loader}
                   onRefresh={() => {
+                    setAppliedModalFilter({})
                     setAttendedFilter(null);
+                    setSortQuery(null)
                     GetProperties(
                       1,
                       false,
@@ -500,12 +511,16 @@ const Home = ({navigation}) => {
       <MultiModal
         filterValueData={attendedFilter}
         visible={multiFilter}
-        initialSelected={[]}
+        initialSelected={AppliedModalFilter}
         onClose={() => {
           setMultiFilter(false);
         }}
         onSelectSort={selectedFilters => {
           console.log('selectedFilters:', selectedFilters);
+          setAppliedModalFilter(prev => ({
+            ...prev,
+            ...selectedFilters
+          }))
           GetProperties(
             1,
             false,
@@ -521,6 +536,7 @@ const Home = ({navigation}) => {
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
           console.log('Selected Sort:', sortType);
+          setSortQuery(sortType);
         }}
       />
       <CreateAccountModal
