@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
         if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
           setToken(storedToken);
+          setCurrentStatus(1)
 
           // show demo only if user has not seen it yet
           if (!seenDemo) {

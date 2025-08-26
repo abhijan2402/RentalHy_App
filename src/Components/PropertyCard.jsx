@@ -6,7 +6,13 @@ import {COLOR} from '../Constants/Colors';
 import {AuthContext} from '../Backend/AuthContent';
 import CreateAccountModal from '../Modals/CreateAccountModal';
 
-const PropertyCard = ({item, toggleLike, type , removewishlist}) => {
+const PropertyCard = ({
+  item,
+  toggleLike,
+  type,
+  removewishlist,
+  showDelete = false,
+}) => {
   const navigation = useNavigation();
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -32,15 +38,22 @@ const PropertyCard = ({item, toggleLike, type , removewishlist}) => {
 
       <TouchableOpacity
         style={styles.wishlistIcon}
-        onPress={() => type == 'wishlist' ?  removewishlist(item.id) : toggleLike(item.id)}>
+        onPress={() =>
+          type == 'wishlist' ? removewishlist(item.id) : toggleLike(item.id)
+        }>
         <Image
           source={{
-            uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
+            uri: showDelete
+              ? 'https://cdn-icons-png.flaticon.com/128/3405/3405244.png'
+              : 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
           }}
           style={{
             width: 20,
             height: 20,
-            tintColor: item?.is_wishlist == 1 ? COLOR?.primary : COLOR.white,
+            tintColor:
+              item?.is_wishlist == 1 || showDelete
+                ? COLOR?.primary
+                : COLOR.white,
           }}
         />
       </TouchableOpacity>
@@ -52,8 +65,10 @@ const PropertyCard = ({item, toggleLike, type , removewishlist}) => {
         {item?.property?.location || item.location}
       </Text>
       <Text style={styles.propertyLocation}>
-        {item?.preferred_tenant_type ||
-          JSON.parse(item?.property?.preferred_tenant_type)}{' '}
+        {
+          item?.preferred_tenant_type
+          //  ||JSON?.parse(item?.property?.preferred_tenant_type)
+        }{' '}
       </Text>
       <View style={styles.MainStyle}>
         <Text style={styles.propertyPrice}>

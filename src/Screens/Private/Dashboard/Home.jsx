@@ -52,7 +52,7 @@ const Home = ({navigation}) => {
   const [sortQuery, setSortQuery] = useState('');
   const [multiFilter, setMultiFilter] = useState(false);
   const [attendedFilter, setAttendedFilter] = useState([]);
-  
+
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
@@ -80,57 +80,58 @@ const Home = ({navigation}) => {
     setAppliedFilters(appliedFilters.filter(f => f !== filter));
   };
 
-const buildFormData = (
-  filters,
-  pageNum = 1,
-  search = '',
-  sort = '',
-  isDynamic = false 
-) => {
-  const formData = new FormData();
-  formData.append('page', pageNum);
+  const buildFormData = (
+    filters,
+    pageNum = 1,
+    search = '',
+    sort = '',
+    isDynamic = false,
+  ) => {
+    const formData = new FormData();
+    formData.append('page', pageNum);
 
-  if (isDynamic) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach(v => {
-          formData.append(key.toLowerCase(), v);
-        });
-      } else if (value) {
-        formData.append(key.toLowerCase(), value);
-      }
-    });
-  } else {
-    if (filters.BHK) formData.append('bhk', filters.BHK);
-    if (filters.propertyType)
-      formData.append('property_type', filters.propertyType);
-    if (filters.minPrice) formData.append('min_price', filters.minPrice);
-    if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
-    if (filters.minRoomSize) formData.append('min_area', filters.minRoomSize);
-    if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
-    if (filters.furnishing)
-      formData.append('furnishing_status', filters.furnishing);
-    if (filters.availability)
-      formData.append('availability', filters.availability);
-    if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
-    if (filters.parking) formData.append('parking_available', filters.parking);
-    if (filters.facing) formData.append('facing_direction', filters.facing);
-    if (filters.advanceValue) formData.append('advance', filters.advanceValue);
-    if (filters.familyTypeValue)
-      formData.append('preferred_tenant_type', filters.familyTypeValue);
-  }
+    if (isDynamic) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach(v => {
+            formData.append(key.toLowerCase(), v);
+          });
+        } else if (value) {
+          formData.append(key.toLowerCase(), value);
+        }
+      });
+    } else {
+      if (filters.BHK) formData.append('bhk', filters.BHK);
+      if (filters.propertyType)
+        formData.append('property_type', filters.propertyType);
+      if (filters.minPrice) formData.append('min_price', filters.minPrice);
+      if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
+      if (filters.minRoomSize) formData.append('min_area', filters.minRoomSize);
+      if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
+      if (filters.furnishing)
+        formData.append('furnishing_status', filters.furnishing);
+      if (filters.availability)
+        formData.append('availability', filters.availability);
+      if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
+      if (filters.parking)
+        formData.append('parking_available', filters.parking);
+      if (filters.facing) formData.append('facing_direction', filters.facing);
+      if (filters.advanceValue)
+        formData.append('advance', filters.advanceValue);
+      if (filters.familyTypeValue)
+        formData.append('preferred_tenant_type', filters.familyTypeValue);
+    }
 
-  if (search && search.trim() !== '') {
-    formData.append('search', search.trim());
-  }
+    if (search && search.trim() !== '') {
+      formData.append('search', search.trim());
+    }
 
-  if (sort && sort.trim() !== '') {
-    formData.append('sort_by', sort.trim());
-  }
+    if (sort && sort.trim() !== '') {
+      formData.append('sort_by', sort.trim());
+    }
 
-  return formData;
-};
-
+    return formData;
+  };
 
   const GetProperties = async (
     pageNum = 1,
@@ -138,7 +139,7 @@ const buildFormData = (
     filters = appliedFilters,
     search = searchQuery,
     sort = sortQuery,
-    isDynamic = false
+    isDynamic = false,
   ) => {
     if (pageNum === 1) setloader(true);
     else setLoadingMore(true);
@@ -162,72 +163,78 @@ const buildFormData = (
 
   useEffect(() => {
     if (focus) {
-      GetProperties(1, false, appliedFilters, searchQuery, sortQuery , false);
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
       setShowDemoCard(false);
     }
   }, [focus]);
 
   useEffect(() => {
-    GetProperties(1, false, appliedFilters, searchQuery, sortQuery , false);
+    GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
   }, [appliedFilters, searchQuery, sortQuery]);
 
   const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
-      GetProperties(page + 1, true, appliedFilters, searchQuery, sortQuery , false);
+      GetProperties(
+        page + 1,
+        true,
+        appliedFilters,
+        searchQuery,
+        sortQuery,
+        false,
+      );
     }
   };
 
   const animationRef = useRef();
   const [tabLoader, settabLoader] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
-
   const [avaialbleFilter, setavaialbleFilter] = useState([
     {
       id: 'bhkOptions',
       type: 'BHK',
-      name:'BHK',
+      name: 'BHK',
       data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
     },
     {
       id: 'propertyTypes',
       type: 'property_type',
-      name:'Property Type',
+      name: 'Property Type',
       data: ['Apartment', 'Flat', 'Villa'],
     },
     {
       id: 'furnishingOptions',
       type: 'furnishing_status',
-      name:'Furnishing Status',
+      name: 'Furnishing Status',
       data: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
     },
     {
       id: 'availabilityOptions',
       type: 'availability',
-      name:'Availability',
+      name: 'Availability',
       data: ['Ready to Move', 'Under Construction'],
     },
     {
       id: 'bathroomOptions',
       type: 'bathrooms',
-      name:'Bathrooms',
+      name: 'Bathrooms',
       data: ['1', '2', '3', '4+'],
     },
     {
       id: 'parkingOptions',
       type: 'parking_available',
-      name:'Parking Available',
+      name: 'Parking Available',
       data: ['Car', 'Bike', 'Both', 'None'],
     },
     {
       id: 'advance',
       type: 'advance',
-      name:'Advance',
+      name: 'Advance',
       data: ['1 month', '2 months', '3 months+'],
     },
     {
       id: 'familyType',
       type: 'preferred_tenant_type',
-      name:'Family Type',
+      name: 'Family Type',
       data: ['Family', 'Bachelors male', 'Bachelors female'],
     },
   ]);
@@ -307,7 +314,14 @@ const buildFormData = (
         />
         <TouchableOpacity
           onPress={() => {
-            GetProperties(1, false, appliedFilters, searchQuery, sortQuery ,false);
+            GetProperties(
+              1,
+              false,
+              appliedFilters,
+              searchQuery,
+              sortQuery,
+              false,
+            );
           }}>
           <Image
             source={{
@@ -338,6 +352,59 @@ const buildFormData = (
             style={styles.filterIcon}
           />
         </TouchableOpacity>
+      </View>
+      <View style={{width: windowWidth - 40, alignSelf: 'center'}}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={
+            {
+              // marginVertical: 2,
+              // marginLeft: 20,
+              // // borderWidth: 1,
+              // flex: 0.5,
+              // height: 44,
+              // borderWidth: 1,
+              // width: windowWidth,
+            }
+          }>
+          {avaialbleFilter.map(filterGroup => (
+            <TouchableOpacity
+              onPress={() => {
+                setAttendedFilter(filterGroup);
+                setMultiFilter(true);
+              }}
+              key={filterGroup.id}
+              style={{
+                borderWidth: 1,
+                borderColor: '#ccc',
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 5,
+                backgroundColor:
+                  attendedFilter?.id == filterGroup?.id
+                    ? COLOR.primary
+                    : '#fff',
+                marginRight: 8,
+                justifyContent: 'center',
+                alignItems: 'center',
+                // height: 55,
+              }}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  color:
+                    attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
+                  height: 20,
+                  textTransform: 'capitalize',
+                  textAlignVertical: 'center',
+                }}>
+                {filterGroup.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* Properties Grid */}
@@ -373,94 +440,83 @@ const buildFormData = (
         </>
       ) : (
         <>
-     <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={{marginVertical: 2, marginLeft: 20}}>
-            {avaialbleFilter.map(filterGroup => (
-              <TouchableOpacity
-                onPress={() => {
-                  setAttendedFilter(filterGroup);
-                  setMultiFilter(true);
-                }}
-                key={filterGroup.id}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingHorizontal: 10,
-                  paddingVertical: 8,
-                  borderRadius: 5,
-                  backgroundColor: attendedFilter?.id == filterGroup?.id ? COLOR.primary : '#fff',
-                  marginRight: 8,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                    color: attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    height: 20,
-                    textTransform: 'capitalize',
-                    textAlignVertical: 'center',
-                  }}>
-                  {filterGroup.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          <FlatList
-  data={properties}
-  renderItem={({item}) => (
-    <PropertyCard item={item} toggleLike={toggleLike} type={'home'} />
-  )}
-  keyExtractor={item => item.id?.toString()}
-  numColumns={2}
-  contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
-  showsVerticalScrollIndicator={false}
-  onEndReached={handleLoadMore}
-  onEndReachedThreshold={0.5}
-  refreshControl={
-    <RefreshControl
-      refreshing={loader}
-      onRefresh={() =>
-      {
-        setAttendedFilter(null);
-        GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
-      }
-      }
-      colors={[COLOR.primary]} // Android
-      tintColor={COLOR.primary} // iOS
-    />
-  }
-  ListFooterComponent={
-    loadingMore ? (
-      <View style={{padding: 16}}>
-        <ActivityIndicator size="small" color={COLOR.primary} />
-      </View>
-    ) : null
-  }
-/>
+          <View style={{flex: 1}}>
+            <FlatList
+              data={properties}
+              renderItem={({item}) => (
+                <PropertyCard
+                  item={item}
+                  toggleLike={toggleLike}
+                  type={'home'}
+                />
+              )}
+              keyExtractor={item => item.id?.toString()}
+              numColumns={2}
+              contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
+              showsVerticalScrollIndicator={false}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.5}
+              refreshControl={
+                <RefreshControl
+                  refreshing={loader}
+                  onRefresh={() => {
+                    setAttendedFilter(null);
+                    GetProperties(
+                      1,
+                      false,
+                      appliedFilters,
+                      searchQuery,
+                      sortQuery,
+                      false,
+                    );
+                  }}
+                  colors={[COLOR.primary]} // Android
+                  tintColor={COLOR.primary} // iOS
+                />
+              }
+              ListFooterComponent={
+                loadingMore ? (
+                  <View style={{padding: 16}}>
+                    <ActivityIndicator size="small" color={COLOR.primary} />
+                  </View>
+                ) : null
+              }
+            />
+          </View>
         </>
       )}
       {!loader && (
         <AnimatedButton
-          onPress={() => navigation.navigate('PostProperty')}
+          onPress={() => {
+            if (currentStatus == -1) {
+              setModalVisible(true);
+            } else {
+              navigation.navigate('PostProperty');
+            }
+          }}
           iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
         />
       )}
-   <MultiModal
+      <MultiModal
         filterValueData={attendedFilter}
         visible={multiFilter}
-        initialSelected={[]} 
-        onClose={() => {setMultiFilter(false)}}
+        initialSelected={[]}
+        onClose={() => {
+          setMultiFilter(false);
+        }}
         onSelectSort={selectedFilters => {
           console.log('selectedFilters:', selectedFilters);
-          GetProperties(1, false, selectedFilters, searchQuery, sortQuery, true); 
+          GetProperties(
+            1,
+            false,
+            selectedFilters,
+            searchQuery,
+            sortQuery,
+            true,
+          );
         }}
       />
-        <SortModal
+      <SortModal
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {

@@ -17,22 +17,22 @@ import {useApi} from '../../Backend/Api';
 import {useIsFocused} from '@react-navigation/native';
 import {AuthContext} from '../../Backend/AuthContent';
 import CreateAccountModal from '../../Modals/CreateAccountModal';
-import { useToast } from '../../Constants/ToastContext';
+import {useToast} from '../../Constants/ToastContext';
 
 const Wishlist = ({navigation}) => {
-  const {getRequest , postRequest} = useApi();
+  const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
   const isFocus = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
   const [propertyData, setPropertyData] = useState([]);
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
-  const removewishlist = async (id) => {
-   const response = await postRequest(`public/api/wishlist/remove/${id}`);
-   if (response.data?.status) {
-    showToast('Removed from wishlist successfully' , 'success');
-    getData();
-   }  
+  const removewishlist = async id => {
+    const response = await postRequest(`public/api/wishlist/remove/${id}`);
+    if (response.data?.status) {
+      showToast('Removed from wishlist successfully', 'success');
+      getData();
+    }
   };
 
   const getData = async () => {
@@ -83,6 +83,7 @@ const Wishlist = ({navigation}) => {
           data={propertyData}
           renderItem={({item}) => (
             <PropertyCard
+              showDelete={true}
               item={item}
               type={'wishlist'}
               removewishlist={removewishlist}
@@ -200,6 +201,6 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     color: COLOR.black,
-    fontWeight:500,
+    fontWeight: 500,
   },
 });
