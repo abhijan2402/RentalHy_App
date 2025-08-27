@@ -179,7 +179,7 @@ Groceries: ${groceries.toUpperCase()}
         <View style={styles.section}>
           <Text style={styles.label}>Event Time</Text>
           <View style={styles.toggleRow}>
-            {['day', 'night', 'both'].map(option => (
+            {['day', 'night', 'Full Day'].map(option => (
               <TouchableOpacity
                 key={option}
                 style={[

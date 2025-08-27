@@ -15,6 +15,7 @@ import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
+import KeyValueInput from '../../../Components/KeyValueComponent';
 
 const PostProperty = ({navigation}) => {
   const {postRequest} = useApi();
@@ -27,7 +28,6 @@ const PostProperty = ({navigation}) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Filter-style selections
   const [selectedBHK, setSelectedBHK] = useState('');
   const [propertyType, setPropertyType] = useState('');
   const [furnishing, setFurnishing] = useState('');
@@ -38,10 +38,9 @@ const PostProperty = ({navigation}) => {
   const [advanceValue, setAdvanceValue] = useState('');
   const [familyTypeValue, setFamilyTypeValue] = useState('');
   const [landmark, setLandmark] = useState('');
-
+  const [mapData, setMapData] = useState([]);
   const [commercialSpace, setCommercialSpace] = useState('no');
 
-  // Options
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
   const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
@@ -185,6 +184,14 @@ const PostProperty = ({navigation}) => {
         name: img.name || `image_${index}.jpg`,
       });
     });
+
+    if (Array.isArray(mapData)) {
+    mapData
+    .filter(item => item.key?.trim() !== "" && item.value?.trim() !== "")
+    .forEach((item) => {
+      formData.append(`amenities[${item.key}]`, item.value);
+    });
+}
 
     const response = await postRequest(
       'public/api/properties/add',
@@ -349,6 +356,12 @@ const PostProperty = ({navigation}) => {
               </TouchableOpacity>
             </View>
           ))}
+        </ScrollView>
+
+        <ScrollView showsHorizontalScrollIndicator={false}>
+          <Text style={[styles.label , {top:10}]}>Add Amenities</Text>
+
+          <KeyValueInput onChange={setMapData} />
         </ScrollView>
 
         {/* Post Button */}

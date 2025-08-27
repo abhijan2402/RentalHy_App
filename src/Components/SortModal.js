@@ -3,14 +3,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { COLOR } from '../Constants/Colors';
 
-const SortModal = ({ visible, onClose, onSelectSort }) => {
-    const sortOptions = [
-        { label: 'Price: Low to High', value: 'price_low_to_high' },
-        { label: 'Price: High to Low', value: 'price_high_to_low' },
-        { label: 'Newest', value: 'newest_first' },
-        { label: 'Oldest', value: 'oldest_first' },
-    ];
-
+const SortModal = ({ visible, onClose, onSelectSort, sortOptions }) => {
     return (
         <Modal
             visible={visible}
@@ -22,7 +15,7 @@ const SortModal = ({ visible, onClose, onSelectSort }) => {
                 <View style={styles.modalContainer}>
                     <Text style={styles.title}>Sort Properties</Text>
 
-                    {sortOptions.map((option, index) => (
+                    {sortOptions?.map((option, index) => (
                         <TouchableOpacity
                             key={index}
                             style={styles.optionButton}

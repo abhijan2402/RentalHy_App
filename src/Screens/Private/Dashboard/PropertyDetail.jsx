@@ -26,9 +26,10 @@ const PropertyDetail = ({navigation, route}) => {
   const [images, setImages] = useState([]);
   const {type, propertyData} = route?.params;
 
-  const getPropertyDetails = async id => {
 
-    console.log(id,"idididididid")
+  console.log(AllData,"AllDataAllDataAllData")
+
+  const getPropertyDetails = async id => {
     setLoading(true);
     const response = await getRequest(`public/api/properties/${id}`);
     if (response?.data?.status) {
@@ -68,7 +69,6 @@ const PropertyDetail = ({navigation, route}) => {
       true,
     );
 
-    console.log(response?.data?.data?.property_id,"responseresponseresponse")
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
       setLikedProperties(prev =>
@@ -273,14 +273,14 @@ const PropertyDetail = ({navigation, route}) => {
             </View>
 
             {/* Amenities */}
-            <Text style={styles.sectionTitle}>Amenities</Text>
+           {AllData?.amenities && <Text style={styles.sectionTitle}>Amenities</Text>}
             <View style={styles.amenitiesContainer}>
-              {Object?.entries(amenities)?.map(([key, value]) => (
+              {Object?.entries(AllData?.amenities)?.map(([key, value]) => (
                 <Text key={key} style={styles.specText}>
                   • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
                 </Text>
               ))}
-            </View>
+            </View>}
           </View>
 
           <CustomButton

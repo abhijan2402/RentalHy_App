@@ -292,6 +292,12 @@ const Convention = ({navigation, route}) => {
     '2 BHK',
     'Jaipur',
   ]); // demo filters
+  const sortOptions = [
+    {label: 'Price: Low to High', value: 'price_low_to_high'},
+    {label: 'Price: High to Low', value: 'price_high_to_low'},
+    {label: 'Distance', value: 'Distance'},
+    {label: 'Relevance', value: 'Relevance'},
+  ];
   const handleFilterChange = newFilters => {
     console.log('Applied Filters:', newFilters);
     setAppliedFilters(newFilters);
@@ -402,6 +408,8 @@ const Convention = ({navigation, route}) => {
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
       />
       <SortModal
+        sortOptions={sortOptions}
+        type={'Convention'}
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
