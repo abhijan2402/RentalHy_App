@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Image, Text} from 'react-native';
+import {Image, Platform, Text} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {LanguageContext} from '../localization/LanguageContext';
@@ -39,6 +39,14 @@ const BottomNavigation = () => {
           paddingVertical: 8,
           height: 60 + insets.bottom, // Add safe area bottom inset for Android/iOS
           paddingBottom: 0 + insets.bottom, // Padding to prevent overlap with nav buttons
+          height:
+            Platform.OS === 'android' && Platform.Version < 35 // Android 14 and below
+              ? 60 // don’t add inset because it already has nav bar spacing
+              : 60 + insets.bottom, // Android 15+ or iOS
+          paddingBottom:
+            Platform.OS === 'android' && Platform.Version < 35
+              ? 0
+              : insets.bottom,
         },
         tabBarIcon: ({focused}) => {
           const iconUri = icons[route.name];

@@ -53,7 +53,7 @@ const Home = ({navigation}) => {
   const [multiFilter, setMultiFilter] = useState(false);
   const [attendedFilter, setAttendedFilter] = useState([]);
 
-  const [AppliedModalFilter,setAppliedModalFilter] = useState({})
+  const [AppliedModalFilter, setAppliedModalFilter] = useState({});
 
   const toggleLike = async id => {
     const formdata = new FormData();
@@ -240,6 +240,12 @@ const Home = ({navigation}) => {
       data: ['Family', 'Bachelors male', 'Bachelors female'],
     },
   ]);
+  const sortOptions = [
+    {label: 'Price: Low to High', value: 'price_low_to_high'},
+    {label: 'Price: High to Low', value: 'price_high_to_low'},
+    {label: 'Newest', value: 'newest_first'},
+    {label: 'Oldest', value: 'oldest_first'},
+  ];
 
   useEffect(() => {
     animationRef.current?.play(30, 120);
@@ -273,6 +279,13 @@ const Home = ({navigation}) => {
             }}
             style={styles.locationIcon}
           />
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
+            }}
+            style={[styles.locationIcon, {width: 25, height: 25}]}
+          />
+
           <View>
             <Text style={styles.locationCity}>Jaipur</Text>
             <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
@@ -281,7 +294,9 @@ const Home = ({navigation}) => {
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <Image
             source={{
-              uri: user?.image,
+              uri: user?.image
+                ? user?.image
+                : 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png',
             }}
             style={styles.profileIcon}
           />
@@ -372,46 +387,46 @@ const Home = ({navigation}) => {
           }>
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-          const displayText =
-            selectedValues.length > 0
-              ? selectedValues.join(', ')
-              : filterGroup.name;
+            const displayText =
+              selectedValues.length > 0
+                ? selectedValues.join(', ')
+                : filterGroup.name;
             return (
-               <TouchableOpacity
-              onPress={() => {
-                setAttendedFilter(filterGroup);
-                setMultiFilter(true);
-              }}
-              key={filterGroup.id}
-              style={{
-                borderWidth: 1,
-                borderColor: '#ccc',
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: 5,
-                backgroundColor:
-                  attendedFilter?.id == filterGroup?.id
-                    ? COLOR.primary
-                    : '#fff',
-                marginRight: 8,
-                justifyContent: 'center',
-                alignItems: 'center',
-                // height: 55,
-              }}>
-              <Text
+              <TouchableOpacity
+                onPress={() => {
+                  setAttendedFilter(filterGroup);
+                  setMultiFilter(true);
+                }}
+                key={filterGroup.id}
                 style={{
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                  color:
-                    attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                  height: 20,
-                  textTransform: 'capitalize',
-                  textAlignVertical: 'center',
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 5,
+                  backgroundColor:
+                    attendedFilter?.id == filterGroup?.id
+                      ? COLOR.primary
+                      : '#fff',
+                  marginRight: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  // height: 55,
                 }}>
-                {displayText}
-              </Text>
-            </TouchableOpacity>
-            )
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    color:
+                      attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
+                    height: 20,
+                    textTransform: 'capitalize',
+                    textAlignVertical: 'center',
+                  }}>
+                  {displayText}
+                </Text>
+              </TouchableOpacity>
+            );
           })}
         </ScrollView>
       </View>
@@ -469,9 +484,9 @@ const Home = ({navigation}) => {
                 <RefreshControl
                   refreshing={loader}
                   onRefresh={() => {
-                    setAppliedModalFilter({})
+                    setAppliedModalFilter({});
                     setAttendedFilter(null);
-                    setSortQuery(null)
+                    setSortQuery(null);
                     GetProperties(
                       1,
                       false,
@@ -519,8 +534,8 @@ const Home = ({navigation}) => {
           console.log('selectedFilters:', selectedFilters);
           setAppliedModalFilter(prev => ({
             ...prev,
-            ...selectedFilters
-          }))
+            ...selectedFilters,
+          }));
           GetProperties(
             1,
             false,
@@ -532,6 +547,7 @@ const Home = ({navigation}) => {
         }}
       />
       <SortModal
+        sortOptions={sortOptions}
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
@@ -678,7 +694,7 @@ const styles = StyleSheet.create({
   locationIcon: {
     width: 45,
     height: 30,
-    marginRight: 8,
+    marginRight: 5,
   },
   locationCity: {
     fontSize: 16,
