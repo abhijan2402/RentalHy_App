@@ -15,6 +15,8 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
     if (index === 0) {
       navigation.navigate('Home');
     } else if (index === 1) {
+      navigation.navigate('Hostel');
+    } else if (index === 2) {
       navigation.navigate('Convention', {type: 'conv'});
     } else {
       navigation.navigate('Convention', {type: 'farm'});
@@ -37,7 +39,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
             key={index}
             onPress={() => handlePress(item, index)}
             style={{
-              width: windowWidth / 3.3,
+              width: windowWidth / 4.7,
               borderRadius: 8,
               alignItems: 'center',
               justifyContent: 'center',

@@ -16,8 +16,10 @@ import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
+import {useIsFocused} from '@react-navigation/native';
 
 const PropertyDetail = ({navigation, route}) => {
+  const isFocus = useIsFocused();
   const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
   const [showFullDesc, setShowFullDesc] = useState(false);
@@ -26,15 +28,19 @@ const PropertyDetail = ({navigation, route}) => {
   const [images, setImages] = useState([]);
   const {type, propertyData} = route?.params;
 
+  // console.log(AllData, 'AllDataAllDataAllData');
 
-  console.log(AllData,"AllDataAllDataAllData")
-
-  const getPropertyDetails = async id => {
-    setLoading(true);
+  const getPropertyDetails = async (id, load = true) => {
+    console.log('CALLLEDDD');
+    if (load) {
+      setLoading(true);
+    }
     const response = await getRequest(`public/api/properties/${id}`);
+    console.log(response?.data?.data, 'DETAILLLLLL__PAGE');
     if (response?.data?.status) {
       setImages(response?.data?.data?.images?.map(e => e?.image_url));
       setAllData(response?.data?.data);
+
       setLoading(false);
     }
     setLoading(false);
@@ -48,6 +54,8 @@ const PropertyDetail = ({navigation, route}) => {
       formData,
       true,
     );
+    console.log(response?.success, 'SUCESSSS');
+
     if (response?.success == false) {
       showToast(response?.error, 'error');
     }
@@ -59,6 +67,9 @@ const PropertyDetail = ({navigation, route}) => {
       propertyViewed(propertyData?.id);
     }
   }, [propertyData?.id]);
+  // useEffect(() => {
+  //   getPropertyDetails(propertyData?.id);
+  // }, [isFocus]);
 
   const toggleLike = async id => {
     const formdata = new FormData();
@@ -71,23 +82,21 @@ const PropertyDetail = ({navigation, route}) => {
 
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
-      setLikedProperties(prev =>
-        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
-      );
-      getPropertyDetails(response?.data?.data?.property_id);
+      // setLikedProperties(prev =>
+      //   prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
+      // );
+      getPropertyDetails(response?.data?.data?.property_id, false);
     } else {
       showToast(response?.error, 'error');
     }
   };
 
   const removeLike = async id => {
-    const response = await postRequest(
-      `public/api/wishlist/remove/${id}`
-    );
+    const response = await postRequest(`public/api/wishlist/remove/${id}`);
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
-      setLikedProperties(prev => prev.filter(pid => pid !== id));
-      getPropertyDetails(propertyData?.id);
+      // setLikedProperties(prev => prev.filter(pid => pid !== id));
+      getPropertyDetails(propertyData?.id, false);
     } else {
       showToast(response?.error, 'error');
     }
@@ -163,7 +172,11 @@ const PropertyDetail = ({navigation, route}) => {
               <Text style={styles.title}>{AllData?.title}</Text>
               <TouchableOpacity
                 style={styles.wishlistIcon}
-                onPress={() => AllData?.is_wishlist == 1 ? removeLike(AllData?.id) : toggleLike(AllData?.id)}>
+                onPress={() =>
+                  AllData?.is_wishlist == 1
+                    ? removeLike(AllData?.id)
+                    : toggleLike(AllData?.id)
+                }>
                 <Image
                   source={{
                     uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
@@ -178,7 +191,6 @@ const PropertyDetail = ({navigation, route}) => {
                 />
               </TouchableOpacity>
             </View>
-
             {/* Read More / Less */}
             <Text style={styles.description}>
               {showFullDesc
@@ -192,14 +204,12 @@ const PropertyDetail = ({navigation, route}) => {
                 </Text>
               </TouchableOpacity>
             )}
-
             <View style={styles.MainStyle}>
               <Text style={styles.price}>{'₹' + AllData?.price}</Text>
               {AllData?.status == 1 && (
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
             </View>
-
             {/* Contact Section */}
             <View style={styles.contactContainer}>
               <Text style={styles.contactTitle}>Contact Options</Text>
@@ -262,7 +272,6 @@ const PropertyDetail = ({navigation, route}) => {
                 </ImageBackground>
               </TouchableOpacity>
             </View>
-
             {/* Specifications */}
             <View style={styles.specsContainer}>
               {Object.entries(specifications).map(([key, value]) => (
@@ -271,16 +280,18 @@ const PropertyDetail = ({navigation, route}) => {
                 </Text>
               ))}
             </View>
-
             {/* Amenities */}
-           {AllData?.amenities && <Text style={styles.sectionTitle}>Amenities</Text>}
+            {AllData?.amenities && (
+              <Text style={styles.sectionTitle}>Amenities</Text>
+            )}
             <View style={styles.amenitiesContainer}>
               {Object?.entries(AllData?.amenities)?.map(([key, value]) => (
                 <Text key={key} style={styles.specText}>
                   • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
                 </Text>
               ))}
-            </View>}
+            </View>
+            {'}'}
           </View>
 
           <CustomButton

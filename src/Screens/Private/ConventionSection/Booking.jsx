@@ -12,7 +12,10 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 
-const Booking = ({navigation}) => {
+const Booking = ({navigation, route}) => {
+  const type = route?.params?.type;
+  console.log(type, 'TYPPPE');
+
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [altMobile, setAltMobile] = useState('');
@@ -26,10 +29,13 @@ const Booking = ({navigation}) => {
   const [decorations, setDecorations] = useState('no');
   const [groceries, setGroceries] = useState('no');
   const [PhotographersReq, setPhotographersReq] = useState('no');
+  const [comments, setComments] = useState('');
 
   const today = new Date().toISOString().split('T')[0]; // today's date in YYYY-MM-DD
 
   const handleBooking = () => {
+    navigation.navigate('PostBookPage');
+    return;
     if (
       !name ||
       !mobile ||
@@ -131,7 +137,15 @@ Groceries: ${groceries.toUpperCase()}
         {/* Number of Attendees */}
         <View style={styles.section}>
           <Text style={styles.label}>Number of Attendees</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Number"
+            value={attendees}
+            onChangeText={setAttendees}
+            keyboardType="numeric"
+            maxLength={6}
+          />
+          {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {Array.from({length: 20}, (_, i) => (i + 1) * 100).map(num => (
               <TouchableOpacity
                 key={num}
@@ -149,7 +163,7 @@ Groceries: ${groceries.toUpperCase()}
                 </Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </ScrollView> */}
         </View>
 
         {/* Calendar Date Picker */}
@@ -198,130 +212,143 @@ Groceries: ${groceries.toUpperCase()}
             ))}
           </View>
         </View>
+        {type == 'convention' && (
+          <>
+            {/* Catering */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Catering Needed?</Text>
+              <View style={styles.toggleRow}>
+                {['yes', 'no'].map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.toggleBtn,
+                      catering === option && styles.selectedBtn,
+                    ]}
+                    onPress={() => setCatering(option)}>
+                    <Text
+                      style={[
+                        styles.toggleText,
+                        catering === option && styles.selectedText,
+                      ]}>
+                      {option.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-        {/* Catering */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Catering Needed?</Text>
-          <View style={styles.toggleRow}>
-            {['yes', 'no'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  catering === option && styles.selectedBtn,
-                ]}
-                onPress={() => setCatering(option)}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    catering === option && styles.selectedText,
-                  ]}>
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Chef */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Chef Needed?</Text>
-          <View style={styles.toggleRow}>
-            {['yes', 'no'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  chef === option && styles.selectedBtn,
-                ]}
-                onPress={() => setChef(option)}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    chef === option && styles.selectedText,
-                  ]}>
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-        {/* {renderToggle(
+            {/* Chef */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Chef Needed?</Text>
+              <View style={styles.toggleRow}>
+                {['yes', 'no'].map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.toggleBtn,
+                      chef === option && styles.selectedBtn,
+                    ]}
+                    onPress={() => setChef(option)}>
+                    <Text
+                      style={[
+                        styles.toggleText,
+                        chef === option && styles.selectedText,
+                      ]}>
+                      {option.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            {/* {renderToggle(
               'Photographers Required',
               PhotographersReq,
               setPhotographersReq,
             )} */}
-        {/* Decorations */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Photographers Required?</Text>
-          <View style={styles.toggleRow}>
-            {['yes', 'no'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  PhotographersReq === option && styles.selectedBtn,
-                ]}
-                onPress={() => setPhotographersReq(option)}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    decorations === option && styles.selectedText,
-                  ]}>
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+            {/* Decorations */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Photographers Required?</Text>
+              <View style={styles.toggleRow}>
+                {['yes', 'no'].map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.toggleBtn,
+                      PhotographersReq === option && styles.selectedBtn,
+                    ]}
+                    onPress={() => setPhotographersReq(option)}>
+                    <Text
+                      style={[
+                        styles.toggleText,
+                        decorations === option && styles.selectedText,
+                      ]}>
+                      {option.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-        {/* Decorations */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Decorations Needed?</Text>
-          <View style={styles.toggleRow}>
-            {['yes', 'no'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  decorations === option && styles.selectedBtn,
-                ]}
-                onPress={() => setDecorations(option)}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    decorations === option && styles.selectedText,
-                  ]}>
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+            {/* Decorations */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Decorations Needed?</Text>
+              <View style={styles.toggleRow}>
+                {['yes', 'no'].map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.toggleBtn,
+                      decorations === option && styles.selectedBtn,
+                    ]}
+                    onPress={() => setDecorations(option)}>
+                    <Text
+                      style={[
+                        styles.toggleText,
+                        decorations === option && styles.selectedText,
+                      ]}>
+                      {option.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-        {/* Groceries */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Groceries Needed?</Text>
-          <View style={styles.toggleRow}>
-            {['yes', 'no'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  groceries === option && styles.selectedBtn,
-                ]}
-                onPress={() => setGroceries(option)}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    groceries === option && styles.selectedText,
-                  ]}>
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+            {/* Groceries */}
+            <View style={styles.section}>
+              <Text style={styles.label}>Groceries Needed?</Text>
+              <View style={styles.toggleRow}>
+                {['yes', 'no'].map(option => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.toggleBtn,
+                      groceries === option && styles.selectedBtn,
+                    ]}
+                    onPress={() => setGroceries(option)}>
+                    <Text
+                      style={[
+                        styles.toggleText,
+                        groceries === option && styles.selectedText,
+                      ]}>
+                      {option.toUpperCase()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.label}>Comments (optional)</Text>
+              <TextInput
+                style={[styles.input, {minHeight: 80}]}
+                value={comments}
+                onChangeText={setComments}
+                placeholder="Enter any comments..."
+                multiline
+              />
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Book Now Button */}

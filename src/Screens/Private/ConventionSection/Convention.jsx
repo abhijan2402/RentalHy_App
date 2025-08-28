@@ -11,7 +11,7 @@ import {
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
-import {AnimatedButton} from '../Dashboard/Home';
+import {AnimatedButton, HomeHeader} from '../Dashboard/Home';
 import SortModal from '../../../Components/SortModal';
 import {windowWidth} from '../../../Constants/Dimensions';
 import OptionSelector from '../Dashboard/OptionSelector';
@@ -174,7 +174,7 @@ const ConventionHall = ({
               navigation.navigate('PropertyDetail', {type: 'convention'});
             }
           }}
-          onBook={() => navigation.navigate('Booking')}
+          onBook={() => navigation.navigate('Booking', {type: 'convention'})}
         />
       ))}
     </ScrollView>
@@ -264,7 +264,7 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           price={farm.price}
           priceType={farm.priceType}
           ac={farm.ac}
-          onBook={() => navigation.navigate('Booking')}
+          onBook={() => navigation.navigate('Booking', {type: 'farmHouse'})}
           onPress={() => {
             if (currentStatus == -1) {
               setShowModal(true);
@@ -327,29 +327,7 @@ const Convention = ({navigation, route}) => {
       {/* <Header title={'Convention Space'} /> */}
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.locationContainer}>
-          <Image
-            source={{
-              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
-            }}
-            style={styles.locationIcon}
-          />
-          <View>
-            <Text style={styles.locationCity}>Jaipur</Text>
-            <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?w=100',
-            }}
-            style={styles.profileIcon}
-          />
-        </TouchableOpacity>
-      </View>
+      <HomeHeader navigation={navigation} />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (

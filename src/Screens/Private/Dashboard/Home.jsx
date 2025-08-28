@@ -58,6 +58,8 @@ const Home = ({navigation}) => {
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
+    console.log(formdata, 'FORMMMMMMM');
+
     const response = await postRequest(
       'public/api/wishlist/add',
       formdata,
@@ -65,10 +67,10 @@ const Home = ({navigation}) => {
     );
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
       setLikedProperties(prev =>
         prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
       );
-      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
     } else {
       showToast(response?.error, 'error');
     }
@@ -149,6 +151,8 @@ const Home = ({navigation}) => {
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
     const response = await postRequest('public/api/properties', formData, true);
     const resData = response?.data?.data;
+    console.log(resData, 'DATATATTATAT');
+
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
 
@@ -191,7 +195,7 @@ const Home = ({navigation}) => {
   const [tabLoader, settabLoader] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
   const [avaialbleFilter, setavaialbleFilter] = useState([
-     {
+    {
       id: 'priceRange',
       type: 'price',
       name: 'Price Range',
@@ -277,37 +281,7 @@ const Home = ({navigation}) => {
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.locationContainer}>
-          <Image
-            source={{
-              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
-            }}
-            style={styles.locationIcon}
-          />
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
-            }}
-            style={[styles.locationIcon, {width: 25, height: 25}]}
-          />
-
-          <View>
-            <Text style={styles.locationCity}>Jaipur</Text>
-            <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image
-            source={{
-              uri: user?.image
-                ? user?.image
-                : 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png',
-            }}
-            style={styles.profileIcon}
-          />
-        </TouchableOpacity>
-      </View>
+      <HomeHeader navigation={navigation} />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
@@ -393,17 +367,17 @@ const Home = ({navigation}) => {
           }>
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-let displayText = filterGroup.name;
+            let displayText = filterGroup.name;
 
-if (filterGroup.type === 'price') {
-  const minP = AppliedModalFilter.min_price;
-  const maxP = AppliedModalFilter.max_price;
-  if (minP !== undefined && maxP !== undefined) {
-    displayText = `₹${minP} - ₹${maxP}`;
-  }
-} else if (selectedValues.length > 0) {
-  displayText = selectedValues.join(', ');
-}
+            if (filterGroup.type === 'price') {
+              const minP = AppliedModalFilter.min_price;
+              const maxP = AppliedModalFilter.max_price;
+              if (minP !== undefined && maxP !== undefined) {
+                displayText = `₹${minP} - ₹${maxP}`;
+              }
+            } else if (selectedValues.length > 0) {
+              displayText = selectedValues.join(', ');
+            }
             return (
               <TouchableOpacity
                 onPress={() => {
@@ -678,6 +652,45 @@ export const DemoCard = ({
           alignSelf: 'flex-start',
         }}>
         <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export const HomeHeader = ({navigation}) => {
+  const {user, showDemoCard, setShowDemoCard} = useContext(AuthContext);
+
+  return (
+    <View style={styles.header}>
+      <View style={styles.locationContainer}>
+        <Image
+          source={{
+            uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
+          }}
+          style={styles.locationIcon}
+        />
+        <Image
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
+          }}
+          style={[styles.locationIcon, {width: 25, height: 25}]}
+        />
+
+        <View>
+          <Text style={styles.locationCity}>Jaipur</Text>
+          <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
+        </View>
+      </View>
+      {console.log(user?.image, 'IMAGEGGEGE')}
+      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+        <Image
+          source={{
+            uri: user?.image
+              ? user?.image
+              : 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png',
+          }}
+          style={styles.profileIcon}
+        />
       </TouchableOpacity>
     </View>
   );
