@@ -24,6 +24,7 @@
     "react-native": "0.79.0",
     "react-native-calendars": "^1.1313.0",
     "react-native-chart-kit": "^6.12.0",
+    "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-image-crop-picker": "^0.42.0",
     "react-native-localization": "^2.3.2",
     "react-native-picker-select": "^9.3.1",

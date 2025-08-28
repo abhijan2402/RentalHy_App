@@ -62,7 +62,7 @@ export default KeyValueInput;
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    width: 360,
+    width: '100%',
     alignSelf:'center'
   },
   row: {
