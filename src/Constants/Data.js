@@ -32,7 +32,7 @@ export const propertiesFake = [
         name: 'Luxury Villa',
         location: 'Jaipur, Rajasthan',
         description: 'Beautiful 4BHK villa with garden view.',
-        price: '₹ 1.5 Cr',
+        price: '1.5 Cr',
         image:
             'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800',
     },
@@ -41,7 +41,7 @@ export const propertiesFake = [
         name: 'Modern Apartment',
         location: 'Mumbai, Maharashtra',
         description: '2BHK apartment near the sea.',
-        price: '₹ 85 Lakh',
+        price: '85 Lakh',
         image:
             'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
     },
@@ -50,7 +50,7 @@ export const propertiesFake = [
         name: 'Cozy House',
         location: 'Pune, Maharashtra',
         description: '3BHK house in peaceful neighborhood.',
-        price: '₹ 95 Lakh',
+        price: '95 Lakh',
         image:
             'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
     },
@@ -59,7 +59,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -68,7 +68,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -77,7 +77,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -86,7 +86,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -95,7 +95,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -104,7 +104,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -113,7 +113,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -122,7 +122,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -131,7 +131,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -140,7 +140,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -149,7 +149,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -158,7 +158,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
@@ -168,7 +168,7 @@ export const propertiesFake = [
         name: 'Beach View Villa',
         location: 'Goa, India',
         description: 'Luxury property with private beach.',
-        price: '₹ 3 Cr',
+        price: '3 Cr',
         image:
             'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800',
     },
