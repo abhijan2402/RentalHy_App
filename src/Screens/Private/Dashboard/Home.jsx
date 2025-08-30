@@ -849,3 +849,25 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 });
+
+
+
+// import React, {useRef, useEffect, useState, useContext} from 'react';
+// import { Text, View } from 'react-native';
+// import GooglePlacePicker from '../../../Components/GooglePicker';
+// const Home = ({navigation}) => {
+//   return (
+//     <View style={{flex:1, backgroundColor:'red'}}>
+//       {/* <Text>Home Screen</Text> */}
+//       <View style={{top:70}}>
+//       <GooglePlacePicker
+//         placeholder="Search Properties or Location"
+//         onPlaceSelected={(place) => {
+//           console.log('Selected place:', place);
+//         }}
+//       />
+//       </View>
+//     </View>
+//   );
+// };
+// export default Home;

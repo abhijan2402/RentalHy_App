@@ -1,63 +1,102 @@
 // GooglePlacePicker.js
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
+  TextInput,
   FlatList,
+  TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+
+const GOOGLE_API_KEY = "AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk"; 
 
 const GooglePlacePicker = ({ placeholder = "Search place...", onPlaceSelected }) => {
-  const ref = useRef();
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch autocomplete predictions
+  const fetchSuggestions = async (text) => {
+    setQuery(text);
+    if (text.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+          text
+        )}&key=${GOOGLE_API_KEY}&language=en`
+      );
+      const json = await response.json();
+      setSuggestions(json.predictions || []);
+    } catch (error) {
+      console.error("Google Autocomplete Error:", error);
+    }
+
+    setLoading(false);
+  };
+
+  // Fetch place details after selection
+  const handleSelect = async (item) => {
+    setQuery(item.description);
+    setSuggestions([]);
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${GOOGLE_API_KEY}&language=en`
+      );
+      const json = await response.json();
+      const details = json.result;
+
+      if (onPlaceSelected) {
+        onPlaceSelected({
+          name: item.description,
+          lat: details.geometry?.location?.lat,
+          lng: details.geometry?.location?.lng,
+          address: details.formatted_address,
+        });
+      }
+    } catch (error) {
+      console.error("Google Place Details Error:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <GooglePlacesAutocomplete
-        ref={ref}
+      {/* Input */}
+      <TextInput
+        value={query}
+        onChangeText={fetchSuggestions}
         placeholder={placeholder}
-        fetchDetails={true}
-        enablePoweredByContainer={false}
-        debounce={200}
-        minLength={2}
-        query={{
-          key: 'AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk',
-          language: 'en',
-        }}
-        styles={{
-          textInputContainer: styles.textInputContainer,
-          textInput: styles.textInput,
-          listView: { display: "none" }, 
-        }}
-        
-        renderRow={() => null}
-        onPress={(data, details = null) => {
-          if (details) {
-            onPlaceSelected({
-              name: data?.description,
-              lat: details.geometry.location.lat,
-              lng: details.geometry.location.lng,
-              address: details.formatted_address,
-            });
-          }
-        }}
+        style={styles.input}
       />
 
-      {/* ✅ Suggestions rendered here */}
+      {/* Loader */}
+      {loading && <ActivityIndicator style={{ marginTop: 8 }} />}
+
+      {/* Suggestion List */}
       <FlatList
-        data={ref.current?.state?.dataSource || []}
+        data={suggestions}
         keyExtractor={(item) => item.place_id}
+        keyboardShouldPersistTaps="handled"
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.suggestionItem}
-            onPress={() => ref.current?.onPress(item, null)}
+            onPress={() => handleSelect(item)}
           >
             <Text style={styles.suggestionText}>{item.description}</Text>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={null}
-        keyboardShouldPersistTaps="handled"
+        ListEmptyComponent={
+          query.length > 1 && !loading ? (
+            <Text style={styles.emptyText}>No results found</Text>
+          ) : null
+        }
       />
     </View>
   );
@@ -67,28 +106,29 @@ export default GooglePlacePicker;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: "100%",
   },
-  textInputContainer: {
-    paddingHorizontal: 10,
-    borderTopWidth: 0,
-    borderBottomWidth: 0,
-  },
-  textInput: {
+  input: {
     height: 48,
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 14,
     fontSize: 16,
-    backgroundColor: '#f2f2f2',
-    color: '#333',
+    backgroundColor: "#f2f2f2",
+    color: "#333",
   },
   suggestionItem: {
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   suggestionText: {
     fontSize: 14,
-    color: '#444',
+    color: "#444",
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#999",
+    marginTop: 10,
   },
 });

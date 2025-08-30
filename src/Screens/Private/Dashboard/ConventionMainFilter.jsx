@@ -14,15 +14,18 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const ConventionMainFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
+  const existingFilters = route?.params?.existingFilters || {};
 
   // Price & Seating sliders
-  const [priceRange, setPriceRange] = useState(['1000', '10,00,000+']);
+  const [priceRange, setPriceRange] = useState(existingFilters.priceRange  || ['1000', '1000000']);
   const [seatingCapacity, setSeatingCapacity] = useState([1000, 1000000]);
 
   // Parking counts
   const [carParking, setCarParking] = useState('');
   const [bikeParking, setBikeParking] = useState('');
   const [busParking, setBusParking] = useState('');
+  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
 
   // Yes/No states
   const [valetParking, setValetParking] = useState('');
@@ -42,6 +45,12 @@ const ConventionMainFilter = ({navigation, route}) => {
 
   const yesNoOptions = ['Yes', 'No'];
   const timeOfOccasionOptions = ['Daytime', 'Night time', '24 Hours'];
+
+    const handleValuesChange = values => {
+    setPriceRange(values);
+    setMinPrice(values[0]);
+    setMaxPrice(values[1]);
+  };
 
   const renderOptions = (label, selected, setSelected, data = []) => (
     <>
@@ -87,8 +96,10 @@ const ConventionMainFilter = ({navigation, route}) => {
   );
 
   const handleReset = () => {
-    setPriceRange([5000, 200000]);
+    setPriceRange([1000, 1000000]);
     setSeatingCapacity([50, 2000]);
+    setMinPrice(1000);
+    setMaxPrice(1000000);
     setCarParking('');
     setBikeParking('');
     setBusParking('');
@@ -117,6 +128,8 @@ const ConventionMainFilter = ({navigation, route}) => {
       normalWater,
       drinkingWater,
       cateringPersons,
+      minPrice,
+      maxPrice
     };
     console.log('Convention Filters:', filters);
 
@@ -245,10 +258,10 @@ const ConventionMainFilter = ({navigation, route}) => {
         <View style={{marginHorizontal: 15}}>
           <MultiSlider
             values={priceRange}
-            onValuesChange={setPriceRange}
-            min={5000}
-            max={500000}
-            step={5000}
+            onValuesChange={handleValuesChange}
+            min={1000}
+            max={1000000}
+            step={1000}
             selectedStyle={{backgroundColor: COLOR.primary}}
             markerStyle={{
               backgroundColor: COLOR.primary,
@@ -259,10 +272,10 @@ const ConventionMainFilter = ({navigation, route}) => {
           />
           <View style={styles.priceLabelRow}>
             <Text style={styles.priceLabel}>
-              ₹{priceRange[0].toLocaleString()}
+              ₹{minPrice.toLocaleString()}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹{priceRange[1].toLocaleString()}
+              ₹{maxPrice.toLocaleString()}
             </Text>
           </View>
         </View>

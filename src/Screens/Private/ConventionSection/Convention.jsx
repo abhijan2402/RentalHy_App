@@ -19,8 +19,8 @@ import {showPost} from '../../../Constants/Data';
 import {useIsFocused} from '@react-navigation/native';
 import {AuthContext} from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
+import { useApi } from '../../../Backend/Api';
 
-// ---------------- Tab Button Component ----------------
 const TabButton = ({title, isActive, onPress}) => {
   return (
     <TouchableOpacity
@@ -33,8 +33,7 @@ const TabButton = ({title, isActive, onPress}) => {
   );
 };
 
-// ---------------- Hall Card Component ----------------
-// ---------------- Hall Card Component ----------------
+
 const HallCard = ({
   image,
   title,
@@ -49,7 +48,7 @@ const HallCard = ({
 }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Image source={{uri: image}} style={styles.cardImage} />
+      <Image source={{uri: image?.hall[0]?.image_path}} style={styles.cardImage} />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDesc}>{description}</Text>
@@ -79,39 +78,14 @@ const HallCard = ({
   );
 };
 
-// ---------------- Convention Hall Component ----------------
 const ConventionHall = ({
   navigation,
   onPressSort,
   onPressFilter,
   currentStatus,
   setShowModal,
+  hallData
 }) => {
-  const halls = [
-    {
-      id: 1,
-      image:
-        'https://kobe-cc.jp/kcc/wp-content/uploads/2017/10/img_01-6-1024x622.jpg',
-      title: 'Grand Convention Hall',
-      description: 'Perfect for weddings, conferences and big events.',
-      location: 'Downtown City Center',
-      capacity: 500,
-      price: 200,
-      priceType: 'per hour',
-      ac: true,
-    },
-    {
-      id: 2,
-      image: 'https://www.ahstatic.com/photos/9884_ho_00_p_1024x768.jpg',
-      title: 'Elegant Banquet Hall',
-      description: 'Ideal for private parties and gatherings.',
-      location: 'Near Lakeview Road',
-      capacity: 300,
-      price: 5000,
-      priceType: 'per day',
-      ac: false,
-    },
-  ];
 
   return (
     <ScrollView style={styles.content}>
@@ -156,16 +130,16 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
       </View>
-      {halls.map(hall => (
+      {hallData.map(hall => (
         <HallCard
           key={hall.id}
-          image={hall.image}
-          title={hall.title}
-          description={hall.description}
-          location={hall.location}
-          capacity={hall.capacity}
-          price={hall.price}
-          priceType={hall.priceType}
+          image={hall?.images_grouped}
+          title={hall?.title}
+          description={hall?.description}
+          location={hall?.location}
+          capacity={hall?.capacity}
+          price={hall?.price}
+          priceType={hall?.priceType}
           ac={hall.ac}
           onPress={() => {
             if (currentStatus == -1) {
@@ -181,7 +155,7 @@ const ConventionHall = ({
   );
 };
 
-// ---------------- Farm House Component ----------------
+
 const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
   const farms = [
     {
@@ -278,20 +252,21 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
   );
 };
 
-// ---------------- Main Convention Screen ----------------
+
 const Convention = ({navigation, route}) => {
+  const {postRequest} = useApi();
   const type = route?.params?.type;
   const {currentStatus} = useContext(AuthContext);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastPage, setLastPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('convention'); // default tab
   const [sortVisible, setSortVisible] = useState(false);
   const [tabLoader, settabLoader] = useState(false);
   const [defaultIndex, setdefaultIndex] = useState(type == 'farm' ? 2 : 1);
-  const [appliedFilters, setAppliedFilters] = useState([
-    'Family',
-    '2 BHK',
-    'Jaipur',
-  ]); // demo filters
+  const [hallData , setHallData] = useState([]);
+
+  const [appliedFilters, setAppliedFilters] = useState([]); 
   const sortOptions = [
     {label: 'Price: Low to High', value: 'price_low_to_high'},
     {label: 'Price: High to Low', value: 'price_high_to_low'},
@@ -299,15 +274,13 @@ const Convention = ({navigation, route}) => {
     {label: 'Relevance', value: 'Relevance'},
   ];
   const handleFilterChange = newFilters => {
-    console.log('Applied Filters:', newFilters);
     setAppliedFilters(newFilters);
   };
   const isFocus = useIsFocused();
+
   useEffect(() => {
     settabLoader(true);
     setTimeout(() => {
-      console.log(type, 'TYYYYYYYY');
-
       if (type == 'farm') {
         setdefaultIndex(2);
       }
@@ -316,7 +289,105 @@ const Convention = ({navigation, route}) => {
       }
       settabLoader(false);
     }, 0);
+    return () => {
+      settabLoader(false);
+    };
+
   }, [isFocus]);
+
+  useEffect(()=>{ 
+    if(isFocus){
+      GetProperties(1 , false , appliedFilters , '' , false)
+    }
+  },[isFocus])
+
+  console.log(appliedFilters,"appliedFiltersappliedFilters")
+
+    const buildFormData = (
+    filters,
+    pageNum = 1,
+    search = '',
+    sort = '',
+    isDynamic = false,
+  ) => {
+    const formData = new FormData();
+    formData.append('page', pageNum);
+
+    if (isDynamic) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach(v => {
+            formData.append(key.toLowerCase(), v);
+          });
+        } else if (value) {
+          formData.append(key.toLowerCase(), value);
+        }
+      });
+    } else {
+      if (filters.BHK) formData.append('bhk', filters.BHK);
+      if (filters.propertyType)
+        formData.append('property_type', filters.propertyType);
+      if (filters.minPrice) formData.append('min_price', filters.minPrice);
+      if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
+      if (filters.minRoomSize) formData.append('min_area', filters.minRoomSize);
+      if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
+      if (filters.furnishing)
+        formData.append('furnishing_status', filters.furnishing);
+      if (filters.availability)
+        formData.append('availability', filters.availability);
+      if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
+      if (filters.parking)
+        formData.append('parking_available', filters.parking);
+      if (filters.facing) formData.append('facing_direction', filters.facing);
+      if (filters.advanceValue)
+        formData.append('advance', filters.advanceValue);
+      if (filters.familyTypeValue)
+        formData.append('preferred_tenant_type', filters.familyTypeValue);
+    }
+
+    if (search && search.trim() !== '') {
+      formData.append('search', search.trim());
+    }
+
+    if (sort && sort.trim() !== '') {
+      formData.append('sort_by', sort.trim());
+    }
+
+    return formData;
+  };
+
+
+
+   const GetProperties = async (
+    pageNum = 1,
+    append = false,
+    filters = appliedFilters,
+    search = searchQuery,
+    sort = sortQuery,
+    isDynamic = false,
+  ) => {
+
+    if (pageNum === 1) settabLoader(true);
+    else setLoadingMore(true);
+
+    const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
+    const response = await postRequest('public/api/hall_listing', formData, true);
+    const resData = response?.data?.data;
+    const newProperties = resData?.data || [];
+    setLastPage(resData?.last_page || 1);
+
+    if (append) {
+      setHallData(prev => [...prev, ...newProperties]);
+    } else {
+      setHallData(newProperties);
+    }
+
+    setPage(resData?.current_page || 1);
+    settabLoader(false);
+    setLoadingMore(false);
+  };
+
+
   return (
     <View
       style={{
@@ -373,6 +444,7 @@ const Convention = ({navigation, route}) => {
       {/* Render Components */}
       {activeTab === 'convention' ? (
         <ConventionHall
+          hallData={hallData}
           navigation={navigation}
           onPressSort={() => {
             setSortVisible(true);
@@ -384,6 +456,7 @@ const Convention = ({navigation, route}) => {
           onPressFilter={() =>
             navigation.navigate('ConventionMainFilter', {
               onApplyFilter: handleFilterChange,
+               existingFilters: appliedFilters
             })
           }
         />
