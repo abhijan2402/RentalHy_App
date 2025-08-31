@@ -64,7 +64,6 @@ const PropertyDetail = ({navigation, route}) => {
     }
   }, [propertyData?.id]);
 
-
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
@@ -98,25 +97,34 @@ const PropertyDetail = ({navigation, route}) => {
 
   const phoneNumber = '+919876543210';
 
-  const specifications = {
-    bhk: AllData?.bhk && JSON.parse(AllData?.bhk),
-    bathrooms: AllData?.bathrooms,
-    area: `${AllData?.area_sqft} sq.ft`,
-    floor: '3rd',
-    furnished:
-      AllData?.furnishing_status && JSON.parse(AllData?.furnishing_status),
+  const safeParse = value => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        return value; // fallback to original string
+      }
+    }
+    return value;
   };
+
+  const specifications = {
+    bhk: safeParse(AllData?.bhk),
+    bathrooms: AllData?.bathrooms,
+    area: AllData?.area_sqft ? `${AllData?.area_sqft} sq.ft` : undefined,
+    floor: '3rd',
+    furnished: safeParse(AllData?.furnishing_status),
+  };
+  console.log(specifications, 'SOPECICIIC');
 
   const handleCall = () => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleLocation = (location) => {
+  const handleLocation = location => {
     const query = encodeURIComponent(location);
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
-
-  
 
   return (
     <View style={styles.container}>
@@ -243,7 +251,11 @@ const PropertyDetail = ({navigation, route}) => {
               </View>
 
               {/* Map Preview */}
-              <TouchableOpacity onPress={() => { handleLocation(AllData?.location)}} activeOpacity={0.8}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleLocation(AllData?.location);
+                }}
+                activeOpacity={0.8}>
                 <ImageBackground
                   source={{
                     uri: 'https://media.wired.com/photos/59269cd37034dc5f91bec0f1/191:100/w_1280,c_limit/GoogleMapTA.jpg',

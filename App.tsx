@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -11,9 +11,9 @@ import {
   Text,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { LanguageProvider } from './src/localization/LanguageContext';
-import { AuthProvider } from './src/Backend/AuthContent';
-import { NavigationContainer } from '@react-navigation/native';
+import {LanguageProvider} from './src/localization/LanguageContext';
+import {AuthProvider} from './src/Backend/AuthContent';
+import {NavigationContainer} from '@react-navigation/native';
 import MainNavigation from './src/navigators/MainNavigation';
 
 const App = () => {
@@ -31,7 +31,7 @@ const App = () => {
               buttonNeutral: 'Ask Me Later',
               buttonNegative: 'Cancel',
               buttonPositive: 'OK',
-            }
+            },
           );
           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
             // getCurrentLocation();
@@ -55,19 +55,19 @@ const App = () => {
 
     const getCurrentLocation = () => {
       Geolocation.getCurrentPosition(
-        (position) => {
+        position => {
           setLocationStatus(
-            `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`
+            `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
           );
         },
-        (error) => {
+        error => {
           setLocationStatus('Failed to fetch location.');
         },
         {
           enableHighAccuracy: true,
           timeout: 15000,
           maximumAge: 10000,
-        }
+        },
       );
     };
 
@@ -75,7 +75,7 @@ const App = () => {
   }, []);
 
   return (
-      <LanguageProvider>
+    <LanguageProvider>
       <AuthProvider>
         <SafeAreaView style={styles.safeArea}>
           <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />

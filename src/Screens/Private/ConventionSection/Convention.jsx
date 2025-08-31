@@ -22,7 +22,7 @@ import {showPost} from '../../../Constants/Data';
 import {useIsFocused} from '@react-navigation/native';
 import {AuthContext} from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
-import { useApi } from '../../../Backend/Api';
+import {useApi} from '../../../Backend/Api';
 import LocationModal from '../../../Modals/LocationModal';
 
 const TabButton = ({title, isActive, onPress}) => {
@@ -36,7 +36,6 @@ const TabButton = ({title, isActive, onPress}) => {
     </TouchableOpacity>
   );
 };
-
 
 const HallCard = ({
   image,
@@ -52,7 +51,10 @@ const HallCard = ({
 }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Image source={{uri: image?.hall && image?.hall[0]?.image_path}} style={styles.cardImage} />
+      <Image
+        source={{uri: image?.hall && image?.hall[0]?.image_path}}
+        style={styles.cardImage}
+      />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDesc}>{description}</Text>
@@ -98,7 +100,7 @@ const ConventionHall = ({
   setSortQuery,
   appliedFilters,
   searchQuery,
-  sortQuery
+  sortQuery,
 }) => {
   const renderHall = ({item}) => (
     <HallCard
@@ -175,35 +177,34 @@ const ConventionHall = ({
         onEndReachedThreshold={0.5}
         refreshControl={
           <RefreshControl
-          refreshing={loader}
-          onRefresh={() => {
-            setSortQuery(null);
-            setAppliedFilters({})
-            GetProperties(
-              1,
-              false,
-              appliedFilters,
-              searchQuery,
-              sortQuery,
-              false,
-            );
-          }}
-          colors={[COLOR.primary]} // Android
-          tintColor={COLOR.primary} // iOS
+            refreshing={loader}
+            onRefresh={() => {
+              setSortQuery(null);
+              setAppliedFilters({});
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+              );
+            }}
+            colors={[COLOR.primary]} // Android
+            tintColor={COLOR.primary} // iOS
           />
-          }
-          ListFooterComponent={
+        }
+        ListFooterComponent={
           loadingMore ? (
-          <View style={{padding: 16}}>
-            <ActivityIndicator size="small" color={COLOR.primary} />
-          </View>
+            <View style={{padding: 16}}>
+              <ActivityIndicator size="small" color={COLOR.primary} />
+            </View>
           ) : null
-          }
+        }
       />
     </View>
   );
 };
-
 
 const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
   const farms = [
@@ -301,10 +302,9 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
   );
 };
 
-
 const Convention = ({navigation, route}) => {
-    const {currentAddress} = useContext(AuthContext);
-  
+  const {currentAddress} = useContext(AuthContext);
+
   const {postRequest} = useApi();
   const type = route?.params?.type;
   const {currentStatus} = useContext(AuthContext);
@@ -314,15 +314,14 @@ const Convention = ({navigation, route}) => {
   const [activeTab, setActiveTab] = useState('convention'); // default tab
   const [sortVisible, setSortVisible] = useState(false);
   const [tabLoader, settabLoader] = useState(false);
-  const [defaultIndex, setdefaultIndex] = useState(type == 'farm' ? 2 : 1);
-  const [hallData , setHallData] = useState([]);
+  const [defaultIndex, setdefaultIndex] = useState(type == 'farm' ? 3 : 2);
+  const [hallData, setHallData] = useState([]);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortQuery, setSortQuery] = useState('');
   const [locationModalVisible, setLocationModalVisible] = useState(false);
-  
 
-  const [appliedFilters, setAppliedFilters] = useState([]); 
+  const [appliedFilters, setAppliedFilters] = useState([]);
   const sortOptions = [
     {label: 'Price: Low to High', value: 'price_low_to_high'},
     {label: 'Price: High to Low', value: 'price_high_to_low'},
@@ -348,16 +347,15 @@ const Convention = ({navigation, route}) => {
     return () => {
       settabLoader(false);
     };
-
   }, [isFocus]);
 
-  useEffect(()=>{ 
-    if(isFocus){
-      GetProperties(1 , false , appliedFilters , '' , false)
+  useEffect(() => {
+    if (isFocus) {
+      GetProperties(1, false, appliedFilters, '', false);
     }
-  },[isFocus])
+  }, [isFocus]);
 
-    const buildFormData = (
+  const buildFormData = (
     filters,
     pageNum = 1,
     search = '',
@@ -378,33 +376,61 @@ const Convention = ({navigation, route}) => {
         }
       });
     } else {
-      if(filters?.minCapacity) formData.append('seating_capacity_min', filters.minCapacity);
-      if (filters?.maxCapacity) formData.append('seating_capacity_max', filters.maxCapacity);
-      if (filters.acAvailable) formData.append('ac_available', filters.acAvailable == 'Yes' ? 1 : 0);
+      if (filters?.minCapacity)
+        formData.append('seating_capacity_min', filters.minCapacity);
+      if (filters?.maxCapacity)
+        formData.append('seating_capacity_max', filters.maxCapacity);
+      if (filters.acAvailable)
+        formData.append('ac_available', filters.acAvailable == 'Yes' ? 1 : 0);
       if (filters.valetParking)
         formData.append('valet_parking', filters.valetParking == 'Yes' ? 1 : 0);
       if (filters.minPrice) formData.append('price_min', filters.minPrice);
       if (filters.maxPrice) formData.append('price_max', filters.maxPrice);
-            if (filters.alcoholAllowed)
-        formData.append('alcohol_allowed', filters.alcoholAllowed == 'Yes' ? 1 : 0);
+      if (filters.alcoholAllowed)
+        formData.append(
+          'alcohol_allowed',
+          filters.alcoholAllowed == 'Yes' ? 1 : 0,
+        );
 
-      if (filters.royaltyDecoration) formData.append('royalty_decoration', filters.royaltyDecoration == 'Yes' ? 1 : 0);
-      if (filters.royaltyKitchen) formData.append('royalty_kitchen', filters.royaltyKitchen == 'Yes' ? 1 : 0);
+      if (filters.royaltyDecoration)
+        formData.append(
+          'royalty_decoration',
+          filters.royaltyDecoration == 'Yes' ? 1 : 0,
+        );
+      if (filters.royaltyKitchen)
+        formData.append(
+          'royalty_kitchen',
+          filters.royaltyKitchen == 'Yes' ? 1 : 0,
+        );
 
       if (filters.generator)
-        formData.append('generator_available', filters.generator == 'Yes' ? 1 : 0);
-      if (filters.drinkingWater) formData.append('water_for_cooking', filters.drinkingWater == 'Yes' ? 1 : 0);
+        formData.append(
+          'generator_available',
+          filters.generator == 'Yes' ? 1 : 0,
+        );
+      if (filters.drinkingWater)
+        formData.append(
+          'water_for_cooking',
+          filters.drinkingWater == 'Yes' ? 1 : 0,
+        );
       if (filters.cateringPersons)
-        formData.append('provides_catering_persons', filters.cateringPersons == 'Yes' ? 1 : 0);
-      if (filters.photoShootsAllowed) formData.append('photographers_required', filters.photoShootsAllowed == 'Yes' ? 1 : 0);
+        formData.append(
+          'provides_catering_persons',
+          filters.cateringPersons == 'Yes' ? 1 : 0,
+        );
+      if (filters.photoShootsAllowed)
+        formData.append(
+          'photographers_required',
+          filters.photoShootsAllowed == 'Yes' ? 1 : 0,
+        );
       if (filters.childrenGames)
         formData.append('adult_games', filters.childrenGames == 'Yes' ? 1 : 0);
       if (filters.timeOfOccasion)
         formData.append('occasion', filters.timeOfOccasion);
     }
 
-      if(currentAddress?.lat) formData.append('lat', currentAddress.lat);
-      if(currentAddress?.lng) formData.append('long', currentAddress.lng);
+    if (currentAddress?.lat) formData.append('lat', currentAddress.lat);
+    if (currentAddress?.lng) formData.append('long', currentAddress.lng);
 
     if (search && search.trim() !== '') {
       formData.append('search', search.trim());
@@ -417,9 +443,7 @@ const Convention = ({navigation, route}) => {
     return formData;
   };
 
-
-
-   const GetProperties = async (
+  const GetProperties = async (
     pageNum = 1,
     append = false,
     filters = appliedFilters,
@@ -427,11 +451,14 @@ const Convention = ({navigation, route}) => {
     sort = sortQuery,
     isDynamic = false,
   ) => {
-
     if (pageNum === 1) settabLoader(true);
     else setLoadingMore(true);
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
-    const response = await postRequest('public/api/hall_listing', formData, true);
+    const response = await postRequest(
+      'public/api/hall_listing',
+      formData,
+      true,
+    );
     const resData = response?.data?.data;
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
@@ -446,25 +473,23 @@ const Convention = ({navigation, route}) => {
     settabLoader(false);
     setLoadingMore(false);
   };
-  
 
-   useEffect(() => {
-      GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
-    }, [appliedFilters, searchQuery, sortQuery, currentAddress]);
-  
-    const handleLoadMore = () => {
-      if (!loadingMore && page < lastPage) {
-        GetProperties(
-          page + 1,
-          true,
-          appliedFilters,
-          searchQuery,
-          sortQuery,
-          false,
-        );
-      }
-    };
+  useEffect(() => {
+    GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
+  }, [appliedFilters, searchQuery, sortQuery, currentAddress]);
 
+  const handleLoadMore = () => {
+    if (!loadingMore && page < lastPage) {
+      GetProperties(
+        page + 1,
+        true,
+        appliedFilters,
+        searchQuery,
+        sortQuery,
+        false,
+      );
+    }
+  };
 
   return (
     <View
@@ -476,7 +501,10 @@ const Convention = ({navigation, route}) => {
       {/* <Header title={'Convention Space'} /> */}
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
-      <HomeHeader setLocationModalVisible={setLocationModalVisible} navigation={navigation} />
+      <HomeHeader
+        setLocationModalVisible={setLocationModalVisible}
+        navigation={navigation}
+      />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
@@ -513,7 +541,7 @@ const Convention = ({navigation, route}) => {
           onPressFilter={() =>
             navigation.navigate('ConventionMainFilter', {
               onApplyFilter: handleFilterChange,
-               existingFilters: appliedFilters
+              existingFilters: appliedFilters,
             })
           }
           onHandleMore={() => {
@@ -567,7 +595,7 @@ const Convention = ({navigation, route}) => {
         onCancel={() => setModalVisible(false)}
       />
 
-        <LocationModal
+      <LocationModal
         visible={locationModalVisible}
         onClose={() => setLocationModalVisible(false)}
         onCancel={() => setLocationModalVisible(false)}
