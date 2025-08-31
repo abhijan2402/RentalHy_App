@@ -16,32 +16,33 @@ const ConventionMainFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
   const existingFilters = route?.params?.existingFilters || {};
 
-  // Price & Seating sliders
   const [priceRange, setPriceRange] = useState(existingFilters.priceRange  || ['1000', '1000000']);
-  const [seatingCapacity, setSeatingCapacity] = useState([1000, 1000000]);
-
-  // Parking counts
-  const [carParking, setCarParking] = useState('');
-  const [bikeParking, setBikeParking] = useState('');
-  const [busParking, setBusParking] = useState('');
+  const [seatingCapacity, setSeatingCapacity] = useState(existingFilters.seatingCapacity || ['10', '5000']);
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
   const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
+  const [minCapacity , setMinCapacity] = useState(existingFilters.minCapacity || 10);
+  const [maxCapacity , setMaxCapacity] = useState(existingFilters.maxCapacity || 5000);
 
-  // Yes/No states
-  const [valetParking, setValetParking] = useState('');
-  const [royaltyDecoration, setRoyaltyDecoration] = useState('');
-  const [decorationContact, setDecorationContact] = useState('');
-  const [royaltyKitchen, setRoyaltyKitchen] = useState('');
-  const [generator, setGenerator] = useState('');
-  const [normalWater, setNormalWater] = useState('');
-  const [drinkingWater, setDrinkingWater] = useState('');
-  const [cateringPersons, setCateringPersons] = useState('');
-  const [acAvailable, setAcAvailable] = useState(false);
-  const [roomsAvailable, setRoomsAvailable] = useState(false);
-  const [alcoholAllowed, setAlcoholAllowed] = useState(false);
-  const [photoShootsAllowed, setPhotoShootsAllowed] = useState(false);
-  const [childrenGames, setChildrenGames] = useState(false);
-  const [timeOfOccasion, setTimeOfOccasion] = useState('');
+const [carParking, setCarParking] = useState(existingFilters.carParking || '');
+const [bikeParking, setBikeParking] = useState(existingFilters.bikeParking || '');
+const [busParking, setBusParking] = useState(existingFilters.busParking || '');
+
+const [valetParking, setValetParking] = useState(existingFilters.valetParking || '');
+const [royaltyDecoration, setRoyaltyDecoration] = useState(existingFilters.royaltyDecoration || '');
+const [decorationContact, setDecorationContact] = useState(existingFilters.decorationContact || '');
+const [royaltyKitchen, setRoyaltyKitchen] = useState(existingFilters.royaltyKitchen || '');
+const [generator, setGenerator] = useState(existingFilters.generator || '');
+const [normalWater, setNormalWater] = useState(existingFilters.normalWater || '');
+const [drinkingWater, setDrinkingWater] = useState(existingFilters.drinkingWater || '');
+const [cateringPersons, setCateringPersons] = useState(existingFilters.cateringPersons || '');
+
+const [acAvailable, setAcAvailable] = useState(existingFilters.acAvailable || false);
+const [roomsAvailable, setRoomsAvailable] = useState(existingFilters.roomsAvailable || false);
+const [alcoholAllowed, setAlcoholAllowed] = useState(existingFilters.alcoholAllowed || false);
+const [photoShootsAllowed, setPhotoShootsAllowed] = useState(existingFilters.photoShootsAllowed || false);
+const [childrenGames, setChildrenGames] = useState(existingFilters.childrenGames || false);
+
+const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccasion || '');
 
   const yesNoOptions = ['Yes', 'No'];
   const timeOfOccasionOptions = ['Daytime', 'Night time', '24 Hours'];
@@ -50,6 +51,12 @@ const ConventionMainFilter = ({navigation, route}) => {
     setPriceRange(values);
     setMinPrice(values[0]);
     setMaxPrice(values[1]);
+  };
+
+  const handleValuesChangeSeating = values => {
+    setSeatingCapacity(values);
+    setMinCapacity(values[0]);
+    setMaxCapacity(values[1]);
   };
 
   const renderOptions = (label, selected, setSelected, data = []) => (
@@ -97,9 +104,11 @@ const ConventionMainFilter = ({navigation, route}) => {
 
   const handleReset = () => {
     setPriceRange([1000, 1000000]);
-    setSeatingCapacity([50, 2000]);
+    setSeatingCapacity([10, 5000]);
     setMinPrice(1000);
     setMaxPrice(1000000);
+    setMinCapacity(10);
+    setMaxCapacity(5000);
     setCarParking('');
     setBikeParking('');
     setBusParking('');
@@ -111,6 +120,14 @@ const ConventionMainFilter = ({navigation, route}) => {
     setNormalWater('');
     setDrinkingWater('');
     setCateringPersons('');
+    setAcAvailable(false);
+    setRoomsAvailable(false);
+    setAlcoholAllowed(false);
+    setPhotoShootsAllowed(false);
+    setChildrenGames(false);
+    setTimeOfOccasion('');
+    onApplyFilter({});
+    navigation.goBack();
   };
 
   const handleApply = () => {
@@ -129,7 +146,16 @@ const ConventionMainFilter = ({navigation, route}) => {
       drinkingWater,
       cateringPersons,
       minPrice,
-      maxPrice
+      maxPrice,
+      minCapacity,
+      maxCapacity,
+      seatingCapacity,
+      alcoholAllowed ,
+      photoShootsAllowed,
+      childrenGames,
+      timeOfOccasion,
+      acAvailable,
+      roomsAvailable,
     };
     console.log('Convention Filters:', filters);
 
@@ -153,10 +179,10 @@ const ConventionMainFilter = ({navigation, route}) => {
         <View style={{marginHorizontal: 15}}>
           <MultiSlider
             values={seatingCapacity}
-            onValuesChange={setSeatingCapacity}
+            onValuesChange={handleValuesChangeSeating}
             min={1000}
-            max={1000000}
-            step={1000}
+            max={5000}
+            step={10}
             selectedStyle={{backgroundColor: COLOR.primary}}
             markerStyle={{
               backgroundColor: COLOR.primary,
@@ -166,8 +192,8 @@ const ConventionMainFilter = ({navigation, route}) => {
             trackStyle={{height: 4}}
           />
           <View style={styles.priceLabelRow}>
-            <Text style={styles.priceLabel}>{seatingCapacity[0]}+</Text>
-            <Text style={styles.priceLabel}>{seatingCapacity[1]}+</Text>
+            <Text style={styles.priceLabel}>{minCapacity}+</Text>
+            <Text style={styles.priceLabel}>{maxCapacity}+</Text>
           </View>
         </View>
 

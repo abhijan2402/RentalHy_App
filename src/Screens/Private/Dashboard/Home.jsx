@@ -30,12 +30,15 @@ import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 import {AuthContext} from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
+import LocationModal from '../../../Modals/LocationModal';
+import { getCityFromAddress } from '../../../utils/helper';
 
 const {width} = Dimensions.get('window');
 
 const Home = ({navigation}) => {
   const {postRequest} = useApi();
-  const {user, showDemoCard, setShowDemoCard} = useContext(AuthContext);
+  const {user, showDemoCard, setShowDemoCard , currentAddress} = useContext(AuthContext);
+
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -52,6 +55,7 @@ const Home = ({navigation}) => {
   const [sortQuery, setSortQuery] = useState('');
   const [multiFilter, setMultiFilter] = useState(false);
   const [attendedFilter, setAttendedFilter] = useState([]);
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
 
   const [AppliedModalFilter, setAppliedModalFilter] = useState({});
 
@@ -65,10 +69,10 @@ const Home = ({navigation}) => {
     );
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
       setLikedProperties(prev =>
         prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
       );
-      GetProperties(1, false, appliedFilters, searchQuery, sortQuery);
     } else {
       showToast(response?.error, 'error');
     }
@@ -122,6 +126,8 @@ const Home = ({navigation}) => {
         formData.append('advance', filters.advanceValue);
       if (filters.familyTypeValue)
         formData.append('preferred_tenant_type', filters.familyTypeValue);
+      if(currentAddress?.lat) formData.append('lat', currentAddress.lat);
+      if(currentAddress?.lng) formData.append('long', currentAddress.lng);
     }
 
     if (search && search.trim() !== '') {
@@ -149,6 +155,7 @@ const Home = ({navigation}) => {
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
     const response = await postRequest('public/api/properties', formData, true);
     const resData = response?.data?.data;
+
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
 
@@ -172,7 +179,7 @@ const Home = ({navigation}) => {
 
   useEffect(() => {
     GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
-  }, [appliedFilters, searchQuery, sortQuery]);
+  }, [appliedFilters, searchQuery, sortQuery, currentAddress]);
 
   const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
@@ -191,7 +198,7 @@ const Home = ({navigation}) => {
   const [tabLoader, settabLoader] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
   const [avaialbleFilter, setavaialbleFilter] = useState([
-     {
+    {
       id: 'priceRange',
       type: 'price',
       name: 'Price Range',
@@ -270,44 +277,12 @@ const Home = ({navigation}) => {
     }, 10);
   }, [isFocus]);
 
-  const getSelectedValues = type => appliedFilters[type] || [];
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.locationContainer}>
-          <Image
-            source={{
-              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
-            }}
-            style={styles.locationIcon}
-          />
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
-            }}
-            style={[styles.locationIcon, {width: 25, height: 25}]}
-          />
-
-          <View>
-            <Text style={styles.locationCity}>Jaipur</Text>
-            <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image
-            source={{
-              uri: user?.image
-                ? user?.image
-                : 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png',
-            }}
-            style={styles.profileIcon}
-          />
-        </TouchableOpacity>
-      </View>
+      <HomeHeader setLocationModalVisible={setLocationModalVisible} navigation={navigation} />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
@@ -393,17 +368,17 @@ const Home = ({navigation}) => {
           }>
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-let displayText = filterGroup.name;
+            let displayText = filterGroup.name;
 
-if (filterGroup.type === 'price') {
-  const minP = AppliedModalFilter.min_price;
-  const maxP = AppliedModalFilter.max_price;
-  if (minP !== undefined && maxP !== undefined) {
-    displayText = `₹${minP} - ₹${maxP}`;
-  }
-} else if (selectedValues.length > 0) {
-  displayText = selectedValues.join(', ');
-}
+            if (filterGroup.type === 'price') {
+              const minP = AppliedModalFilter.min_price;
+              const maxP = AppliedModalFilter.max_price;
+              if (minP !== undefined && maxP !== undefined) {
+                displayText = `₹${minP} - ₹${maxP}`;
+              }
+            } else if (selectedValues.length > 0) {
+              displayText = selectedValues.join(', ');
+            }
             return (
               <TouchableOpacity
                 onPress={() => {
@@ -575,6 +550,12 @@ if (filterGroup.type === 'price') {
         }}
         onCancel={() => setModalVisible(false)}
       />
+
+      <LocationModal
+        visible={locationModalVisible}
+        onClose={() => setLocationModalVisible(false)}
+        onCancel={() => setLocationModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -678,6 +659,47 @@ export const DemoCard = ({
           alignSelf: 'flex-start',
         }}>
         <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export const HomeHeader = ({navigation , setLocationModalVisible}) => {
+  const {user, currentAddress} = useContext(AuthContext);
+  const CityName = getCityFromAddress(currentAddress?.address);
+
+  return (
+    <View style={styles.header}>
+      <View style={styles.locationContainer}>
+        <Image
+          source={{
+            uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
+          }}
+          style={styles.locationIcon}
+        />
+      <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center',width:'50%'}} onPress={() => setLocationModalVisible(true)}>
+        <Image
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
+          }}
+          style={[styles.locationIcon, {width: 25, height: 25}]}
+        />
+
+        <View>
+           <Text style={styles.locationCity}>{CityName || 'Not Found'}</Text>
+          <Text style={styles.locationAddress} numberOfLines={1}>{currentAddress?.address || 'Not Found'}</Text>
+        </View>
+      </TouchableOpacity>
+      </View>
+      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+        <Image
+          source={{
+            uri: user?.image
+              ? user?.image
+              : 'https://cdn-icons-png.flaticon.com/128/1077/1077114.png',
+          }}
+          style={styles.profileIcon}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -861,10 +883,8 @@ const styles = StyleSheet.create({
 //       {/* <Text>Home Screen</Text> */}
 //       <View style={{top:70}}>
 //       <GooglePlacePicker
-//         placeholder="Search Properties or Location"
-//         onPlaceSelected={(place) => {
-//           console.log('Selected place:', place);
-//         }}
+//         placeholder="Search property location..."
+//         // onPlaceSelected={handlePlaceSelected}
 //       />
 //       </View>
 //     </View>

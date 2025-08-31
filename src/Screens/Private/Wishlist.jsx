@@ -28,6 +28,8 @@ const Wishlist = ({navigation}) => {
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
   const removewishlist = async id => {
+    console.log(`public/api/wishlist/remove/${id}`, 'ISEUSUUSUSU');
+
     const response = await postRequest(`public/api/wishlist/remove/${id}`);
     if (response.data?.status) {
       showToast('Removed from wishlist successfully', 'success');
@@ -38,6 +40,7 @@ const Wishlist = ({navigation}) => {
   const getData = async () => {
     setIsLoading(true);
     const response = await getRequest('public/api/wishlist/stats');
+
     if (response.data?.status) {
       setPropertyData(response.data?.data);
       setIsLoading(false);

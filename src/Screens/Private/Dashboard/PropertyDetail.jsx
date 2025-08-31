@@ -16,8 +16,10 @@ import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
+import {useIsFocused} from '@react-navigation/native';
 
 const PropertyDetail = ({navigation, route}) => {
+  const isFocus = useIsFocused();
   const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
   const [showFullDesc, setShowFullDesc] = useState(false);
@@ -26,15 +28,15 @@ const PropertyDetail = ({navigation, route}) => {
   const [images, setImages] = useState([]);
   const {type, propertyData} = route?.params;
 
-
-  console.log(AllData,"AllDataAllDataAllData")
-
-  const getPropertyDetails = async id => {
-    setLoading(true);
+  const getPropertyDetails = async (id, load = true) => {
+    if (load) {
+      setLoading(true);
+    }
     const response = await getRequest(`public/api/properties/${id}`);
     if (response?.data?.status) {
       setImages(response?.data?.data?.images?.map(e => e?.image_url));
       setAllData(response?.data?.data);
+
       setLoading(false);
     }
     setLoading(false);
@@ -48,6 +50,8 @@ const PropertyDetail = ({navigation, route}) => {
       formData,
       true,
     );
+    console.log(response?.success, 'SUCESSSS');
+
     if (response?.success == false) {
       showToast(response?.error, 'error');
     }
@@ -60,6 +64,7 @@ const PropertyDetail = ({navigation, route}) => {
     }
   }, [propertyData?.id]);
 
+
   const toggleLike = async id => {
     const formdata = new FormData();
     formdata.append('property_id', id);
@@ -71,30 +76,27 @@ const PropertyDetail = ({navigation, route}) => {
 
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
-      setLikedProperties(prev =>
-        prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
-      );
-      getPropertyDetails(response?.data?.data?.property_id);
+      // setLikedProperties(prev =>
+      //   prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id],
+      // );
+      getPropertyDetails(response?.data?.data?.property_id, false);
     } else {
       showToast(response?.error, 'error');
     }
   };
 
   const removeLike = async id => {
-    const response = await postRequest(
-      `public/api/wishlist/remove/${id}`
-    );
+    const response = await postRequest(`public/api/wishlist/remove/${id}`);
     if (response?.data?.status) {
       showToast(response?.data?.message, 'success');
-      setLikedProperties(prev => prev.filter(pid => pid !== id));
-      getPropertyDetails(propertyData?.id);
+      // setLikedProperties(prev => prev.filter(pid => pid !== id));
+      getPropertyDetails(propertyData?.id, false);
     } else {
       showToast(response?.error, 'error');
     }
   };
 
   const phoneNumber = '+919876543210';
-  const location = 'Jaipur, Rajasthan';
 
   const specifications = {
     bhk: AllData?.bhk && JSON.parse(AllData?.bhk),
@@ -105,23 +107,16 @@ const PropertyDetail = ({navigation, route}) => {
       AllData?.furnishing_status && JSON.parse(AllData?.furnishing_status),
   };
 
-  const amenities = {
-    Security: '24/7 Security',
-    Lift: 'Lift',
-    Gym: 'Gym',
-    Pool: 'Swimming Pool',
-    Parking: AllData?.parking_available,
-    // PwrBckup : 'Power Backup',
-  };
-
   const handleCall = () => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleLocation = () => {
+  const handleLocation = (location) => {
     const query = encodeURIComponent(location);
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
+
+  
 
   return (
     <View style={styles.container}>
@@ -163,7 +158,11 @@ const PropertyDetail = ({navigation, route}) => {
               <Text style={styles.title}>{AllData?.title}</Text>
               <TouchableOpacity
                 style={styles.wishlistIcon}
-                onPress={() => AllData?.is_wishlist == 1 ? removeLike(AllData?.id) : toggleLike(AllData?.id)}>
+                onPress={() =>
+                  AllData?.is_wishlist == 1
+                    ? removeLike(AllData?.id)
+                    : toggleLike(AllData?.id)
+                }>
                 <Image
                   source={{
                     uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
@@ -178,7 +177,6 @@ const PropertyDetail = ({navigation, route}) => {
                 />
               </TouchableOpacity>
             </View>
-
             {/* Read More / Less */}
             <Text style={styles.description}>
               {showFullDesc
@@ -192,14 +190,12 @@ const PropertyDetail = ({navigation, route}) => {
                 </Text>
               </TouchableOpacity>
             )}
-
             <View style={styles.MainStyle}>
               <Text style={styles.price}>{'₹' + AllData?.price}</Text>
               {AllData?.status == 1 && (
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
             </View>
-
             {/* Contact Section */}
             <View style={styles.contactContainer}>
               <Text style={styles.contactTitle}>Contact Options</Text>
@@ -247,7 +243,7 @@ const PropertyDetail = ({navigation, route}) => {
               </View>
 
               {/* Map Preview */}
-              <TouchableOpacity onPress={handleLocation} activeOpacity={0.8}>
+              <TouchableOpacity onPress={() => { handleLocation(AllData?.location)}} activeOpacity={0.8}>
                 <ImageBackground
                   source={{
                     uri: 'https://media.wired.com/photos/59269cd37034dc5f91bec0f1/191:100/w_1280,c_limit/GoogleMapTA.jpg',
@@ -262,7 +258,6 @@ const PropertyDetail = ({navigation, route}) => {
                 </ImageBackground>
               </TouchableOpacity>
             </View>
-
             {/* Specifications */}
             <View style={styles.specsContainer}>
               {Object.entries(specifications).map(([key, value]) => (
@@ -271,16 +266,18 @@ const PropertyDetail = ({navigation, route}) => {
                 </Text>
               ))}
             </View>
-
             {/* Amenities */}
-           {AllData?.amenities && <Text style={styles.sectionTitle}>Amenities</Text>}
+            {AllData?.amenities && (
+              <Text style={styles.sectionTitle}>Amenities</Text>
+            )}
             <View style={styles.amenitiesContainer}>
               {Object?.entries(AllData?.amenities)?.map(([key, value]) => (
                 <Text key={key} style={styles.specText}>
                   • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
                 </Text>
               ))}
-            </View>}
+            </View>
+            {'}'}
           </View>
 
           <CustomButton

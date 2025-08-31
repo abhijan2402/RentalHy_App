@@ -9,6 +9,7 @@ import Account from '../Screens/Private/Account/Account';
 import {COLOR} from '../Constants/Colors';
 import Wishlist from '../Screens/Private/Wishlist';
 import Convention from '../Screens/Private/ConventionSection/Convention';
+import Hostel from '../Screens/Private/HostelSection/Hostel';
 
 const Tab = createBottomTabNavigator();
 
@@ -19,9 +20,7 @@ const BottomNavigation = () => {
   const icons = {
     Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
     Convention: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
-    Wishlist: 'https://cdn-icons-png.flaticon.com/128/833/833314.png',
-    // [strings.analytics]:
-    //   'https://cdn-icons-png.flaticon.com/128/2099/2099058.png',
+    Hostel: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
     Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
   };
 
@@ -77,7 +76,7 @@ const BottomNavigation = () => {
       })}>
       <Tab.Screen name={'Home'} component={Home} />
       <Tab.Screen name={'Convention'} component={Convention} />
-      <Tab.Screen name={'Wishlist'} component={Wishlist} />
+      <Tab.Screen name={'Hostel'} component={Hostel} />
       {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}
       <Tab.Screen name={'Profile'} component={Account} />
     </Tab.Navigator>

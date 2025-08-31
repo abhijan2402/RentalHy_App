@@ -19,6 +19,10 @@ import ConventionFilter from '../Screens/Private/Dashboard/ConventionFilter';
 import ConventionMainFilter from '../Screens/Private/Dashboard/ConventionMainFilter';
 import Convention from '../Screens/Private/ConventionSection/Convention';
 import Home from '../Screens/Private/Dashboard/Home';
+import PostBookPage from '../Screens/Private/ConventionSection/PostBookPage';
+import Hostel from '../Screens/Private/HostelSection/Hostel';
+import PostHostel from '../Screens/Private/HostelSection/PostHostel';
+import HostelFilterScreen from '../Screens/Private/HostelSection/HostelFilter';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -47,6 +51,11 @@ const RootNavigation = () => {
                 <Stack.Screen name="ConventionFilter" component={ConventionFilter} />
                 <Stack.Screen name="ConventionMainFilter" component={ConventionMainFilter} />
                 <Stack.Screen name="Convention" component={Convention} />
+                <Stack.Screen name="PostBookPage" component={PostBookPage} />
+                <Stack.Screen name="Hostel" component={Hostel} />
+                <Stack.Screen name="PostHostel" component={PostHostel} />
+                <Stack.Screen name="HostelFilterScreen" component={HostelFilterScreen} />
+
 
                 <Stack.Screen name="Home" component={Home} />
 

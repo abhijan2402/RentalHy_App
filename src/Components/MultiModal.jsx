@@ -18,7 +18,6 @@ const MultiModal = ({
 }) => {
   const [selectedFilters, setSelectedFilters] = useState(initialSelected);
 
-  console.log(initialSelected,"initialSelectedinitialSelected");
 
   // For price slider
   const [priceRange, setPriceRange] = useState([0, 100000]);

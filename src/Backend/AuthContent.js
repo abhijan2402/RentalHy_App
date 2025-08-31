@@ -9,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState(-1);
 
+  const [currentAddress, setCurrentAddress] = useState(null);
+
 
   // 👇 New state for DemoCard
   const [showDemoCard, setShowDemoCard] = useState(false);
@@ -19,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         const storedUser = await AsyncStorage.getItem('user');
         const storedToken = await AsyncStorage.getItem('token');
         const seenDemo = await AsyncStorage.getItem('seenDemo'); // 👈 check demo flag
+        const storedAddress = await AsyncStorage.getItem('currentAddress'); // 👈 load address
 
         if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
@@ -32,6 +35,10 @@ export const AuthProvider = ({ children }) => {
           } else {
             setShowDemoCard(false);
           }
+        }
+
+         if (storedAddress) {
+          setCurrentAddress(JSON.parse(storedAddress));
         }
       } catch (e) {
         console.log('Error loading user data:', e);
@@ -81,6 +88,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+   const saveCurrentAddress = async (addressObj) => {
+    try {
+      if (addressObj) {
+        await AsyncStorage.setItem('currentAddress', JSON.stringify(addressObj));
+        setCurrentAddress(addressObj);
+      } else {
+        await AsyncStorage.removeItem('currentAddress');
+        setCurrentAddress(null);
+      }
+    } catch (e) {
+      console.log('Error saving address:', e);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -92,7 +114,9 @@ export const AuthProvider = ({ children }) => {
         showDemoCard,      // 👈 expose state
         setShowDemoCard,   // 👈 expose setter
         currentStatus,
-        setCurrentStatus: setCurrentStatus
+        setCurrentStatus: setCurrentStatus,
+        currentAddress,
+        setCurrentAddress: saveCurrentAddress,
       }}
     >
       {children}

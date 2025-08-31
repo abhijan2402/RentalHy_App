@@ -16,6 +16,7 @@ import CustomButton from '../../../Components/CustomButton';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 import KeyValueInput from '../../../Components/KeyValueComponent';
+import GooglePlacePicker from '../../../Components/GooglePicker';
 
 const PostProperty = ({navigation}) => {
   const {postRequest} = useApi();
@@ -40,6 +41,8 @@ const PostProperty = ({navigation}) => {
   const [landmark, setLandmark] = useState('');
   const [mapData, setMapData] = useState([]);
   const [commercialSpace, setCommercialSpace] = useState('no');
+  const [address, setAddress] = useState({});
+
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
   const propertyTypes = ['Apartment', 'Flat', 'Villa'];
@@ -152,6 +155,11 @@ const PostProperty = ({navigation}) => {
     formData.append('parking_available', parking);
     formData.append('facing_direction', facing);
     formData.append('advance', advanceValue);
+    formData.append('commercial_space', commercialSpace);
+    if(address?.lat && address?.lng){
+      formData.append('lat', address.lat);
+      formData.append('long', address.lng);
+    }
 
     if (Array.isArray(selectedBHK)) {
       selectedBHK.forEach((item, index) => {
@@ -193,6 +201,7 @@ const PostProperty = ({navigation}) => {
     });
 }
 
+
     const response = await postRequest(
       'public/api/properties/add',
       formData,
@@ -218,8 +227,9 @@ const PostProperty = ({navigation}) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Basic Details */}
+      <ScrollView contentContainerStyle={styles.content} nestedScrollEnabled={true}>
+  
+
         <Text style={styles.label}>Property Title *</Text>
         <TextInput
           style={styles.input}
@@ -228,6 +238,9 @@ const PostProperty = ({navigation}) => {
           placeholder="Enter property title"
           placeholderTextColor={COLOR.grey}
         />
+
+       
+
 
         <Text style={styles.label}>Description *</Text>
         <TextInput
@@ -239,6 +252,7 @@ const PostProperty = ({navigation}) => {
           multiline
         />
 
+
         <Text style={styles.label}>Price *</Text>
         <TextInput
           style={styles.input}
@@ -249,14 +263,14 @@ const PostProperty = ({navigation}) => {
           keyboardType="numeric"
         />
 
-        <Text style={styles.label}>Location *</Text>
-        <TextInput
-          style={styles.input}
-          value={location}
-          onChangeText={setLocation}
-          placeholder="Enter location"
-          placeholderTextColor={COLOR.grey}
-        />
+         <Text style={styles.label}>location *</Text>
+          <GooglePlacePicker
+            placeholder="Search location..."
+            onPlaceSelected={(place) => {
+              setAddress(place);
+              setLocation(place.address);
+            }}
+          />
 
         <Text style={styles.label}>Area (sq ft) *</Text>
         <TextInput
@@ -267,6 +281,7 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
           keyboardType="numeric"
         />
+
         <Text style={styles.label}>landmark</Text>
         <TextInput
           style={styles.input}
@@ -276,7 +291,6 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
         />
 
-        {/* Filter-style Selections */}
         {renderOptions('BHK*', bhkOptions, selectedBHK, setSelectedBHK)}
         {renderOptions(
           'Property Type*',

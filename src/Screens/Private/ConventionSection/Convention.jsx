@@ -7,11 +7,14 @@ import {
   ScrollView,
   StatusBar,
   TextInput,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
-import {AnimatedButton} from '../Dashboard/Home';
+import {AnimatedButton, HomeHeader} from '../Dashboard/Home';
 import SortModal from '../../../Components/SortModal';
 import {windowWidth} from '../../../Constants/Dimensions';
 import OptionSelector from '../Dashboard/OptionSelector';
@@ -20,6 +23,7 @@ import {useIsFocused} from '@react-navigation/native';
 import {AuthContext} from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import { useApi } from '../../../Backend/Api';
+import LocationModal from '../../../Modals/LocationModal';
 
 const TabButton = ({title, isActive, onPress}) => {
   return (
@@ -41,14 +45,14 @@ const HallCard = ({
   location,
   capacity,
   price,
-  priceType, // 'per hour' or 'per day'
+  priceType,
   ac,
   onBook,
   onPress,
 }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Image source={{uri: image?.hall[0]?.image_path}} style={styles.cardImage} />
+      <Image source={{uri: image?.hall && image?.hall[0]?.image_path}} style={styles.cardImage} />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDesc}>{description}</Text>
@@ -66,7 +70,7 @@ const HallCard = ({
                 styles.cardInfo,
                 {marginLeft: 5, fontWeight: '600', color: COLOR.primary},
               ]}>
-              ₹ {price}/- {priceType}
+              ₹ {price?.min_amount} -/- ₹{price?.max_amount}
             </Text>
           </View>
           <TouchableOpacity style={styles.bookBtn} onPress={onBook}>
@@ -84,11 +88,42 @@ const ConventionHall = ({
   onPressFilter,
   currentStatus,
   setShowModal,
-  hallData
+  hallData,
+  onHandleMore,
+  loader,
+  loadingMore,
+  GetProperties,
+  setAppliedFilters,
+  setSearchQuery,
+  setSortQuery,
+  appliedFilters,
+  searchQuery,
+  sortQuery
 }) => {
+  const renderHall = ({item}) => (
+    <HallCard
+      key={item.id}
+      image={item?.images_grouped}
+      title={item?.title}
+      description={item?.description}
+      location={item?.location}
+      capacity={item?.seating_capacity}
+      price={item}
+      priceType={item?.priceType}
+      ac={item.ac_available}
+      onPress={() => {
+        if (currentStatus === -1) {
+          setShowModal(true);
+        } else {
+          navigation.navigate('PropertyDetail', {type: 'convention'});
+        }
+      }}
+      onBook={() => navigation.navigate('Booking', {type: 'convention'})}
+    />
+  );
 
   return (
-    <ScrollView style={styles.content}>
+    <View style={styles.content}>
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -100,6 +135,8 @@ const ConventionHall = ({
           placeholder="Search Convention Halls or Location"
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
         />
 
         <TouchableOpacity onPress={onPressSort}>
@@ -119,9 +156,6 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={onPressFilter}>
-          {/* // () =>
-            // navigation.navigate('Filter', {onApplyFilter: handleFilterChange}) */}
-
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
@@ -130,28 +164,43 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
       </View>
-      {hallData.map(hall => (
-        <HallCard
-          key={hall.id}
-          image={hall?.images_grouped}
-          title={hall?.title}
-          description={hall?.description}
-          location={hall?.location}
-          capacity={hall?.capacity}
-          price={hall?.price}
-          priceType={hall?.priceType}
-          ac={hall.ac}
-          onPress={() => {
-            if (currentStatus == -1) {
-              setShowModal(true);
-            } else {
-              navigation.navigate('PropertyDetail', {type: 'convention'});
-            }
+
+      <FlatList
+        data={hallData}
+        keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
+        renderItem={renderHall}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 20}}
+        onEndReached={onHandleMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+          refreshing={loader}
+          onRefresh={() => {
+            setSortQuery(null);
+            setAppliedFilters({})
+            GetProperties(
+              1,
+              false,
+              appliedFilters,
+              searchQuery,
+              sortQuery,
+              false,
+            );
           }}
-          onBook={() => navigation.navigate('Booking')}
-        />
-      ))}
-    </ScrollView>
+          colors={[COLOR.primary]} // Android
+          tintColor={COLOR.primary} // iOS
+          />
+          }
+          ListFooterComponent={
+          loadingMore ? (
+          <View style={{padding: 16}}>
+            <ActivityIndicator size="small" color={COLOR.primary} />
+          </View>
+          ) : null
+          }
+      />
+    </View>
   );
 };
 
@@ -238,7 +287,7 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           price={farm.price}
           priceType={farm.priceType}
           ac={farm.ac}
-          onBook={() => navigation.navigate('Booking')}
+          onBook={() => navigation.navigate('Booking', {type: 'farmHouse'})}
           onPress={() => {
             if (currentStatus == -1) {
               setShowModal(true);
@@ -254,6 +303,8 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
 
 
 const Convention = ({navigation, route}) => {
+    const {currentAddress} = useContext(AuthContext);
+  
   const {postRequest} = useApi();
   const type = route?.params?.type;
   const {currentStatus} = useContext(AuthContext);
@@ -265,13 +316,18 @@ const Convention = ({navigation, route}) => {
   const [tabLoader, settabLoader] = useState(false);
   const [defaultIndex, setdefaultIndex] = useState(type == 'farm' ? 2 : 1);
   const [hallData , setHallData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortQuery, setSortQuery] = useState('');
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
+  
 
   const [appliedFilters, setAppliedFilters] = useState([]); 
   const sortOptions = [
     {label: 'Price: Low to High', value: 'price_low_to_high'},
     {label: 'Price: High to Low', value: 'price_high_to_low'},
-    {label: 'Distance', value: 'Distance'},
-    {label: 'Relevance', value: 'Relevance'},
+    {label: 'Newest', value: 'newest_first'},
+    {label: 'Oldest', value: 'oldest_first'},
   ];
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
@@ -301,8 +357,6 @@ const Convention = ({navigation, route}) => {
     }
   },[isFocus])
 
-  console.log(appliedFilters,"appliedFiltersappliedFilters")
-
     const buildFormData = (
     filters,
     pageNum = 1,
@@ -324,26 +378,33 @@ const Convention = ({navigation, route}) => {
         }
       });
     } else {
-      if (filters.BHK) formData.append('bhk', filters.BHK);
-      if (filters.propertyType)
-        formData.append('property_type', filters.propertyType);
-      if (filters.minPrice) formData.append('min_price', filters.minPrice);
-      if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
-      if (filters.minRoomSize) formData.append('min_area', filters.minRoomSize);
-      if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
-      if (filters.furnishing)
-        formData.append('furnishing_status', filters.furnishing);
-      if (filters.availability)
-        formData.append('availability', filters.availability);
-      if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
-      if (filters.parking)
-        formData.append('parking_available', filters.parking);
-      if (filters.facing) formData.append('facing_direction', filters.facing);
-      if (filters.advanceValue)
-        formData.append('advance', filters.advanceValue);
-      if (filters.familyTypeValue)
-        formData.append('preferred_tenant_type', filters.familyTypeValue);
+      if(filters?.minCapacity) formData.append('seating_capacity_min', filters.minCapacity);
+      if (filters?.maxCapacity) formData.append('seating_capacity_max', filters.maxCapacity);
+      if (filters.acAvailable) formData.append('ac_available', filters.acAvailable == 'Yes' ? 1 : 0);
+      if (filters.valetParking)
+        formData.append('valet_parking', filters.valetParking == 'Yes' ? 1 : 0);
+      if (filters.minPrice) formData.append('price_min', filters.minPrice);
+      if (filters.maxPrice) formData.append('price_max', filters.maxPrice);
+            if (filters.alcoholAllowed)
+        formData.append('alcohol_allowed', filters.alcoholAllowed == 'Yes' ? 1 : 0);
+
+      if (filters.royaltyDecoration) formData.append('royalty_decoration', filters.royaltyDecoration == 'Yes' ? 1 : 0);
+      if (filters.royaltyKitchen) formData.append('royalty_kitchen', filters.royaltyKitchen == 'Yes' ? 1 : 0);
+
+      if (filters.generator)
+        formData.append('generator_available', filters.generator == 'Yes' ? 1 : 0);
+      if (filters.drinkingWater) formData.append('water_for_cooking', filters.drinkingWater == 'Yes' ? 1 : 0);
+      if (filters.cateringPersons)
+        formData.append('provides_catering_persons', filters.cateringPersons == 'Yes' ? 1 : 0);
+      if (filters.photoShootsAllowed) formData.append('photographers_required', filters.photoShootsAllowed == 'Yes' ? 1 : 0);
+      if (filters.childrenGames)
+        formData.append('adult_games', filters.childrenGames == 'Yes' ? 1 : 0);
+      if (filters.timeOfOccasion)
+        formData.append('occasion', filters.timeOfOccasion);
     }
+
+      if(currentAddress?.lat) formData.append('lat', currentAddress.lat);
+      if(currentAddress?.lng) formData.append('long', currentAddress.lng);
 
     if (search && search.trim() !== '') {
       formData.append('search', search.trim());
@@ -369,7 +430,6 @@ const Convention = ({navigation, route}) => {
 
     if (pageNum === 1) settabLoader(true);
     else setLoadingMore(true);
-
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
     const response = await postRequest('public/api/hall_listing', formData, true);
     const resData = response?.data?.data;
@@ -386,6 +446,24 @@ const Convention = ({navigation, route}) => {
     settabLoader(false);
     setLoadingMore(false);
   };
+  
+
+   useEffect(() => {
+      GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
+    }, [appliedFilters, searchQuery, sortQuery, currentAddress]);
+  
+    const handleLoadMore = () => {
+      if (!loadingMore && page < lastPage) {
+        GetProperties(
+          page + 1,
+          true,
+          appliedFilters,
+          searchQuery,
+          sortQuery,
+          false,
+        );
+      }
+    };
 
 
   return (
@@ -398,29 +476,7 @@ const Convention = ({navigation, route}) => {
       {/* <Header title={'Convention Space'} /> */}
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.locationContainer}>
-          <Image
-            source={{
-              uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
-            }}
-            style={styles.locationIcon}
-          />
-          <View>
-            <Text style={styles.locationCity}>Jaipur</Text>
-            <Text style={styles.locationAddress}>Abc, Jaipur, Rajasthan</Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?w=100',
-            }}
-            style={styles.profileIcon}
-          />
-        </TouchableOpacity>
-      </View>
+      <HomeHeader setLocationModalVisible={setLocationModalVisible} navigation={navigation} />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
@@ -444,6 +500,7 @@ const Convention = ({navigation, route}) => {
       {/* Render Components */}
       {activeTab === 'convention' ? (
         <ConventionHall
+          loader={tabLoader}
           hallData={hallData}
           navigation={navigation}
           onPressSort={() => {
@@ -459,6 +516,17 @@ const Convention = ({navigation, route}) => {
                existingFilters: appliedFilters
             })
           }
+          onHandleMore={() => {
+            handleLoadMore();
+          }}
+          setAppliedFilters={setAppliedFilters}
+          setSortQuery={setSortQuery}
+          appliedFilters={appliedFilters}
+          searchQuery={searchQuery}
+          sortQuery={sortQuery}
+          GetProperties={GetProperties}
+          loadingMore={loadingMore}
+          setSearchQuery={setSearchQuery}
         />
       ) : (
         <FarmHouse
@@ -487,6 +555,7 @@ const Convention = ({navigation, route}) => {
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
           console.log('Selected Sort:', sortType);
+          setSortQuery(sortType);
         }}
       />
       <CreateAccountModal
@@ -497,13 +566,18 @@ const Convention = ({navigation, route}) => {
         }}
         onCancel={() => setModalVisible(false)}
       />
+
+        <LocationModal
+        visible={locationModalVisible}
+        onClose={() => setLocationModalVisible(false)}
+        onCancel={() => setLocationModalVisible(false)}
+      />
     </View>
   );
 };
 
 export default Convention;
 
-// ---------------- Styles ----------------
 const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',

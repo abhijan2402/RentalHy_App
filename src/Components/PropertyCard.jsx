@@ -7,7 +7,7 @@ import {AuthContext} from '../Backend/AuthContent';
 import CreateAccountModal from '../Modals/CreateAccountModal';
 
 const PropertyCard = ({
-  item,
+  item = {},
   toggleLike,
   type,
   removewishlist,
@@ -30,8 +30,10 @@ const PropertyCard = ({
       style={styles.card}>
       <Image
         source={{
-          uri:
-            item?.property?.images[0]?.image_url || item?.images[0]?.image_url,
+          uri: item?.image
+            ? item?.image
+            : item?.property?.images[0]?.image_url ||
+              item?.images[0]?.image_url,
         }}
         style={styles.propertyImage}
       />
@@ -59,30 +61,29 @@ const PropertyCard = ({
       </TouchableOpacity>
 
       <Text style={styles.propertyName}>
-        {item.title || item?.property?.title}
+        {item.title || item?.property?.title || item?.name}
       </Text>
       <Text style={styles.propertyLocation}>
         {item?.property?.location || item.location}
       </Text>
-<Text style={styles.propertyLocation}>
-  {
-    (() => {
-      const tenantType =
-        item?.preferred_tenant_type ?? item?.property?.preferred_tenant_type;
-      if (
-        typeof tenantType === 'string' &&
-        tenantType.trim().startsWith('[')
-      ) {
-        try {
-          return JSON.parse(tenantType).join(', ');
-        } catch {
+      <Text style={styles.propertyLocation}>
+        {(() => {
+          const tenantType =
+            item?.preferred_tenant_type ??
+            item?.property?.preferred_tenant_type;
+          if (
+            typeof tenantType === 'string' &&
+            tenantType.trim().startsWith('[')
+          ) {
+            try {
+              return JSON.parse(tenantType).join(', ');
+            } catch {
+              return tenantType;
+            }
+          }
           return tenantType;
-        }
-      }
-      return tenantType;
-    })()
-  }{' '}
-</Text>
+        })()}{' '}
+      </Text>
 
       <View style={styles.MainStyle}>
         <Text style={styles.propertyPrice}>
