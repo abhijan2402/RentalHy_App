@@ -10,7 +10,7 @@ import {
   View,
   Text,
 } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
+// import Geolocation from 'react-native-geolocation-service';
 import {LanguageProvider} from './src/localization/LanguageContext';
 import {AuthProvider} from './src/Backend/AuthContent';
 import {NavigationContainer} from '@react-navigation/native';

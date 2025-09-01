@@ -4,12 +4,13 @@ import {
   ActivityIndicator,
   PermissionsAndroid,
   Platform,
+  Alert,
 } from 'react-native';
 import {AuthContext} from '../Backend/AuthContent';
 import RootNavigation from './RootNavigation';
 import AuthStack from './AuthNavigation';
 import {ToastProvider} from '../Constants/ToastContext';
-import Geolocation from 'react-native-geolocation-service';
+import Geolocation from '@react-native-community/geolocation';
 
 const MainNavigation = () => {
   const auth = useContext(AuthContext);
@@ -37,7 +38,7 @@ const MainNavigation = () => {
           },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // getCurrentLocation();
+          getCurrentLocation();
         } else {
           setLocationStatus('Location permission denied.');
         }
@@ -46,21 +47,38 @@ const MainNavigation = () => {
         setLocationStatus('Permission error.');
       }
     } else if (Platform.OS === 'ios') {
-      const authStatus = await Geolocation.requestAuthorization('whenInUse');
-      if (authStatus === 'granted') {
-        // getCurrentLocation();
-      } else {
-        setLocationStatus('Location permission denied.');
-      }
+      // iOS prompts automatically when using navigator.geolocation
+      getCurrentLocation();
     } else {
       setLocationStatus('Unsupported platform.');
     }
   };
 
+  // const getCurrentLocation = () => {
+  //   navigator.geolocation.getCurrentPosition(
+  //     position => {
+  //       console.log('POS:', position);
+  //       setLocationStatus(
+  //         `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
+  //       );
+  //     },
+  //     error => {
+  //       console.log('Location error:', error);
+  //       setLocationStatus('Failed to fetch location.');
+  //     },
+  //     {
+  //       enableHighAccuracy: true,
+  //       timeout: 15000,
+  //       maximumAge: 10000,
+  //     },
+  //   );
+  // };
+
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
-        console.log(position, 'POSSS');
+        console.log('POS:', position);
+        Alert.alert(JSON.stringify(position));
         setLocationStatus(
           `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
         );

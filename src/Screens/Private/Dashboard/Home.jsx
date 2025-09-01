@@ -15,6 +15,7 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
+  PermissionsAndroid,
 } from 'react-native';
 import {COLOR} from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
@@ -31,13 +32,15 @@ import {useToast} from '../../../Constants/ToastContext';
 import {AuthContext} from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import LocationModal from '../../../Modals/LocationModal';
-import { getCityFromAddress } from '../../../utils/helper';
+import {getCityFromAddress} from '../../../utils/helper';
+import Geolocation from '@react-native-community/geolocation';
 
 const {width} = Dimensions.get('window');
 
 const Home = ({navigation}) => {
   const {postRequest} = useApi();
-  const {user, showDemoCard, setShowDemoCard , currentAddress} = useContext(AuthContext);
+  const {user, showDemoCard, setShowDemoCard, currentAddress} =
+    useContext(AuthContext);
 
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -126,8 +129,8 @@ const Home = ({navigation}) => {
         formData.append('advance', filters.advanceValue);
       if (filters.familyTypeValue)
         formData.append('preferred_tenant_type', filters.familyTypeValue);
-      if(currentAddress?.lat) formData.append('lat', currentAddress.lat);
-      if(currentAddress?.lng) formData.append('long', currentAddress.lng);
+      if (currentAddress?.lat) formData.append('lat', currentAddress.lat);
+      if (currentAddress?.lng) formData.append('long', currentAddress.lng);
     }
 
     if (search && search.trim() !== '') {
@@ -277,12 +280,72 @@ const Home = ({navigation}) => {
     }, 10);
   }, [isFocus]);
 
+  const [locationStatus, setLocationStatus] = useState('Checking location...');
+
+  const requestPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'This app needs access to your location.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        console.log(
+          granted,
+          'GRANNNTEDDDD',
+          PermissionsAndroid.RESULTS.GRANTED,
+        );
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getCurrentLocation();
+        } else {
+          setLocationStatus('Location permission denied.');
+        }
+      } catch (err) {
+        console.log('Permission error:', err);
+        setLocationStatus('Permission error.');
+      }
+    } else if (Platform.OS === 'ios') {
+      // iOS prompts automatically when using navigator.geolocation
+      getCurrentLocation();
+    } else {
+      setLocationStatus('Unsupported platform.');
+    }
+  };
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      pos => {
+        console.log('POS (coarse):', pos);
+        const {latitude, longitude} = pos.coords;
+        setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
+      },
+      err => {
+        console.log('Error (coarse):', err);
+        setLocationStatus(`Error: ${err.message}`);
+      },
+      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
+    );
+  };
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
       {/* Header */}
-      <HomeHeader setLocationModalVisible={setLocationModalVisible} navigation={navigation} />
+      <HomeHeader
+        setLocationModalVisible={setLocationModalVisible}
+        navigation={navigation}
+      />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
@@ -664,7 +727,7 @@ export const DemoCard = ({
   );
 };
 
-export const HomeHeader = ({navigation , setLocationModalVisible}) => {
+export const HomeHeader = ({navigation, setLocationModalVisible}) => {
   const {user, currentAddress} = useContext(AuthContext);
   const CityName = getCityFromAddress(currentAddress?.address);
 
@@ -677,19 +740,23 @@ export const HomeHeader = ({navigation , setLocationModalVisible}) => {
           }}
           style={styles.locationIcon}
         />
-      <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center',width:'50%'}} onPress={() => setLocationModalVisible(true)}>
-        <Image
-          source={{
-            uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
-          }}
-          style={[styles.locationIcon, {width: 25, height: 25}]}
-        />
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center', width: '50%'}}
+          onPress={() => setLocationModalVisible(true)}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
+            }}
+            style={[styles.locationIcon, {width: 25, height: 25}]}
+          />
 
-        <View>
-           <Text style={styles.locationCity}>{CityName || 'Not Found'}</Text>
-          <Text style={styles.locationAddress} numberOfLines={1}>{currentAddress?.address || 'Not Found'}</Text>
-        </View>
-      </TouchableOpacity>
+          <View>
+            <Text style={styles.locationCity}>{CityName || 'Not Found'}</Text>
+            <Text style={styles.locationAddress} numberOfLines={1}>
+              {currentAddress?.address || 'Not Found'}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
         <Image
@@ -871,8 +938,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 });
-
-
 
 // import React, {useRef, useEffect, useState, useContext} from 'react';
 // import { Text, View } from 'react-native';
