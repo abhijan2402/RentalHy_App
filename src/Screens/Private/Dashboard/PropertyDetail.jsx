@@ -23,20 +23,25 @@ const PropertyDetail = ({navigation, route}) => {
   const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
   const [showFullDesc, setShowFullDesc] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
   const {type, propertyData} = route?.params;
 
+
   const getPropertyDetails = async (id, load = true) => {
     if (load) {
-      setLoading(true);
+      setLoading(false);
     }
-    const response = await getRequest(`public/api/properties/${id}`);
-    if (response?.data?.status) {
-      setImages(response?.data?.data?.images?.map(e => e?.image_url));
-      setAllData(response?.data?.data);
+    let url = type === 'convention' ? `public/api/hall_deatils/${id}` : `public/api/properties/${id}`;
 
+    console.log(url,"urlurlurlurl")
+    const response = await getRequest(url);
+console.log(response?.data?.data,"response?.data?.dataresponse?.data?.data")
+
+    if (response?.data?.status || response?.data?.success) {
+      setImages(type === 'convention' ? response?.data?.data?.images?.hall?.map(e => e?.image_path) : response?.data?.data?.images?.map(e => e?.image_url));
+      setAllData(response?.data?.data);
       setLoading(false);
     }
     setLoading(false);
@@ -50,7 +55,6 @@ const PropertyDetail = ({navigation, route}) => {
       formData,
       true,
     );
-    console.log(response?.success, 'SUCESSSS');
 
     if (response?.success == false) {
       showToast(response?.error, 'error');
@@ -115,7 +119,6 @@ const PropertyDetail = ({navigation, route}) => {
     floor: '3rd',
     furnished: safeParse(AllData?.furnishing_status),
   };
-  console.log(specifications, 'SOPECICIIC');
 
   const handleCall = () => {
     Linking.openURL(`tel:${phoneNumber}`);
@@ -129,7 +132,7 @@ const PropertyDetail = ({navigation, route}) => {
   return (
     <View style={styles.container}>
       <Header
-        title={'Property Detail'}
+        title={type == 'convention' ? 'Convention Detail' : 'Property Detail'}
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -271,24 +274,24 @@ const PropertyDetail = ({navigation, route}) => {
               </TouchableOpacity>
             </View>
             {/* Specifications */}
-            <View style={styles.specsContainer}>
+            {/* <View style={styles.specsContainer}>
               {Object.entries(specifications).map(([key, value]) => (
                 <Text key={key} style={styles.specText}>
                   • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
                 </Text>
               ))}
-            </View>
+            </View> */}
             {/* Amenities */}
             {AllData?.amenities && (
               <Text style={styles.sectionTitle}>Amenities</Text>
             )}
-            <View style={styles.amenitiesContainer}>
+            {/* <View style={styles.amenitiesContainer}>
               {Object?.entries(AllData?.amenities)?.map(([key, value]) => (
                 <Text key={key} style={styles.specText}>
                   • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
                 </Text>
               ))}
-            </View>
+            </View> */}
             {'}'}
           </View>
 

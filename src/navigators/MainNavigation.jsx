@@ -78,7 +78,7 @@ const MainNavigation = () => {
     Geolocation.getCurrentPosition(
       position => {
         console.log('POS:', position);
-        Alert.alert(JSON.stringify(position));
+        // Alert.alert(JSON.stringify(position));
         setLocationStatus(
           `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
         );

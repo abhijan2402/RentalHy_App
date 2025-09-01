@@ -117,7 +117,7 @@ const ConventionHall = ({
         if (currentStatus === -1) {
           setShowModal(true);
         } else {
-          navigation.navigate('PropertyDetail', {type: 'convention'});
+          navigation.navigate('PropertyDetail', {type: 'convention', propertyData: item});
         }
       }}
       onBook={() => navigation.navigate('Booking', {type: 'convention'})}
