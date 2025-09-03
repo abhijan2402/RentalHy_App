@@ -28,17 +28,12 @@ const PropertyDetail = ({navigation, route}) => {
   const [images, setImages] = useState([]);
   const {type, propertyData} = route?.params;
 
-
   const getPropertyDetails = async (id, load = true) => {
     if (load) {
       setLoading(false);
     }
-    let url = type === 'convention' ? `public/api/hall_deatils/${id}` : `public/api/properties/${id}`;
-
-    console.log(url,"urlurlurlurl")
+    let url = type === 'convention' ? `public/api/hall_deatils/${id}` : type === 'hostel' ? `public/api/hostels/${id}` : `public/api/properties/${id}`;
     const response = await getRequest(url);
-console.log(response?.data?.data,"response?.data?.dataresponse?.data?.data")
-
     if (response?.data?.status || response?.data?.success) {
       setImages(type === 'convention' ? response?.data?.data?.images?.hall?.map(e => e?.image_path) : response?.data?.data?.images?.map(e => e?.image_url));
       setAllData(response?.data?.data);
@@ -202,7 +197,7 @@ console.log(response?.data?.data,"response?.data?.dataresponse?.data?.data")
               </TouchableOpacity>
             )}
             <View style={styles.MainStyle}>
-              <Text style={styles.price}>{'₹' + AllData?.price}</Text>
+              <Text style={styles.price}>{'₹' + (AllData?.price ? AllData?.price : (AllData?.min_price + ' - ' + AllData?.max_price))}</Text>
               {AllData?.status == 1 && (
                 <Text style={styles.TagStyle}>Featured</Text>
               )}

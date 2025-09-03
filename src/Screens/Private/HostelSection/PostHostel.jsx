@@ -14,15 +14,19 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
 import CustomButton from '../../../Components/CustomButton';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
+import GooglePlacePicker from '../../../Components/GooglePicker';
 
 const PostHostel = ({navigation}) => {
+  const {postRequest} = useApi();
+  const {showToast} = useToast();
   const [images, setImages] = useState([]);
   const [title, setTitle] = useState('');
   const [contact, setContact] = useState('');
   const [altContact, setAltContact] = useState('');
   const [description, setDescription] = useState('');
-
-  // Pricing
+  const [buttonLoading, setButtonLoading] = useState(false)
   const [singleRoom, setSingleRoom] = useState('');
   const [doubleRoom, setDoubleRoom] = useState('');
   const [tripleRoom, setTripleRoom] = useState('');
@@ -33,18 +37,17 @@ const PostHostel = ({navigation}) => {
   const [dormMonth, setDormMonth] = useState('');
   const [dormDeposit, setDormDeposit] = useState('');
 
-  // Location
   const [mapLink, setMapLink] = useState('');
   const [location, setLocation] = useState('');
   const [landmark, setLandmark] = useState('');
   const [roomSizeMin, setRoomSizeMin] = useState('');
   const [roomSizeMax, setRoomSizeMax] = useState('');
 
-  // Hostel type
-  const hostelTypes = ['Male Hostel', 'Female Hostel', 'Co-living Hostel'];
+  console.log(location,"locationlocation")
+
+  const hostelTypes = ['male', 'female', 'coliving'];
   const [selectedTypes, setSelectedTypes] = useState([]);
 
-  // Furnishing
   const furnishingOptions = [
     'Bed with mattress & pillow',
     'Bed frame only',
@@ -67,21 +70,21 @@ const PostHostel = ({navigation}) => {
 
   // Toggles Yes/No
   const toggleOptions = [
-    'Kitchen',
-    'WiFi',
-    'AC / Non-AC',
-    'Laundry service',
-    'Housekeeping',
-    'Hot water / Geyser',
-    'Power backup',
-    'Parking (2W/4W)',
-    'Gym',
-    'Play area',
-    'TV',
-    'Dining Table',
-    'Security',
-    'RO Drinking Water',
-    'Study Area',
+    'kitchen',
+    'wifi',
+    'ac',
+    'laundry_service',
+    'housekeeping',
+    'hot_water',
+    'power_backup',
+    'parking',
+    'gym',
+    'play_area',
+    'tv',
+    'dining_table',
+    'security',
+    'ro_water',
+    'study_area',
   ];
   const RULES_POLICIES_OPTIONS = [
     'Gate Closing Time (curfew)',
@@ -207,6 +210,80 @@ const PostHostel = ({navigation}) => {
     </View>
   );
 
+
+  const postHostel = async () => {
+    setButtonLoading(true);
+
+    const formData = new FormData();
+   if(title) formData.append('title', title);
+    if(contact) formData.append('contact_number', contact);
+    if(altContact) formData.append('alternate_contact_number', altContact);
+    if(description) formData.append('description', description);
+    if(singleRoom) formData.append('single_room_price', singleRoom);
+    if(doubleRoom) formData.append('double_sharing_price', doubleRoom);
+    if(tripleRoom) formData.append('triple_sharing_price', tripleRoom);
+    if(fourRoom) formData.append('four_sharing_price', fourRoom);
+    if(roomDeposit) formData.append('security_deposit' , roomDeposit);
+
+    if(dormDay) formData.append('one_day_stay' , dormDay);
+    if(dormWeek) formData.append('one_week_stay' , dormWeek);
+    if(dormMonth) formData.append('one_month_stay' , dormMonth);
+    if(mapLink) formData.append('map_link' , mapLink);
+
+    if(location?.address) formData.append('location' , location?.address);
+    if(location?.lat) formData.append('lat' , location?.lat);
+    if(location?.lng) formData.append('long' , location?.lng);
+    if(landmark) formData.append('landmark' , landmark);
+
+    if(roomSizeMin) formData.append('room_size_min' , roomSizeMin);
+    if(roomSizeMax) formData.append('room_size_max' , roomSizeMax);
+
+   if(selectedTypes) formData.append('hostel_type' , selectedTypes[0]);
+   if(furnishingOptions) formData.append('furnishing' , JSON.stringify(furnishingOptions));
+
+   if(bathroomType) formData.append('bathroom_type' , bathroomType);
+    if(breakfast) formData.append('breakfast_timing' , foodTimings.breakfast);
+    if(tea) formData.append('tea_coffee_timing' , foodTimings.tea);
+    if(lunch) formData.append('lunch_timing' , foodTimings.lunch);
+    if(snacks) formData.append('snacks_timing' , foodTimings.snacks);
+    if(dinner) formData.append('dinner_timing' , foodTimings.dinner);
+    if(documents) formData.append('documents_required' , documents);
+    if(rules) formData.append('rules_policies' , rules);
+      Object.entries(toggleStates).forEach(([key, value]) => {
+        formData.append(key, value === 'yes' ? 1 : 0);
+      });
+
+     images.forEach((img, index) => {
+      formData.append(`images[${index}]`, {
+        uri: img.uri,
+        type: img.type || 'image/jpeg',
+        name: img.name || `image_${index}.jpg`,
+      });
+    });
+    formData.append('menu_images[0]', {
+      type: 'image/jpeg',
+      uri: menuImage?.uri,
+      name: 'image'
+    })
+    const response = await postRequest('public/api/hostels', formData , true);
+
+
+    if(response?.data?.success){
+    setButtonLoading(false);
+
+      showToast(response?.data?.message , 'success');
+      navigation.goBack()
+    }else{
+      // navigation.goBack()
+    setButtonLoading(false);
+
+    }
+    setButtonLoading(false);
+
+
+
+  }
+
   return (
     <View style={{flex: 1, backgroundColor: COLOR.white}}>
       <Header
@@ -256,7 +333,14 @@ const PostHostel = ({navigation}) => {
 
           {/* Location */}
           {renderInput('Map Link', mapLink, setMapLink)}
-          {renderInput('Location', location, setLocation)}
+          {/* {renderInput('Location', location, setLocation)} */}
+           <View style={styles.section}>
+            <Text style={styles.label}>Location</Text>
+            <GooglePlacePicker
+              onPlaceSelected={(location) => setLocation(location)}
+            />
+
+          </View>
           {renderInput('Landmark', landmark, setLandmark)}
 
           {/* Room Size */}
@@ -362,7 +446,7 @@ const PostHostel = ({navigation}) => {
             )}
           </View>
         </ScrollView>
-        <CustomButton title={'Upload Hostel'} />
+        <CustomButton title={'Upload Hostel'} onPress={postHostel} loading={buttonLoading} />
       </KeyboardAvoidingView>
     </View>
   );

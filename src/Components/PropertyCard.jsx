@@ -13,6 +13,7 @@ const PropertyCard = ({
   removewishlist,
   showDelete = false,
 }) => {
+
   const navigation = useNavigation();
   const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -24,6 +25,7 @@ const PropertyCard = ({
         } else {
           navigation.navigate('PropertyDetail', {
             propertyData: type === 'wishlist' ? item?.property : item,
+            type:type
           });
         }
       }}
@@ -38,7 +40,7 @@ const PropertyCard = ({
         style={styles.propertyImage}
       />
 
-      <TouchableOpacity
+      {type == 'home' && <TouchableOpacity
         style={styles.wishlistIcon}
         onPress={() =>
           type == 'wishlist' ? removewishlist(item.id) : toggleLike(item.id)
@@ -58,7 +60,7 @@ const PropertyCard = ({
                 : COLOR.white,
           }}
         />
-      </TouchableOpacity>
+      </TouchableOpacity>}
 
       <Text style={styles.propertyName}>
         {item.title || item?.property?.title || item?.name}
@@ -91,7 +93,7 @@ const PropertyCard = ({
             ? '₹' + item.property.price
             : item?.price != null && item?.price !== undefined
             ? '₹' + item.price
-            : ''}
+            :'₹' +  item?.min_price + ' - ' + item?.max_price}
         </Text>
         {(item?.status || item?.property?.status) == 1 && (
           <Text style={styles.TagStyle}>Featured</Text>

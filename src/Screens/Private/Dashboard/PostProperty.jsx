@@ -214,7 +214,6 @@ const PostProperty = ({navigation}) => {
     }
     setLoading(false);
 
-    // Uncomment if you want to show alert and go back on success
     // Alert.alert('Success', 'Your property has been posted successfully!');
     // navigation.goBack();
   };

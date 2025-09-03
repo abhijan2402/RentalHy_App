@@ -184,51 +184,50 @@ export const HOSTEL_FILTERS = {
     },
 
     roomTypes: [
-        'Single room',
-        'Double sharing',
-        'Triple sharing',
-        '4 Sharing',
-        'Dormitory',
+        'single',
+        'double',
+        'triple',
+        'four',
+        'dormitory',
     ],
 
     genders: [
-        'Boys hostel',
-        'Girls hostel',
-        'Co-living / Mixed',
+        'male',
+        'female',
+        'co-living',
     ],
 
     facilities: [
-        'WiFi',
-        'AC / Non-AC',
-        'Laundry service',
-        'Housekeeping',
-        'Hot water / Geyser',
-        'Power backup',
-        'Parking (2-wheeler/4-wheeler)',
-        'Gym',
-        'TV',
-        'Dining Table',
-        'Security',
-        'RO Drinking Water',
-        'Study Area',
+        "wifi", 
+        "ac", 
+        "laundry_service", 
+        "housekeeping", 
+        "hot_water", 
+        "power_backup", 
+        "parking", 
+        "gym", 
+        "tv", 
+        "dining_table", 
+        "security", 
+        "ro_water", 
+        "study_area"
     ],
 
     foodOptions: [
-        'Veg / Non-veg',
-        'Mess',
-        'Breakfast',
-        'Lunch',
-        'Dinner',
+        "veg", 
+        "non_veg", 
+        "mess", 
+        "breakfast", 
+        "lunch", 
+        "dinner"
     ],
 
     stayTypes: [
-        'Short-term (daily/weekly)',
-        'Long-term (monthly/annual)',
+        "short-term",
+        "long-term"
     ],
 
     occupancyCapacity: [
-        '10–20 residents',
-        '20–50 residents',
-        '50+ residents',
+       "10-20", "20-50", "50+"
     ],
 };

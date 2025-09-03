@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  FlatList,
 } from 'react-native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import {HOSTEL_FILTERS} from '../../../Constants/Data';
@@ -13,17 +14,24 @@ import {windowHeight} from '../../../Constants/Dimensions';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 
-const HostelFilterScreen = ({navigation}) => {
-  const [priceRange, setPriceRange] = useState([
-    HOSTEL_FILTERS.priceRange.min,
-    HOSTEL_FILTERS.priceRange.max,
-  ]);
-  const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
-  const [selectedGenders, setSelectedGenders] = useState([]);
-  const [selectedFacilities, setSelectedFacilities] = useState([]);
-  const [selectedFoodOptions, setSelectedFoodOptions] = useState([]);
-  const [selectedStayTypes, setSelectedStayTypes] = useState([]);
-  const [selectedOccupancy, setSelectedOccupancy] = useState([]);
+const HostelFilterScreen = ({navigation, route}) => {
+  const {existingFilters} = route.params;
+  const onApplyFilter = route?.params?.onApplyFilter;
+
+
+  const [priceRange, setPriceRange] = useState(
+    existingFilters.priceRange || [100, 25000],
+  );
+
+  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 100);
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 25000);
+
+  const [selectedRoomTypes, setSelectedRoomTypes] = useState(existingFilters.selectedRoomTypes || '');
+  const [selectedGenders, setSelectedGenders] = useState(existingFilters.selectedGenders || '');
+  const [selectedFacilities, setSelectedFacilities] = useState(existingFilters.selectedFacilities || '');
+  const [selectedFoodOptions, setSelectedFoodOptions] = useState(existingFilters.selectedFoodOptions || '');
+  const [selectedStayTypes, setSelectedStayTypes] = useState(existingFilters.selectedStayTypes || '');
+  const [selectedOccupancy, setSelectedOccupancy] = useState(existingFilters.selectedOccupancy || '');
 
   const toggleSelection = (item, list, setList) => {
     if (list.includes(item)) {
@@ -32,6 +40,68 @@ const HostelFilterScreen = ({navigation}) => {
       setList([...list, item]);
     }
   };
+const handleValuesChange = values => {
+    setPriceRange(values);
+    setMinPrice(values[0]);
+    setMaxPrice(values[1]);
+  };
+
+  const handleReset = () => {
+    setPriceRange([100, 25000]);
+    setMinPrice(100);
+    setMaxPrice(25000);
+    setSelectedRoomTypes([]);
+    setSelectedGenders([]);
+    setSelectedFacilities([]);
+    setSelectedFoodOptions([]);
+    setSelectedStayTypes([]);
+    setSelectedOccupancy([]);
+    onApplyFilter({});
+    navigation.goBack();
+  };
+
+   const handleApply = () => {
+    const filters = {
+      minPrice,
+      maxPrice,
+      priceRange,
+      selectedRoomTypes,
+      selectedGenders,
+      selectedFacilities,
+      selectedFoodOptions,
+      selectedStayTypes,
+      selectedOccupancy,
+    };
+
+    if (onApplyFilter) onApplyFilter(filters);
+    navigation.goBack();
+  };
+ 
+  
+  const renderOptions = (label, options, selected, setSelected) => (
+  <FlatList
+    data={options}
+    keyExtractor={(item, index) => index.toString()}
+    numColumns={3}
+    contentContainerStyle={styles.optionRow}
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        style={[
+          styles.optionButton,
+          selected === item && styles.optionSelected,
+        ]}
+        onPress={() => setSelected(item)}>
+        <Text
+          style={[
+            styles.optionText,
+            selected === item && styles.optionTextSelected,
+          ]}>
+          {item}
+        </Text>
+      </TouchableOpacity>
+    )}
+  />
+);
 
   return (
     <View style={styles.container}>
@@ -48,10 +118,10 @@ const HostelFilterScreen = ({navigation}) => {
         <View style={{marginHorizontal: 10}}>
           <MultiSlider
             values={priceRange}
-            min={HOSTEL_FILTERS.priceRange.min}
-            max={HOSTEL_FILTERS.priceRange.max}
-            step={HOSTEL_FILTERS.priceRange.step}
-            onValuesChange={setPriceRange}
+            min={100}
+            max={25000}
+            step={10}
+            onValuesChange={handleValuesChange}
             selectedStyle={{backgroundColor: COLOR.primary}}
             markerStyle={{
               backgroundColor: COLOR.primary,
@@ -60,14 +130,14 @@ const HostelFilterScreen = ({navigation}) => {
             }}
           />
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.rangeText}> ₹{priceRange[0]}</Text>
-            <Text style={styles.rangeText}> ₹{priceRange[1]}</Text>
+            <Text style={styles.rangeText}> ₹{minPrice.toLocaleString()}</Text>
+            <Text style={styles.rangeText}> ₹{maxPrice.toLocaleString()}</Text>
           </View>
         </View>
         {/* Room Types */}
         <Text style={styles.sectionTitle}>Room Type</Text>
         <View style={styles.multiSelectContainer}>
-          {HOSTEL_FILTERS.roomTypes.map(option => (
+          {/* {HOSTEL_FILTERS.roomTypes.map(option => (
             <TouchableOpacity
               key={option}
               style={[
@@ -87,7 +157,14 @@ const HostelFilterScreen = ({navigation}) => {
                 {option}
               </Text>
             </TouchableOpacity>
-          ))}
+          ))} */}
+
+          {renderOptions(
+            'Room Type',
+            HOSTEL_FILTERS.roomTypes,
+            selectedRoomTypes,
+            setSelectedRoomTypes
+          )}
         </View>
 
         {/* Gender */}
@@ -228,10 +305,10 @@ const HostelFilterScreen = ({navigation}) => {
           ))}
         </View>
         <View style={styles.buttonRow}>
-          <CustomButton title="Apply" onPress={() => {}} />
+          <CustomButton title="Apply" onPress={handleApply} />
           <CustomButton
             title="Reset"
-            onPress={() => {}}
+            onPress={handleReset}
             style={{backgroundColor: COLOR.grey}}
           />
         </View>
@@ -243,6 +320,26 @@ const HostelFilterScreen = ({navigation}) => {
 export default HostelFilterScreen;
 
 const styles = StyleSheet.create({
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLOR.black,
+    marginBottom: 8,
+    marginTop: 12,
+  },
+  optionRow: {flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12},
+  optionButton: {
+    borderWidth: 1,
+    borderColor: COLOR.grey,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: COLOR.white,
+    marginRight: 10,
+  },
+  optionSelected: {backgroundColor: COLOR.primary, borderColor: COLOR.primary},
+  optionText: {color: COLOR.black},
+  optionTextSelected: {color: COLOR.white},
   container: {flex: 1, height: windowHeight, backgroundColor: COLOR.white},
   sectionTitle: {fontSize: 16, fontWeight: '600', marginVertical: 10},
   rangeText: {textAlign: 'center', marginBottom: 10, fontSize: 14},
