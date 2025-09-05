@@ -57,6 +57,12 @@ const Account = ({navigation}) => {
       navigate: 'MyBooking',
     },
     {
+      id: 10,
+      title: 'Bank Account Details',
+      icon: 'https://cdn-icons-png.flaticon.com/128/2830/2830289.png',
+      navigate: 'BankAccount',
+    },
+    {
       id: 3,
       title: 'Terms & Conditions',
       icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828940.png',
