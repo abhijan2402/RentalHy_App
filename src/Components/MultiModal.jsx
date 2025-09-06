@@ -18,8 +18,6 @@ const MultiModal = ({
 }) => {
   const [selectedFilters, setSelectedFilters] = useState(initialSelected);
 
-
-  // For price slider
   const [priceRange, setPriceRange] = useState([0, 100000]);
 
   useEffect(() => {
@@ -35,20 +33,20 @@ const MultiModal = ({
   }, [visible, initialSelected, filterValueData]);
 
   const toggleFilter = (filter, filterType) => {
-    const currentFilters = selectedFilters[filterType] || [];
+  const currentFilters = selectedFilters[filterType] || [];
 
-    let updatedFilters;
-    if (currentFilters.includes(filter)) {
-      updatedFilters = currentFilters.filter(f => f !== filter);
-    } else {
-      updatedFilters = [filter];
-    }
+  let updatedFilters;
+  if (currentFilters.includes(filter)) {
+    updatedFilters = currentFilters.filter(f => f !== filter);
+  } else {
+    updatedFilters = [...currentFilters, filter];
+  }
 
-    setSelectedFilters({
-      ...selectedFilters,
-      [filterType]: updatedFilters,
-    });
-  };
+  setSelectedFilters({
+    ...selectedFilters,
+    [filterType]: updatedFilters,
+  });
+};
 
   const handleApply = () => {
     let updated = {...selectedFilters};
@@ -72,7 +70,6 @@ const MultiModal = ({
             Select Filters : {filterValueData?.name}
           </Text>
 
-          {/* Price Slider */}
           {filterValueData?.type === 'price' ? (
             <View style={{marginBottom: 20}}>
               <Text style={{marginBottom: 10, fontSize: 16, fontWeight: '600'}}>
