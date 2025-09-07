@@ -29,7 +29,7 @@ const Booking = ({navigation, route}) => {
   const [pincode, setPincode] = useState('');
   const [attendees, setAttendees] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
-  const [dayTime, setDayTime] = useState('both');
+  const [dayTime, setDayTime] = useState('day');
   const [catering, setCatering] = useState('no');
   const [chef, setChef] = useState('no');
   const [decorations, setDecorations] = useState('no');
@@ -40,6 +40,10 @@ const Booking = ({navigation, route}) => {
 
 
 const handleBooking = async () => {
+  if(!name || !mobile || !address || !pincode || !attendees || !selectedDate || !dayTime || !amount){
+    showToast('Please fill all required fields.', "error");
+    return;
+  }
   setButtonLoader(true);
   const formData = new FormData();
   formData.append('full_name', name);
@@ -76,44 +80,49 @@ const handleBooking = async () => {
         return;
       }
 
-      // const options = {
-      //   description: 'Booking Payment',
-      //   image: 'https://your-logo-url.png',
-      //   currency: 'INR',
-      //   key: razorpay_key,
-      //   amount: amount * 100,
-      //   name: name,
-      //   order_id: order_id,
-      //   prefill: {
-      //     name: 'AJ Jan',
-      //     email: 'abhishek.jangid741@gmail.com',
-      //     contact: '7976114258' || '',
-      //   },
-      //   theme: { color: '#53a20e' },
-      // };
-
       const options = {
-          description: 'Service Payment',
-          image: 'https://your-logo-url.com/logo.png', 
-          currency: res?.data?.razorpay_order?.currency,
-          key: 'rzp_test_R9dwPMdn4Hg4my',
-          amount: amount * 100,
-          name: 'Your App Name',
-          order_id: order_id, 
-          prefill: {
-            email: 'abhishek.jangid741@gmail.com' || '',
-            contact: '7976114258' || '',
-            name: 'AJ Jan' || '',
-          },
-          theme: {color: '#3399cc'},
-        };
+        description: 'Booking Payment',
+        image: 'https://your-logo-url.png',
+        currency: 'INR',
+        key: razorpay_key,
+        amount: amount * 100,
+        name: name,
+        order_id: order_id,
+        prefill: {
+          name: 'AJ Jan',
+          email: 'abhishek.jangid741@gmail.com',
+          contact: '7976114258' || '',
+        },
+        theme: { color: '#53a20e' },
+      };
 
       try {
-        const paymentData = await RazorpayCheckout.open(options);
-        showToast('Payment Successful!', "success");
-        console.log('Payment success:', paymentData);
+        const paymentData = await RazorpayCheckout.open(options).then((data) => {
+          try{
 
-        navigation?.goBack();
+            const form = new FormData();
+            form.append('razorpay_order_id', data?.razorpay_order_id);
+            form.append('razorpay_payment_id', data?.razorpay_payment_id);
+            form.append('razorpay_signature', data?.razorpay_signature);
+
+            postRequest('public/api/property/verify-payment', form, true).then(verifyRes => {
+              if (verifyRes?.data?.status || verifyRes?.data?.success === 'success') {
+                console.log('Payment verified:', verifyRes.data);
+                showToast('Payment successful and verified!', "success");
+                navigation?.goBack();
+              } else {
+                showToast('Payment verification failed. Please contact support.', "error");
+              }
+            }).catch(verifyErr => {
+              console.error('Payment verification error:', verifyErr);
+              showToast('Payment verification error. Please contact support.', "error");
+            });
+          }catch(error){
+            console.error('Payment verification error:', error);
+          }
+        });
+        console.log('Payment success:', paymentData);
+        // navigation?.goBack();
       } catch (error) {
         console.error('Payment failed:', error);
         showToast('Payment failed. Please try again.', "error");

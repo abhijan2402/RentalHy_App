@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, Image, ScrollView, FlatList} from 'react-native';
+import {StyleSheet, Text, View, Image, FlatList, ActivityIndicator} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
@@ -19,7 +19,6 @@ export const BookingCard = ({booking}) => {
     }
   };
 
-
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
@@ -28,7 +27,7 @@ export const BookingCard = ({booking}) => {
           <Text style={styles.vendorName}>{booking.full_name}</Text>
           <Text style={styles.price}>{booking.amount}</Text>
         </View>
-        <Text style={[styles.status, {color: getStatusColor(booking.status) , textTransform: 'capitalize'}]}>
+        <Text style={[styles.status, {color: getStatusColor(booking.status), textTransform: 'capitalize'}]}>
           {booking.status}
         </Text>
       </View>
@@ -37,12 +36,7 @@ export const BookingCard = ({booking}) => {
         <Text style={styles.label}>📅 Date: {booking.booking_date}</Text>
         <Text style={styles.label}>👥 Attendees: {booking.number_of_attendess}</Text>
         <Text style={styles.label}>📍 Address: {booking.address}</Text>
-        <Text style={styles.label}>⏰ Slots:</Text>
-        {/* {booking.slots.map((slot, idx) => (
-          <Text key={idx} style={styles.slot}>
-            • {slot}
-          </Text>
-        ))} */}
+        {/* <Text style={styles.label}>⏰ Slots:</Text> */}
       </View>
     </View>
   );
@@ -52,14 +46,28 @@ const MyBooking = ({navigation}) => {
   const isFocus = navigation.isFocused();
   const {getRequest} = useApi();
   const [loader, setLoader] = useState(true);
-  const [bookings , setBookings] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-const getBooking = async () => {
-    setLoader(true);
-   await getRequest('public/api/payment_list')
+  const getBooking = async (pageNum = 1, append = false) => {
+    if (pageNum > lastPage) return;
+    if (append) setLoadingMore(true);
+    else setLoader(true);
+
+    await getRequest(`public/api/payment_list?page=${pageNum}`)
       .then(res => {
-        if (res.data.status || res.data.success) {
-          setBookings(res.data.data);
+        if (res.data.success) {
+          const apiData = res.data.data;
+          setLastPage(apiData.last_page);
+          setPage(apiData.current_page);
+
+          if (append) {
+            setBookings(prev => [...prev, ...apiData.data]);
+          } else {
+            setBookings(apiData.data);
+          }
         } else {
           alert(res.data.message || 'Failed to fetch bookings');
         }
@@ -68,23 +76,32 @@ const getBooking = async () => {
         console.error('Booking Error:', err);
         alert('An error occurred while fetching bookings');
       })
-      .finally(() => setLoader(false));
-  }
+      .finally(() => {
+        setLoader(false);
+        setLoadingMore(false);
+      });
+  };
 
   useEffect(() => {
-    if(isFocus){
-      getBooking();
+    if (isFocus) {
+      setPage(1);
+      getBooking(1, false);
     }
   }, [isFocus]);
 
-  if (loader) {
+  const loadMore = () => {
+    if (!loadingMore && page < lastPage) {
+      getBooking(page + 1, true);
+    }
+  };
+
+  if (loader && !loadingMore) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Text>Loading...</Text>
       </View>
     );
   }
-
 
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -94,7 +111,7 @@ const getBooking = async () => {
         onBackPress={() => navigation.goBack()}
       />
       <FlatList
-        data={bookings?.data || []}
+        data={bookings}
         keyExtractor={(item) => item.id?.toString()}
         renderItem={({ item }) => <BookingCard booking={item} />}
         contentContainerStyle={{ padding: 15 }}
@@ -104,6 +121,13 @@ const getBooking = async () => {
             <Text>No bookings found.</Text>
           </View>
         )}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? (
+            <ActivityIndicator size="small" color={COLOR.primary || '#007AFF'} style={{marginVertical: 15}} />
+          ) : null
+        }
       />
     </View>
   );

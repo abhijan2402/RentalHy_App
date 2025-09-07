@@ -7,109 +7,115 @@ import {
   ScrollView,
   Modal,
   TextInput,
+  ActivityIndicator,
+  FlatList,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../../../Components/FeedHeader';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
 
-const dummyOrders = [
-  {
-    id: '1',
-    propertyName: 'Grand Convention Hall',
-    image:
-      'https://kobe-cc.jp/kcc/wp-content/uploads/2017/10/img_01-6-1024x622.jpg',
-    customerName: 'Ramesh Kumar',
-    phone: '9876543210',
-    address: '123 MG Road, Bangalore',
-    slots: ['10:00 - 12:00', '12:00 - 2:00'],
-    price: '₹5000',
-    status: 'Pending',
-  },
-  {
-    id: '2',
-    propertyName: 'Green Farm House',
-    image: 'https://www.ahstatic.com/photos/9884_ho_00_p_1024x768.jpg',
-    customerName: 'Sita Devi',
-    phone: '9876500000',
-    address: '456 Ring Road, Delhi',
-    slots: ['Full Day'],
-    price: '₹12000',
-    status: 'Pending',
-  },
-];
-
-const OrderCard = ({order}) => {
+const OrderCard = ({ order, postRequest, showToast   }) => {
   const [status, setStatus] = useState(order.status);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [buttonLoader, setButtonLoader] = useState({type:'accept', loading: false});
+  const [modalVisible, setModalVisible] = useState({visible : false , orderId : null});
   const [rejectReason, setRejectReason] = useState('');
 
-  const handleAccept = () => {
-    setStatus('Accepted');
+  const handleAccept = async (order) => {
+    setButtonLoader({type:'accept', loading: true});
+    const res = await postRequest(`public/api/payments/${order.id}/accept`);
+    if (res.data.success || res.data.status) {
+      setStatus('accepted');
+      showToast('Order accepted successfully' , "success");
+    } else {
+      showToast(res.data.message || 'Failed to accept order' , "error");
+
+    }
+    setButtonLoader({type:'accept', loading: false});
   };
 
-  const handleReject = () => {
-    setModalVisible(true);
+  const handleReject = (order) => {
+    setModalVisible({visible : true , orderId : order.id});
   };
 
-  const submitReject = () => {
-    setStatus(`Cancelled: ${rejectReason || 'No reason provided'}`);
-    setModalVisible(false);
+  const submitReject = async () => {
+    if(!rejectReason.trim()) {
+      showToast('Please provide a reason for rejection' , "error");
+      return;
+    }
+    setModalVisible({visible : false , orderId : null});
     setRejectReason('');
+    setButtonLoader({type:'reject', loading: true});
+    const formData = new FormData();
+    formData.append('reason', rejectReason || 'No reason provided');
+    const res = await postRequest(`public/api/payments/${modalVisible.orderId}/reject`, formData , true);
+    console.log('Reject Response:', res);
+    if (res.data.success || res.data.status) {
+      setStatus('cancelled');
+      showToast('Order rejected successfully' , "success");
+    } else {
+      showToast(res.data.message || 'Failed to reject order' , "error");
+
+    }
+    setButtonLoader({type:'reject', loading: false});
   };
 
   return (
     <View style={styles.card}>
-      {/* Property & Price */}
       <View style={styles.cardHeader}>
-        <Image source={{uri: order.image}} style={styles.image} />
-        <View style={{flex: 1, marginLeft: 10}}>
-          <Text style={styles.propertyName}>{order.propertyName}</Text>
-          <Text style={styles.price}>{order.price}</Text>
+        <Image source={{ uri: order?.convention_hall?.type_images[0]?.image_url || '' }} style={styles.image} />
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={styles.propertyName}>{order?.convention_hall?.title}</Text>
+          <Text style={styles.price}>{order?.amount}</Text>
           <Text
             style={[
               styles.status,
-              status === 'Accepted'
-                ? {color: 'green'}
-                : status.includes('Cancelled')
-                ? {color: 'red'}
-                : {color: '#e67e22'},
+              status === 'accepted' || status === 'success'
+                ? { color: 'green' }
+                : status.includes('cancelled')
+                  ? { color: 'red' }
+                  : { color: '#e67e22' },
+                  {textTransform: 'capitalize'}
             ]}>
             Status: {status}
           </Text>
         </View>
       </View>
 
-      {/* Customer Details */}
+
       <View style={styles.details}>
-        <Text style={styles.label}>Customer: {order.customerName}</Text>
-        <Text style={styles.label}>Phone: {order.phone}</Text>
+        <Text style={styles.label}>Customer: {order.full_name}</Text>
+        <Text style={styles.label}>Phone: {order.mobail_number}</Text>
         <Text style={styles.label}>Address: {order.address}</Text>
-        <Text style={styles.label}>Slots:</Text>
-        {order.slots.map((slot, idx) => (
+        {/* <Text style={styles.label}>Slots:</Text> */}
+        {/* {order.slots.map((slot, idx) => (
           <Text key={idx} style={styles.slot}>
             • {slot}
           </Text>
-        ))}
+        ))} */}
       </View>
 
-      {/* Action Buttons */}
-      {status === 'Pending' && (
+      {status === 'pending' && (
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.acceptBtn} onPress={handleAccept}>
-            <Text style={styles.btnText}>Accept</Text>
+          <TouchableOpacity style={styles.acceptBtn} onPress={()  => handleAccept(order)} disabled={buttonLoader.loading && buttonLoader.type === 'accept'}>
+            {buttonLoader.loading && buttonLoader.type === 'accept' ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Accept</Text>
+            )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.rejectBtn} onPress={handleReject}>
+          <TouchableOpacity style={styles.rejectBtn} onPress={() => handleReject(order)} disabled={buttonLoader.loading && buttonLoader.type === 'reject'}>
             <Text style={styles.btnText}>Reject</Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Reject Modal */}
       <Modal
         transparent={true}
-        visible={modalVisible}
+        visible={modalVisible?.visible ? true : false}
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={() => setModalVisible({visible : false , orderId : null})}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Reason for Rejection</Text>
@@ -137,19 +143,97 @@ const OrderCard = ({order}) => {
   );
 };
 
-const SpaceOrders = ({navigation}) => {
+const SpaceOrders = ({ navigation }) => {
+
+  const [dummyOrders, setDummyOrders] = useState([]);
+  const isFocus = navigation.isFocused();
+  const { getRequest , postRequest } = useApi();
+  const {showToast} = useToast();
+  const [loader, setLoader] = useState(true);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const getBooking = async (pageNum = 1, append = false) => {
+    if (pageNum > lastPage) return;
+    if (append) setLoadingMore(true);
+    else setLoader(true);
+
+    await getRequest(`public/api/vendor/payment_list?page=${pageNum}`)
+      .then(res => {
+        if (res.data.success) {
+          const apiData = res.data.data;
+          setLastPage(apiData.last_page);
+          setPage(apiData.current_page);
+
+          if (append) {
+            setDummyOrders(prev => [...prev, ...apiData.data]);
+          } else {
+            setDummyOrders(apiData.data);
+          }
+        } else {
+          alert(res.data.message || 'Failed to fetch bookings');
+        }
+      })
+      .catch(err => {
+        console.error('Booking Error:', err);
+        alert('An error occurred while fetching bookings');
+      })
+      .finally(() => {
+        setLoader(false);
+        setLoadingMore(false);
+      });
+  };
+
+  useEffect(() => {
+    if (isFocus) {
+      setPage(1);
+      getBooking(1, false);
+    }
+  }, [isFocus]);
+
+  const loadMore = () => {
+    if (!loadingMore && page < lastPage) {
+      getBooking(page + 1, true);
+    }
+  };
+
+  if (loader && !loadingMore) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <Header
         title={'Space Orders'}
         showBack
         onBackPress={() => navigation.goBack()}
       />
-      <ScrollView contentContainerStyle={{padding: 15}}>
-        {dummyOrders.map(order => (
-          <OrderCard key={order.id} order={order} />
-        ))}
-      </ScrollView>
+
+      <FlatList
+        data={dummyOrders}
+        keyExtractor={(item) => item.id?.toString()}
+        renderItem={({ item }) => <OrderCard key={item.id} order={item} postRequest={postRequest} showToast={showToast} />}
+        contentContainerStyle={{ padding: 15 }}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+            <Text>No Order found.</Text>
+          </View>
+        )}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          loadingMore ? (
+            <ActivityIndicator size="small" color={COLOR.primary || '#007AFF'} style={{ marginVertical: 15 }} />
+          ) : null
+        }
+      />
     </View>
   );
 };
