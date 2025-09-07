@@ -129,7 +129,7 @@ const ConventionHall = ({
           navigation.navigate('PropertyDetail', {type: 'convention', propertyData: item});
         }
       }}
-      onBook={() => navigation.navigate('Booking', {type: 'convention'})}
+      onBook={() => navigation.navigate('Booking', {type: 'convention' , propertyData: item?.id})}
     />
   );
 

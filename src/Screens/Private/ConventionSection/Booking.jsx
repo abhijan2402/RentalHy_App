@@ -11,13 +11,19 @@ import {Calendar} from 'react-native-calendars';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
+import GooglePlacePicker from '../../../Components/GooglePicker';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
+import RazorpayCheckout from 'react-native-razorpay';
 
 const Booking = ({navigation, route}) => {
+  const {postRequest} = useApi();
+  const {showToast} = useToast();
   const type = route?.params?.type;
-  console.log(type, 'TYPPPE');
-
   const [name, setName] = useState('');
+  const [buttonLoader, setButtonLoader] = useState(false);
   const [mobile, setMobile] = useState('');
+  const [amount, setAmount] = useState('');
   const [altMobile, setAltMobile] = useState('');
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
@@ -30,41 +36,99 @@ const Booking = ({navigation, route}) => {
   const [groceries, setGroceries] = useState('no');
   const [PhotographersReq, setPhotographersReq] = useState('no');
   const [comments, setComments] = useState('');
+  const today = new Date().toISOString().split('T')[0];
 
-  const today = new Date().toISOString().split('T')[0]; // today's date in YYYY-MM-DD
 
-  const handleBooking = () => {
-    navigation.navigate('PostBookPage');
-    return;
-    if (
-      !name ||
-      !mobile ||
-      !address ||
-      !pincode ||
-      !attendees ||
-      !selectedDate
-    ) {
-      alert('Please fill all required fields!');
-      return;
+const handleBooking = async () => {
+  setButtonLoader(true);
+  const formData = new FormData();
+  formData.append('full_name', name);
+  formData.append('mobail_number', mobile);
+  formData.append('alt_number', altMobile);
+  formData.append('address', address?.address || '');
+  formData.append('pin_code', pincode);
+  formData.append('number_of_attendess', attendees);
+  formData.append('booking_date', selectedDate);
+  formData.append('event_time', dayTime);
+  formData.append('property_id', route?.params?.propertyData || '');
+  formData.append('catering_needed', catering === 'yes' ? 1 : 0);
+  formData.append('chef_needed', chef === 'yes' ? 1 : 0);
+  formData.append('decore_needed', decorations === 'yes' ? 1 : 0);
+  formData.append('groceries_needed', groceries === 'yes' ? 1 : 0);
+  formData.append('photograper_needed', PhotographersReq === 'yes' ? 1 : 0);
+  formData.append('comment', comments);
+  formData.append('amount', amount);
+  if (address?.lat) formData.append('lat', address?.lat);
+  if (address?.lng) formData.append('lng', address?.lng);
+
+  try {
+    const res = await postRequest('public/api/book-property/create-order', formData, true);
+    setButtonLoader(false);
+
+    if (res?.data?.status || res?.data?.success === true) {
+      showToast('Booking successful! Proceeding to payment...', "success");
+      const { order_id, razorpay_key } = res.data;
+
+      console.log('Order ID:', order_id, 'Key:', razorpay_key);
+
+      if (!order_id || !razorpay_key) {
+        showToast('Payment setup failed. Missing order details.', "error");
+        return;
+      }
+
+      // const options = {
+      //   description: 'Booking Payment',
+      //   image: 'https://your-logo-url.png',
+      //   currency: 'INR',
+      //   key: razorpay_key,
+      //   amount: amount * 100,
+      //   name: name,
+      //   order_id: order_id,
+      //   prefill: {
+      //     name: 'AJ Jan',
+      //     email: 'abhishek.jangid741@gmail.com',
+      //     contact: '7976114258' || '',
+      //   },
+      //   theme: { color: '#53a20e' },
+      // };
+
+      const options = {
+          description: 'Service Payment',
+          image: 'https://your-logo-url.com/logo.png', 
+          currency: res?.data?.razorpay_order?.currency,
+          key: 'rzp_test_R9dwPMdn4Hg4my',
+          amount: amount * 100,
+          name: 'Your App Name',
+          order_id: order_id, 
+          prefill: {
+            email: 'abhishek.jangid741@gmail.com' || '',
+            contact: '7976114258' || '',
+            name: 'AJ Jan' || '',
+          },
+          theme: {color: '#3399cc'},
+        };
+
+      try {
+        const paymentData = await RazorpayCheckout.open(options);
+        showToast('Payment Successful!', "success");
+        console.log('Payment success:', paymentData);
+
+        navigation?.goBack();
+      } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.', "error");
+      }
+
+    } else {
+      showToast('Booking failed. Please try again.', "error");
     }
-    const summary = `
-Booking Requested!
-Name: ${name}
-Mobile: ${mobile}
-Alt Mobile: ${altMobile || 'N/A'}
-Address: ${address}
-Pincode: ${pincode}
-Attendees: ${attendees}
-Date: ${selectedDate}
-Event Time: ${dayTime.toUpperCase()}
-Catering: ${catering.toUpperCase()}
-Chef: ${chef.toUpperCase()}
-Decorations: ${decorations.toUpperCase()}
-Groceries: ${groceries.toUpperCase()}
-    `;
-    alert(summary);
-    // Later send API request here
-  };
+  } catch (err) {
+    setButtonLoader(false);
+    console.error('Booking API error:', err);
+    showToast('An error occurred. Please try again.', "error");
+  }
+};
+
 
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -97,6 +161,7 @@ Groceries: ${groceries.toUpperCase()}
           />
         </View>
 
+       
         {/* Alt Mobile */}
         <View style={styles.section}>
           <Text style={styles.label}>Alternate Mobile Number</Text>
@@ -109,15 +174,24 @@ Groceries: ${groceries.toUpperCase()}
           />
         </View>
 
+          <View style={styles.section}>
+          <Text style={styles.label}>Amount</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter amount"
+            value={amount}
+            onChangeText={setAmount}
+            keyboardType="numeric"
+          />
+        </View>
+
+
         {/* Address */}
         <View style={styles.section}>
           <Text style={styles.label}>Address</Text>
-          <TextInput
-            style={[styles.input, {height: 80, textAlignVertical: 'top'}]}
-            placeholder="Enter full address"
-            value={address}
-            onChangeText={setAddress}
-            multiline
+          <GooglePlacePicker
+            placeholder="Select Address"
+            onPlaceSelected={setAddress}
           />
         </View>
 
@@ -352,7 +426,7 @@ Groceries: ${groceries.toUpperCase()}
       </ScrollView>
 
       {/* Book Now Button */}
-      <CustomButton title={'Book Now'} onPress={handleBooking} />
+      <CustomButton title={'Book Now'} onPress={handleBooking} loading={buttonLoader} />
     </View>
   );
 };
