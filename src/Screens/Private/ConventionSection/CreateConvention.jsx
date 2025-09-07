@@ -19,7 +19,7 @@ import GooglePlacePicker from '../../../Components/GooglePicker';
 
 const getYears = () => {
   const currentYear = new Date().getFullYear();
-  return [currentYear + 1, currentYear + 2]; // show only next 2 years
+  return [currentYear + 1, currentYear + 2]; 
 };
 
 const months = [
@@ -40,6 +40,7 @@ const months = [
 const CreateConvention = ({navigation}) => {
    const {postRequest} = useApi();
    const {showToast} = useToast();
+   const [loading, setLoading] = useState(false);
   // Images
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
@@ -238,31 +239,8 @@ const CreateConvention = ({navigation}) => {
   };
 
     const postSpace = async () => {
-    // const payload = {
-    //   title,
-    //   description,
-    //   prices,
-    //   capacity,
-    //   parking: parkingAvailable === 'yes' ? {cars, bikes, buses, valet} : null,
-    //   facilities: {
-    //     royaltyDecoration,
-    //     decorationContact,
-    //     royaltyKitchen,
-    //     generator,
-    //     normalWater,
-    //     drinkingWater,
-    //     catering,
-    //   },
-    //   images: {hallImages, kitchenImages, parkingImages},
-    //   slots,
-    // };
-    // console.log(payload);
-    // alert(
-    //   'Hall / Farm Submitted for admin Approval, after approval it will Display.   If any, please contact admin through WhatsApp (+91 7674036244)',
-    // );
-
+    setLoading(true);
     const formData = new FormData();
-
     formData.append("title", title);
     formData.append("description", description);
     formData.append("seating_capacity", capacity);
@@ -282,8 +260,6 @@ const CreateConvention = ({navigation}) => {
     formData.append("alcohol_allowed", alcoholAllowed === true ? 1 : 0);
 
     formData.append("hall_type", "hall");
-
-    // 🔥 Append all price options dynamically
     const normalizeKey = str =>
       str
         .toLowerCase()
@@ -299,7 +275,6 @@ const CreateConvention = ({navigation}) => {
       }
     });
 
-    // 🔥 Append dynamic "Any Other" rows
     rows.forEach(row => {
       if (row.field && row.value) {
         formData.append(`${normalizeKey(row.field)}_price`, row.value);
@@ -311,37 +286,8 @@ const CreateConvention = ({navigation}) => {
       formData.append('long', address.lng);
     }
 
-    // ... keep your other existing static appends
-    // formData.append("swimming_pool", "1");
-    // formData.append("food_available", "0");
-    // formData.append("outside_food_allowed", "1");
-    // formData.append("cctv_available", "1");
-    // formData.append("sound_system_available", "0");
-    // formData.append("sound_system_allowed", "1");
-    // formData.append("adult_games", "0");
-    // formData.append("kitchen_setup", "1");
-    // formData.append("free_cancellation", "1");
-    // formData.append("pay_later", "0");
-    // formData.append("child_pool", "1");
-    // formData.append("security_guard", "1");
-    // formData.append("pet_friendly", "0");
-    // formData.append("breakfast_included", "1");
-    // formData.append("restaurant", "0");
-    // formData.append("cafeteria", "1");
-    // formData.append("elevator", "1");
-    // formData.append("reception_24_hours", "0");
-    // formData.append("gym_available", "1");
-    // formData.append("tv_available", "1");
-    // formData.append("meeting_room", "0");
-    // formData.append("free_wifi", "1");
-    // formData.append("play_ground", "1");
-    // formData.append("refrigerator", "0");
-    // formData.append("wellness_centre", "1");
-    // formData.append("wheel_chair_access", "1");
-    // formData.append("pool_party_price", "11000");
-
     hallImages.forEach((img, index) => {
-      formData.append(`hall_images[${index}]`, {
+      formData.append( uploadType == "Farm House" ? `main_images[${index}]` : `hall_images[${index}]`, {
         uri: img.uri,
         type: img.type || 'image/jpeg',
         name: img.name || `hall_image_${index}.jpg`,
@@ -373,164 +319,33 @@ const CreateConvention = ({navigation}) => {
       });
     });
 
+    roomImages.forEach((img, index) => {
+      formData.append(`room_images[${index}]`, {
+        uri: img.uri,
+        type: img.type || 'image/jpeg',
+        name: img.name || `room_image_${index}.jpg`,
+      });
+    });
 
- const response = await postRequest(
-      'public/api/hall_add/hall',
-      formData,
-      true,
-    );
+    
+
+    let url = uploadType === "Farm House" ? "farm" : "hall";
+
+      const response = await postRequest(
+        `public/api/hall_add/${url}`,
+        formData,
+        true,
+      );
 
     if (response?.data?.success == true) {
       showToast(response?.data?.message, 'success');
-      // setLoading(false);
+      setLoading(false);
       navigation?.goBack();
     }
-    // setLoading(false);
+    setLoading(false);
 
 
   };
-
-  // const postSpace = () => {
-  //   const payload = {
-  //     title,
-  //     description,
-  //     prices,
-  //     capacity,
-  //     parking: parkingAvailable === 'yes' ? {cars, bikes, buses, valet} : null,
-  //     facilities: {
-  //       royaltyDecoration,
-  //       decorationContact,
-  //       royaltyKitchen,
-  //       generator,
-  //       normalWater,
-  //       drinkingWater,
-  //       catering,
-  //     },
-  //     images: {hallImages, kitchenImages, parkingImages},
-  //     slots,
-  //   };
-  //   console.log(payload);
-  //   alert(
-  //     'Hall / Farm Submitted for admin Approval, after approval it will Display.   If any, please contact admin through WhatsApp (+91 7674036244)',
-  //   );
-
-
-
-  //   const formData = new FormData();
-
-  //     formData.append("title", title);
-  //     formData.append("description", description);
-  //     formData.append("seating_capacity", capacity);
-  //     formData.append("ac_available", acAvailable === "yes" ? 1 : 0);
-  //     formData.append("royalty_decoration", royaltyDecoration === "yes" ? 1 : 0);
-  //     formData.append("hall_decorator_name", decorationContact);
-  //     formData.append("hall_decorator_number", decorationContact);
-  //     formData.append("royalty_kitchen", royaltyKitchen === "yes" ? 1 : 0);
-  //     formData.append("generator_available", generator === "yes" ? 1 : 0);
-  //     formData.append("water_for_cooking", normalWater === "yes" ? 1 : 0);
-  //     formData.append("drinking_water_available", drinkingWater === "yes" ? 1 : 0);
-  //     formData.append("provides_catering_persons", catering === "yes" ? 1 : 0);
-  //     formData.append("photographers_required", PhotographersReq === "yes" ? 1 : 0);
-  //     formData.append("children_games", childrenGames === "yes" ? 1 : 0);
-  //     formData.append("parking_available", parkingAvailable === "yes" ? 1 : 0);
-  //     formData.append("parking_guard", parkingGuard === "yes" ? 1 : 0);
-  //     formData.append("alcohol_allowed", alcoholAllowed === true ? 1 : 0);
-
-  //     formData.append("hall_type", "hall");
-  //     formData.append("other[price]", "now we");
-
-  //     // Event prices (commented for now, uncomment if required)
-  //     // formData.append("wedding_price", "900");
-  //     // formData.append("wedding_anniversary_price", "1000");
-  //     // formData.append("wedding_reception_price", "1938");
-  //     // formData.append("birthday_party_price", "187");
-  //     // formData.append("ring_ceremony_price", "727");
-  //     // formData.append("engagement_price", "7276");
-  //     // formData.append("family_function_price", "222");
-  //     // formData.append("first_birthday_party_price", "7272");
-  //     // formData.append("naming_ceremony_price", "8282");
-  //     // formData.append("sangeet_ceremony_price", "982");
-  //     // formData.append("baby_shower_price", "8292");
-  //     // formData.append("bride_shower_price", "9292");
-  //     // formData.append("kids_party_price", "7727");
-  //     // formData.append("dhoti_ceremony_price", "76775");
-  //     // formData.append("upanayan_price", "5000");
-  //     // formData.append("corporate_event_price", "15000");
-  //     // formData.append("corporate_party_price", "12000");
-  //     // formData.append("farewell_price", "8000");
-  //     // formData.append("stage_event_price", "10000");
-  //     // formData.append("children_party_price", "6000");
-  //     // formData.append("annual_party_price", "18000");
-  //     // formData.append("family_get_together_price", "7000");
-  //     // formData.append("new_year_price", "20000");
-  //     // formData.append("brand_promotion_price", "25000");
-  //     // formData.append("fresher_party_price", "9000");
-  //     // formData.append("get_together_price", "6500");
-  //     // formData.append("meeting_price", "4000");
-  //     // formData.append("conference_price", "22000");
-  //     // formData.append("diwali_party_price", "14000");
-  //     // formData.append("kitty_party_price", "5000");
-  //     // formData.append("bachelor_party_price", "10000");
-  //     // formData.append("christmas_party_price", "13000");
-  //     // formData.append("product_launch_party_price", "30000");
-  //     // formData.append("corporate_offsite_price", "28000");
-  //     // formData.append("lohri_party_price", "7000");
-  //     // formData.append("class_reunion_price", "8500");
-  //     // formData.append("valentines_day_party_price", "12000");
-  //     // formData.append("dealer_meet_price", "15000");
-  //     // formData.append("house_party_price", "5500");
-  //     // formData.append("mini_party_price", "4000");
-  //     // formData.append("group_dining_price", "7500");
-  //     // formData.append("adventure_party_price", "16000");
-  //     // formData.append("residence_price", "6000");
-  //     // formData.append("corporate_training_price", "20000");
-  //     // formData.append("business_dining_price", "11000");
-  //     // formData.append("musical_party_price", "17000");
-  //     // formData.append("exhibition_price", "25000");
-  //     // formData.append("cocktail_price", "9000");
-  //     // formData.append("holi_party_price", "10000");
-  //     // formData.append("team_outing_price", "14000");
-  //     // formData.append("social_mixer_price", "9500");
-  //     // formData.append("photo_shoot_price", "12000");
-  //     // formData.append("fashion_show_price", "26000");
-  //     // formData.append("team_building_price", "18000");
-  //     // formData.append("training_price", "20000");
-  //     // formData.append("aqeeqah_ceremony_price", "8000");
-  //     // formData.append("video_shoot_price", "15000");
-  //     // formData.append("walking_interview_price", "6000");
-  //     // formData.append("game_night_price", "7000");
-
-  //     formData.append("swimming_pool", "1");
-  //     formData.append("food_available", "0");
-  //     formData.append("outside_food_allowed", "1");
-  //     formData.append("cctv_available", "1");
-  //     formData.append("sound_system_available", "0");
-  //     formData.append("sound_system_allowed", "1");
-  //     formData.append("adult_games", "0");
-  //     formData.append("kitchen_setup", "1");
-  //     formData.append("free_cancellation", "1");
-  //     formData.append("pay_later", "0");
-  //     formData.append("child_pool", "1");
-  //     formData.append("security_guard", "1");
-  //     formData.append("pet_friendly", "0");
-  //     formData.append("breakfast_included", "1");
-  //     formData.append("restaurant", "0");
-  //     formData.append("cafeteria", "1");
-  //     formData.append("elevator", "1");
-  //     formData.append("reception_24_hours", "0");
-  //     formData.append("gym_available", "1");
-  //     formData.append("tv_available", "1");
-  //     formData.append("meeting_room", "0");
-  //     formData.append("free_wifi", "1");
-  //     formData.append("play_ground", "1");
-  //     formData.append("refrigerator", "0");
-  //     formData.append("wellness_centre", "1");
-  //     formData.append("wheel_chair_access", "1");
-  //     formData.append("pool_party_price", "11000");
-
-  // };
-
-
   
 
   const renderImagePicker = (label, imagesArray, setter) => (
@@ -895,7 +710,7 @@ const CreateConvention = ({navigation}) => {
               </View>
             )}
 
-            {renderToggle('Outside Food Allowed', outsideFood, setOutsideFood)}
+            {/* {renderToggle('Outside Food Allowed', outsideFood, setOutsideFood)} */}
 
             {renderToggle('CCTV Available', cctv, setCctv)}
 
@@ -1092,6 +907,7 @@ const CreateConvention = ({navigation}) => {
           title={
             uploadType !== 'Farm House' ? 'Post Convention Hall' : 'Post Farm'
           }
+          loading={loading}
           onPress={postSpace}
         />
       </ScrollView>

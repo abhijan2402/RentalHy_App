@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,8 +12,17 @@ import {
 } from 'react-native';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
+import { useApi } from '../../../Backend/Api';
+import { AuthContext } from '../../../Backend/AuthContent';
 
-const Chat = ({navigation}) => {
+const Chat = ({navigation , route}) => {
+  const {receiver_id} = route?.params;
+
+  console.log(receiver_id,"receiver_idreceiver_id")
+  const {user} = useContext(AuthContext);
+  const userid = user?.id;
+  const isfocus = navigation.isFocused();
+  const {getRequest , postRequest} = useApi();
   const [messages, setMessages] = useState([
     {id: '1', text: 'Hi there!', sender: 'other'},
     {id: '2', text: 'Hello! How are you?', sender: 'me'},
@@ -25,8 +34,20 @@ const Chat = ({navigation}) => {
   ]);
   const [inputText, setInputText] = useState('');
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputText.trim()) return;
+    const formData = new FormData();
+    formData.append('message', inputText);
+    formData.append('receiver_id', receiver_id);
+    await postRequest('public/api/chat/send', formData , true).then(res => {
+      console.log(res?.data);
+      if(res?.data?.status === true || res?.data?.status === 'true') {
+        getChatMessage(userid);
+      }
+    }).catch(err => {
+      console.log(err);
+    })
+
     setMessages(prev => [
       ...prev,
       {id: Date.now().toString(), text: inputText, sender: 'me'},
@@ -35,17 +56,36 @@ const Chat = ({navigation}) => {
   };
 
   const renderItem = ({item}) => {
-    const isMe = item.sender === 'me';
+    const isMe = item.sender_id === userid;
+  console.log('Messages', isMe);
+
     return (
       <View
         style={[
           styles.messageContainer,
           isMe ? styles.myMessage : styles.otherMessage,
         ]}>
-        <Text style={styles.messageText}>{item.text}</Text>
+        <Text style={styles.messageText}>{item.message}</Text>
       </View>
     );
   };
+
+
+
+  const getChatMessage = async (userid) =>  {
+    try {
+      const response = await getRequest(`public/api/chat/conversation/${userid}`);
+      setMessages(response?.data?.data);
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+    }
+  }
+
+  useEffect(() => {
+    if(userid) {
+      getChatMessage(userid);
+    }
+  }, [userid , isfocus]);
 
   return (
     <KeyboardAvoidingView

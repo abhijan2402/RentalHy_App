@@ -273,6 +273,38 @@ const ConventionHall = ({
             tintColor={COLOR.primary} // iOS
           />
         }
+         ListEmptyComponent={() => {
+          if (!loader) {
+            return (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 50,
+                }}>
+                <Image
+                  source={{
+                    uri: 'https://cdn-icons-png.flaticon.com/128/4076/4076549.png',
+                  }}
+                  style={{width: 100, height: 100, tintColor: '#ccc'}}
+                />
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: '#666',
+                    marginTop: 10,
+                    textAlign: 'center',
+                    paddingHorizontal: 20,
+                  }}>
+                  No Convention Hall Found{'\n'}Try adjusting your filters or search
+                  criteria.
+                </Text>
+              </View>
+            );
+          }
+          return null;
+        }}
         ListFooterComponent={
           loadingMore ? (
             <View style={{padding: 16}}>
@@ -285,36 +317,56 @@ const ConventionHall = ({
   );
 };
 
-const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
-  const farms = [
-    {
-      id: 1,
-      image:
-        'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=60',
-      title: 'Green Valley Farm',
-      description: 'Peaceful farmhouse surrounded by greenery.',
-      location: 'Hilltop Area',
-      capacity: 200,
-      price: 1500,
-      priceType: 'per day',
-      ac: true,
-    },
-    {
-      id: 2,
-      image:
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=60',
-      title: 'Sunset Farm',
-      description: 'Perfect weekend getaway with scenic sunset views.',
-      location: 'Countryside Road',
-      capacity: 150,
-      price: 400,
-      priceType: 'per hour',
-      ac: false,
-    },
-  ];
+const FarmHouse = ({
+  navigation,
+  onPressSort,
+  onPressFilter,
+  currentStatus,
+  setShowModal,
+  avaialbleFilter,
+  setavaialbleFilter,
+  attendedFilter,
+  setAttendedFilter,
+  multiFilter,
+  setMultiFilter,
+  data,
+  onHandleMore,
+  loader,
+  loadingMore,
+  GetProperties,
+  setAppliedFilters,
+  setSearchQuery,
+  setSortQuery,
+  appliedFilters,
+  searchQuery,
+  sortQuery,
+  AppliedModalFilter,
+  setAppliedModalFilter
 
+}) => {
+   const renderHall = ({item}) => (
+    <HallCard
+      key={item.id}
+      image={item?.images_grouped}
+      title={item?.title}
+      description={item?.description}
+      location={item?.location}
+      capacity={item?.seating_capacity}
+      price={item}
+      priceType={item?.priceType}
+      ac={item.ac_available}
+      onPress={() => {
+        if (currentStatus === -1) {
+          setShowModal(true);
+        } else {
+          navigation.navigate('PropertyDetail', {type: 'convention', propertyData: item});
+        }
+      }}
+      onBook={() => navigation.navigate('Booking', {type: 'convention' , propertyData: item?.id})}
+    />
+  );
   return (
-    <ScrollView style={styles.content}>
+    <View style={styles.content}>
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -323,10 +375,13 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           style={styles.searchIcon}
         />
         <TextInput
-          placeholder="Search Farm "
+          placeholder="Search Convention Halls or Location"
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
+          onChangeText={setSearchQuery}
+          value={searchQuery}
         />
+
         <TouchableOpacity onPress={onPressSort}>
           <Image
             source={{
@@ -343,11 +398,7 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
             style={styles.filterIcon}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          // onPress={() =>
-          //   navigation.navigate('Filter', {onApplyFilter: handleFilterChange})
-          // }
-          onPress={onPressFilter}>
+        <TouchableOpacity onPress={onPressFilter}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
@@ -356,28 +407,76 @@ const FarmHouse = ({navigation, onPressSort, onPressFilter}) => {
           />
         </TouchableOpacity>
       </View>
-      {farms.map(farm => (
-        <HallCard
-          key={farm.id}
-          image={farm.image}
-          title={farm.title}
-          description={farm.description}
-          location={farm.location}
-          capacity={farm.capacity}
-          price={farm.price}
-          priceType={farm.priceType}
-          ac={farm.ac}
-          onBook={() => navigation.navigate('Booking', {type: 'farmHouse'})}
-          onPress={() => {
-            if (currentStatus == -1) {
-              setShowModal(true);
-            } else {
-              navigation.navigate('PropertyDetail', {type: 'convention'});
-            }
-          }}
-        />
-      ))}
-    </ScrollView>
+      <FlatList
+        data={data}
+        keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
+        renderItem={renderHall}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 20}}
+        onEndReached={onHandleMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={loader}
+            onRefresh={() => {
+              setSortQuery(null);
+              setAppliedFilters({});
+              setAppliedModalFilter({});
+              setAttendedFilter(null);
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+              );
+            }}
+            colors={[COLOR.primary]}
+            tintColor={COLOR.primary} 
+          />
+        }
+        ListEmptyComponent={() => {
+          if (!loader) {
+            return (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 50,
+                }}>
+                <Image
+                  source={{
+                    uri: 'https://cdn-icons-png.flaticon.com/128/4076/4076549.png',
+                  }}
+                  style={{width: 100, height: 100, tintColor: '#ccc'}}
+                />
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: '#666',
+                    marginTop: 10,
+                    textAlign: 'center',
+                    paddingHorizontal: 20,
+                  }}>
+                  No Farm House Found{'\n'}Try adjusting your filters or search
+                  criteria.
+                </Text>
+              </View>
+            );
+          }
+          return null;
+        }}
+        ListFooterComponent={
+          loadingMore ? (
+            <View style={{padding: 16}}>
+              <ActivityIndicator size="small" color={COLOR.primary} />
+            </View>
+          ) : null
+        }
+      />
+    </View>
   );
 };
 
@@ -389,7 +488,7 @@ const Convention = ({navigation, route}) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastPage, setLastPage] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState('convention'); // default tab
+  const [activeTab, setActiveTab] = useState('convention');
   const [sortVisible, setSortVisible] = useState(false);
   const [tabLoader, settabLoader] = useState(false);
   const [defaultIndex, setdefaultIndex] = useState(type == 'farm' ? 3 : 2);
@@ -467,6 +566,7 @@ const Convention = ({navigation, route}) => {
   ];
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
+    setActiveTab(newFilters?.activeTab || 'farmhouse');
   };
   const isFocus = useIsFocused();
 
@@ -488,9 +588,9 @@ const Convention = ({navigation, route}) => {
 
   useEffect(() => {
     if (isFocus) {
-      GetProperties(1, false, appliedFilters, '', false);
+      GetProperties(1, false, appliedFilters, '', false , activeTab);
     }
-  }, [isFocus]);
+  }, [isFocus , activeTab]);
 
   const buildFormData = (
     filters,
@@ -587,12 +687,14 @@ const Convention = ({navigation, route}) => {
     search = searchQuery,
     sort = sortQuery,
     isDynamic = false,
+    activeTab = 'convention',
   ) => {
     if (pageNum === 1) settabLoader(true);
     else setLoadingMore(true);
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
+    let url = activeTab == 'convention' ? 'public/api/hall_listing' : 'public/api/farm_listing';
     const response = await postRequest(
-      'public/api/hall_listing',
+      url,
       formData,
       true,
     );
@@ -612,8 +714,9 @@ const Convention = ({navigation, route}) => {
   };
 
   useEffect(() => {
-    GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false);
-  }, [appliedFilters, searchQuery, sortQuery, currentAddress]);
+    GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, activeTab);
+  }, [appliedFilters, searchQuery, sortQuery, currentAddress , activeTab]);
+
 
   const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
@@ -624,6 +727,7 @@ const Convention = ({navigation, route}) => {
         searchQuery,
         sortQuery,
         false,
+        activeTab
       );
     }
   };
@@ -650,13 +754,22 @@ const Convention = ({navigation, route}) => {
           defaultIndex={defaultIndex}
           data={showPost}
           onSelect={(item, index) => {
-            console.log('Selected:', item, index);
             if (index == 1) {
               setActiveTab('convention');
               setdefaultIndex(1);
+              GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, 'convention');
+              setAppliedFilters({});
+              setSearchQuery('');
+              setSearchQuery('');
+              setAppliedModalFilter({});
             } else {
               setActiveTab('farmhouse');
               setdefaultIndex(2);
+              GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, 'farmhouse');
+              setAppliedFilters({});
+              setSearchQuery('');
+              setSearchQuery('');
+              setAppliedModalFilter({});
             }
           }}
         />
@@ -704,16 +817,40 @@ const Convention = ({navigation, route}) => {
       ) : (
         <FarmHouse
           currentStatus={currentStatus}
+           loader={tabLoader}
+           data={hallData}
+           onPressSort={() => {
+            setSortVisible(true);
+          }}
           setShowModal={() => {
             setModalVisible(true);
           }}
           navigation={navigation}
-          onPressSort={() => setSortVisible(true)}
           onPressFilter={() => {
             navigation.navigate('ConventionFilter', {
               onApplyFilter: handleFilterChange,
+              existingFilters: appliedFilters,
             });
           }}
+           onHandleMore={() => {
+            handleLoadMore();
+          }}
+          setAppliedFilters={setAppliedFilters}
+          setSortQuery={setSortQuery}
+          appliedFilters={appliedFilters}
+          searchQuery={searchQuery}
+          sortQuery={sortQuery}
+          GetProperties={GetProperties}
+          loadingMore={loadingMore}
+          setSearchQuery={setSearchQuery}
+          avaialbleFilter={avaialbleFilter}
+          setavaialbleFilter={setavaialbleFilter}
+          setAttendedFilter={setAttendedFilter}
+          attendedFilter={attendedFilter}
+          setMultiFilter={setMultiFilter}
+          MultiFilter={multiFilter}
+          AppliedModalFilter={AppliedModalFilter}
+          setAppliedModalFilter={setAppliedModalFilter}
         />
       )}
       <AnimatedButton

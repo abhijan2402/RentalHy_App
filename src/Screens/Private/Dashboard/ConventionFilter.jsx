@@ -12,26 +12,24 @@ import CustomButton from '../../../Components/CustomButton';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const FarmHouseFilter = ({navigation, route}) => {
+  const existingFilters = route?.params?.existingFilters || {};
   const onApplyFilter = route?.params?.onApplyFilter;
-
-  // price range
-  const [priceRange, setPriceRange] = useState(['1000', '1000000+']);
-
-  // all yes/no options
-  const [swimmingPool, setSwimmingPool] = useState('');
-  const [foodAvailable, setFoodAvailable] = useState('');
-  const [outsideFood, setOutsideFood] = useState('');
-  const [cctv, setCctv] = useState('');
-  const [soundSystemAvailable, setSoundSystemAvailable] = useState('');
-  const [soundSystemAllowed, setSoundSystemAllowed] = useState('');
-  const [childrenGames, setChildrenGames] = useState('');
-  const [adultGames, setAdultGames] = useState('');
-  const [kitchenSetup, setKitchenSetup] = useState('');
-  const [parking, setParking] = useState('');
-
+  const activeTab = route?.params?.activeTab || 'farmhouse';
+  const [priceRange, setPriceRange] = useState(existingFilters.priceRange  || ['1000', '1000000+']);
+  const [swimmingPool, setSwimmingPool] = useState(existingFilters.swimmingPool || '');
+  const [foodAvailable, setFoodAvailable] = useState(existingFilters.foodAvailable || '');
+  const [outsideFood, setOutsideFood] = useState(existingFilters.outsideFood || '');
+  const [cctv, setCctv] = useState(existingFilters.cctv || '');
+  const [soundSystemAvailable, setSoundSystemAvailable] = useState(existingFilters.soundSystemAvailable || '');
+  const [soundSystemAllowed, setSoundSystemAllowed] = useState(existingFilters.soundSystemAllowed || '');
+  const [childrenGames, setChildrenGames] = useState(existingFilters.childrenGames || '');
+  const [adultGames, setAdultGames] = useState(existingFilters.adultGames || '');
+  const [kitchenSetup, setKitchenSetup] = useState(existingFilters.kitchenSetup || '');
+  const [parking, setParking] = useState(existingFilters.parking || '');
+  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
   const yesNoOptions = ['Yes', 'No'];
 
-  // render yes/no toggle row
   const renderOptions = (label, selected, setSelected) => (
     <>
       <Text style={styles.label}>{label}</Text>
@@ -68,7 +66,10 @@ const FarmHouseFilter = ({navigation, route}) => {
     setAdultGames('');
     setKitchenSetup('');
     setParking('');
-    setPriceRange([5000, 200000]);
+    setMinPrice(1000);
+    setMaxPrice(1000000);
+    setPriceRange([1000, 1000000]);
+    navigation.goBack();
   };
 
   const handleApply = () => {
@@ -84,6 +85,9 @@ const FarmHouseFilter = ({navigation, route}) => {
       kitchenSetup,
       parking,
       priceRange,
+      minPrice,
+      maxPrice,
+      activeTab
     };
 
     console.log('FarmHouse Filters:', filters);
@@ -91,6 +95,12 @@ const FarmHouseFilter = ({navigation, route}) => {
       onApplyFilter(filters);
     }
     navigation.goBack();
+  };
+
+      const handleValuesChange = values => {
+    setPriceRange(values);
+    setMinPrice(values[0]);
+    setMaxPrice(values[1]);
   };
 
   return (
@@ -130,7 +140,7 @@ const FarmHouseFilter = ({navigation, route}) => {
         <View style={{paddingHorizontal: 10}}>
           <MultiSlider
             values={priceRange}
-            onValuesChange={setPriceRange}
+            onValuesChange={handleValuesChange}
             min={1000}
             max={1000000}
             step={1000}
@@ -144,10 +154,10 @@ const FarmHouseFilter = ({navigation, route}) => {
           />
           <View style={styles.priceLabelRow}>
             <Text style={styles.priceLabel}>
-              ₹{priceRange[0].toLocaleString()}
+              ₹{minPrice.toLocaleString()}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹{priceRange[1].toLocaleString()}
+              ₹{maxPrice.toLocaleString()}
             </Text>
           </View>
         </View>

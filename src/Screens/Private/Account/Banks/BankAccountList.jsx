@@ -6,24 +6,50 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import Header from '../../../../Components/FeedHeader';
 import {COLOR} from '../../../../Constants/Colors';
 import CustomButton from '../../../../Components/CustomButton';
+import { useApi } from '../../../../Backend/Api';
+import { useToast } from '../../../../Constants/ToastContext';
+import { AuthContext } from '../../../../Backend/AuthContent';
 
 const BankAccountList = ({navigation}) => {
+  const {postRequest} = useApi();
+
+  const {user} = useContext(AuthContext)
+
+  console.log(user)
+  const {showToast} = useToast();
+  const [buttonLoader , setButtonLoader] = useState(false);
   const [form, setForm] = useState({
     accountNumber: '',
     accountHolderName: '',
     ifscCode: '',
     branch: '',
-    accountType: 'Saving', // Default selection
+    accountType: 'Saving',
   });
 
-  const handleUpdate = () => {
-    // API call or validation
-    console.log('Updated Bank Details:', form);
-    alert('Bank account details updated successfully!');
+  const handleUpdate = async () => {
+    setButtonLoader(true);
+    const formdata = new FormData();
+    formdata.append('account_number', form.accountNumber);
+    formdata.append('account_holder_name', form.accountHolderName);
+    formdata.append('ifsc_code', form.ifscCode);
+    formdata.append('branch', form.branch);
+    formdata.append('account_type', form.accountType);
+    await postRequest('public/api/account/store', formdata , true).then(res => {
+      if (res.data?.status === true || res?.data?.success === true) {
+        showToast('Bank account details updated successfully!' , "success");
+        navigation.goBack();
+      } else {
+        showToast(res.message || 'Failed to update bank details.', "error");
+      }
+    }).catch(err => {
+      console.error(err);
+      showToast('An error occurred. Please try again.', "error");
+    });
+    setButtonLoader(false);
   };
 
   return (
@@ -121,7 +147,7 @@ const BankAccountList = ({navigation}) => {
         </View>
       </ScrollView>
       {/* Update Button */}
-      <CustomButton title={'Update'} />
+      <CustomButton title={'Update'} loading={buttonLoader} onPress={handleUpdate} />
     </View>
   );
 };

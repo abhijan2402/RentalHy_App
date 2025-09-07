@@ -42,6 +42,8 @@ const PropertyDetail = ({navigation, route}) => {
     setLoading(false);
   };
 
+  console.log('AllData', AllData);
+
   const propertyViewed = async id => {
     const formData = new FormData();
     formData.append('property_id', id);
@@ -293,7 +295,9 @@ const PropertyDetail = ({navigation, route}) => {
           <CustomButton
             title={'Contact Landlord in Chat'}
             onPress={() => {
-              navigation.navigate('Chat');
+              navigation.navigate('Chat' , {
+                receiver_id: AllData?.user_id,
+              });
             }}
           />
           {type == 'convention' && (
