@@ -15,7 +15,7 @@ export const showPost = [
     {
         id: 2,
         image: 'https://cdn-icons-png.flaticon.com/128/3033/3033357.png',
-        title: 'Convention/Funtional Hall',
+        title: 'Convention/Functional Hall',
     },
     {
         id: 3,
@@ -198,27 +198,27 @@ export const HOSTEL_FILTERS = {
     ],
 
     facilities: [
-        "wifi", 
-        "ac", 
-        "laundry_service", 
-        "housekeeping", 
-        "hot_water", 
-        "power_backup", 
-        "parking", 
-        "gym", 
-        "tv", 
-        "dining_table", 
-        "security", 
-        "ro_water", 
+        "wifi",
+        "ac",
+        "laundry_service",
+        "housekeeping",
+        "hot_water",
+        "power_backup",
+        "parking",
+        "gym",
+        "tv",
+        "dining_table",
+        "security",
+        "ro_water",
         "study_area"
     ],
 
     foodOptions: [
-        "veg", 
-        "non_veg", 
-        "mess", 
-        "breakfast", 
-        "lunch", 
+        "veg",
+        "non_veg",
+        "mess",
+        "breakfast",
+        "lunch",
         "dinner"
     ],
 
@@ -228,6 +228,6 @@ export const HOSTEL_FILTERS = {
     ],
 
     occupancyCapacity: [
-       "10-20", "20-50", "50+"
+        "10-20", "20-50", "50+"
     ],
 };

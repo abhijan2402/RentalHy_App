@@ -19,7 +19,7 @@ const BottomNavigation = () => {
 
   const icons = {
     Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
-    Convention: 'https://cdn-icons-png.flaticon.com/128/1250/1250680.png',
+    Convention: 'https://cdn-icons-png.flaticon.com/128/3211/3211487.png',
     Hostel: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
     Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
   };

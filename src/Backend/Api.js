@@ -11,11 +11,11 @@ export const IMAGEURL = 'http://82.112.236.195:3000/uploads/profiles/'
 export const SERVICE_LIST_URL = "http://82.112.236.195:3000/uploads/"
 export const useApi = () => {
   const { token } = useContext(AuthContext);
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const postRequest = async (endpoint, data = {}, isMultipart = false) => {
-    console.log(data, 'DATA');
-    console.log(token, 'TOKEN');
-    console.log(`${BASE_URL}${endpoint}`);
+    // console.log(data, 'DATA');
+    // console.log(token, 'TOKEN');
+    // console.log(`${BASE_URL}${endpoint}`);
     const headers = {
       ...(isMultipart ? {} : { 'Content-Type': 'application/json' }),
       Authorization: `Bearer ${token}`,
@@ -28,10 +28,9 @@ export const useApi = () => {
       });
 
       const json = await response.json();
-      // console.log(json, 'JSON');
 
       if (!response.ok) {
-            let errorMessages = 'An unknown error occurred.';
+        let errorMessages = 'An unknown error occurred.';
 
         if (json.errors && typeof json.errors === 'object' && !Array.isArray(json.errors)) {
           errorMessages = Object.values(json.errors)
@@ -39,9 +38,9 @@ export const useApi = () => {
             .join('\n');
         } else if (json.msg) {
           errorMessages = json.msg;
-}
+        }
 
-          showToast(errorMessages, 'error');
+        showToast(errorMessages, 'error');
 
 
         return {
@@ -123,9 +122,9 @@ export const useApi = () => {
 
 
   const putRequest = async (endpoint, data = {}, isMultipart = false) => {
-    console.log(data, 'DATA');
-    console.log(token, 'TOKEN');
-    console.log(`${BASE_URL}${endpoint}`);
+    // console.log(data, 'DATA');
+    // console.log(token, 'TOKEN');
+    // console.log(`${BASE_URL}${endpoint}`);
     const headers = {
       ...(isMultipart ? {} : { 'Content-Type': 'application/json' }),
       Authorization: `Bearer ${token}`,

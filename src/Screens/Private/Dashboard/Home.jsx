@@ -102,7 +102,7 @@ const Home = ({navigation}) => {
     if (isDynamic) {
       Object.entries(filters).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          value.forEach((v , i) => {
+          value.forEach((v, i) => {
             formData.append(`${key.toLowerCase()}[${i}]`, v);
           });
         } else if (value) {

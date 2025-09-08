@@ -19,6 +19,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
     } else if (index === 2) {
       navigation.navigate('Convention', {type: 'conv'});
     } else {
+      navigation.navigate('Hostel');
       navigation.navigate('Convention', {type: 'farm'});
     }
   };

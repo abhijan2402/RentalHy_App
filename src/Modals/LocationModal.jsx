@@ -5,7 +5,7 @@ import {AuthContext} from '../Backend/AuthContent';
 import GooglePlacePicker from '../Components/GooglePicker';
 
 const LocationModal = ({visible, onCreateAccount, onCancel}) => {
-  const [selectedAddress,setSelectedAddress] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const {setCurrentAddress} = useContext(AuthContext);
 
   return (
@@ -16,24 +16,24 @@ const LocationModal = ({visible, onCreateAccount, onCancel}) => {
       onRequestClose={onCancel}>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Add Your Location</Text>
+          <Text style={styles.title}>Search Location here</Text>
 
-          <View style={{marginBottom:20}}>
-              <GooglePlacePicker
-                onPlaceSelected={(location) => {
-                  setSelectedAddress(location);
-                }}
-              />
+          <View style={{marginBottom: 20}}>
+            <GooglePlacePicker
+              onPlaceSelected={location => {
+                setSelectedAddress(location);
+              }}
+            />
           </View>
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={[styles.button, styles.createBtn]}
               onPress={() => {
-                setCurrentAddress(selectedAddress)
+                setCurrentAddress(selectedAddress);
                 onCancel();
               }}>
-              <Text style={styles.btnText}>Add</Text>
+              <Text style={styles.btnText}>Search</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

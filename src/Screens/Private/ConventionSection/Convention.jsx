@@ -109,7 +109,7 @@ const ConventionHall = ({
   searchQuery,
   sortQuery,
   AppliedModalFilter,
-  setAppliedModalFilter
+  setAppliedModalFilter,
 }) => {
   const renderHall = ({item}) => (
     <HallCard
@@ -126,10 +126,18 @@ const ConventionHall = ({
         if (currentStatus === -1) {
           setShowModal(true);
         } else {
-          navigation.navigate('PropertyDetail', {type: 'convention', propertyData: item});
+          navigation.navigate('PropertyDetail', {
+            type: 'convention',
+            propertyData: item,
+          });
         }
       }}
-      onBook={() => navigation.navigate('Booking', {type: 'convention' , propertyData: item?.id})}
+      onBook={() =>
+        navigation.navigate('Booking', {
+          type: 'convention',
+          propertyData: item?.id,
+        })
+      }
     />
   );
 
@@ -175,7 +183,14 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
       </View>
-      <View style={{width: windowWidth - 40, alignSelf: 'center',marginVertical:6,paddingVertical:6,borderRadius:10}}>
+      <View
+        style={{
+          width: windowWidth - 40,
+          alignSelf: 'center',
+          marginVertical: 6,
+          paddingVertical: 6,
+          borderRadius: 10,
+        }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -243,7 +258,6 @@ const ConventionHall = ({
         </ScrollView>
       </View>
 
-
       <FlatList
         data={hallData}
         keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
@@ -273,7 +287,7 @@ const ConventionHall = ({
             tintColor={COLOR.primary} // iOS
           />
         }
-         ListEmptyComponent={() => {
+        ListEmptyComponent={() => {
           if (!loader) {
             return (
               <View
@@ -297,8 +311,8 @@ const ConventionHall = ({
                     textAlign: 'center',
                     paddingHorizontal: 20,
                   }}>
-                  No Convention Hall Found{'\n'}Try adjusting your filters or search
-                  criteria.
+                  No Convention Hall Found{'\n'}Try adjusting your filters or
+                  search criteria.
                 </Text>
               </View>
             );
@@ -341,10 +355,9 @@ const FarmHouse = ({
   searchQuery,
   sortQuery,
   AppliedModalFilter,
-  setAppliedModalFilter
-
+  setAppliedModalFilter,
 }) => {
-   const renderHall = ({item}) => (
+  const renderHall = ({item}) => (
     <HallCard
       key={item.id}
       image={item?.images_grouped}
@@ -359,10 +372,18 @@ const FarmHouse = ({
         if (currentStatus === -1) {
           setShowModal(true);
         } else {
-          navigation.navigate('PropertyDetail', {type: 'convention', propertyData: item});
+          navigation.navigate('PropertyDetail', {
+            type: 'convention',
+            propertyData: item,
+          });
         }
       }}
-      onBook={() => navigation.navigate('Booking', {type: 'convention' , propertyData: item?.id})}
+      onBook={() =>
+        navigation.navigate('Booking', {
+          type: 'convention',
+          propertyData: item?.id,
+        })
+      }
     />
   );
   return (
@@ -433,7 +454,7 @@ const FarmHouse = ({
               );
             }}
             colors={[COLOR.primary]}
-            tintColor={COLOR.primary} 
+            tintColor={COLOR.primary}
           />
         }
         ListEmptyComponent={() => {
@@ -502,61 +523,61 @@ const Convention = ({navigation, route}) => {
   const [appliedFilters, setAppliedFilters] = useState([]);
   const [AppliedModalFilter, setAppliedModalFilter] = useState({});
   const [avaialbleFilter, setavaialbleFilter] = useState([
-      {
-        id: 'priceRange',
-        type: 'price',
-        name: 'Price Range',
-        data: [],
-      },
-      {
-        id: 'bhkOptions',
-        type: 'BHK',
-        name: 'BHK',
-        data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
-      },
-      {
-        id: 'propertyTypes',
-        type: 'property_type',
-        name: 'Property Type',
-        data: ['Apartment', 'Flat', 'Villa'],
-      },
-      {
-        id: 'furnishingOptions',
-        type: 'furnishing_status',
-        name: 'Furnishing Status',
-        data: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
-      },
-      {
-        id: 'availabilityOptions',
-        type: 'availability',
-        name: 'Availability',
-        data: ['Ready to Move', 'Under Construction'],
-      },
-      {
-        id: 'bathroomOptions',
-        type: 'bathrooms',
-        name: 'Bathrooms',
-        data: ['1', '2', '3', '4+'],
-      },
-      {
-        id: 'parkingOptions',
-        type: 'parking_available',
-        name: 'Parking Available',
-        data: ['Car', 'Bike', 'Both', 'None'],
-      },
-      {
-        id: 'advance',
-        type: 'advance',
-        name: 'Advance',
-        data: ['1 month', '2 months', '3 months+'],
-      },
-      {
-        id: 'familyType',
-        type: 'preferred_tenant_type',
-        name: 'Family Type',
-        data: ['Family', 'Bachelors male', 'Bachelors female'],
-      },
-    ]);
+    {
+      id: 'priceRange',
+      type: 'price',
+      name: 'Price Range',
+      data: [],
+    },
+    {
+      id: 'bhkOptions',
+      type: 'BHK',
+      name: 'BHK',
+      data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
+    },
+    {
+      id: 'propertyTypes',
+      type: 'property_type',
+      name: 'Property Type',
+      data: ['Apartment', 'Flat', 'Villa'],
+    },
+    {
+      id: 'furnishingOptions',
+      type: 'furnishing_status',
+      name: 'Furnishing Status',
+      data: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
+    },
+    {
+      id: 'availabilityOptions',
+      type: 'availability',
+      name: 'Availability',
+      data: ['Ready to Move', 'Under Construction'],
+    },
+    {
+      id: 'bathroomOptions',
+      type: 'bathrooms',
+      name: 'Bathrooms',
+      data: ['1', '2', '3', '4+'],
+    },
+    {
+      id: 'parkingOptions',
+      type: 'parking_available',
+      name: 'Parking Available',
+      data: ['Car', 'Bike', 'Both', 'None'],
+    },
+    {
+      id: 'advance',
+      type: 'advance',
+      name: 'Advance',
+      data: ['1 month', '2 months', '3 months+'],
+    },
+    {
+      id: 'familyType',
+      type: 'preferred_tenant_type',
+      name: 'Family Type',
+      data: ['Family', 'Bachelors male', 'Bachelors female'],
+    },
+  ]);
 
   const sortOptions = [
     {label: 'Price: Low to High', value: 'price_low_to_high'},
@@ -572,12 +593,14 @@ const Convention = ({navigation, route}) => {
 
   useEffect(() => {
     settabLoader(true);
+    console.log(type, 'TYPE');
+
     setTimeout(() => {
       if (type == 'farm') {
-        setdefaultIndex(2);
+        setdefaultIndex(3);
       }
       if (type == 'conv') {
-        setdefaultIndex(1);
+        setdefaultIndex(2);
       }
       settabLoader(false);
     }, 0);
@@ -588,9 +611,9 @@ const Convention = ({navigation, route}) => {
 
   useEffect(() => {
     if (isFocus) {
-      GetProperties(1, false, appliedFilters, '', false , activeTab);
+      GetProperties(1, false, appliedFilters, '', false, activeTab);
     }
-  }, [isFocus , activeTab]);
+  }, [isFocus, activeTab]);
 
   const buildFormData = (
     filters,
@@ -692,12 +715,11 @@ const Convention = ({navigation, route}) => {
     if (pageNum === 1) settabLoader(true);
     else setLoadingMore(true);
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
-    let url = activeTab == 'convention' ? 'public/api/hall_listing' : 'public/api/farm_listing';
-    const response = await postRequest(
-      url,
-      formData,
-      true,
-    );
+    let url =
+      activeTab == 'convention'
+        ? 'public/api/hall_listing'
+        : 'public/api/farm_listing';
+    const response = await postRequest(url, formData, true);
     const resData = response?.data?.data;
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
@@ -714,9 +736,16 @@ const Convention = ({navigation, route}) => {
   };
 
   useEffect(() => {
-    GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, activeTab);
-  }, [appliedFilters, searchQuery, sortQuery, currentAddress , activeTab]);
-
+    GetProperties(
+      1,
+      false,
+      appliedFilters,
+      searchQuery,
+      sortQuery,
+      false,
+      activeTab,
+    );
+  }, [appliedFilters, searchQuery, sortQuery, currentAddress, activeTab]);
 
   const handleLoadMore = () => {
     if (!loadingMore && page < lastPage) {
@@ -727,7 +756,7 @@ const Convention = ({navigation, route}) => {
         searchQuery,
         sortQuery,
         false,
-        activeTab
+        activeTab,
       );
     }
   };
@@ -754,18 +783,34 @@ const Convention = ({navigation, route}) => {
           defaultIndex={defaultIndex}
           data={showPost}
           onSelect={(item, index) => {
-            if (index == 1) {
+            if (index == 2) {
               setActiveTab('convention');
-              setdefaultIndex(1);
-              GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, 'convention');
+              setdefaultIndex(2);
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+                'convention',
+              );
               setAppliedFilters({});
               setSearchQuery('');
               setSearchQuery('');
               setAppliedModalFilter({});
             } else {
               setActiveTab('farmhouse');
-              setdefaultIndex(2);
-              GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, 'farmhouse');
+              setdefaultIndex(3);
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+                'farmhouse',
+              );
               setAppliedFilters({});
               setSearchQuery('');
               setSearchQuery('');
@@ -817,9 +862,9 @@ const Convention = ({navigation, route}) => {
       ) : (
         <FarmHouse
           currentStatus={currentStatus}
-           loader={tabLoader}
-           data={hallData}
-           onPressSort={() => {
+          loader={tabLoader}
+          data={hallData}
+          onPressSort={() => {
             setSortVisible(true);
           }}
           setShowModal={() => {
@@ -832,7 +877,7 @@ const Convention = ({navigation, route}) => {
               existingFilters: appliedFilters,
             });
           }}
-           onHandleMore={() => {
+          onHandleMore={() => {
             handleLoadMore();
           }}
           setAppliedFilters={setAppliedFilters}
@@ -864,20 +909,18 @@ const Convention = ({navigation, route}) => {
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
-          console.log('Selected Sort:', sortType);
           setSortQuery(sortType);
         }}
       />
       <CreateAccountModal
         visible={modalVisible}
         onCreateAccount={() => {
-          console.log('Navigate to signup screen');
           setModalVisible(false);
         }}
         onCancel={() => setModalVisible(false)}
       />
 
-       <MultiModal
+      <MultiModal
         filterValueData={attendedFilter}
         visible={multiFilter}
         initialSelected={AppliedModalFilter}
