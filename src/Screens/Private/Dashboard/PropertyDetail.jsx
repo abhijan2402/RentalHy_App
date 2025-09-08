@@ -17,6 +17,8 @@ import CustomButton from '../../../Components/CustomButton';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 import {useIsFocused} from '@react-navigation/native';
+import ConventionAmed from '../../../Components/ConventionAmed';
+import HostelAmed from '../../../Components/HostelAmed';
 
 const PropertyDetail = ({navigation, route}) => {
   const isFocus = useIsFocused();
@@ -32,17 +34,28 @@ const PropertyDetail = ({navigation, route}) => {
     if (load) {
       setLoading(false);
     }
-    let url = type === 'convention' ? `public/api/hall_deatils/${id}` : type === 'hostel' ? `public/api/hostels/${id}` : `public/api/properties/${id}`;
+    let url =
+      type === 'convention'
+        ? `public/api/hall_deatils/${id}`
+        : type === 'hostel'
+        ? `public/api/hostels/${id}`
+        : `public/api/properties/${id}`;
+    console.log(url, 'URLLLLLLLLLL');
+
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
-      setImages(type === 'convention' ? response?.data?.data?.images?.hall?.map(e => e?.image_path) : response?.data?.data?.images?.map(e => e?.image_url));
+      console.log(response?.data?.data, 'Property Details');
+
+      setImages(
+        type === 'convention'
+          ? response?.data?.data?.images?.hall?.map(e => e?.image_path)
+          : response?.data?.data?.images?.map(e => e?.image_url),
+      );
       setAllData(response?.data?.data);
       setLoading(false);
     }
     setLoading(false);
   };
-
-  console.log('AllData', AllData);
 
   const propertyViewed = async id => {
     const formData = new FormData();
@@ -96,7 +109,7 @@ const PropertyDetail = ({navigation, route}) => {
     }
   };
 
-  const phoneNumber = '+919876543210';
+  const phoneNumber = '0';
 
   const safeParse = value => {
     if (typeof value === 'string') {
@@ -199,7 +212,14 @@ const PropertyDetail = ({navigation, route}) => {
               </TouchableOpacity>
             )}
             <View style={styles.MainStyle}>
-              <Text style={styles.price}>{'₹' + (AllData?.price ? AllData?.price : (AllData?.min_price + ' - ' + AllData?.max_price))}</Text>
+              <Text style={styles.price}>
+                {'₹' +
+                  (AllData?.price
+                    ? AllData?.price
+                    : type == 'convention'
+                    ? AllData?.min_amount + ' - ' + AllData?.max_amount
+                    : AllData?.min_price + ' - ' + AllData?.max_price)}
+              </Text>
               {AllData?.status == 1 && (
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
@@ -290,12 +310,18 @@ const PropertyDetail = ({navigation, route}) => {
               ))}
             </View> */}
             {'}'}
+            {type === 'convention' && (
+              <>
+                <ConventionAmed AllData={AllData} />
+              </>
+            )}
+            {type === 'hostel' && <HostelAmed AllData={AllData} />}
           </View>
 
           <CustomButton
             title={'Contact Landlord in Chat'}
             onPress={() => {
-              navigation.navigate('Chat' , {
+              navigation.navigate('Chat', {
                 receiver_id: AllData?.user_id,
               });
             }}
