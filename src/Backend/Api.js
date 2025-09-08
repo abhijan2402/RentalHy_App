@@ -13,8 +13,8 @@ export const useApi = () => {
   const { token } = useContext(AuthContext);
   const { showToast } = useToast();
   const postRequest = async (endpoint, data = {}, isMultipart = false) => {
-    // console.log(data, 'DATA');
-    // console.log(token, 'TOKEN');
+    console.log(data, 'DATA');
+    console.log(token, 'TOKEN');
     // console.log(`${BASE_URL}${endpoint}`);
     const headers = {
       ...(isMultipart ? {} : { 'Content-Type': 'application/json' }),

@@ -131,7 +131,7 @@ const handleValuesChange = values => {
           />
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={styles.rangeText}> ₹{minPrice.toLocaleString()}</Text>
-            <Text style={styles.rangeText}> ₹{maxPrice.toLocaleString()}</Text>
+            <Text style={styles.rangeText}> ₹{maxPrice.toLocaleString() + ' +'}</Text>
           </View>
         </View>
         {/* Room Types */}

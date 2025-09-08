@@ -40,12 +40,18 @@ const PostProperty = ({navigation}) => {
   const [familyTypeValue, setFamilyTypeValue] = useState('');
   const [landmark, setLandmark] = useState('');
   const [mapData, setMapData] = useState([]);
-  const [commercialSpace, setCommercialSpace] = useState('no');
+  const [commercialSpace, setCommercialSpace] = useState([]);
+
+  const [securityAvailable, setSecurityAvailable] = useState(false);
+  const [waterFilter, setWaterFilter] = useState(false);
+  const [maintainance, setMaintainance] = useState(false);
+  const [maintainanceValue, setMaintainanceValue] = useState('');
+
   const [address, setAddress] = useState({});
 
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
-  const propertyTypes = ['Apartment', 'Flat', 'Villa'];
+  const propertyTypes = ['Apartment', 'Flat', 'Villa' , 'Independent House', 'Duplex', 'Roof sheets', 'Tiled House'];
   const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
   const availabilityOptions = ['Ready to Move', 'Under Construction'];
   const bathroomOptions = ['1', '2', '3', '4+'];
@@ -155,11 +161,32 @@ const PostProperty = ({navigation}) => {
     formData.append('parking_available', parking);
     formData.append('facing_direction', facing);
     formData.append('advance', advanceValue);
-    formData.append('commercial_space', commercialSpace);
+    formData.append('landmark', landmark);
     if(address?.lat && address?.lng){
       formData.append('lat', address.lat);
       formData.append('long', address.lng);
     }
+
+    if(maintainance) {
+      formData.append('mentains_chargers', 1);
+      formData.append('mentains_amount', maintainanceValue || '0');
+    } else {
+      formData.append('mentains_chargers', 0);
+      formData.append('mentains_amount', maintainanceValue || '0');
+
+    }
+
+    formData.append('security_avl', securityAvailable ? 1 : 0);
+    formData.append('water_filter', waterFilter ? 1 : 0);
+
+    if(Array.isArray(commercialSpace) && commercialSpace.length > 0){
+      commercialSpace.forEach((item, index) => {
+        formData.append(`commercial_space[${index}]`, item);
+      });
+    } else {
+      if(commercialSpace?.length > 0) formData.append('commercial_space[0]', commercialSpace);
+    }
+
 
     if (Array.isArray(selectedBHK)) {
       selectedBHK.forEach((item, index) => {
@@ -290,9 +317,38 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
         />
 
-        {renderOptions('BHK*', bhkOptions, selectedBHK, setSelectedBHK)}
+        <View style={styles.section}>
+          <Text style={styles.label}>Commercial Space (Suitable For)</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.toggleRow}>
+              {['Shop', 'Office', 'Showroom', 'Hotel', 'Restaurent'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.toggleBtn,
+                    commercialSpace.includes(option) && styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                    if (commercialSpace.includes(option)) {
+                      setCommercialSpace(commercialSpace.filter(item => item !== option));
+                    } else {
+                      setCommercialSpace([...commercialSpace, option]);
+                    }
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      commercialSpace.includes(option) && styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+        </View>
+
+        {renderOptions('BHK*', bhkOptions, selectedBHK, setSelectedBHK , true)}
         {renderOptions(
-          'Property Type*',
+          'Property Type',
           propertyTypes,
           propertyType,
           setPropertyType,
@@ -302,6 +358,7 @@ const PostProperty = ({navigation}) => {
           furnishingOptions,
           furnishing,
           setFurnishing,
+          true
         )}
         {renderOptions(
           'Availability',
@@ -324,28 +381,93 @@ const PostProperty = ({navigation}) => {
           familyTypeValue,
           setFamilyTypeValue,
         )}
-        <View style={styles.section}>
-          <Text style={styles.label}>Commercial Space</Text>
-          <View style={styles.toggleRow}>
-            {['yes', 'no'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  commercialSpace === option && styles.selectedBtn,
-                ]}
-                onPress={() => setCommercialSpace(option)}>
-                <Text
+
+         <View style={styles.section}>
+          <Text style={styles.label}>Security Available</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.toggleRow}>
+              {['Yes', 'No'].map(option => (
+                <TouchableOpacity
+                  key={option}
                   style={[
-                    styles.toggleText,
-                    commercialSpace === option && styles.selectedText,
-                  ]}>
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                    styles.toggleBtn,
+                    securityAvailable === (option === 'Yes') && styles.selectedBtn,
+                  ]}
+                  onPress={() => {  
+                      setSecurityAvailable(option === 'Yes' ? true : false);
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      securityAvailable === (option === 'Yes') && styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
         </View>
+
+         <View style={styles.section}>
+          <Text style={styles.label}>Water Filter</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.toggleRow}>
+              {['Yes', 'No'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.toggleBtn,
+                    waterFilter === (option === 'Yes') && styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                      setWaterFilter(option == 'Yes' ? true : false);
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      waterFilter === (option === 'Yes') && styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+        </View>
+
+          <View style={styles.section}>
+          <Text style={styles.label}>Maintainance Fees</Text>
+          <View horizontal showsHorizontalScrollIndicator={false} style={styles.toggleRow}>
+              {['Yes', 'No'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.toggleBtn,
+                    maintainance === (option === 'Yes') && styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                      setMaintainance(option == 'Yes' ? true : false);
+                                if (option === 'No') setMaintainanceValue('');
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      maintainance === (option === 'Yes') && styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </View>
+          {maintainance && (
+    <TextInput
+      style={[styles.input, {marginTop: 10}]}
+      value={maintainanceValue}
+      onChangeText={setMaintainanceValue}
+      placeholder="Enter maintainance amount"
+      placeholderTextColor={COLOR.grey}
+      keyboardType="numeric"
+    />
+  )}
+        </View>
+
 
         {/* Upload Images */}
         <Text style={styles.label}>Property Images*</Text>

@@ -24,7 +24,7 @@ const MultiModal = ({
     if (visible) {
       setSelectedFilters(initialSelected);
 
-      if (filterValueData?.type === 'price') {
+      if (filterValueData?.type === 'price' || 'seating_capacity') {
         const min = initialSelected?.min_price ?? 0;
         const max = initialSelected?.max_price ?? 100000;
         setPriceRange([min, max]);
@@ -50,7 +50,7 @@ const MultiModal = ({
 
   const handleApply = () => {
     let updated = {...selectedFilters};
-    if (filterValueData?.type === 'price') {
+    if (filterValueData?.type === 'price' || 'seating_capacity') {
       updated.min_price = priceRange[0]
       updated.max_price = priceRange[1]
     }
@@ -70,7 +70,7 @@ const MultiModal = ({
             Select Filters : {filterValueData?.name}
           </Text>
 
-          {filterValueData?.type === 'price' ? (
+          {(filterValueData?.type === 'price' || filterValueData?.type === 'seating_capacity') ? (
             <View style={{marginBottom: 20}}>
               <Text style={{marginBottom: 10, fontSize: 16, fontWeight: '600'}}>
                 Price Range: ₹{priceRange[0]} - ₹{priceRange[1]}

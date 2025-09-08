@@ -28,6 +28,7 @@ const PostHostel = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [buttonLoading, setButtonLoading] = useState(false)
   const [singleRoom, setSingleRoom] = useState('');
+  const [singleRoomDay, setSingleRoomDay] = useState('');
   const [doubleRoom, setDoubleRoom] = useState('');
   const [tripleRoom, setTripleRoom] = useState('');
   const [fourRoom, setFourRoom] = useState('');
@@ -56,7 +57,7 @@ const PostHostel = ({navigation}) => {
     'Fan',
     'Lights',
     'Curtains',
-    'AC',
+    'A/C',
     'Geyser (Hot water)',
     'Basic appliances',
     'Limited storage space',
@@ -72,7 +73,7 @@ const PostHostel = ({navigation}) => {
   const toggleOptions = [
     'kitchen',
     'wifi',
-    'ac',
+    'A/C',
     'laundry_service',
     'housekeeping',
     'hot_water',
@@ -87,7 +88,7 @@ const PostHostel = ({navigation}) => {
     'study_area',
   ];
   const RULES_POLICIES_OPTIONS = [
-    'Gate Closing Time (curfew)',
+    'Gate Closing Time [ 9:00 PM - 6:00 AM ]',
     'Visitors allowed/not allowed',
     'Smoking/Alcohol policy',
     'Pets allowed or not',
@@ -318,7 +319,8 @@ const PostHostel = ({navigation}) => {
 
           {/* Room pricing */}
           <Text style={styles.sectionTitle}>Room Price</Text>
-          {renderInput('Single room (Day/Month)', singleRoom, setSingleRoom)}
+          {renderInput('Single room (Day)', singleRoomDay, setSingleRoomDay)}
+          {renderInput('Single room (Month)', singleRoom, setSingleRoom)}
           {renderInput('Double sharing / month', doubleRoom, setDoubleRoom)}
           {renderInput('Triple sharing / month', tripleRoom, setTripleRoom)}
           {renderInput('4 sharing / month', fourRoom, setFourRoom)}

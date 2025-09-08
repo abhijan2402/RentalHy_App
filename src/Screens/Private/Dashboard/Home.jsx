@@ -19,7 +19,6 @@ import {
 } from 'react-native';
 import {COLOR} from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
-import CustomButton from '../../../Components/CustomButton';
 import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
@@ -206,6 +205,12 @@ const Home = ({navigation}) => {
       type: 'price',
       name: 'Price Range',
       data: [],
+    },
+    {
+      id: 'commercial_space',
+      type: 'commercial_space',
+      name: 'Commercial Space',
+      data: ['Shop', 'Office', 'Warehouse', 'Showroom' , 'Restaurant' , 'Hotel'],
     },
     {
       id: 'bhkOptions',

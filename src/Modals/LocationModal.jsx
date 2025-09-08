@@ -33,7 +33,7 @@ const LocationModal = ({visible, onCreateAccount, onCancel}) => {
                 setCurrentAddress(selectedAddress);
                 onCancel();
               }}>
-              <Text style={styles.btnText}>Search</Text>
+              <Text style={styles.btnText}>Add</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

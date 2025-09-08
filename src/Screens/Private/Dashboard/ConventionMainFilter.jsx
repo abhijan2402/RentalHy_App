@@ -45,7 +45,7 @@ const [childrenGames, setChildrenGames] = useState(existingFilters.childrenGames
 const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccasion || '');
 
   const yesNoOptions = ['Yes', 'No'];
-  const timeOfOccasionOptions = ['Daytime', 'Night time', '24 Hours'];
+  const timeOfOccasionOptions = ['Daytime', 'Night time', 'Full day'];
 
     const handleValuesChange = values => {
     setPriceRange(values);
@@ -301,7 +301,7 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccas
               ₹{minPrice.toLocaleString()}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹{maxPrice.toLocaleString()}
+              ₹{maxPrice.toLocaleString() + ' +'}
             </Text>
           </View>
         </View>

@@ -339,6 +339,7 @@ const FarmHouse = ({
   setShowModal,
   avaialbleFilter,
   setavaialbleFilter,
+  avaialbleFilterFarm,
   attendedFilter,
   setAttendedFilter,
   multiFilter,
@@ -428,6 +429,81 @@ const FarmHouse = ({
           />
         </TouchableOpacity>
       </View>
+             <View
+        style={{
+          width: windowWidth - 40,
+          alignSelf: 'center',
+          marginVertical: 6,
+          paddingVertical: 6,
+          borderRadius: 10,
+        }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={
+            {
+              // marginVertical: 2,
+              // marginLeft: 20,
+              // // borderWidth: 1,
+              // flex: 0.5,
+              // height: 44,
+              // borderWidth: 1,
+              // width: windowWidth,
+            }
+          }>
+          {avaialbleFilterFarm.map(filterGroup => {
+            const selectedValues = AppliedModalFilter[filterGroup.type] || [];
+            let displayText = filterGroup.name;
+
+            if (filterGroup.type === 'price') {
+              const minP = AppliedModalFilter.min_price;
+              const maxP = AppliedModalFilter.max_price;
+              if (minP !== undefined && maxP !== undefined) {
+                displayText = `₹${minP} - ₹${maxP}`;
+              }
+            } else if (selectedValues.length > 0) {
+              displayText = selectedValues.join(', ');
+            }
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  setAttendedFilter(filterGroup);
+                  setMultiFilter(true);
+                }}
+                key={filterGroup.id}
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 5,
+                  backgroundColor:
+                    attendedFilter?.id == filterGroup?.id
+                      ? COLOR.primary
+                      : '#fff',
+                  marginRight: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  // height: 55,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    color:
+                      attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
+                    height: 20,
+                    textTransform: 'capitalize',
+                    textAlignVertical: 'center',
+                  }}>
+                  {displayText}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
       <FlatList
         data={data}
         keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
@@ -526,64 +602,32 @@ const Convention = ({navigation, route}) => {
     {
       id: 'priceRange',
       type: 'price',
-      name: 'Price Range',
+      name: 'Price',
       data: [],
     },
     {
-      id: 'bhkOptions',
-      type: 'BHK',
-      name: 'BHK',
-      data: ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'],
+      id: 'time_of_occasion',
+      type: 'time_of_occasion',
+      name: 'Time of Occasion',
+      data: ['Daytime', 'Night time', 'Full day'],
     },
+    
+  ]);
+
+    const [avaialbleFilterFarm, setavaialbleFilterFarm] = useState([
     {
-      id: 'propertyTypes',
-      type: 'property_type',
-      name: 'Property Type',
-      data: ['Apartment', 'Flat', 'Villa'],
-    },
-    {
-      id: 'furnishingOptions',
-      type: 'furnishing_status',
-      name: 'Furnishing Status',
-      data: ['Furnished', 'Semi-Furnished', 'Unfurnished'],
-    },
-    {
-      id: 'availabilityOptions',
-      type: 'availability',
-      name: 'Availability',
-      data: ['Ready to Move', 'Under Construction'],
-    },
-    {
-      id: 'bathroomOptions',
-      type: 'bathrooms',
-      name: 'Bathrooms',
-      data: ['1', '2', '3', '4+'],
-    },
-    {
-      id: 'parkingOptions',
-      type: 'parking_available',
-      name: 'Parking Available',
-      data: ['Car', 'Bike', 'Both', 'None'],
-    },
-    {
-      id: 'advance',
-      type: 'advance',
-      name: 'Advance',
-      data: ['1 month', '2 months', '3 months+'],
-    },
-    {
-      id: 'familyType',
-      type: 'preferred_tenant_type',
-      name: 'Family Type',
-      data: ['Family', 'Bachelors male', 'Bachelors female'],
-    },
+      id: 'priceRange',
+      type: 'price',
+      name: 'Price',
+      data: [],
+    }
   ]);
 
   const sortOptions = [
     {label: 'Price: Low to High', value: 'price_low_to_high'},
     {label: 'Price: High to Low', value: 'price_high_to_low'},
-    {label: 'Newest', value: 'newest_first'},
-    {label: 'Oldest', value: 'oldest_first'},
+    {label: 'Nearby', value: 'nearby'},
+    {label: 'Relavance', value: 'relevance'},
   ];
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
@@ -896,6 +940,7 @@ const Convention = ({navigation, route}) => {
           MultiFilter={multiFilter}
           AppliedModalFilter={AppliedModalFilter}
           setAppliedModalFilter={setAppliedModalFilter}
+          avaialbleFilterFarm={avaialbleFilterFarm}
         />
       )}
       <AnimatedButton

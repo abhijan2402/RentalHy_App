@@ -7,6 +7,7 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -23,6 +24,8 @@ import PropertyCard from '../../../Components/PropertyCard';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import {AuthContext} from '../../../Backend/AuthContent';
 import { useApi } from '../../../Backend/Api';
+import MultiModal from '../../../Components/MultiModal';
+import LocationModal from '../../../Modals/LocationModal';
 
 const Hostel = ({navigation}) => {
   const {postRequest} = useApi()
@@ -36,6 +39,10 @@ const Hostel = ({navigation}) => {
   const [appliedFilters, setAppliedFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [sortQuery, setSortQuery] = useState('');
+  const [AppliedModalFilter, setAppliedModalFilter] = useState({});
+  const [attendedFilter, setAttendedFilter] = useState([]);
+  const [multiFilter, setMultiFilter] = useState(false);
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
   const {currentStatus , currentAddress} = useContext(AuthContext);
   const sortOptions = [
     {label: 'Price: Low to High', value: 'price_low_high'},
@@ -43,6 +50,76 @@ const Hostel = ({navigation}) => {
     {label: 'Newest', value: 'newest_first'},
     {label: 'Oldest', value: 'oldest_first'},
   ];
+   const [avaialbleFilter, setavaialbleFilter] = useState([
+      {
+        id: 'priceRange',
+        type: 'price',
+        name: 'Price Range',
+        data: [],
+      },
+      {
+        id: 'room_types',
+        type: 'room_types',
+        name: 'Room Types',
+        data: ['Single', 'Double', 'Triple', 'Four' , 'Dormitory'],
+      },
+      {
+        id: 'genders',
+        type: 'genders',
+        name: 'Gender',
+        data: ['Male', 'Female', 'Others'],
+      },
+      {
+        id: 'facilities',
+        type: 'facilities',
+        name: 'Facilities',
+        data: [
+        "wifi",
+        "ac",
+        "laundry_service",
+        "housekeeping",
+        "hot_water",
+        "power_backup",
+        "parking",
+        "gym",
+        "tv",
+        "dining_table",
+        "security",
+        "ro_water",
+        "study_area"
+    ],
+      },
+      {
+        id: 'food_options',
+        type: 'food_options',
+        name: 'Food Options',
+        data: [
+        "veg",
+        "non_veg",
+        "mess",
+        "breakfast",
+        "lunch",
+        "dinner"
+    ],
+      },
+      {
+        id: 'stay_types',
+        type: 'stay_types',
+        name: 'Stay Types',
+        data: [
+        "short-term",
+        "long-term"
+        ],
+      },
+      {
+        id: 'occupancy_capacity',
+        type: 'occupancy_capacity',
+        name: 'Occupancy Capacity',
+        data: [
+        "10-20", "20-50", "50+"
+    ],
+      },
+    ]);
   const isFocus = useIsFocused();
   useEffect(() => {
     settabLoader(true);
@@ -68,8 +145,8 @@ const Hostel = ({navigation}) => {
     if (isDynamic) {
       Object.entries(filters).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          value.forEach(v => {
-            formData.append(key.toLowerCase(), v);
+         value.forEach((v, i) => {
+            formData.append(`${key.toLowerCase()}[${i}]`, v);
           });
         } else if (value) {
           formData.append(key.toLowerCase(), value);
@@ -111,8 +188,6 @@ const Hostel = ({navigation}) => {
     if (pageNum === 1) settabLoader(true);
     else setLoadingMore(true);
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
-
-    console.log(formData,"formDataformData")
     const response = await postRequest(
       'public/api/hostels/list',
       formData,
@@ -160,7 +235,7 @@ const Hostel = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
-      <HomeHeader navigation={navigation} />
+      <HomeHeader navigation={navigation} setLocationModalVisible={setLocationModalVisible} />
       {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
@@ -219,6 +294,64 @@ const Hostel = ({navigation}) => {
             />
           </TouchableOpacity>
         </View>
+
+              <View style={{width: windowWidth - 40, alignSelf: 'center'}}>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}>
+                        {avaialbleFilter?.map(filterGroup => {
+                          const selectedValues = AppliedModalFilter[filterGroup.type] || [];
+                          let displayText = filterGroup.name;
+              
+                          if (filterGroup.type === 'price') {
+                            const minP = AppliedModalFilter.min_price;
+                            const maxP = AppliedModalFilter.max_price;
+                            if (minP !== undefined && maxP !== undefined) {
+                              displayText = `₹${minP} - ₹${maxP}`;
+                            }
+                          } else if (selectedValues.length > 0) {
+                            displayText = selectedValues.join(', ');
+                          }
+                          return (
+                            <TouchableOpacity
+                              onPress={() => {
+                                setAttendedFilter(filterGroup);
+                                setMultiFilter(true);
+                              }}
+                              key={filterGroup.id}
+                              style={{
+                                borderWidth: 1,
+                                borderColor: '#ccc',
+                                paddingHorizontal: 10,
+                                paddingVertical: 5,
+                                borderRadius: 5,
+                                backgroundColor:
+                                  attendedFilter?.id == filterGroup?.id
+                                    ? COLOR.primary
+                                    : '#fff',
+                                marginRight: 8,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                // height: 55,
+                              }}>
+                              <Text
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: 'bold',
+                                  color:
+                                    attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
+                                  height: 20,
+                                  textTransform: 'capitalize',
+                                  textAlignVertical: 'center',
+                                }}>
+                                {displayText}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </ScrollView>
+                    </View>
+
         <View style={{flex: 1}}>
           <FlatList
             data={propertiesFake}
@@ -236,6 +369,8 @@ const Hostel = ({navigation}) => {
                   setSearchQuery('');
                   setSortQuery('');
                   setAppliedFilters({});
+                  setAppliedModalFilter({});
+                  setAttendedFilter(null);  
                   GetProperties(
                     1,
                     false,
@@ -269,6 +404,28 @@ const Hostel = ({navigation}) => {
         }}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/648/648539.png'}
       />
+       <MultiModal
+        filterValueData={attendedFilter}
+        visible={multiFilter}
+        initialSelected={AppliedModalFilter}
+        onClose={() => {
+          setMultiFilter(false);
+        }}
+        onSelectSort={selectedFilters => {
+          setAppliedModalFilter(prev => ({
+            ...prev,
+            ...selectedFilters,
+          }));
+          GetProperties(
+            1,
+            false,
+            selectedFilters,
+            searchQuery,
+            sortQuery,
+            true,
+          );
+        }}
+      />
       <SortModal
         sortOptions={sortOptions}
         visible={sortVisible}
@@ -284,6 +441,12 @@ const Hostel = ({navigation}) => {
           setModalVisible(false);
         }}
         onCancel={() => setModalVisible(false)}
+      />
+
+      <LocationModal
+        visible={locationModalVisible}
+        onClose={() => setLocationModalVisible(false)}
+        onCancel={() => setLocationModalVisible(false)}
       />
     </SafeAreaView>
   );

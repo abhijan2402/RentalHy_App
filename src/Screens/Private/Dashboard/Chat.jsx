@@ -17,8 +17,6 @@ import { AuthContext } from '../../../Backend/AuthContent';
 
 const Chat = ({navigation , route}) => {
   const {receiver_id} = route?.params;
-
-  console.log(receiver_id,"receiver_idreceiver_id")
   const {user} = useContext(AuthContext);
   const userid = user?.id;
   const isfocus = navigation.isFocused();
@@ -42,7 +40,7 @@ const Chat = ({navigation , route}) => {
     await postRequest('public/api/chat/send', formData , true).then(res => {
       console.log(res?.data);
       if(res?.data?.status === true || res?.data?.status === 'true') {
-        getChatMessage(userid);
+        getChatMessage(receiver_id);
       }
     }).catch(err => {
       console.log(err);
@@ -76,16 +74,17 @@ const Chat = ({navigation , route}) => {
     try {
       const response = await getRequest(`public/api/chat/conversation/${userid}`);
       setMessages(response?.data?.data);
+      console.log(response?.data?.data,"response?.data?.data")
     } catch (error) {
       console.error('Error fetching chat messages:', error);
     }
   }
 
   useEffect(() => {
-    if(userid) {
-      getChatMessage(userid);
+    if(receiver_id) {
+      getChatMessage(receiver_id);
     }
-  }, [userid , isfocus]);
+  }, [receiver_id , isfocus]);
 
   return (
     <KeyboardAvoidingView
