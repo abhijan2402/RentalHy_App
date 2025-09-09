@@ -9,6 +9,7 @@ import {
   ScrollView,
   ImageBackground,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
@@ -29,7 +30,25 @@ const PropertyDetail = ({navigation, route}) => {
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
   const {type, propertyData} = route?.params;
+  const [reviews, setReviews] = useState({
+    food: null,
+    cleanliness: null,
+    staff: null,
+    safety: null,
+  });
+  const [description, setDescription] = useState('');
 
+  /** Handle thumb press */
+  const handleReviewPress = (key, value) => {
+    setReviews(prev => ({...prev, [key]: value}));
+  };
+  const questions = [
+    {key: 'food', text: 'Food is good?'},
+    {key: 'cleanliness', text: 'Room Cleanliness is good?'},
+    {key: 'staff', text: 'Staff is good?'},
+    {key: 'safety', text: 'Safe to stay?'},
+  ];
+  const thumbUpUrl = 'https://cdn-icons-png.flaticon.com/128/739/739231.png';
   const getPropertyDetails = async (id, load = true) => {
     if (load) {
       setLoading(false);
@@ -290,6 +309,52 @@ const PropertyDetail = ({navigation, route}) => {
                 </ImageBackground>
               </TouchableOpacity>
             </View>
+            {type === 'hostel' && (
+              <>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color: COLOR.black,
+                    fontWeight: '600',
+                    marginVertical: 10,
+                  }}>
+                  Please provide feedback
+                </Text>
+                {questions.map(item => (
+                  <View key={item.key} style={styles.questionContainer}>
+                    <Text style={styles.question}>{item.text}</Text>
+                    <View style={styles.thumbContainer}>
+                      <Text>235</Text>
+                      {/* Thumbs Up */}
+                      <TouchableOpacity
+                        onPress={() => handleReviewPress(item.key, 'up')}>
+                        <Image
+                          source={{uri: thumbUpUrl}}
+                          style={[
+                            styles.thumbIcon,
+                            reviews[item.key] === 'up' && {
+                              tintColor: COLOR.primary,
+                            },
+                          ]}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+
+                {/* Description Input */}
+                <Text style={styles.descriptionLabel}>Additional Feedback</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Write your feedback here..."
+                  multiline
+                  value={description}
+                  onChangeText={setDescription}
+                />
+                <CustomButton title="Submit Feedback" style={{marginTop: 15}} />
+              </>
+            )}
+
             {/* Specifications */}
             {/* <View style={styles.specsContainer}>
               {Object.entries(specifications).map(([key, value]) => (
@@ -495,5 +560,52 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     textAlign: 'center',
     borderRadius: 2,
+  },
+
+  questionContainer: {
+    backgroundColor: '#fff',
+    padding: 8,
+    paddingHorizontal: 10,
+    marginBottom: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  question: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#444',
+  },
+  thumbContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: 10,
+    marginRight: 15,
+  },
+  thumbIcon: {
+    width: 15,
+    height: 15,
+    tintColor: '#999',
+  },
+  descriptionLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#444',
+    marginBottom: 8,
+    marginTop: 20,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    padding: 10,
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
 });

@@ -180,6 +180,7 @@ export default HostelAmed;
 const styles = StyleSheet.create({
   container: {
     padding: 15,
+    paddingHorizontal: 5,
   },
   heading: {
     fontSize: 20,
