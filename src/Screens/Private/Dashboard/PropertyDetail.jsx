@@ -29,6 +29,7 @@ const PropertyDetail = ({navigation, route}) => {
   const [loading, setLoading] = useState(false);
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
+  const [buttonLoader, setButtonLoader] = useState(false)
   const {type, propertyData} = route?.params;
   const [reviews, setReviews] = useState({
     food: null,
@@ -59,7 +60,6 @@ const PropertyDetail = ({navigation, route}) => {
         : type === 'hostel'
         ? `public/api/hostels/${id}`
         : `public/api/properties/${id}`;
-    console.log(url, 'URLLLLLLLLLL');
 
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
@@ -117,6 +117,31 @@ const PropertyDetail = ({navigation, route}) => {
     }
   };
 
+  const submitFeedback = async () => {
+    try {
+      setButtonLoader(true);
+      const formData = new FormData();
+      formData.append('hostel_id', AllData?.id);
+      formData.append('food_good', reviews?.food);
+      formData.append('room_clean', reviews?.cleanliness);
+      formData.append('staff_good', reviews?.staff);
+      formData.append('safe_stay', reviews?.safety);
+      if(description) formData.append('additional_feedback' , description);
+      const response = await postRequest('public/api/hostels/submit-review' , formData , true);
+      console.log(response)
+      if(response?.data?.status || response?.data?.success){
+        setButtonLoader(false)
+        showToast("Review Submitted Successfully" , "success")
+      }else{
+        setButtonLoader(false);
+        showToast("Error Submitting Review","error")
+      }
+    }catch(error){
+      showToast(error,"error")
+    }
+    setButtonLoader(false)
+  }
+
   const removeLike = async id => {
     const response = await postRequest(`public/api/wishlist/remove/${id}`);
     if (response?.data?.status) {
@@ -127,6 +152,7 @@ const PropertyDetail = ({navigation, route}) => {
       showToast(response?.error, 'error');
     }
   };
+
 
   const phoneNumber = '0';
 
@@ -324,15 +350,14 @@ const PropertyDetail = ({navigation, route}) => {
                   <View key={item.key} style={styles.questionContainer}>
                     <Text style={styles.question}>{item.text}</Text>
                     <View style={styles.thumbContainer}>
-                      <Text>235</Text>
-                      {/* Thumbs Up */}
+                      
                       <TouchableOpacity
-                        onPress={() => handleReviewPress(item.key, 'up')}>
+                        onPress={() => handleReviewPress(item.key, '1')}>
                         <Image
                           source={{uri: thumbUpUrl}}
                           style={[
                             styles.thumbIcon,
-                            reviews[item.key] === 'up' && {
+                            reviews[item.key] === '1' && {
                               tintColor: COLOR.primary,
                             },
                           ]}
@@ -351,7 +376,7 @@ const PropertyDetail = ({navigation, route}) => {
                   value={description}
                   onChangeText={setDescription}
                 />
-                <CustomButton title="Submit Feedback" style={{marginTop: 15}} />
+                <CustomButton title="Submit Feedback" style={{marginTop: 15}} loading={buttonLoader} onPress={() => {submitFeedback()}} />
               </>
             )}
 
