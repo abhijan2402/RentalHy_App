@@ -17,7 +17,8 @@ import CustomButton from '../../../Components/CustomButton';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 import GooglePlacePicker from '../../../Components/GooglePicker';
-
+import DateTimePicker from '@react-native-community/datetimepicker';
+import moment from 'moment';
 const PostHostel = ({navigation}) => {
   const {postRequest} = useApi();
   const {showToast} = useToast();
@@ -84,13 +85,7 @@ const PostHostel = ({navigation}) => {
     {label: 'Study Area', key: 'study_area'},
   ];
 
-  const RULES_POLICIES_OPTIONS = [
-    'Gate Closing Time [ 9:00 PM - 6:00 AM ]',
-    'Visitors allowed/not allowed',
-    'Smoking/Alcohol policy',
-    'Pets allowed or not',
-    'Refund policy for deposit',
-  ];
+  const RULES_POLICIES_OPTIONS = ['Visitors allowed/not allowed'];
   const [rulesPolicies, setRulesPolicies] = useState([]);
 
   const [toggleStates, setToggleStates] = useState(
@@ -112,6 +107,43 @@ const PostHostel = ({navigation}) => {
     snacks: '',
     dinner: '',
   });
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [currentKey, setCurrentKey] = useState(null); // Track which timing we are editing
+  const [pickerMode, setPickerMode] = useState('time'); // For time picker
+  const [smokingAllowed, setSmokingAllowed] = useState(false);
+  const [alcoholAllowed, setAlcoholAllowed] = useState(false);
+  const [PetsAllowed, setPetsAllowed] = useState(false);
+  const [refundPolicy, setRefundPolicy] = useState(null);
+  const [gateTimings, setGateTimings] = useState({
+    opening: '',
+    closing: '',
+  });
+
+  // Open picker for a specific field
+  const openTimePicker = key => {
+    setCurrentKey(key);
+    setPickerMode('time');
+    setShowPicker(true);
+  };
+
+  // Handle time selection
+  const onChange = (event, selectedDate) => {
+    setShowPicker(false);
+
+    if (selectedDate) {
+      const formattedTime = moment(selectedDate).format('HH:mm');
+      setFoodTimings({...foodTimings, [currentKey]: formattedTime});
+    }
+  };
+  const renderTimingInput = (label, key) => (
+    <TouchableOpacity
+      style={styles.inputContainer}
+      onPress={() => openTimePicker(key)}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{foodTimings[key] || 'Select Time'}</Text>
+    </TouchableOpacity>
+  );
 
   // Docs & Rules
   const [documents, setDocuments] = useState('');
@@ -209,8 +241,6 @@ const PostHostel = ({navigation}) => {
   );
 
   const postHostel = async () => {
-    console.log(toggleStates, 'STATATTAT');
-
     setButtonLoading(true);
 
     const formData = new FormData();
@@ -249,7 +279,19 @@ const PostHostel = ({navigation}) => {
     if (dinner) formData.append('dinner_timing', foodTimings.dinner);
     if (documents) formData.append('documents_required', documents);
     if (rules) formData.append('rules_policies', rules);
+    if (smokingAllowed)
+      formData.append('smoking_alcohol_policy', smokingAllowed);
+    if (alcoholAllowed) formData.append('alcohol', alcoholAllowed);
+    if (refundPolicy) formData.append('deposit_refund_policy', refundPolicy);
+    if (PetsAllowed) formData.append('pet_allowed', PetsAllowed);
+    if (gateTimings?.opening) {
+      formData.append('get_open_time', gateTimings.opening);
+    }
 
+    // Gate Closing Time
+    if (gateTimings?.closing) {
+      formData.append('gate_closing_time', gateTimings.closing);
+    }
     Object.entries(toggleStates).forEach(([key, value]) => {
       formData.append(key, value === 'yes' ? 1 : 0);
     });
@@ -266,6 +308,8 @@ const PostHostel = ({navigation}) => {
       uri: menuImage?.uri,
       name: 'image',
     });
+    console.log(formData, 'FROMMMM');
+
     const response = await postRequest('public/api/hostels', formData, true);
 
     if (response?.data?.success) {
@@ -405,7 +449,7 @@ const PostHostel = ({navigation}) => {
           {renderToggle('Snacks', snacks, setSnacks)}
 
           {/* Food Timings */}
-          {renderInput('Breakfast Timing', foodTimings.breakfast, val =>
+          {/* {renderInput('Breakfast Timing', foodTimings.breakfast, val =>
             setFoodTimings({...foodTimings, breakfast: val}),
           )}
           {renderInput('Tea/Coffee Timing', foodTimings.tea, val =>
@@ -419,6 +463,22 @@ const PostHostel = ({navigation}) => {
           )}
           {renderInput('Dinner Timing', foodTimings.dinner, val =>
             setFoodTimings({...foodTimings, dinner: val}),
+          )} */}
+
+          {renderTimingInput('Breakfast Timing', 'breakfast')}
+          {renderTimingInput('Tea/Coffee Timing', 'tea')}
+          {renderTimingInput('Lunch Timing', 'lunch')}
+          {renderTimingInput('Snacks Timing', 'snacks')}
+          {renderTimingInput('Dinner Timing', 'dinner')}
+
+          {/* Date Time Picker */}
+          {showPicker && (
+            <DateTimePicker
+              value={new Date()}
+              mode={pickerMode}
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onChange}
+            />
           )}
 
           {/* Documents */}
@@ -432,7 +492,14 @@ const PostHostel = ({navigation}) => {
             rulesPolicies,
             setRulesPolicies,
           )}
+          {renderTimingInput('Gate Opening Time', 'opening')}
+          {renderTimingInput('Gate Closing Time', 'closing')}
+          {renderToggle('Pets Allowed', PetsAllowed, setPetsAllowed)}
 
+          {renderToggle('Smoking Allowed', smokingAllowed, setSmokingAllowed)}
+
+          {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
+          {renderInput(' Refund policy', refundPolicy, setRefundPolicy, true)}
           {/* Menu Image */}
           <View style={styles.section}>
             <Text style={styles.label}>Menu Image</Text>
@@ -511,4 +578,23 @@ const styles = StyleSheet.create({
   uploadText: {color: COLOR.primary, fontWeight: '600'},
   imageRow: {flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, gap: 8},
   imagePreview: {width: 80, height: 80, borderRadius: 6},
+
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: 16,
+    color: '#333',
+  },
+  value: {
+    fontSize: 16,
+    color: '#555',
+  },
 });

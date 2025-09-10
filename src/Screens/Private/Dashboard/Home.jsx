@@ -210,7 +210,7 @@ const Home = ({navigation}) => {
       id: 'commercial_space',
       type: 'commercial_space',
       name: 'Commercial Space',
-      data: ['Shop', 'Office', 'Warehouse', 'Showroom' , 'Restaurant' , 'Hotel'],
+      data: ['Shop', 'Office', 'Warehouse', 'Showroom', 'Restaurant', 'Hotel'],
     },
     {
       id: 'bhkOptions',
