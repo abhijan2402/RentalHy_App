@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState, useContext} from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,34 +17,34 @@ import {
   RefreshControl,
   PermissionsAndroid,
 } from 'react-native';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
 import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
-import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
+import { windowHeight, windowWidth } from '../../../Constants/Dimensions';
 import OptionSelector from './OptionSelector';
-import {showPost} from '../../../Constants/Data';
-import {useIsFocused} from '@react-navigation/native';
-import {useApi} from '../../../Backend/Api';
-import {useToast} from '../../../Constants/ToastContext';
-import {AuthContext} from '../../../Backend/AuthContent';
+import { showPost } from '../../../Constants/Data';
+import { useIsFocused } from '@react-navigation/native';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
+import { AuthContext } from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import LocationModal from '../../../Modals/LocationModal';
-import {getCityFromAddress} from '../../../utils/helper';
+import { getCityFromAddress } from '../../../utils/helper';
 import Geolocation from '@react-native-community/geolocation';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-const Home = ({navigation}) => {
-  const {postRequest} = useApi();
-  const {user, showDemoCard, setShowDemoCard, currentAddress} =
+const Home = ({ navigation }) => {
+  const { postRequest } = useApi();
+  const { user, showDemoCard, setShowDemoCard, currentAddress } =
     useContext(AuthContext);
 
-  const {currentStatus} = useContext(AuthContext);
+  const { currentStatus } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const focus = useIsFocused();
   const [loader, setloader] = useState(true);
   const [properties, setProperties] = useState([]);
@@ -109,25 +109,56 @@ const Home = ({navigation}) => {
         }
       });
     } else {
-      if (filters.BHK) formData.append('bhk', filters.BHK);
-      if (filters.propertyType)
-        formData.append('property_type', filters.propertyType);
+      if (filters.BHK) {
+        filters.BHK.forEach((v, i) => formData.append(`bhk[${i}]`, v));
+      }
+
+      if (filters.propertyType) {
+        filters.propertyType.forEach((v, i) => formData.append(`property_type[${i}]`, v));
+      }
+
       if (filters.minPrice) formData.append('min_price', filters.minPrice);
       if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
+
       if (filters.minRoomSize) formData.append('min_area', filters.minRoomSize);
       if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
-      if (filters.furnishing)
-        formData.append('furnishing_status', filters.furnishing);
-      if (filters.availability)
-        formData.append('availability', filters.availability);
-      if (filters.bathrooms) formData.append('bathrooms', filters.bathrooms);
-      if (filters.parking)
-        formData.append('parking_available', filters.parking);
-      if (filters.facing) formData.append('facing_direction', filters.facing);
-      if (filters.advanceValue)
-        formData.append('advance', filters.advanceValue);
-      if (filters.familyTypeValue)
-        formData.append('preferred_tenant_type', filters.familyTypeValue);
+
+      if (filters.furnishing) {
+        filters.furnishing.forEach((v, i) => formData.append(`furnishing_status[${i}]`, v));
+      }
+
+      if (filters.availability) {
+        filters.availability.forEach((v, i) => formData.append(`availability[${i}]`, v));
+      }
+
+      if (filters.bathrooms) {
+        filters.bathrooms.forEach((v, i) => formData.append(`bathrooms[${i}]`, v));
+      }
+
+      if (filters.parking) {
+        filters.parking.forEach((v, i) => formData.append(`parking_available[${i}]`, v));
+      }
+
+      if (filters.facing) {
+        filters.facing.forEach((v, i) => formData.append(`facing_direction[${i}]`, v));
+      }
+
+      if (filters.advanceValue) {
+        filters.advanceValue.forEach((v, i) => formData.append(`advance[${i}]`, v));
+      }
+
+      if (filters.familyTypeValue) {
+        filters.familyTypeValue.forEach((v, i) =>
+          formData.append(`preferred_tenant_type[${i}]`, v),
+        );
+      }
+      if (filters.selectedCommercialSpace) {
+        filters.familyTypeValue.forEach((v, i) =>
+          formData.append(`commercial_space[${i}]`, v),
+        );
+      }
+
+
       if (currentAddress?.lat) formData.append('lat', currentAddress.lat);
       if (currentAddress?.lng) formData.append('long', currentAddress.lng);
     }
@@ -210,7 +241,7 @@ const Home = ({navigation}) => {
       id: 'commercial_space',
       type: 'commercial_space',
       name: 'Commercial Space',
-      data: ['Shop', 'Office', 'Warehouse', 'Showroom' , 'Restaurant' , 'Hotel'],
+      data: ['Shop', 'Office', 'Warehouse', 'Showroom', 'Restaurant', 'Hotel'],
     },
     {
       id: 'bhkOptions',
@@ -262,10 +293,10 @@ const Home = ({navigation}) => {
     },
   ]);
   const sortOptions = [
-    {label: 'Price: Low to High', value: 'price_low_to_high'},
-    {label: 'Price: High to Low', value: 'price_high_to_low'},
-    {label: 'Newest', value: 'newest_first'},
-    {label: 'Oldest', value: 'oldest_first'},
+    { label: 'Price: Low to High', value: 'price_low_to_high' },
+    { label: 'Price: High to Low', value: 'price_high_to_low' },
+    { label: 'Newest', value: 'newest_first' },
+    { label: 'Oldest', value: 'oldest_first' },
   ];
 
   useEffect(() => {
@@ -327,14 +358,14 @@ const Home = ({navigation}) => {
     Geolocation.getCurrentPosition(
       pos => {
         console.log('POS (coarse):', pos);
-        const {latitude, longitude} = pos.coords;
+        const { latitude, longitude } = pos.coords;
         setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
       },
       err => {
         console.log('Error (coarse):', err);
         setLocationStatus(`Error: ${err.message}`);
       },
-      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
     );
   };
 
@@ -352,7 +383,7 @@ const Home = ({navigation}) => {
         navigation={navigation}
       />
       {tabLoader ? (
-        <View style={{height: 115}}></View>
+        <View style={{ height: 115 }}></View>
       ) : (
         <OptionSelector
           navigation={navigation}
@@ -419,7 +450,7 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
-      <View style={{width: windowWidth - 40, alignSelf: 'center'}}>
+      <View style={{ width: windowWidth - 40, alignSelf: 'center' }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -497,33 +528,33 @@ const Home = ({navigation}) => {
           />
           <View style={styles.flagcontainer}>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
             <Text style={styles.text}>Made in India</Text>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
           </View>
           <View style={styles.flagcontainer}>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
             <Text style={styles.text}>Made for India</Text>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
           </View>
         </>
       ) : (
         <>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <FlatList
               data={properties}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <PropertyCard
                   item={item}
                   toggleLike={toggleLike}
@@ -532,7 +563,7 @@ const Home = ({navigation}) => {
               )}
               keyExtractor={item => item.id?.toString()}
               numColumns={2}
-              contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
+              contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
               showsVerticalScrollIndicator={false}
               onEndReached={handleLoadMore}
               onEndReachedThreshold={0.5}
@@ -558,7 +589,7 @@ const Home = ({navigation}) => {
               }
               ListFooterComponent={
                 loadingMore ? (
-                  <View style={{padding: 16}}>
+                  <View style={{ padding: 16 }}>
                     <ActivityIndicator size="small" color={COLOR.primary} />
                   </View>
                 ) : null
@@ -630,7 +661,7 @@ const Home = ({navigation}) => {
 
 export default Home;
 
-export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
+export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -656,7 +687,7 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
         bottom: 50,
         right: 20,
         opacity: fadeAnim,
-        transform: [{translateY: floatAnim}],
+        transform: [{ translateY: floatAnim }],
       }}>
       <TouchableOpacity
         style={{
@@ -673,7 +704,7 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
           source={{
             uri: iconUrl,
           }}
-          style={{width: 25, height: 25}}
+          style={{ width: 25, height: 25 }}
         />
         <Text
           style={{
@@ -726,14 +757,14 @@ export const DemoCard = ({
           borderRadius: 10,
           alignSelf: 'flex-start',
         }}>
-        <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
+        <Text style={{ color: '#fff', fontWeight: '600' }}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export const HomeHeader = ({navigation, setLocationModalVisible}) => {
-  const {user, currentAddress} = useContext(AuthContext);
+export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
+  const { user, currentAddress } = useContext(AuthContext);
   const CityName = getCityFromAddress(currentAddress?.address);
 
   return (
@@ -746,13 +777,13 @@ export const HomeHeader = ({navigation, setLocationModalVisible}) => {
           style={styles.locationIcon}
         />
         <TouchableOpacity
-          style={{flexDirection: 'row', alignItems: 'center', width: '50%'}}
+          style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}
           onPress={() => setLocationModalVisible(true)}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
             }}
-            style={[styles.locationIcon, {width: 25, height: 25}]}
+            style={[styles.locationIcon, { width: 25, height: 25 }]}
           />
 
           <View>
@@ -840,7 +871,7 @@ const styles = StyleSheet.create({
     shadowColor: COLOR.black,
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
   },
   propertyImage: {
     width: '100%',
@@ -887,14 +918,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginHorizontal: 20,
   },
-  searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
+  searchIcon: { width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8 },
   searchInput: {
     flex: 1,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
   },
-  filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
+  filterIcon: { width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8 },
   filterTagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -911,8 +942,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 6,
   },
-  filterText: {fontSize: 12, color: COLOR.white, marginRight: 6},
-  crossIcon: {width: 11, height: 11, tintColor: COLOR.white},
+  filterText: { fontSize: 12, color: COLOR.white, marginRight: 6 },
+  crossIcon: { width: 11, height: 11, tintColor: COLOR.white },
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,
@@ -944,20 +975,3 @@ const styles = StyleSheet.create({
   },
 });
 
-// import React, {useRef, useEffect, useState, useContext} from 'react';
-// import { Text, View } from 'react-native';
-// import GooglePlacePicker from '../../../Components/GooglePicker';
-// const Home = ({navigation}) => {
-//   return (
-//     <View style={{flex:1, backgroundColor:'red'}}>
-//       {/* <Text>Home Screen</Text> */}
-//       <View style={{top:70}}>
-//       <GooglePlacePicker
-//         placeholder="Search property location..."
-//         // onPlaceSelected={handlePlaceSelected}
-//       />
-//       </View>
-//     </View>
-//   );
-// };
-// export default Home;

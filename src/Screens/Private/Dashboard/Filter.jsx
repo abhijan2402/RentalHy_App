@@ -62,7 +62,7 @@ const Filter = ({navigation, route}) => {
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
   const advance = ['1 month', '2 months', '3 months+'];
   const familyType = ['Family', 'Bachelors Male', 'Bachelors Female'];
-  const commercialSpace = ['Yes', 'No'];
+  const commercialSpace = ['Shop', 'Office', 'Warehouse', 'Showroom' , 'Restaurant' , 'Hotel'];
   const facingOptions = [
     'North',
     'East',
@@ -126,31 +126,46 @@ const Filter = ({navigation, route}) => {
       familyTypeValue,
       selectedCommercialSpace,
     };
-    console.log('Applied Filters:', filters);
 
     if (onApplyFilter) onApplyFilter(filters);
     navigation.goBack();
   };
 
-  const renderOptions = (label, options, selected, setSelected) => (
-    <>
+  const renderOptions = (label, options, selected, setSelected , multiSelect = false) => {
+     const handlePress = option => {
+      if (multiSelect) {
+        if (selected.includes(option)) {
+          setSelected(selected.filter(item => item !== option));
+        } else {
+          setSelected([...selected, option]);
+        }
+      } else {
+        setSelected(option);
+      }
+    };
+
+    const isSelected = option => {
+      return multiSelect ? selected.includes(option) : selected === option;
+    };
+   return (
+     <>
       <Text style={styles.label}>{label}</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.optionRow}>
-        {options.map(option => (
+        {options?.map(option => (
           <TouchableOpacity
             key={option}
             style={[
               styles.optionButton,
-              selected === option && styles.optionSelected,
+              isSelected(option) && styles.optionSelected,
             ]}
-            onPress={() => setSelected(option)}>
+            onPress={() => handlePress(option)}>
             <Text
               style={[
                 styles.optionText,
-                selected === option && styles.optionTextSelected,
+                isSelected(option) && styles.optionTextSelected,
               ]}>
               {option}
             </Text>
@@ -158,7 +173,8 @@ const Filter = ({navigation, route}) => {
         ))}
       </ScrollView>
     </>
-  );
+   )
+  };
 
   return (
     <View style={styles.container}>
@@ -169,12 +185,13 @@ const Filter = ({navigation, route}) => {
       />
 
       <ScrollView contentContainerStyle={styles.form}>
-        {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK)}
+        {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK , true)}
         {renderOptions(
           'Commercial Space',
           commercialSpace,
           selectedCommercialSpace,
           setselectedCommercialSpace,
+          true
         )}
 
         {renderOptions(
@@ -182,15 +199,16 @@ const Filter = ({navigation, route}) => {
           propertyTypes,
           propertyType,
           setPropertyType,
+          true
         )}
         {renderOptions(
           'Preferred Tenant Type',
           familyType,
           familyTypeValue,
           setFamilyTypeValue,
+          true
         )}
 
-        {/* Room Size */}
         <Text style={styles.label}>Room Size (sq.ft.)</Text>
         <View style={{paddingHorizontal: 10}}>
           <MultiSlider
@@ -245,22 +263,25 @@ const Filter = ({navigation, route}) => {
           furnishingOptions,
           furnishing,
           setFurnishing,
+          true
         )}
         {renderOptions(
           'Availability',
           availabilityOptions,
           availability,
           setAvailability,
+          true
         )}
-        {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms)}
+        {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms , true)}
         {renderOptions(
           'Parking Available',
           parkingOptions,
           parking,
           setParking,
+          true
         )}
-        {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
-        {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
+        {renderOptions('Facing Direction', facingOptions, facing, setFacing , true)}
+        {renderOptions('Advance', advance, advanceValue, setAdvanceValue , true)}
 
         {/* Buttons */}
         <View style={styles.buttonRow}>

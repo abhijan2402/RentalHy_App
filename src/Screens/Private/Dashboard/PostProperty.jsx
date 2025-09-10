@@ -42,6 +42,8 @@ const PostProperty = ({navigation}) => {
   const [mapData, setMapData] = useState([]);
   const [commercialSpace, setCommercialSpace] = useState([]);
 
+  const [selectedFloor , setSelectedFloor] = useState('');
+
   const [securityAvailable, setSecurityAvailable] = useState(false);
   const [waterFilter, setWaterFilter] = useState(false);
   const [maintainance, setMaintainance] = useState(false);
@@ -55,6 +57,8 @@ const PostProperty = ({navigation}) => {
   const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
   const availabilityOptions = ['Ready to Move', 'Under Construction'];
   const bathroomOptions = ['1', '2', '3', '4+'];
+  const floorOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th+'];
+
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
   const advance = ['1 month', '2 months', '3 months+', 'No Advance'];
   const familyType = ['Family', 'Bachelors male', 'Bachelors female'];
@@ -78,14 +82,12 @@ const PostProperty = ({navigation}) => {
   ) => {
     const handlePress = option => {
       if (multiSelect) {
-        // Toggle selection for multi-select
         if (selected.includes(option)) {
           setSelected(selected.filter(item => item !== option));
         } else {
           setSelected([...selected, option]);
         }
       } else {
-        // Single-select behavior
         setSelected(option);
       }
     };
@@ -353,6 +355,13 @@ const PostProperty = ({navigation}) => {
           propertyType,
           setPropertyType,
         )}
+         {renderOptions(
+          'Floor Options',
+          floorOptions,
+          selectedFloor,
+          setSelectedFloor,
+          false
+        )}
         {renderOptions(
           'Furnishing Status',
           furnishingOptions,
@@ -461,7 +470,7 @@ const PostProperty = ({navigation}) => {
       style={[styles.input, {marginTop: 10}]}
       value={maintainanceValue}
       onChangeText={setMaintainanceValue}
-      placeholder="Enter maintainance amount"
+      placeholder="Enter Monthly Maintainance Amount"
       placeholderTextColor={COLOR.grey}
       keyboardType="numeric"
     />
