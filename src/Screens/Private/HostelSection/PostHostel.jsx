@@ -64,7 +64,7 @@ const PostHostel = ({navigation}) => {
   const [selectedFurnishing, setSelectedFurnishing] = useState([]);
 
   // Bathroom
-  const [bathroomType, setBathroomType] = useState('');
+  const [bathroomType, setBathroomType] = useState([]);
 
   const toggleOptions = [
     {label: 'Kitchen', key: 'kitchen'},
@@ -382,8 +382,8 @@ const PostHostel = ({navigation}) => {
           {renderMultiSelect(
             'Bathroom Type',
             ['Attached', 'Common', 'Both'],
-            [bathroomType],
-            val => setBathroomType(val[0]),
+            bathroomType,
+            setBathroomType,
           )}
 
           {/* Toggles */}
