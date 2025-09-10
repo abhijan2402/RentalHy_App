@@ -189,6 +189,14 @@ const PostProperty = ({navigation}) => {
       if(commercialSpace?.length > 0) formData.append('commercial_space[0]', commercialSpace);
     }
 
+     if(Array.isArray(selectedFloor) && selectedFloor.length > 0){
+      selectedFloor.forEach((item, index) => {
+        formData.append(`floor[${index}]`, item);
+      });
+    } else {
+      if(selectedFloor?.length > 0) formData.append('floor[0]', selectedFloor);
+    }
+
 
     if (Array.isArray(selectedBHK)) {
       selectedBHK.forEach((item, index) => {
@@ -360,7 +368,7 @@ const PostProperty = ({navigation}) => {
           floorOptions,
           selectedFloor,
           setSelectedFloor,
-          false
+          true
         )}
         {renderOptions(
           'Furnishing Status',

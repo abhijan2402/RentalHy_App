@@ -175,7 +175,7 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccas
 
       <ScrollView contentContainerStyle={styles.form}>
         {/* Seating Capacity */}
-        <Text style={styles.label}>Seating Capacity (1000 - 1000000+)</Text>
+        <Text style={styles.label}>Seating Capacity</Text>
         <View style={{marginHorizontal: 15}}>
           <MultiSlider
             values={seatingCapacity}
@@ -237,7 +237,6 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccas
           setRoyaltyDecoration,
         )}
 
-        {/* Show input if Royalty Decoration = No */}
         {royaltyDecoration === 'No' && (
           <TextInput
             placeholder="Decoration Person Contact"

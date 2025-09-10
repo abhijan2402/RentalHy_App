@@ -33,12 +33,15 @@ import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import LocationModal from '../../../Modals/LocationModal';
 import { getCityFromAddress } from '../../../utils/helper';
 import Geolocation from '@react-native-community/geolocation';
+import Geocoder from 'react-native-geocoding';
 
 const { width } = Dimensions.get('window');
 
 const Home = ({ navigation }) => {
+
+  Geocoder.init("AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk");
   const { postRequest } = useApi();
-  const { user, showDemoCard, setShowDemoCard, currentAddress } =
+  const { user, showDemoCard, setShowDemoCard, currentAddress,setCurrentAddress } =
     useContext(AuthContext);
 
   const { currentStatus } = useContext(AuthContext);
@@ -158,6 +161,12 @@ const Home = ({ navigation }) => {
         );
       }
 
+      if (filters.selectedFloor) {
+        filters.selectedFloor.forEach((v, i) =>
+          formData.append(`floor[${i}]`, v),
+        );
+      }
+
 
       if (currentAddress?.lat) formData.append('lat', currentAddress.lat);
       if (currentAddress?.lng) formData.append('long', currentAddress.lng);
@@ -268,6 +277,12 @@ const Home = ({ navigation }) => {
       data: ['Ready to Move', 'Under Construction'],
     },
     {
+      id: 'floor',
+      type: 'floor',
+      name: 'Floor Options',
+      data: ['1st', '2nd', '3rd', '4th', '5th', '6th+'],
+    },
+    {
       id: 'bathroomOptions',
       type: 'bathrooms',
       name: 'Bathrooms',
@@ -355,19 +370,39 @@ const Home = ({ navigation }) => {
   };
 
   const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      pos => {
-        console.log('POS (coarse):', pos);
-        const { latitude, longitude } = pos.coords;
-        setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
-      },
-      err => {
-        console.log('Error (coarse):', err);
-        setLocationStatus(`Error: ${err.message}`);
-      },
-      { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
-    );
-  };
+  Geolocation.getCurrentPosition(
+    async pos => {
+      console.log('POS (coarse):', pos);
+      const { latitude, longitude } = pos.coords;
+      setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
+
+      try {
+        const geoResponse = await Geocoder.from(latitude, longitude);
+        const address = geoResponse.results[0].formatted_address;
+        console.log('Full Address:', address);
+        setLocationStatus(
+          `Latitude: ${latitude}, Longitude: ${longitude}, Address: ${address}`,
+        );
+        setCurrentAddress({
+          lat:latitude,
+          lng:longitude,
+          address:address
+        })
+      } catch (geoErr) {
+        console.log('Geocoding error:', geoErr);
+        setLocationStatus(
+          `Latitude: ${latitude}, Longitude: ${longitude}, Address: not found`,
+        );
+      }
+    },
+    err => {
+      console.log('Error (coarse):', err);
+      setLocationStatus(`Error: ${err.message}`);
+    },
+    { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
+  );
+};
+
 
   useEffect(() => {
     requestPermission();

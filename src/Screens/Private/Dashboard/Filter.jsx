@@ -34,6 +34,7 @@ const Filter = ({navigation, route}) => {
   );
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 5000);
   const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
+  const [selectedFloor , setSelectedFloor] = useState( existingFilters?.selectedFloor || '');
 
   const [furnishing, setFurnishing] = useState(
     existingFilters.furnishing || '',
@@ -73,6 +74,8 @@ const Filter = ({navigation, route}) => {
     'North-West',
     'South-West',
   ];
+    const floorOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th+'];
+
 
   const handleReset = () => {
     setSelectedBHK('');
@@ -91,6 +94,7 @@ const Filter = ({navigation, route}) => {
     setAdvanceValue('');
     setFamilyTypeValue('');
     setselectedCommercialSpace('');
+    setSelectedFloor('');
     onApplyFilter({});
     navigation.goBack();
   };
@@ -125,6 +129,7 @@ const Filter = ({navigation, route}) => {
       advanceValue,
       familyTypeValue,
       selectedCommercialSpace,
+      selectedFloor
     };
 
     if (onApplyFilter) onApplyFilter(filters);
@@ -199,6 +204,13 @@ const Filter = ({navigation, route}) => {
           propertyTypes,
           propertyType,
           setPropertyType,
+          true
+        )}
+         {renderOptions(
+          'Floor Options',
+          floorOptions,
+          selectedFloor,
+          setSelectedFloor,
           true
         )}
         {renderOptions(
