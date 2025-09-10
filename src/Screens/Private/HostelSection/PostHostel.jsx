@@ -14,8 +14,8 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
 import CustomButton from '../../../Components/CustomButton';
-import { useApi } from '../../../Backend/Api';
-import { useToast } from '../../../Constants/ToastContext';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 
 const PostHostel = ({navigation}) => {
@@ -26,7 +26,7 @@ const PostHostel = ({navigation}) => {
   const [contact, setContact] = useState('');
   const [altContact, setAltContact] = useState('');
   const [description, setDescription] = useState('');
-  const [buttonLoading, setButtonLoading] = useState(false)
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [singleRoom, setSingleRoom] = useState('');
   const [singleRoomDay, setSingleRoomDay] = useState('');
   const [doubleRoom, setDoubleRoom] = useState('');
@@ -43,10 +43,7 @@ const PostHostel = ({navigation}) => {
   const [landmark, setLandmark] = useState('');
   const [roomSizeMin, setRoomSizeMin] = useState('');
   const [roomSizeMax, setRoomSizeMax] = useState('');
-
-  console.log(location,"locationlocation")
-
-  const hostelTypes = ['male', 'female', 'coliving'];
+  const hostelTypes = ['Male', 'Female', 'Coliving'];
   const [selectedTypes, setSelectedTypes] = useState([]);
 
   const furnishingOptions = [
@@ -69,24 +66,24 @@ const PostHostel = ({navigation}) => {
   // Bathroom
   const [bathroomType, setBathroomType] = useState('');
 
-  // Toggles Yes/No
   const toggleOptions = [
-    'kitchen',
-    'wifi',
-    'A/C',
-    'laundry_service',
-    'housekeeping',
-    'hot_water',
-    'power_backup',
-    'parking',
-    'gym',
-    'play_area',
-    'tv',
-    'dining_table',
-    'security',
-    'ro_water',
-    'study_area',
+    {label: 'Kitchen', key: 'kitchen'},
+    {label: 'WiFi', key: 'wifi'},
+    {label: 'A/C', key: 'A/C'},
+    {label: 'Laundry Service', key: 'laundry_service'},
+    {label: 'Housekeeping', key: 'housekeeping'},
+    {label: 'Hot Water', key: 'hot_water'},
+    {label: 'Power Backup', key: 'power_backup'},
+    {label: 'Parking', key: 'parking'},
+    {label: 'Gym', key: 'gym'},
+    {label: 'Play Area', key: 'play_area'},
+    {label: 'TV', key: 'tv'},
+    {label: 'Dining Table', key: 'dining_table'},
+    {label: 'Security', key: 'security'},
+    {label: 'RO Water', key: 'ro_water'},
+    {label: 'Study Area', key: 'study_area'},
   ];
+
   const RULES_POLICIES_OPTIONS = [
     'Gate Closing Time [ 9:00 PM - 6:00 AM ]',
     'Visitors allowed/not allowed',
@@ -97,7 +94,7 @@ const PostHostel = ({navigation}) => {
   const [rulesPolicies, setRulesPolicies] = useState([]);
 
   const [toggleStates, setToggleStates] = useState(
-    Object.fromEntries(toggleOptions.map(opt => [opt, 'no'])),
+    Object.fromEntries(toggleOptions.map(opt => [opt?.key, 'no'])),
   );
 
   // Food
@@ -211,50 +208,53 @@ const PostHostel = ({navigation}) => {
     </View>
   );
 
-
   const postHostel = async () => {
+    console.log(toggleStates, 'STATATTAT');
+
     setButtonLoading(true);
 
     const formData = new FormData();
-   if(title) formData.append('title', title);
-    if(contact) formData.append('contact_number', contact);
-    if(altContact) formData.append('alternate_contact_number', altContact);
-    if(description) formData.append('description', description);
-    if(singleRoom) formData.append('single_room_price', singleRoom);
-    if(doubleRoom) formData.append('double_sharing_price', doubleRoom);
-    if(tripleRoom) formData.append('triple_sharing_price', tripleRoom);
-    if(fourRoom) formData.append('four_sharing_price', fourRoom);
-    if(roomDeposit) formData.append('security_deposit' , roomDeposit);
+    if (title) formData.append('title', title);
+    if (contact) formData.append('contact_number', contact);
+    if (altContact) formData.append('alternate_contact_number', altContact);
+    if (description) formData.append('description', description);
+    if (singleRoom) formData.append('single_room_price', singleRoom);
+    if (doubleRoom) formData.append('double_sharing_price', doubleRoom);
+    if (tripleRoom) formData.append('triple_sharing_price', tripleRoom);
+    if (fourRoom) formData.append('four_sharing_price', fourRoom);
+    if (roomDeposit) formData.append('security_deposit', roomDeposit);
 
-    if(dormDay) formData.append('one_day_stay' , dormDay);
-    if(dormWeek) formData.append('one_week_stay' , dormWeek);
-    if(dormMonth) formData.append('one_month_stay' , dormMonth);
-    if(mapLink) formData.append('map_link' , mapLink);
+    if (dormDay) formData.append('one_day_stay', dormDay);
+    if (dormWeek) formData.append('one_week_stay', dormWeek);
+    if (dormMonth) formData.append('one_month_stay', dormMonth);
+    if (mapLink) formData.append('map_link', mapLink);
 
-    if(location?.address) formData.append('location' , location?.address);
-    if(location?.lat) formData.append('lat' , location?.lat);
-    if(location?.lng) formData.append('long' , location?.lng);
-    if(landmark) formData.append('landmark' , landmark);
+    if (location?.address) formData.append('location', location?.address);
+    if (location?.lat) formData.append('lat', location?.lat);
+    if (location?.lng) formData.append('long', location?.lng);
+    if (landmark) formData.append('landmark', landmark);
 
-    if(roomSizeMin) formData.append('room_size_min' , roomSizeMin);
-    if(roomSizeMax) formData.append('room_size_max' , roomSizeMax);
+    if (roomSizeMin) formData.append('room_size_min', roomSizeMin);
+    if (roomSizeMax) formData.append('room_size_max', roomSizeMax);
 
-   if(selectedTypes) formData.append('hostel_type' , selectedTypes[0]);
-   if(furnishingOptions) formData.append('furnishing' , JSON.stringify(furnishingOptions));
+    if (selectedTypes) formData.append('hostel_type', selectedTypes[0]);
+    if (furnishingOptions)
+      formData.append('furnishing', JSON.stringify(furnishingOptions));
 
-   if(bathroomType) formData.append('bathroom_type' , bathroomType);
-    if(breakfast) formData.append('breakfast_timing' , foodTimings.breakfast);
-    if(tea) formData.append('tea_coffee_timing' , foodTimings.tea);
-    if(lunch) formData.append('lunch_timing' , foodTimings.lunch);
-    if(snacks) formData.append('snacks_timing' , foodTimings.snacks);
-    if(dinner) formData.append('dinner_timing' , foodTimings.dinner);
-    if(documents) formData.append('documents_required' , documents);
-    if(rules) formData.append('rules_policies' , rules);
-      Object.entries(toggleStates).forEach(([key, value]) => {
-        formData.append(key, value === 'yes' ? 1 : 0);
-      });
+    if (bathroomType) formData.append('bathroom_type', bathroomType);
+    if (breakfast) formData.append('breakfast_timing', foodTimings.breakfast);
+    if (tea) formData.append('tea_coffee_timing', foodTimings.tea);
+    if (lunch) formData.append('lunch_timing', foodTimings.lunch);
+    if (snacks) formData.append('snacks_timing', foodTimings.snacks);
+    if (dinner) formData.append('dinner_timing', foodTimings.dinner);
+    if (documents) formData.append('documents_required', documents);
+    if (rules) formData.append('rules_policies', rules);
 
-     images.forEach((img, index) => {
+    Object.entries(toggleStates).forEach(([key, value]) => {
+      formData.append(key, value === 'yes' ? 1 : 0);
+    });
+
+    images.forEach((img, index) => {
       formData.append(`images[${index}]`, {
         uri: img.uri,
         type: img.type || 'image/jpeg',
@@ -264,26 +264,21 @@ const PostHostel = ({navigation}) => {
     formData.append('menu_images[0]', {
       type: 'image/jpeg',
       uri: menuImage?.uri,
-      name: 'image'
-    })
-    const response = await postRequest('public/api/hostels', formData , true);
+      name: 'image',
+    });
+    const response = await postRequest('public/api/hostels', formData, true);
 
+    if (response?.data?.success) {
+      setButtonLoading(false);
 
-    if(response?.data?.success){
-    setButtonLoading(false);
-
-      showToast(response?.data?.message , 'success');
-      navigation.goBack()
-    }else{
+      showToast(response?.data?.message, 'success');
+      navigation.goBack();
+    } else {
       // navigation.goBack()
-    setButtonLoading(false);
-
+      setButtonLoading(false);
     }
     setButtonLoading(false);
-
-
-
-  }
+  };
 
   return (
     <View style={{flex: 1, backgroundColor: COLOR.white}}>
@@ -336,12 +331,11 @@ const PostHostel = ({navigation}) => {
           {/* Location */}
           {renderInput('Map Link', mapLink, setMapLink)}
           {/* {renderInput('Location', location, setLocation)} */}
-           <View style={styles.section}>
+          <View style={styles.section}>
             <Text style={styles.label}>Location</Text>
             <GooglePlacePicker
-              onPlaceSelected={(location) => setLocation(location)}
+              onPlaceSelected={location => setLocation(location)}
             />
-
           </View>
           {renderInput('Landmark', landmark, setLandmark)}
 
@@ -394,9 +388,11 @@ const PostHostel = ({navigation}) => {
 
           {/* Toggles */}
           {toggleOptions.map(opt =>
-            renderToggle(opt, toggleStates[opt], v =>
-              setToggleStates({...toggleStates, [opt]: v}),
-            ),
+            renderToggle(opt?.label, toggleStates[opt?.key], v => {
+              console.log(v, 'VVVV');
+
+              setToggleStates({...toggleStates, [opt?.key]: v});
+            }),
           )}
 
           {/* Food Options */}
@@ -448,7 +444,11 @@ const PostHostel = ({navigation}) => {
             )}
           </View>
         </ScrollView>
-        <CustomButton title={'Upload Hostel'} onPress={postHostel} loading={buttonLoading} />
+        <CustomButton
+          title={'Upload Hostel'}
+          onPress={postHostel}
+          loading={buttonLoading}
+        />
       </KeyboardAvoidingView>
     </View>
   );
