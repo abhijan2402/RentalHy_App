@@ -143,6 +143,20 @@ const ConventionAmed = ({AllData}) => {
             • Wheelchair Access: {AllData?.wheel_chair_access ? 'Yes' : 'No'}
           </Text>
         )}
+        {AllData?.dates && (
+          <View style={{marginVertical:10,width:'40%',left:20}}>
+              <Text>Unavailability Dates</Text>
+            </View>
+        )}
+        {AllData?.dates && (
+          Object.entries(AllData.dates).map(([date, value]) => (
+              <View style={{flexDirection:'row',width:'50%',justifyContent:'space-around'}} key={date}>
+              <Text>{date} : </Text>
+              <Text>{value}</Text>
+            </View>
+          ))
+        )}
+
       </>
     </View>
   );

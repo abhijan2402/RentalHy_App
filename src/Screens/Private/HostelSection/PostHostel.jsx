@@ -257,7 +257,6 @@ const PostHostel = ({navigation}) => {
     if (dormDay) formData.append('one_day_stay', dormDay);
     if (dormWeek) formData.append('one_week_stay', dormWeek);
     if (dormMonth) formData.append('one_month_stay', dormMonth);
-    if (mapLink) formData.append('map_link', mapLink);
 
     if (location?.address) formData.append('location', location?.address);
     if (location?.lat) formData.append('lat', location?.lat);
@@ -373,7 +372,6 @@ const PostHostel = ({navigation}) => {
           {renderInput('Security Deposit', dormDeposit, setDormDeposit)}
 
           {/* Location */}
-          {renderInput('Map Link', mapLink, setMapLink)}
           {/* {renderInput('Location', location, setLocation)} */}
           <View style={styles.section}>
             <Text style={styles.label}>Location</Text>

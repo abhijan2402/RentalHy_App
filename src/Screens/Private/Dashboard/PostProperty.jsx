@@ -356,7 +356,7 @@ const PostProperty = ({navigation}) => {
           </ScrollView>
         </View>
 
-        {renderOptions('BHK*', bhkOptions, selectedBHK, setSelectedBHK , true)}
+        {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK , true)}
         {renderOptions(
           'Property Type',
           propertyTypes,

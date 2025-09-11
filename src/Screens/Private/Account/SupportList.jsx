@@ -1,41 +1,82 @@
-import {StyleSheet, Text, View, FlatList, TouchableOpacity} from 'react-native';
-import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
+import {useIsFocused} from '@react-navigation/native';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
 
 const SupportList = ({navigation}) => {
-  // Dummy support tickets data
-  const tickets = [
-    {
-      id: '1',
-      title: 'Payment not processed',
-      description: 'I made a payment but it is not reflecting in my account.',
-      status: 'Open',
-    },
-    {
-      id: '2',
-      title: 'App crashing on login',
-      description: 'Whenever I try to log in, the app crashes immediately.',
-      status: 'Pending',
-    },
-    {
-      id: '3',
-      title: 'App crashing on login',
-      description: 'Whenever I try to log in, the app crashes immediately.',
-      status: 'Closed',
-    },
-  ];
+  const {getRequest} = useApi();
+  const showToast = useToast();
+  const isFocus = useIsFocused();
 
-  // Status color mapping using COLOR constants
+  const [loader, setLoader] = useState(true);
+  const [tickets, setTickets] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const getSupportDetail = useCallback(
+    async (pageNum = 1) => {
+      try {
+        pageNum === 1 && setLoader(true);
+        const res = await getRequest(
+          `public/api/support/issues?page=${pageNum}`,
+        );
+
+        const apiData = res?.data;
+        if (apiData?.status === 'success' || apiData?.success === 'success') {
+          const newTickets = apiData.data?.data || [];
+          if (pageNum === 1) {
+            setTickets(newTickets); // first page
+          } else {
+            setTickets(prev => [...prev, ...newTickets]); // append
+          }
+          setHasMore(Boolean(apiData.data?.next_page_url));
+          setPage(pageNum);
+        } else {
+          showToast('Failed to fetch support issues', 'error');
+        }
+      } catch (error) {
+        showToast(error?.message || 'Something went wrong', 'error');
+      } finally {
+        setLoader(false);
+        setLoadingMore(false);
+      }
+    },
+    [getRequest, showToast],
+  );
+
+  useEffect(() => {
+    if (isFocus) {
+      getSupportDetail(1); 
+    }
+  }, [isFocus, getSupportDetail]);
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      setLoadingMore(true);
+      getSupportDetail(page + 1);
+    }
+  };
+
   const getStatusColor = status => {
     switch (status) {
-      case 'Open':
-        return COLOR.green; // green
-      case 'Pending':
-        return '#fab319'; // using your royalBlue for pending
-      case 'Closed':
-        return COLOR.primary; // using pink for closed
+      case 'open':
+        return COLOR.green;
+      case 'pending':
+        return '#fab319';
+      case 'closed':
+        return COLOR.primary;
       default:
         return COLOR.black;
     }
@@ -45,13 +86,20 @@ const SupportList = ({navigation}) => {
     <TouchableOpacity style={styles.ticketCard}>
       <View style={styles.ticketHeader}>
         <Text style={styles.ticketTitle}>{item.title}</Text>
-        <Text style={[styles.status, {color: getStatusColor(item.status)}]}>
+        <Text
+          style={[
+            styles.status,
+            {color: getStatusColor(item.status)},
+            {textTransform: 'capitalize'},
+          ]}>
           {item.status}
         </Text>
       </View>
       <Text style={styles.ticketDescription}>{item.description}</Text>
     </TouchableOpacity>
   );
+
+
 
   return (
     <View style={styles.container}>
@@ -61,17 +109,37 @@ const SupportList = ({navigation}) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      {/* Ticket list */}
       <FlatList
         data={tickets}
-        keyExtractor={item => item.id}
+        keyExtractor={item => String(item.id)}
         renderItem={renderTicket}
         contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={() => (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 50,
+            }}>
+            <Text>No Support Ticket found.</Text>
+          </View>
+        )}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          loadingMore ? (
+            <ActivityIndicator
+              size="small"
+              color={COLOR.primary}
+              style={{marginVertical: 16}}
+            />
+          ) : null
+        }
       />
 
-      {/* Create ticket button */}
       <CustomButton
-        title={'Create Ticket'}
+        title="Create Ticket"
         onPress={() => navigation.navigate('CreateTicket')}
         style={{marginBottom: 45}}
       />
@@ -116,6 +184,7 @@ const styles = StyleSheet.create({
   },
   status: {
     fontSize: 14,
+    marginRight: 10,
     fontWeight: 'bold',
   },
 });

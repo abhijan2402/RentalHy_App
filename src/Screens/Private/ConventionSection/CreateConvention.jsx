@@ -16,6 +16,7 @@ import {Calendar} from 'react-native-calendars';
 import { useToast } from '../../../Constants/ToastContext';
 import { useApi } from '../../../Backend/Api';
 import GooglePlacePicker from '../../../Components/GooglePicker';
+import moment from 'moment';
 
 const getYears = () => {
   const currentYear = new Date().getFullYear();
@@ -198,22 +199,31 @@ const CreateConvention = ({navigation}) => {
   const [wellnessCentre, setWellnessCentre] = useState(false);
   const [wheelChair, setWheelChair] = useState(false);
   const [otherFacilities, setOtherFacilities] = useState('');
+  const [timeBlocks, setTimeBlocks] = useState({}); 
 
-  const toggleDate = day => {
+  console.log(timeBlocks,"timeBlockstimeBlockstimeBlocks")
+
+
+const toggleDate = day => {
     const date = day.dateString;
     setUnavailableDates(prev => {
       const newDates = {...prev};
       if (newDates[date]) {
-        delete newDates[date]; // unselect if already selected
+        delete newDates[date];
+        const updatedTimes = {...timeBlocks};
+        delete updatedTimes[date];
+        setTimeBlocks(updatedTimes);
       } else {
-        newDates[date] = {
-          selected: true,
-          selectedColor: 'red',
-        };
+        newDates[date] = {selected: true, selectedColor: 'red'};
       }
       return newDates;
     });
   };
+
+  const handleTimeChange = (date, text) => {
+    setTimeBlocks(prev => ({...prev, [date]: text}));
+  };
+
   const pickImages = setter => {
     ImagePicker.openPicker({
       multiple: true,
@@ -326,6 +336,13 @@ const CreateConvention = ({navigation}) => {
         name: img.name || `room_image_${index}.jpg`,
       });
     });
+
+   if (timeBlocks) {
+      Object.entries(timeBlocks).forEach(([date, value]) => {
+        formData.append(`dates[${moment(date)?.format('DD/MM/YYYY')}]`, value);
+      });
+    }
+
 
     
 
@@ -902,6 +919,20 @@ const CreateConvention = ({navigation}) => {
             available for booking. All other dates will be considered available.
           </Text>
         </View>
+
+        <View style={styles.section }>
+        {Object.keys(unavailableDates).map(date => (
+          <View key={date} style={styles.deltaRow}>
+            <Text style={styles.dateText}>{date}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter unavailable time"
+              value={timeBlocks[date] || ''}
+              onChangeText={text => handleTimeChange(date, text)}
+            />
+          </View>
+        ))}
+      </View>
         {/* Post Space */}
         <CustomButton
           title={
@@ -994,6 +1025,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  deltaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    justifyContent: 'space-between',
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    height: 40,
+  },
+  dateText: {fontSize: 16, width: 110},
   inputVal: {
     borderWidth: 1,
     borderColor: '#ccc',

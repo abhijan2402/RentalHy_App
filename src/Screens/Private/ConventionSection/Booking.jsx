@@ -364,7 +364,7 @@ const handleBooking = async () => {
                     <Text
                       style={[
                         styles.toggleText,
-                        decorations === option && styles.selectedText,
+                        PhotographersReq === option && styles.selectedText,
                       ]}>
                       {option.toUpperCase()}
                     </Text>

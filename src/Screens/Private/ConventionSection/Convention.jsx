@@ -58,7 +58,7 @@ const HallCard = ({
       />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardDesc}>{description}</Text>
+        <Text style={styles.cardDesc} numberOfLines={2}>{description}</Text>
         <Text style={styles.cardInfo}>📍 {location}</Text>
         <Text style={styles.cardInfo}>👥 Capacity: {capacity} people</Text>
 

@@ -59,6 +59,7 @@ const MyBooking = ({navigation}) => {
     await getRequest(`public/api/payment_list?page=${pageNum}`)
       .then(res => {
         if (res.data.success) {
+          console.log(res,"resresres")
           const apiData = res.data.data;
           setLastPage(apiData.last_page);
           setPage(apiData.current_page);
