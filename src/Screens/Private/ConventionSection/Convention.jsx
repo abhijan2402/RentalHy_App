@@ -75,7 +75,7 @@ const HallCard = ({
                 styles.cardInfo,
                 {marginLeft: 5, fontWeight: '600', color: COLOR.primary},
               ]}>
-              ₹ {price?.min_amount} -/- ₹{price?.max_amount}
+              ₹ {price?.min_amount} - ₹{price?.max_amount}
             </Text>
           </View>
           <TouchableOpacity style={styles.bookBtn} onPress={onBook}>

@@ -296,28 +296,30 @@ const PropertyDetail = ({navigation, route}) => {
               )}
             </View>
             {/* Contact Section */}
-            <View style={styles.contactContainer}>
-              <Text style={styles.contactTitle}>Contact Options</Text>
+            {type != 'convention' && (
+              <View style={styles.contactContainer}>
+                <Text style={styles.contactTitle}>Contact Options</Text>
 
-              {/* Phone */}
-              <TouchableOpacity
-                style={styles.locationRow}
-                onPress={() =>
-                  handleCall(
-                    AllData?.user?.phone_number || AllData?.contact_number,
-                  )
-                }>
-                <Image
-                  source={{
-                    uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
-                  }}
-                  style={styles.iconLarge}
-                />
-                <Text style={styles.phoneHighlighted}>
-                  {AllData?.user?.phone_number || AllData?.contact_number}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                {/* Phone */}
+                <TouchableOpacity
+                  style={styles.locationRow}
+                  onPress={() =>
+                    handleCall(
+                      AllData?.user?.phone_number || AllData?.contact_number,
+                    )
+                  }>
+                  <Image
+                    source={{
+                      uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
+                    }}
+                    style={styles.iconLarge}
+                  />
+                  <Text style={styles.phoneHighlighted}>
+                    {AllData?.user?.phone_number || AllData?.contact_number}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
             <View style={styles.contactContainer}>
               <Text style={styles.contactTitle}>Address</Text>
 

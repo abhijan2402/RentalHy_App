@@ -413,6 +413,7 @@ const PostProperty = ({navigation}) => {
           familyType,
           familyTypeValue,
           setFamilyTypeValue,
+          true,
         )}
 
         <View style={styles.section}>

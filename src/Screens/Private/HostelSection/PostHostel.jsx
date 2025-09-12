@@ -113,6 +113,8 @@ const PostHostel = ({navigation}) => {
   const [pickerMode, setPickerMode] = useState('time'); // For time picker
   const [smokingAllowed, setSmokingAllowed] = useState(false);
   const [alcoholAllowed, setAlcoholAllowed] = useState(false);
+  const [visitersAllowed, setvisitersAllowed] = useState(false);
+
   const [PetsAllowed, setPetsAllowed] = useState(false);
   const [refundPolicy, setRefundPolicy] = useState(null);
   const [gateTimings, setGateTimings] = useState({
@@ -286,7 +288,7 @@ const PostHostel = ({navigation}) => {
     if (gateTimings?.opening) {
       formData.append('get_open_time', gateTimings.opening);
     }
-
+    if (visitersAllowed) formData.append('visitors_allowed', visitersAllowed);
     // Gate Closing Time
     if (gateTimings?.closing) {
       formData.append('gate_closing_time', gateTimings.closing);
@@ -495,6 +497,11 @@ const PostHostel = ({navigation}) => {
           {renderToggle('Pets Allowed', PetsAllowed, setPetsAllowed)}
 
           {renderToggle('Smoking Allowed', smokingAllowed, setSmokingAllowed)}
+          {renderToggle(
+            'Visitors Allowed',
+            visitersAllowed,
+            setvisitersAllowed,
+          )}
 
           {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
           {renderInput(' Refund policy', refundPolicy, setRefundPolicy, true)}
