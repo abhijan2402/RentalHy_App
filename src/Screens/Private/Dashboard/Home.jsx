@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, {useRef, useEffect, useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,37 +17,41 @@ import {
   RefreshControl,
   PermissionsAndroid,
 } from 'react-native';
-import { COLOR } from '../../../Constants/Colors';
+import {COLOR} from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
 import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
-import { windowHeight, windowWidth } from '../../../Constants/Dimensions';
+import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
 import OptionSelector from './OptionSelector';
-import { showPost } from '../../../Constants/Data';
-import { useIsFocused } from '@react-navigation/native';
-import { useApi } from '../../../Backend/Api';
-import { useToast } from '../../../Constants/ToastContext';
-import { AuthContext } from '../../../Backend/AuthContent';
+import {showPost} from '../../../Constants/Data';
+import {useIsFocused} from '@react-navigation/native';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
+import {AuthContext} from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import LocationModal from '../../../Modals/LocationModal';
-import { getCityFromAddress } from '../../../utils/helper';
+import {getCityFromAddress} from '../../../utils/helper';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
+  Geocoder.init('AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk');
+  const {postRequest} = useApi();
+  const {
+    user,
+    showDemoCard,
+    setShowDemoCard,
+    currentAddress,
+    setCurrentAddress,
+  } = useContext(AuthContext);
 
-  Geocoder.init("AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk");
-  const { postRequest } = useApi();
-  const { user, showDemoCard, setShowDemoCard, currentAddress,setCurrentAddress } =
-    useContext(AuthContext);
-
-  const { currentStatus } = useContext(AuthContext);
+  const {currentStatus} = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { showToast } = useToast();
+  const {showToast} = useToast();
   const focus = useIsFocused();
   const [loader, setloader] = useState(true);
   const [properties, setProperties] = useState([]);
@@ -117,7 +121,9 @@ const Home = ({ navigation }) => {
       }
 
       if (filters.propertyType) {
-        filters.propertyType.forEach((v, i) => formData.append(`property_type[${i}]`, v));
+        filters.propertyType.forEach((v, i) =>
+          formData.append(`property_type[${i}]`, v),
+        );
       }
 
       if (filters.minPrice) formData.append('min_price', filters.minPrice);
@@ -127,27 +133,39 @@ const Home = ({ navigation }) => {
       if (filters.maxRoomSize) formData.append('max_area', filters.maxRoomSize);
 
       if (filters.furnishing) {
-        filters.furnishing.forEach((v, i) => formData.append(`furnishing_status[${i}]`, v));
+        filters.furnishing.forEach((v, i) =>
+          formData.append(`furnishing_status[${i}]`, v),
+        );
       }
 
       if (filters.availability) {
-        filters.availability.forEach((v, i) => formData.append(`availability[${i}]`, v));
+        filters.availability.forEach((v, i) =>
+          formData.append(`availability[${i}]`, v),
+        );
       }
 
       if (filters.bathrooms) {
-        filters.bathrooms.forEach((v, i) => formData.append(`bathrooms[${i}]`, v));
+        filters.bathrooms.forEach((v, i) =>
+          formData.append(`bathrooms[${i}]`, v),
+        );
       }
 
       if (filters.parking) {
-        filters.parking.forEach((v, i) => formData.append(`parking_available[${i}]`, v));
+        filters.parking.forEach((v, i) =>
+          formData.append(`parking_available[${i}]`, v),
+        );
       }
 
       if (filters.facing) {
-        filters.facing.forEach((v, i) => formData.append(`facing_direction[${i}]`, v));
+        filters.facing.forEach((v, i) =>
+          formData.append(`facing_direction[${i}]`, v),
+        );
       }
 
       if (filters.advanceValue) {
-        filters.advanceValue.forEach((v, i) => formData.append(`advance[${i}]`, v));
+        filters.advanceValue.forEach((v, i) =>
+          formData.append(`advance[${i}]`, v),
+        );
       }
 
       if (filters.familyTypeValue) {
@@ -166,7 +184,6 @@ const Home = ({ navigation }) => {
           formData.append(`floor[${i}]`, v),
         );
       }
-
 
       if (currentAddress?.lat) formData.append('lat', currentAddress.lat);
       if (currentAddress?.lng) formData.append('long', currentAddress.lng);
@@ -262,7 +279,15 @@ const Home = ({ navigation }) => {
       id: 'propertyTypes',
       type: 'property_type',
       name: 'Property Type',
-      data: ['Apartment', 'Flat', 'Villa'],
+      data: [
+        'Apartment',
+        'Flat',
+        'Villa',
+        'Independent House',
+        'Duplex',
+        'Roof sheets',
+        'Tiled House',
+      ],
     },
     {
       id: 'furnishingOptions',
@@ -280,7 +305,7 @@ const Home = ({ navigation }) => {
       id: 'floor',
       type: 'floor',
       name: 'Floor Options',
-      data: ['1st', '2nd', '3rd', '4th', '5th', '6th+'],
+      data: ['Ground Floor', '1st', '2nd', '3rd', '4th', '5th', '6th+'],
     },
     {
       id: 'bathroomOptions',
@@ -308,10 +333,10 @@ const Home = ({ navigation }) => {
     },
   ]);
   const sortOptions = [
-    { label: 'Price: Low to High', value: 'price_low_to_high' },
-    { label: 'Price: High to Low', value: 'price_high_to_low' },
-    { label: 'Newest', value: 'newest_first' },
-    { label: 'Oldest', value: 'oldest_first' },
+    {label: 'Price: Low to High', value: 'price_low_to_high'},
+    {label: 'Price: High to Low', value: 'price_high_to_low'},
+    {label: 'Newest', value: 'newest_first'},
+    {label: 'Oldest', value: 'oldest_first'},
   ];
 
   useEffect(() => {
@@ -370,39 +395,38 @@ const Home = ({ navigation }) => {
   };
 
   const getCurrentLocation = () => {
-  Geolocation.getCurrentPosition(
-    async pos => {
-      console.log('POS (coarse):', pos);
-      const { latitude, longitude } = pos.coords;
-      setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
+    Geolocation.getCurrentPosition(
+      async pos => {
+        console.log('POS (coarse):', pos);
+        const {latitude, longitude} = pos.coords;
+        setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
 
-      try {
-        const geoResponse = await Geocoder.from(latitude, longitude);
-        const address = geoResponse.results[0].formatted_address;
-        console.log('Full Address:', address);
-        setLocationStatus(
-          `Latitude: ${latitude}, Longitude: ${longitude}, Address: ${address}`,
-        );
-        setCurrentAddress({
-          lat:latitude,
-          lng:longitude,
-          address:address
-        })
-      } catch (geoErr) {
-        console.log('Geocoding error:', geoErr);
-        setLocationStatus(
-          `Latitude: ${latitude}, Longitude: ${longitude}, Address: not found`,
-        );
-      }
-    },
-    err => {
-      console.log('Error (coarse):', err);
-      setLocationStatus(`Error: ${err.message}`);
-    },
-    { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
-  );
-};
-
+        try {
+          const geoResponse = await Geocoder.from(latitude, longitude);
+          const address = geoResponse.results[0].formatted_address;
+          console.log('Full Address:', address);
+          setLocationStatus(
+            `Latitude: ${latitude}, Longitude: ${longitude}, Address: ${address}`,
+          );
+          setCurrentAddress({
+            lat: latitude,
+            lng: longitude,
+            address: address,
+          });
+        } catch (geoErr) {
+          console.log('Geocoding error:', geoErr);
+          setLocationStatus(
+            `Latitude: ${latitude}, Longitude: ${longitude}, Address: not found`,
+          );
+        }
+      },
+      err => {
+        console.log('Error (coarse):', err);
+        setLocationStatus(`Error: ${err.message}`);
+      },
+      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
+    );
+  };
 
   useEffect(() => {
     requestPermission();
@@ -418,7 +442,7 @@ const Home = ({ navigation }) => {
         navigation={navigation}
       />
       {tabLoader ? (
-        <View style={{ height: 115 }}></View>
+        <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
           navigation={navigation}
@@ -485,7 +509,7 @@ const Home = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
-      <View style={{ width: windowWidth - 40, alignSelf: 'center' }}>
+      <View style={{width: windowWidth - 40, alignSelf: 'center'}}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -563,33 +587,33 @@ const Home = ({ navigation }) => {
           />
           <View style={styles.flagcontainer}>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
             <Text style={styles.text}>Made in India</Text>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
           </View>
           <View style={styles.flagcontainer}>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
             <Text style={styles.text}>Made for India</Text>
             <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+              source={{uri: 'https://flagcdn.com/w20/in.png'}}
               style={styles.flag}
             />
           </View>
         </>
       ) : (
         <>
-          <View style={{ flex: 1 }}>
+          <View style={{flex: 1}}>
             <FlatList
               data={properties}
-              renderItem={({ item }) => (
+              renderItem={({item}) => (
                 <PropertyCard
                   item={item}
                   toggleLike={toggleLike}
@@ -598,7 +622,7 @@ const Home = ({ navigation }) => {
               )}
               keyExtractor={item => item.id?.toString()}
               numColumns={2}
-              contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
+              contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
               showsVerticalScrollIndicator={false}
               onEndReached={handleLoadMore}
               onEndReachedThreshold={0.5}
@@ -624,7 +648,7 @@ const Home = ({ navigation }) => {
               }
               ListFooterComponent={
                 loadingMore ? (
-                  <View style={{ padding: 16 }}>
+                  <View style={{padding: 16}}>
                     <ActivityIndicator size="small" color={COLOR.primary} />
                   </View>
                 ) : null
@@ -696,7 +720,7 @@ const Home = ({ navigation }) => {
 
 export default Home;
 
-export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
+export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -722,7 +746,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
         bottom: 50,
         right: 20,
         opacity: fadeAnim,
-        transform: [{ translateY: floatAnim }],
+        transform: [{translateY: floatAnim}],
       }}>
       <TouchableOpacity
         style={{
@@ -739,7 +763,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
           source={{
             uri: iconUrl,
           }}
-          style={{ width: 25, height: 25 }}
+          style={{width: 25, height: 25}}
         />
         <Text
           style={{
@@ -792,14 +816,14 @@ export const DemoCard = ({
           borderRadius: 10,
           alignSelf: 'flex-start',
         }}>
-        <Text style={{ color: '#fff', fontWeight: '600' }}>{buttonText}</Text>
+        <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
-  const { user, currentAddress } = useContext(AuthContext);
+export const HomeHeader = ({navigation, setLocationModalVisible}) => {
+  const {user, currentAddress} = useContext(AuthContext);
   const CityName = getCityFromAddress(currentAddress?.address);
 
   return (
@@ -812,13 +836,13 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
           style={styles.locationIcon}
         />
         <TouchableOpacity
-          style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}
+          style={{flexDirection: 'row', alignItems: 'center', width: '50%'}}
           onPress={() => setLocationModalVisible(true)}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
             }}
-            style={[styles.locationIcon, { width: 25, height: 25 }]}
+            style={[styles.locationIcon, {width: 25, height: 25}]}
           />
 
           <View>
@@ -906,7 +930,7 @@ const styles = StyleSheet.create({
     shadowColor: COLOR.black,
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
   },
   propertyImage: {
     width: '100%',
@@ -953,14 +977,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginHorizontal: 20,
   },
-  searchIcon: { width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8 },
+  searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
   searchInput: {
     flex: 1,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
   },
-  filterIcon: { width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8 },
+  filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
   filterTagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -977,8 +1001,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 6,
   },
-  filterText: { fontSize: 12, color: COLOR.white, marginRight: 6 },
-  crossIcon: { width: 11, height: 11, tintColor: COLOR.white },
+  filterText: {fontSize: 12, color: COLOR.white, marginRight: 6},
+  crossIcon: {width: 11, height: 11, tintColor: COLOR.white},
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,
@@ -1009,4 +1033,3 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 });
-

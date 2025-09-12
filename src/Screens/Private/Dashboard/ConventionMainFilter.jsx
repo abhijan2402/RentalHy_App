@@ -11,43 +11,84 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import {formatIndianCurrency} from './Filter';
 
 const ConventionMainFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
   const existingFilters = route?.params?.existingFilters || {};
 
-  const [priceRange, setPriceRange] = useState(existingFilters.priceRange  || ['1000', '1000000']);
-  const [seatingCapacity, setSeatingCapacity] = useState(existingFilters.seatingCapacity || ['10', '5000']);
+  const [priceRange, setPriceRange] = useState(
+    existingFilters.priceRange || ['1000', '1000000'],
+  );
+  const [seatingCapacity, setSeatingCapacity] = useState(
+    existingFilters.seatingCapacity || ['10', '5000'],
+  );
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
   const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
-  const [minCapacity , setMinCapacity] = useState(existingFilters.minCapacity || 10);
-  const [maxCapacity , setMaxCapacity] = useState(existingFilters.maxCapacity || 5000);
+  const [minCapacity, setMinCapacity] = useState(
+    existingFilters.minCapacity || 10,
+  );
+  const [maxCapacity, setMaxCapacity] = useState(
+    existingFilters.maxCapacity || 5000,
+  );
 
-const [carParking, setCarParking] = useState(existingFilters.carParking || '');
-const [bikeParking, setBikeParking] = useState(existingFilters.bikeParking || '');
-const [busParking, setBusParking] = useState(existingFilters.busParking || '');
+  const [carParking, setCarParking] = useState(
+    existingFilters.carParking || '',
+  );
+  const [bikeParking, setBikeParking] = useState(
+    existingFilters.bikeParking || '',
+  );
+  const [busParking, setBusParking] = useState(
+    existingFilters.busParking || '',
+  );
 
-const [valetParking, setValetParking] = useState(existingFilters.valetParking || '');
-const [royaltyDecoration, setRoyaltyDecoration] = useState(existingFilters.royaltyDecoration || '');
-const [decorationContact, setDecorationContact] = useState(existingFilters.decorationContact || '');
-const [royaltyKitchen, setRoyaltyKitchen] = useState(existingFilters.royaltyKitchen || '');
-const [generator, setGenerator] = useState(existingFilters.generator || '');
-const [normalWater, setNormalWater] = useState(existingFilters.normalWater || '');
-const [drinkingWater, setDrinkingWater] = useState(existingFilters.drinkingWater || '');
-const [cateringPersons, setCateringPersons] = useState(existingFilters.cateringPersons || '');
+  const [valetParking, setValetParking] = useState(
+    existingFilters.valetParking || '',
+  );
+  const [royaltyDecoration, setRoyaltyDecoration] = useState(
+    existingFilters.royaltyDecoration || '',
+  );
+  const [decorationContact, setDecorationContact] = useState(
+    existingFilters.decorationContact || '',
+  );
+  const [royaltyKitchen, setRoyaltyKitchen] = useState(
+    existingFilters.royaltyKitchen || '',
+  );
+  const [generator, setGenerator] = useState(existingFilters.generator || '');
+  const [normalWater, setNormalWater] = useState(
+    existingFilters.normalWater || '',
+  );
+  const [drinkingWater, setDrinkingWater] = useState(
+    existingFilters.drinkingWater || '',
+  );
+  const [cateringPersons, setCateringPersons] = useState(
+    existingFilters.cateringPersons || '',
+  );
 
-const [acAvailable, setAcAvailable] = useState(existingFilters.acAvailable || false);
-const [roomsAvailable, setRoomsAvailable] = useState(existingFilters.roomsAvailable || false);
-const [alcoholAllowed, setAlcoholAllowed] = useState(existingFilters.alcoholAllowed || false);
-const [photoShootsAllowed, setPhotoShootsAllowed] = useState(existingFilters.photoShootsAllowed || false);
-const [childrenGames, setChildrenGames] = useState(existingFilters.childrenGames || false);
+  const [acAvailable, setAcAvailable] = useState(
+    existingFilters.acAvailable || false,
+  );
+  const [roomsAvailable, setRoomsAvailable] = useState(
+    existingFilters.roomsAvailable || false,
+  );
+  const [alcoholAllowed, setAlcoholAllowed] = useState(
+    existingFilters.alcoholAllowed || false,
+  );
+  const [photoShootsAllowed, setPhotoShootsAllowed] = useState(
+    existingFilters.photoShootsAllowed || false,
+  );
+  const [childrenGames, setChildrenGames] = useState(
+    existingFilters.childrenGames || false,
+  );
 
-const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccasion || '');
+  const [timeOfOccasion, setTimeOfOccasion] = useState(
+    existingFilters.timeOfOccasion || '',
+  );
 
   const yesNoOptions = ['Yes', 'No'];
   const timeOfOccasionOptions = ['Daytime', 'Night time', 'Full day'];
 
-    const handleValuesChange = values => {
+  const handleValuesChange = values => {
     setPriceRange(values);
     setMinPrice(values[0]);
     setMaxPrice(values[1]);
@@ -150,7 +191,7 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccas
       minCapacity,
       maxCapacity,
       seatingCapacity,
-      alcoholAllowed ,
+      alcoholAllowed,
       photoShootsAllowed,
       childrenGames,
       timeOfOccasion,
@@ -180,7 +221,7 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccas
           <MultiSlider
             values={seatingCapacity}
             onValuesChange={handleValuesChangeSeating}
-            min={1000}
+            min={10}
             max={5000}
             step={10}
             selectedStyle={{backgroundColor: COLOR.primary}}
@@ -297,10 +338,10 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(existingFilters.timeOfOccas
           />
           <View style={styles.priceLabelRow}>
             <Text style={styles.priceLabel}>
-              ₹{minPrice.toLocaleString()}
+              ₹{formatIndianCurrency(minPrice)}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹{maxPrice.toLocaleString() + ' +'}
+              ₹{formatIndianCurrency(maxPrice)}
             </Text>
           </View>
         </View>

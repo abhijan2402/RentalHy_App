@@ -12,8 +12,8 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import GooglePlacePicker from '../../../Components/GooglePicker';
-import { useApi } from '../../../Backend/Api';
-import { useToast } from '../../../Constants/ToastContext';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
 import RazorpayCheckout from 'react-native-razorpay';
 
 const Booking = ({navigation, route}) => {
@@ -38,106 +38,128 @@ const Booking = ({navigation, route}) => {
   const [comments, setComments] = useState('');
   const today = new Date().toISOString().split('T')[0];
 
-
-const handleBooking = async () => {
-  if(!name || !mobile || !address || !pincode || !attendees || !selectedDate || !dayTime || !amount){
-    showToast('Please fill all required fields.', "error");
-    return;
-  }
-  setButtonLoader(true);
-  const formData = new FormData();
-  formData.append('full_name', name);
-  formData.append('mobail_number', mobile);
-  formData.append('alt_number', altMobile);
-  formData.append('address', address?.address || '');
-  formData.append('pin_code', pincode);
-  formData.append('number_of_attendess', attendees);
-  formData.append('booking_date', selectedDate);
-  formData.append('event_time', dayTime);
-  formData.append('property_id', route?.params?.propertyData || '');
-  formData.append('catering_needed', catering === 'yes' ? 1 : 0);
-  formData.append('chef_needed', chef === 'yes' ? 1 : 0);
-  formData.append('decore_needed', decorations === 'yes' ? 1 : 0);
-  formData.append('groceries_needed', groceries === 'yes' ? 1 : 0);
-  formData.append('photograper_needed', PhotographersReq === 'yes' ? 1 : 0);
-  formData.append('comment', comments);
-  formData.append('amount', amount);
-  if (address?.lat) formData.append('lat', address?.lat);
-  if (address?.lng) formData.append('lng', address?.lng);
-
-  try {
-    const res = await postRequest('public/api/book-property/create-order', formData, true);
-    setButtonLoader(false);
-
-    if (res?.data?.status || res?.data?.success === true) {
-      showToast('Booking successful! Proceeding to payment...', "success");
-      const { order_id, razorpay_key } = res.data;
-
-      console.log('Order ID:', order_id, 'Key:', razorpay_key);
-
-      if (!order_id || !razorpay_key) {
-        showToast('Payment setup failed. Missing order details.', "error");
-        return;
-      }
-
-      const options = {
-        description: 'Booking Payment',
-        image: 'https://your-logo-url.png',
-        currency: 'INR',
-        key: razorpay_key,
-        amount: amount * 100,
-        name: name,
-        order_id: order_id,
-        prefill: {
-          name: 'AJ Jan',
-          email: 'abhishek.jangid741@gmail.com',
-          contact: '7976114258' || '',
-        },
-        theme: { color: '#53a20e' },
-      };
-
-      try {
-        const paymentData = await RazorpayCheckout.open(options).then((data) => {
-          try{
-
-            const form = new FormData();
-            form.append('razorpay_order_id', data?.razorpay_order_id);
-            form.append('razorpay_payment_id', data?.razorpay_payment_id);
-            form.append('razorpay_signature', data?.razorpay_signature);
-
-            postRequest('public/api/property/verify-payment', form, true).then(verifyRes => {
-              if (verifyRes?.data?.status || verifyRes?.data?.success === 'success') {
-                console.log('Payment verified:', verifyRes.data);
-                showToast('Payment successful and verified!', "success");
-                navigation?.goBack();
-              } else {
-                showToast('Payment verification failed. Please contact support.', "error");
-              }
-            }).catch(verifyErr => {
-              console.error('Payment verification error:', verifyErr);
-              showToast('Payment verification error. Please contact support.', "error");
-            });
-          }catch(error){
-            console.error('Payment verification error:', error);
-          }
-        });
-        console.log('Payment success:', paymentData);
-        // navigation?.goBack();
-      } catch (error) {
-        console.error('Payment failed:', error);
-        showToast('Payment failed. Please try again.', "error");
-      }
-
-    } else {
-      showToast('Booking failed. Please try again.', "error");
+  const handleBooking = async () => {
+    if (
+      !name ||
+      !mobile ||
+      !address ||
+      !pincode ||
+      !attendees ||
+      !selectedDate ||
+      !dayTime ||
+      !amount
+    ) {
+      showToast('Please fill all required fields.', 'error');
+      return;
     }
-  } catch (err) {
-    setButtonLoader(false);
-    console.error('Booking API error:', err);
-    showToast('An error occurred. Please try again.', "error");
-  }
-};
+    setButtonLoader(true);
+    const formData = new FormData();
+    formData.append('full_name', name);
+    formData.append('mobail_number', mobile);
+    formData.append('alt_number', altMobile);
+    formData.append('address', address?.address || '');
+    formData.append('pin_code', pincode);
+    formData.append('number_of_attendess', attendees);
+    formData.append('booking_date', selectedDate);
+    formData.append('event_time', dayTime);
+    formData.append('property_id', route?.params?.propertyData || '');
+    formData.append('catering_needed', catering === 'yes' ? 1 : 0);
+    formData.append('chef_needed', chef === 'yes' ? 1 : 0);
+    formData.append('decore_needed', decorations === 'yes' ? 1 : 0);
+    formData.append('groceries_needed', groceries === 'yes' ? 1 : 0);
+    formData.append('photograper_needed', PhotographersReq === 'yes' ? 1 : 0);
+    formData.append('comment', comments);
+    formData.append('amount', amount);
+    if (address?.lat) formData.append('lat', address?.lat);
+    if (address?.lng) formData.append('lng', address?.lng);
 
+    try {
+      const res = await postRequest(
+        'public/api/book-property/create-order',
+        formData,
+        true,
+      );
+      setButtonLoader(false);
+
+      if (res?.data?.status || res?.data?.success === true) {
+        showToast('Booking successful! Proceeding to payment...', 'success');
+        const {order_id, razorpay_key} = res.data;
+
+        console.log('Order ID:', order_id, 'Key:', razorpay_key);
+
+        if (!order_id || !razorpay_key) {
+          showToast('Payment setup failed. Missing order details.', 'error');
+          return;
+        }
+
+        const options = {
+          description: 'Booking Payment',
+          image: 'https://your-logo-url.png',
+          currency: 'INR',
+          key: razorpay_key,
+          amount: amount * 100,
+          name: name,
+          order_id: order_id,
+          prefill: {
+            name: 'AJ Jan',
+            email: 'abhishek.jangid741@gmail.com',
+            contact: '7976114258' || '',
+          },
+          theme: {color: '#53a20e'},
+        };
+
+        try {
+          const paymentData = await RazorpayCheckout.open(options).then(
+            data => {
+              try {
+                const form = new FormData();
+                form.append('razorpay_order_id', data?.razorpay_order_id);
+                form.append('razorpay_payment_id', data?.razorpay_payment_id);
+                form.append('razorpay_signature', data?.razorpay_signature);
+
+                postRequest('public/api/property/verify-payment', form, true)
+                  .then(verifyRes => {
+                    if (
+                      verifyRes?.data?.status ||
+                      verifyRes?.data?.success === 'success'
+                    ) {
+                      console.log('Payment verified:', verifyRes.data);
+                      showToast('Payment successful and verified!', 'success');
+                      navigation?.goBack();
+                    } else {
+                      showToast(
+                        'Payment verification failed. Please contact support.',
+                        'error',
+                      );
+                    }
+                  })
+                  .catch(verifyErr => {
+                    console.error('Payment verification error:', verifyErr);
+                    showToast(
+                      'Payment verification error. Please contact support.',
+                      'error',
+                    );
+                  });
+              } catch (error) {
+                console.error('Payment verification error:', error);
+              }
+            },
+          );
+          console.log('Payment success:', paymentData);
+          // navigation?.goBack();
+        } catch (error) {
+          console.error('Payment failed:', error);
+          showToast('Payment failed. Please try again.', 'error');
+        }
+      } else {
+        showToast('Booking failed. Please try again.', 'error');
+      }
+    } catch (err) {
+      setButtonLoader(false);
+      console.error('Booking API error:', err);
+      showToast('An error occurred. Please try again.', 'error');
+    }
+  };
 
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -170,7 +192,6 @@ const handleBooking = async () => {
           />
         </View>
 
-       
         {/* Alt Mobile */}
         <View style={styles.section}>
           <Text style={styles.label}>Alternate Mobile Number</Text>
@@ -183,7 +204,7 @@ const handleBooking = async () => {
           />
         </View>
 
-          <View style={styles.section}>
+        <View style={styles.section}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
             style={styles.input}
@@ -194,13 +215,20 @@ const handleBooking = async () => {
           />
         </View>
 
-
         {/* Address */}
         <View style={styles.section}>
           <Text style={styles.label}>Address</Text>
-          <GooglePlacePicker
+          {/* <GooglePlacePicker
             placeholder="Select Address"
             onPlaceSelected={setAddress}
+          /> */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Address"
+            value={address}
+            onChangeText={setAddress}
+            multiline
+            textAlignVertical="top"
           />
         </View>
 
@@ -435,7 +463,11 @@ const handleBooking = async () => {
       </ScrollView>
 
       {/* Book Now Button */}
-      <CustomButton title={'Book Now'} onPress={handleBooking} loading={buttonLoader} />
+      <CustomButton
+        title={'Book Now'}
+        onPress={handleBooking}
+        loading={buttonLoader}
+      />
     </View>
   );
 };

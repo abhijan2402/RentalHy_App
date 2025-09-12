@@ -30,11 +30,15 @@ const Filter = ({navigation, route}) => {
     existingFilters.maxRoomSize || 5000,
   );
   const [priceRange, setPriceRange] = useState(
-    existingFilters.priceRange || [5000, 1000000],
+    existingFilters.priceRange || [5000, '10,00,000'],
   );
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 5000);
-  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
-  const [selectedFloor , setSelectedFloor] = useState( existingFilters?.selectedFloor || '');
+  const [maxPrice, setMaxPrice] = useState(
+    existingFilters.maxPrice || '10,00,000',
+  );
+  const [selectedFloor, setSelectedFloor] = useState(
+    existingFilters?.selectedFloor || '',
+  );
 
   const [furnishing, setFurnishing] = useState(
     existingFilters.furnishing || '',
@@ -56,14 +60,29 @@ const Filter = ({navigation, route}) => {
   );
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
-  const propertyTypes = ['Apartment', 'Flat', 'Villa'];
+  const propertyTypes = [
+    'Apartment',
+    'Flat',
+    'Villa',
+    'Independent House',
+    'Duplex',
+    'Roof sheets',
+    'Tiled House',
+  ];
   const furnishingOptions = ['Furnished', 'Semi-Furnished', 'Unfurnished'];
   const availabilityOptions = ['Ready to Move', 'Under Construction'];
   const bathroomOptions = ['1', '2', '3', '4+'];
   const parkingOptions = ['Car', 'Bike', 'Both', 'None'];
   const advance = ['1 month', '2 months', '3 months+'];
   const familyType = ['Family', 'Bachelors Male', 'Bachelors Female'];
-  const commercialSpace = ['Shop', 'Office', 'Warehouse', 'Showroom' , 'Restaurant' , 'Hotel'];
+  const commercialSpace = [
+    'Shop',
+    'Office',
+    'Warehouse',
+    'Showroom',
+    'Restaurant',
+    'Hotel',
+  ];
   const facingOptions = [
     'North',
     'East',
@@ -74,8 +93,15 @@ const Filter = ({navigation, route}) => {
     'North-West',
     'South-West',
   ];
-    const floorOptions = ['1st', '2nd', '3rd', '4th', '5th', '6th+'];
-
+  const floorOptions = [
+    'Ground Floor',
+    '1st',
+    '2nd',
+    '3rd',
+    '4th',
+    '5th',
+    '6th+',
+  ];
 
   const handleReset = () => {
     setSelectedBHK('');
@@ -129,15 +155,21 @@ const Filter = ({navigation, route}) => {
       advanceValue,
       familyTypeValue,
       selectedCommercialSpace,
-      selectedFloor
+      selectedFloor,
     };
 
     if (onApplyFilter) onApplyFilter(filters);
     navigation.goBack();
   };
 
-  const renderOptions = (label, options, selected, setSelected , multiSelect = false) => {
-     const handlePress = option => {
+  const renderOptions = (
+    label,
+    options,
+    selected,
+    setSelected,
+    multiSelect = false,
+  ) => {
+    const handlePress = option => {
       if (multiSelect) {
         if (selected.includes(option)) {
           setSelected(selected.filter(item => item !== option));
@@ -152,33 +184,33 @@ const Filter = ({navigation, route}) => {
     const isSelected = option => {
       return multiSelect ? selected.includes(option) : selected === option;
     };
-   return (
-     <>
-      <Text style={styles.label}>{label}</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.optionRow}>
-        {options?.map(option => (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              isSelected(option) && styles.optionSelected,
-            ]}
-            onPress={() => handlePress(option)}>
-            <Text
+    return (
+      <>
+        <Text style={styles.label}>{label}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.optionRow}>
+          {options?.map(option => (
+            <TouchableOpacity
+              key={option}
               style={[
-                styles.optionText,
-                isSelected(option) && styles.optionTextSelected,
-              ]}>
-              {option}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </>
-   )
+                styles.optionButton,
+                isSelected(option) && styles.optionSelected,
+              ]}
+              onPress={() => handlePress(option)}>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSelected(option) && styles.optionTextSelected,
+                ]}>
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </>
+    );
   };
 
   return (
@@ -190,13 +222,13 @@ const Filter = ({navigation, route}) => {
       />
 
       <ScrollView contentContainerStyle={styles.form}>
-        {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK , true)}
+        {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK, true)}
         {renderOptions(
           'Commercial Space',
           commercialSpace,
           selectedCommercialSpace,
           setselectedCommercialSpace,
-          true
+          true,
         )}
 
         {renderOptions(
@@ -204,21 +236,21 @@ const Filter = ({navigation, route}) => {
           propertyTypes,
           propertyType,
           setPropertyType,
-          true
+          true,
         )}
-         {renderOptions(
+        {renderOptions(
           'Floor Options',
           floorOptions,
           selectedFloor,
           setSelectedFloor,
-          true
+          true,
         )}
         {renderOptions(
           'Preferred Tenant Type',
           familyType,
           familyTypeValue,
           setFamilyTypeValue,
-          true
+          true,
         )}
 
         <Text style={styles.label}>Room Size (sq.ft.)</Text>
@@ -265,8 +297,12 @@ const Filter = ({navigation, route}) => {
             trackStyle={{height: 4}}
           />
           <View style={styles.priceLabelRow}>
-            <Text style={styles.priceLabel}>₹{minPrice.toLocaleString()}</Text>
-            <Text style={styles.priceLabel}>₹{maxPrice.toLocaleString()}</Text>
+            <Text style={styles.priceLabel}>
+              ₹{formatIndianCurrency(minPrice)}
+            </Text>
+            <Text style={styles.priceLabel}>
+              ₹{formatIndianCurrency(maxPrice)}
+            </Text>
           </View>
         </View>
 
@@ -275,25 +311,37 @@ const Filter = ({navigation, route}) => {
           furnishingOptions,
           furnishing,
           setFurnishing,
-          true
+          true,
         )}
         {renderOptions(
           'Availability',
           availabilityOptions,
           availability,
           setAvailability,
-          true
+          true,
         )}
-        {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms , true)}
+        {renderOptions(
+          'Bathrooms',
+          bathroomOptions,
+          bathrooms,
+          setBathrooms,
+          true,
+        )}
         {renderOptions(
           'Parking Available',
           parkingOptions,
           parking,
           setParking,
-          true
+          true,
         )}
-        {renderOptions('Facing Direction', facingOptions, facing, setFacing , true)}
-        {renderOptions('Advance', advance, advanceValue, setAdvanceValue , true)}
+        {renderOptions(
+          'Facing Direction',
+          facingOptions,
+          facing,
+          setFacing,
+          true,
+        )}
+        {renderOptions('Advance', advance, advanceValue, setAdvanceValue, true)}
 
         {/* Buttons */}
         <View style={styles.buttonRow}>
@@ -310,6 +358,28 @@ const Filter = ({navigation, route}) => {
 };
 
 export default Filter;
+export const formatIndianCurrency = value => {
+  try {
+    // ✅ 1. Handle null, undefined, empty string, or non-numeric inputs
+    if (value === null || value === undefined || value === '') {
+      return '0';
+    }
+
+    // ✅ 2. Convert to number safely
+    const num = Number(value);
+
+    // ✅ 3. If conversion fails or NaN, return "0"
+    if (isNaN(num) || !isFinite(num)) {
+      return '0';
+    }
+
+    // ✅ 4. Use Indian numbering system
+    return num.toLocaleString('en-IN');
+  } catch (error) {
+    console.error('formatIndianCurrency Error:', error);
+    return '0'; // Fallback to safe value
+  }
+};
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: COLOR.white},

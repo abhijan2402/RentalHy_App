@@ -201,8 +201,8 @@ const PropertyDetail = ({navigation, route}) => {
     furnished: safeParse(AllData?.furnishing_status),
   };
 
-  const handleCall = () => {
-    Linking.openURL(`tel:${phoneNumber}`);
+  const handleCall = val => {
+    Linking.openURL(`tel:${val}`);
   };
 
   const handleLocation = location => {
@@ -300,14 +300,22 @@ const PropertyDetail = ({navigation, route}) => {
               <Text style={styles.contactTitle}>Contact Options</Text>
 
               {/* Phone */}
-              <TouchableOpacity style={styles.locationRow} onPress={handleCall}>
+              <TouchableOpacity
+                style={styles.locationRow}
+                onPress={() =>
+                  handleCall(
+                    AllData?.user?.phone_number || AllData?.contact_number,
+                  )
+                }>
                 <Image
                   source={{
                     uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
                   }}
                   style={styles.iconLarge}
                 />
-                <Text style={styles.phoneHighlighted}>{phoneNumber}</Text>
+                <Text style={styles.phoneHighlighted}>
+                  {AllData?.user?.phone_number || AllData?.contact_number}
+                </Text>
               </TouchableOpacity>
             </View>
             <View style={styles.contactContainer}>
@@ -361,6 +369,33 @@ const PropertyDetail = ({navigation, route}) => {
                 </ImageBackground>
               </TouchableOpacity>
             </View>
+
+            {/* Amenities */}
+            {type !== 'convention' &&
+              type !== 'hostel' &&
+              AllData?.amenities &&
+              Object.keys(AllData.amenities).length > 0 && (
+                <>
+                  <Text style={styles.sectionTitle}>Amenities</Text>
+                  <View style={styles.amenitiesContainer}>
+                    {Object.entries(AllData.amenities).map(([key, value]) => (
+                      <Text key={key} style={styles.specText}>
+                        • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
+                      </Text>
+                    ))}
+                  </View>
+                </>
+              )}
+
+            {'}'}
+            {type === 'convention' && (
+              <>
+                <ConventionAmed AllData={AllData} />
+              </>
+            )}
+            {type === 'hostel' && <HostelAmed AllData={AllData} />}
+          </View>
+          <View style={{marginHorizontal: 15, marginBottom: 20}}>
             {type === 'hostel' && (
               <>
                 <Text
@@ -419,35 +454,7 @@ const PropertyDetail = ({navigation, route}) => {
                 )}
               </>
             )}
-
-            {/* Specifications */}
-            {/* <View style={styles.specsContainer}>
-              {Object.entries(specifications).map(([key, value]) => (
-                <Text key={key} style={styles.specText}>
-                  • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-                </Text>
-              ))}
-            </View> */}
-            {/* Amenities */}
-            {AllData?.amenities && (
-              <Text style={styles.sectionTitle}>Amenities</Text>
-            )}
-            {/* <View style={styles.amenitiesContainer}>
-              {Object?.entries(AllData?.amenities)?.map(([key, value]) => (
-                <Text key={key} style={styles.specText}>
-                  • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-                </Text>
-              ))}
-            </View> */}
-            {'}'}
-            {type === 'convention' && (
-              <>
-                <ConventionAmed AllData={AllData} />
-              </>
-            )}
-            {type === 'hostel' && <HostelAmed AllData={AllData} />}
           </View>
-
           <CustomButton
             title={'Contact Landlord in Chat'}
             onPress={() => {

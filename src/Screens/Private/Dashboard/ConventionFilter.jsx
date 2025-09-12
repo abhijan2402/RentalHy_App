@@ -10,21 +10,40 @@ import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import {formatIndianCurrency} from './Filter';
 
 const FarmHouseFilter = ({navigation, route}) => {
   const existingFilters = route?.params?.existingFilters || {};
   const onApplyFilter = route?.params?.onApplyFilter;
   const activeTab = route?.params?.activeTab || 'farmhouse';
-  const [priceRange, setPriceRange] = useState(existingFilters.priceRange  || ['1000', '1000000+']);
-  const [swimmingPool, setSwimmingPool] = useState(existingFilters.swimmingPool || '');
-  const [foodAvailable, setFoodAvailable] = useState(existingFilters.foodAvailable || '');
-  const [outsideFood, setOutsideFood] = useState(existingFilters.outsideFood || '');
+  const [priceRange, setPriceRange] = useState(
+    existingFilters.priceRange || ['1000', '1000000+'],
+  );
+  const [swimmingPool, setSwimmingPool] = useState(
+    existingFilters.swimmingPool || '',
+  );
+  const [foodAvailable, setFoodAvailable] = useState(
+    existingFilters.foodAvailable || '',
+  );
+  const [outsideFood, setOutsideFood] = useState(
+    existingFilters.outsideFood || '',
+  );
   const [cctv, setCctv] = useState(existingFilters.cctv || '');
-  const [soundSystemAvailable, setSoundSystemAvailable] = useState(existingFilters.soundSystemAvailable || '');
-  const [soundSystemAllowed, setSoundSystemAllowed] = useState(existingFilters.soundSystemAllowed || '');
-  const [childrenGames, setChildrenGames] = useState(existingFilters.childrenGames || '');
-  const [adultGames, setAdultGames] = useState(existingFilters.adultGames || '');
-  const [kitchenSetup, setKitchenSetup] = useState(existingFilters.kitchenSetup || '');
+  const [soundSystemAvailable, setSoundSystemAvailable] = useState(
+    existingFilters.soundSystemAvailable || '',
+  );
+  const [soundSystemAllowed, setSoundSystemAllowed] = useState(
+    existingFilters.soundSystemAllowed || '',
+  );
+  const [childrenGames, setChildrenGames] = useState(
+    existingFilters.childrenGames || '',
+  );
+  const [adultGames, setAdultGames] = useState(
+    existingFilters.adultGames || '',
+  );
+  const [kitchenSetup, setKitchenSetup] = useState(
+    existingFilters.kitchenSetup || '',
+  );
   const [parking, setParking] = useState(existingFilters.parking || '');
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
   const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
@@ -87,7 +106,7 @@ const FarmHouseFilter = ({navigation, route}) => {
       priceRange,
       minPrice,
       maxPrice,
-      activeTab
+      activeTab,
     };
 
     console.log('FarmHouse Filters:', filters);
@@ -97,7 +116,7 @@ const FarmHouseFilter = ({navigation, route}) => {
     navigation.goBack();
   };
 
-      const handleValuesChange = values => {
+  const handleValuesChange = values => {
     setPriceRange(values);
     setMinPrice(values[0]);
     setMaxPrice(values[1]);
@@ -154,10 +173,13 @@ const FarmHouseFilter = ({navigation, route}) => {
           />
           <View style={styles.priceLabelRow}>
             <Text style={styles.priceLabel}>
-              ₹{minPrice.toLocaleString()}
+              {/* ₹{minPrice.toLocaleString()} */}₹
+              {formatIndianCurrency(minPrice)}
             </Text>
+
             <Text style={styles.priceLabel}>
-              ₹{maxPrice.toLocaleString()}
+              {/* ₹{maxPrice.toLocaleString()} */}₹
+              {formatIndianCurrency(maxPrice)}
             </Text>
           </View>
         </View>

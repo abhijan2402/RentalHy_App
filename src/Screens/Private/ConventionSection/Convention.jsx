@@ -58,7 +58,9 @@ const HallCard = ({
       />
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
-        <Text style={styles.cardDesc} numberOfLines={2}>{description}</Text>
+        <Text style={styles.cardDesc} numberOfLines={2}>
+          {description}
+        </Text>
         <Text style={styles.cardInfo}>📍 {location}</Text>
         <Text style={styles.cardInfo}>👥 Capacity: {capacity} people</Text>
 
@@ -429,7 +431,7 @@ const FarmHouse = ({
           />
         </TouchableOpacity>
       </View>
-             <View
+      <View
         style={{
           width: windowWidth - 40,
           alignSelf: 'center',
@@ -615,67 +617,67 @@ const Convention = ({navigation, route}) => {
       id: 'ac_available',
       type: 'ac_available',
       name: 'A/C Available',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
     {
       id: 'valet_parking',
       type: 'valet_parking',
       name: 'Valet Parking',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
-        {
+    {
       id: 'alcohol_allowed',
       type: 'alcohol_allowed',
-      name: 'Alcohol Available',
-      state:'boolean',
+      name: 'Alcohol Allowed',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
-        {
+    {
       id: 'royalty_decoration',
       type: 'royalty_decoration',
       name: 'Royalty for Decoration',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
-        {
+    {
       id: 'royalty_kitchen',
       type: 'royalty_kitchen',
       name: 'Royalty for Kitchen',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
-        {
+    {
       id: 'generator_available',
       type: 'generator_available',
       name: 'Generator Available',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
-        {
+    {
       id: 'photoshoot_all',
       type: 'photoshoot_all',
       name: 'Photo Shoot Allowed',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
-        {
+    {
       id: 'adult_games',
       type: 'adult_games',
       name: 'Children Games',
-      state:'boolean',
+      state: 'boolean',
       data: ['Yes', 'No'],
     },
   ]);
 
-    const [avaialbleFilterFarm, setavaialbleFilterFarm] = useState([
+  const [avaialbleFilterFarm, setavaialbleFilterFarm] = useState([
     {
       id: 'priceRange',
       type: 'price',
       name: 'Price',
       data: [],
-    }
+    },
   ]);
 
   const sortOptions = [
@@ -724,7 +726,7 @@ const Convention = ({navigation, route}) => {
     const formData = new FormData();
     formData.append('page', pageNum);
     if (isDynamic) {
-     Object.entries(filters).forEach(([key, value]) => {
+      Object.entries(filters).forEach(([key, value]) => {
         if (Array.isArray(value)) {
           if (value.length === 1 && (value[0] === 'Yes' || value[0] === 'No')) {
             formData.append(key.toLowerCase(), value[0] === 'Yes' ? 1 : 0);

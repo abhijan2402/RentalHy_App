@@ -590,6 +590,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     color: '#333',
+    marginBottom: 6,
+    fontWeight: '600',
   },
   value: {
     fontSize: 16,

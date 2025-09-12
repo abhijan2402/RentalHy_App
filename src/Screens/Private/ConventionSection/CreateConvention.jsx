@@ -13,14 +13,14 @@ import {COLOR} from '../../../Constants/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
 import CustomButton from '../../../Components/CustomButton';
 import {Calendar} from 'react-native-calendars';
-import { useToast } from '../../../Constants/ToastContext';
-import { useApi } from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
+import {useApi} from '../../../Backend/Api';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 import moment from 'moment';
 
 const getYears = () => {
   const currentYear = new Date().getFullYear();
-  return [currentYear + 1, currentYear + 2]; 
+  return [currentYear + 1, currentYear + 2];
 };
 
 const months = [
@@ -39,9 +39,9 @@ const months = [
 ];
 
 const CreateConvention = ({navigation}) => {
-   const {postRequest} = useApi();
-   const {showToast} = useToast();
-   const [loading, setLoading] = useState(false);
+  const {postRequest} = useApi();
+  const {showToast} = useToast();
+  const [loading, setLoading] = useState(false);
   // Images
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
@@ -128,8 +128,6 @@ const CreateConvention = ({navigation}) => {
   ];
   const [prices, setPrices] = useState({});
 
-
-
   // Seating Capacity
   const [capacity, setCapacity] = useState(50);
 
@@ -199,12 +197,11 @@ const CreateConvention = ({navigation}) => {
   const [wellnessCentre, setWellnessCentre] = useState(false);
   const [wheelChair, setWheelChair] = useState(false);
   const [otherFacilities, setOtherFacilities] = useState('');
-  const [timeBlocks, setTimeBlocks] = useState({}); 
+  const [timeBlocks, setTimeBlocks] = useState({});
 
-  console.log(timeBlocks,"timeBlockstimeBlockstimeBlocks")
+  console.log(timeBlocks, 'timeBlockstimeBlockstimeBlocks');
 
-
-const toggleDate = day => {
+  const toggleDate = day => {
     const date = day.dateString;
     setUnavailableDates(prev => {
       const newDates = {...prev};
@@ -248,36 +245,42 @@ const toggleDate = day => {
     if (!slots.includes(dateStr)) setSlots([...slots, dateStr]);
   };
 
-    const postSpace = async () => {
+  const postSpace = async () => {
     setLoading(true);
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("seating_capacity", capacity);
-    formData.append("ac_available", acAvailable === "yes" ? 1 : 0);
-    formData.append("royalty_decoration", royaltyDecoration === "yes" ? 1 : 0);
-    formData.append("hall_decorator_name", decorationContact);
-    formData.append("hall_decorator_number", decorationContact);
-    formData.append("royalty_kitchen", royaltyKitchen === "yes" ? 1 : 0);
-    formData.append("generator_available", generator === "yes" ? 1 : 0);
-    formData.append("water_for_cooking", normalWater === "yes" ? 1 : 0);
-    formData.append("drinking_water_available", drinkingWater === "yes" ? 1 : 0);
-    formData.append("provides_catering_persons", catering === "yes" ? 1 : 0);
-    formData.append("photographers_required", PhotographersReq === "yes" ? 1 : 0);
-    formData.append("children_games", childrenGames === "yes" ? 1 : 0);
-    formData.append("parking_available", parkingAvailable === "yes" ? 1 : 0);
-    formData.append("parking_guard", parkingGuard === "yes" ? 1 : 0);
-    formData.append("alcohol_allowed", alcoholAllowed === true ? 1 : 0);
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('seating_capacity', capacity);
+    formData.append('ac_available', acAvailable === 'yes' ? 1 : 0);
+    formData.append('royalty_decoration', royaltyDecoration === 'yes' ? 1 : 0);
+    formData.append('hall_decorator_name', decorationContact);
+    formData.append('hall_decorator_number', decorationContact);
+    formData.append('royalty_kitchen', royaltyKitchen === 'yes' ? 1 : 0);
+    formData.append('generator_available', generator === 'yes' ? 1 : 0);
+    formData.append('water_for_cooking', normalWater === 'yes' ? 1 : 0);
+    formData.append(
+      'drinking_water_available',
+      drinkingWater === 'yes' ? 1 : 0,
+    );
+    formData.append('provides_catering_persons', catering === 'yes' ? 1 : 0);
+    formData.append(
+      'photographers_required',
+      PhotographersReq === 'yes' ? 1 : 0,
+    );
+    formData.append('children_games', childrenGames === 'yes' ? 1 : 0);
+    formData.append('parking_available', parkingAvailable === 'yes' ? 1 : 0);
+    formData.append('parking_guard', parkingGuard === 'yes' ? 1 : 0);
+    formData.append('alcohol_allowed', alcoholAllowed === true ? 1 : 0);
 
-    formData.append("hall_type", "hall");
+    formData.append('hall_type', 'hall');
     const normalizeKey = str =>
       str
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "_")
-        .replace(/^_|_$/g, "");
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '');
 
     const selectedOptions =
-      uploadType === "Farm House" ? priceOptionsFarm : priceOptions;
+      uploadType === 'Farm House' ? priceOptionsFarm : priceOptions;
 
     selectedOptions.forEach(opt => {
       if (prices[opt]) {
@@ -291,17 +294,22 @@ const toggleDate = day => {
       }
     });
 
-     if(address?.lat && address?.lng){
+    if (address?.lat && address?.lng) {
       formData.append('lat', address.lat);
       formData.append('long', address.lng);
     }
 
     hallImages.forEach((img, index) => {
-      formData.append( uploadType == "Farm House" ? `main_images[${index}]` : `hall_images[${index}]`, {
-        uri: img.uri,
-        type: img.type || 'image/jpeg',
-        name: img.name || `hall_image_${index}.jpg`,
-      });
+      formData.append(
+        uploadType == 'Farm House'
+          ? `main_images[${index}]`
+          : `hall_images[${index}]`,
+        {
+          uri: img.uri,
+          type: img.type || 'image/jpeg',
+          name: img.name || `hall_image_${index}.jpg`,
+        },
+      );
     });
 
     kitchenImages.forEach((img, index) => {
@@ -320,7 +328,6 @@ const toggleDate = day => {
       });
     });
 
-
     parkingImages.forEach((img, index) => {
       formData.append(`praking_image[${index}]`, {
         uri: img.uri,
@@ -337,22 +344,19 @@ const toggleDate = day => {
       });
     });
 
-   if (timeBlocks) {
+    if (timeBlocks) {
       Object.entries(timeBlocks).forEach(([date, value]) => {
         formData.append(`dates[${moment(date)?.format('DD/MM/YYYY')}]`, value);
       });
     }
 
+    let url = uploadType === 'Farm House' ? 'farm' : 'hall';
 
-    
-
-    let url = uploadType === "Farm House" ? "farm" : "hall";
-
-      const response = await postRequest(
-        `public/api/hall_add/${url}`,
-        formData,
-        true,
-      );
+    const response = await postRequest(
+      `public/api/hall_add/${url}`,
+      formData,
+      true,
+    );
 
     if (response?.data?.success == true) {
       showToast(response?.data?.message, 'success');
@@ -360,10 +364,7 @@ const toggleDate = day => {
       navigation?.goBack();
     }
     setLoading(false);
-
-
   };
-  
 
   const renderImagePicker = (label, imagesArray, setter) => (
     <View style={styles.section}>
@@ -413,9 +414,9 @@ const toggleDate = day => {
           </TouchableOpacity>
         ))}
       </View>
-      {descriptionInput && value === 'no' && (
+      {descriptionInput && value === 'yes' && (
         <TextInput
-          style={styles.input}
+          style={[styles.input, {marginTop: 10}]}
           value={descriptionVal}
           onChangeText={setDescriptionVal}
           placeholder="Enter Name and Number of hall decorator"
@@ -514,7 +515,6 @@ const toggleDate = day => {
           />
         </View>
 
-
         <View style={styles.section}>
           <Text style={styles.label}>Description *</Text>
           <TextInput
@@ -527,10 +527,10 @@ const toggleDate = day => {
         </View>
 
         <View style={styles.section}>
-              <Text style={styles.label}>location *</Text>
+          <Text style={styles.label}>location *</Text>
           <GooglePlacePicker
             placeholder="Search location..."
-            onPlaceSelected={(place) => {
+            onPlaceSelected={place => {
               setAddress(place);
               // setLocation(place.address);
             }}
@@ -920,19 +920,22 @@ const toggleDate = day => {
           </Text>
         </View>
 
-        <View style={styles.section }>
-        {Object.keys(unavailableDates).map(date => (
-          <View key={date} style={styles.deltaRow}>
-            <Text style={styles.dateText}>{date}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter unavailable time"
-              value={timeBlocks[date] || ''}
-              onChangeText={text => handleTimeChange(date, text)}
-            />
-          </View>
-        ))}
-      </View>
+        <View style={styles.section}>
+          {Object.keys(unavailableDates).map(date => (
+            <View key={date} style={styles.deltaRow}>
+              <Text style={styles.dateText}>{date}</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {borderWidth: 1, borderColor: COLOR.black},
+                ]}
+                placeholder="Day time/Night time/Full day"
+                value={timeBlocks[date] || ''}
+                onChangeText={text => handleTimeChange(date, text)}
+              />
+            </View>
+          ))}
+        </View>
         {/* Post Space */}
         <CustomButton
           title={
