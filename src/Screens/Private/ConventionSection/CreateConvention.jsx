@@ -132,22 +132,22 @@ const CreateConvention = ({navigation}) => {
   const [capacity, setCapacity] = useState(50);
 
   // Parking
-  const [parkingAvailable, setParkingAvailable] = useState(null);
+  const [parkingAvailable, setParkingAvailable] = useState(false);
   const [cars, setCars] = useState('');
   const [bikes, setBikes] = useState('');
   const [buses, setBuses] = useState('');
-  const [valet, setValet] = useState('no');
+  const [valet, setValet] = useState('yes');
 
   // Facilities
   const [royaltyDecoration, setRoyaltyDecoration] = useState('no');
   const [decorationContact, setDecorationContact] = useState('');
-  const [royaltyKitchen, setRoyaltyKitchen] = useState('no');
-  const [generator, setGenerator] = useState('no');
-  const [normalWater, setNormalWater] = useState('no');
-  const [drinkingWater, setDrinkingWater] = useState('no');
-  const [catering, setCatering] = useState('no');
-  const [PhotographersReq, setPhotographersReq] = useState('no');
-  const [acAvailable, setAcAvailable] = useState('no');
+  const [royaltyKitchen, setRoyaltyKitchen] = useState('yes');
+  const [generator, setGenerator] = useState('yes');
+  const [normalWater, setNormalWater] = useState('yes');
+  const [drinkingWater, setDrinkingWater] = useState('yes');
+  const [catering, setCatering] = useState('yes');
+  const [PhotographersReq, setPhotographersReq] = useState('yes');
+  const [acAvailable, setAcAvailable] = useState('yes');
   // Availability Slots
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
@@ -199,27 +199,62 @@ const CreateConvention = ({navigation}) => {
   const [otherFacilities, setOtherFacilities] = useState('');
   const [timeBlocks, setTimeBlocks] = useState({});
 
-  console.log(timeBlocks, 'timeBlockstimeBlockstimeBlocks');
+  const [royaltyDecPrice , setRoyaltiDecPrice] = useState('');
 
-  const toggleDate = day => {
+ const toggleDate = day => {
     const date = day.dateString;
     setUnavailableDates(prev => {
-      const newDates = {...prev};
+      const newDates = { ...prev };
       if (newDates[date]) {
         delete newDates[date];
-        const updatedTimes = {...timeBlocks};
+        const updatedTimes = { ...timeBlocks };
         delete updatedTimes[date];
         setTimeBlocks(updatedTimes);
       } else {
-        newDates[date] = {selected: true, selectedColor: 'red'};
+        newDates[date] = { selected: true, selectedColor: 'red' };
       }
       return newDates;
     });
   };
 
-  const handleTimeChange = (date, text) => {
-    setTimeBlocks(prev => ({...prev, [date]: text}));
+    const toggleTimeBlock = (date, block) => {
+    setTimeBlocks(prev => {
+      const current = prev[date] || [];
+      const exists = current.includes(block);
+      return {
+        ...prev,
+        [date]: exists
+          ? current.filter(b => b !== block)
+          : [...current, block],
+      };
+    });
   };
+
+
+  const renderTimeOptions = date => {
+    const options = ['Day', 'Night', 'Full Day'];
+    return (
+      <View style={styles.optionRow}>
+        {options.map(opt => {
+          const selected = timeBlocks[date]?.includes(opt);
+          return (
+            <TouchableOpacity
+              key={opt}
+              style={[
+                styles.optionButton,
+                selected && styles.optionButtonSelected,
+              ]}
+              onPress={() => toggleTimeBlock(date, opt)}
+            >
+              <Text style={selected && styles.optionTextSelected}>{opt}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
+
+
 
   const pickImages = setter => {
     ImagePicker.openPicker({
@@ -267,9 +302,9 @@ const CreateConvention = ({navigation}) => {
       'photographers_required',
       PhotographersReq === 'yes' ? 1 : 0,
     );
-    formData.append('children_games', childrenGames === 'yes' ? 1 : 0);
-    formData.append('parking_available', parkingAvailable === 'yes' ? 1 : 0);
-    formData.append('parking_guard', parkingGuard === 'yes' ? 1 : 0);
+    formData.append('children_games', childrenGames === true ? 1 : 0);
+    formData.append('parking_available', parkingAvailable === true ? 1 : 0);
+    formData.append('parking_guard', parkingGuard === true ? 1 : 0);
     formData.append('alcohol_allowed', alcoholAllowed === true ? 1 : 0);
 
     formData.append('hall_type', 'hall');
@@ -352,6 +387,8 @@ const CreateConvention = ({navigation}) => {
 
     let url = uploadType === 'Farm House' ? 'farm' : 'hall';
 
+    console.log(formData,"formdataformdata")
+
     const response = await postRequest(
       `public/api/hall_add/${url}`,
       formData,
@@ -365,6 +402,8 @@ const CreateConvention = ({navigation}) => {
     }
     setLoading(false);
   };
+
+  console.log(childrenGames,"childrenGameschildrenGames")
 
   const renderImagePicker = (label, imagesArray, setter) => (
     <View style={styles.section}>
@@ -398,6 +437,7 @@ const CreateConvention = ({navigation}) => {
     descriptionInput = false,
     descriptionVal = '',
     setDescriptionVal,
+    field =  ''
   ) => (
     <View style={styles.section}>
       <Text style={styles.label}>{label}</Text>
@@ -420,6 +460,14 @@ const CreateConvention = ({navigation}) => {
           value={descriptionVal}
           onChangeText={setDescriptionVal}
           placeholder="Enter Name and Number of hall decorator"
+        />
+      )}
+      {field === 'Dex' && value === 'no' && (
+        <TextInput
+          style={[styles.input, {marginTop: 10}]}
+          value={royaltyDecPrice}
+          onChangeText={setRoyaltiDecPrice}
+          placeholder="Enter royalty decorator price"
         />
       )}
     </View>
@@ -685,6 +733,7 @@ const CreateConvention = ({navigation}) => {
               true,
               decorationContact,
               setDecorationContact,
+              'Dex'
             )}
             {renderToggle(
               'Royalty for Kitchen',
@@ -804,7 +853,7 @@ const CreateConvention = ({navigation}) => {
             {renderToggle('Play Ground', playGround, setPlayGround)}
 
             {renderToggle('Children Games', childrenGames, setChildrenGames)}
-            {childrenGames && (
+            {childrenGames === true && (
               <View style={styles.section}>
                 <Text style={styles.label}>
                   Mention if any (Children Games)
@@ -841,7 +890,7 @@ const CreateConvention = ({navigation}) => {
 
             {/* Area */}
             <View style={styles.section}>
-              <Text style={styles.label}>Area (in sq. fts)</Text>
+              <Text style={styles.label}>Area </Text>
               <TextInput
                 style={styles.input}
                 value={area}
@@ -852,18 +901,6 @@ const CreateConvention = ({navigation}) => {
           </>
         )}
 
-        {renderToggle('Children Games', childrenGames, setChildrenGames)}
-        {childrenGames && (
-          <View style={styles.section}>
-            <Text style={styles.label}>Mention if any (Children Games)</Text>
-            <TextInput
-              style={styles.input}
-              value={childrenGamesDesc}
-              onChangeText={setChildrenGamesDesc}
-              placeholder="Children Games"
-            />
-          </View>
-        )}
         {renderToggle(
           'Parking Available',
           parkingAvailable,
@@ -905,37 +942,27 @@ const CreateConvention = ({navigation}) => {
             {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
           </>
         )}
-        {/* Availability Slot */}
-        <View style={styles.section}>
-          {/* <View style={styles.section}> */}
-          <Text style={styles.label}>Mark Unavailable Dates</Text>
-          <Calendar
-            onDayPress={toggleDate}
-            markedDates={unavailableDates}
-            markingType={'multi-dot'}
-          />
-          <Text style={styles.note}>
-            Note: Please select only those dates on which your hall is NOT
-            available for booking. All other dates will be considered available.
-          </Text>
-        </View>
+         <View style={styles.section}>
+        <Text style={styles.label}>Unavailable : Day-time Night-time Full-day</Text>
+        <Calendar
+          onDayPress={toggleDate}
+          markedDates={unavailableDates}
+          markingType={'multi-dot'}
+        />
+        <Text style={styles.note}>
+          Note: Please select only those dates on which your hall is NOT
+          available for booking. All other dates will be considered available.
+        </Text>
+      </View>
 
-        <View style={styles.section}>
-          {Object.keys(unavailableDates).map(date => (
-            <View key={date} style={styles.deltaRow}>
-              <Text style={styles.dateText}>{date}</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  {borderWidth: 1, borderColor: COLOR.black},
-                ]}
-                placeholder="Day time/Night time/Full day"
-                value={timeBlocks[date] || ''}
-                onChangeText={text => handleTimeChange(date, text)}
-              />
-            </View>
-          ))}
-        </View>
+      <View style={styles.section}>
+        {Object.keys(unavailableDates).map(date => (
+          <View key={date} style={styles.deltaRow}>
+            <Text style={styles.dateText}>{date}</Text>
+            {renderTimeOptions(date)}
+          </View>
+        ))}
+      </View>
         {/* Post Space */}
         <CustomButton
           title={
@@ -1019,10 +1046,6 @@ const styles = StyleSheet.create({
     marginBottom: 13,
   },
   dateText: {fontSize: 14, color: '#333'},
-  selectedBox: {
-    backgroundColor: COLOR.primary || '#007AFF',
-    borderColor: COLOR.primary || '#007AFF',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1056,4 +1079,18 @@ const styles = StyleSheet.create({
     height: 24,
     tintColor: 'green',
   },
+   optionButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLOR.black,
+    marginRight: 8,
+  },
+  optionButtonSelected: {
+    backgroundColor: COLOR?.primary,
+    borderColor: COLOR?.primary,
+  },
+  optionTextSelected: { color: 'white' },
+  optionRow: { flexDirection: 'row', gap: 8 },
 });

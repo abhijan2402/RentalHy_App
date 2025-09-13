@@ -196,17 +196,7 @@ const ConventionHall = ({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            {
-              // marginVertical: 2,
-              // marginLeft: 20,
-              // // borderWidth: 1,
-              // flex: 0.5,
-              // height: 44,
-              // borderWidth: 1,
-              // width: windowWidth,
-            }
-          }>
+        >
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
             let displayText = filterGroup.name;
@@ -219,7 +209,15 @@ const ConventionHall = ({
               }
             } else if (selectedValues.length > 0) {
               displayText = selectedValues.join(', ');
+            } else if (filterGroup.type === 'seating_capacity') {
+              const minP = AppliedModalFilter.seating_capacity_min;
+              const maxP = AppliedModalFilter.seating_capacity_max;
+              if (minP !== undefined && maxP !== undefined) {
+                displayText = `${minP} - ${maxP}`;
+              }
             }
+
+            
             return (
               <TouchableOpacity
                 onPress={() => {
@@ -608,6 +606,12 @@ const Convention = ({navigation, route}) => {
       data: [],
     },
     {
+      id: 'seating_capacity',
+      type: 'seating_capacity',
+      name: 'Seating Capacity',
+      data: [],
+    },
+    {
       id: 'time_of_occasion',
       type: 'time_of_occasion',
       name: 'Time of Occasion',
@@ -677,6 +681,60 @@ const Convention = ({navigation, route}) => {
       type: 'price',
       name: 'Price',
       data: [],
+    },
+    {
+      id: 'visit_type',
+      type: 'visit_type',
+      name: 'Visit type',
+      data: ['Day', 'Night','Full Day' , "Corporate" , "Banquet hall" , "Occassion Booking" , "Room Booking" , "Any other"],
+    },
+     {
+      id: 'ac_available',
+      type: 'ac_available',
+      name: 'A/C Available',
+      state: 'boolean',
+      data: ['Yes', 'No'],
+    },
+    {
+      id: 'room_available',
+      type: 'room_available',
+      name: 'Room Available',
+      state: 'boolean',
+      data: ['Yes', 'No'],
+    },
+    {
+      id: 'pool_type',
+      type: 'pool_type',
+      name: 'Pool type',
+      data: ['Adult', 'Child','Both'],
+    },
+    {
+      id: 'adult_games',
+      type: 'adult_games',
+      name: 'Adult Games',
+      state: 'boolean',
+      data: ['Yes', 'No'],
+    },
+    {
+      id: 'children_games',
+      type: 'children_games',
+      name: 'Children Games',
+      state: 'boolean',
+      data: ['Yes', 'No'],
+    },
+    {
+      id: 'Parking_available',
+      type: 'Parking_available',
+      name: 'Parking available',
+      state: 'boolean',
+      data: ['Yes', 'No'],
+    },
+    {
+      id: 'Sound_system',
+      type: 'Sound_system',
+      name: 'Sound system',
+      state: 'boolean',
+      data: ['Yes', 'No'],
     },
   ]);
 

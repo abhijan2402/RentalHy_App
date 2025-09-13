@@ -29,6 +29,8 @@ const PropertyDetail = ({navigation, route}) => {
   const [loading, setLoading] = useState(false);
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
+
+  console.log(AllData,"AllDataAllDataAllData")
   const [buttonLoader, setButtonLoader] = useState(false);
   const {type, propertyData} = route?.params;
   const [reviews, setReviews] = useState({
@@ -210,6 +212,8 @@ const PropertyDetail = ({navigation, route}) => {
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
 
+  console.log(AllData,"AllDataAllDataAllData")
+
   return (
     <View style={styles.container}>
       <Header
@@ -248,7 +252,7 @@ const PropertyDetail = ({navigation, route}) => {
                 alignItems: 'center',
               }}>
               <Text style={styles.title}>{AllData?.title}</Text>
-              <TouchableOpacity
+             {type != 'convention' && <TouchableOpacity
                 style={styles.wishlistIcon}
                 onPress={() =>
                   AllData?.is_wishlist == 1
@@ -267,7 +271,7 @@ const PropertyDetail = ({navigation, route}) => {
                       : COLOR.grey,
                   }}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity>}
             </View>
             {/* Read More / Less */}
             <Text style={styles.description}>

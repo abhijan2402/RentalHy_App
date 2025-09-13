@@ -40,7 +40,19 @@ const PostProperty = ({navigation}) => {
   const [familyTypeValue, setFamilyTypeValue] = useState('');
   const [landmark, setLandmark] = useState('');
   const [mapData, setMapData] = useState([]);
+
+  const [commercialOptions, setCommercialOptions] = useState([
+  'Shop',
+  'Office',
+  'Showroom',
+  'Hotel',
+  'Restaurant',
+  ]);
+
+
   const [commercialSpace, setCommercialSpace] = useState([]);
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customCommercial, setCustomCommercial] = useState('');
 
   const [selectedFloor, setSelectedFloor] = useState('');
 
@@ -257,6 +269,7 @@ const PostProperty = ({navigation}) => {
       formData,
       true,
     );
+
     if (response?.data?.status == true) {
       showToast(response?.data?.message, 'success');
       setLoading(false);
@@ -336,41 +349,91 @@ const PostProperty = ({navigation}) => {
           placeholderTextColor={COLOR.grey}
         />
 
-        <View style={styles.section}>
-          <Text style={styles.label}>Commercial Space (Suitable For)</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.toggleRow}>
-            {['Shop', 'Office', 'Showroom', 'Hotel', 'Restaurent'].map(
-              option => (
-                <TouchableOpacity
-                  key={option}
-                  style={[
-                    styles.toggleBtn,
-                    commercialSpace.includes(option) && styles.selectedBtn,
-                  ]}
-                  onPress={() => {
-                    if (commercialSpace.includes(option)) {
-                      setCommercialSpace(
-                        commercialSpace.filter(item => item !== option),
-                      );
-                    } else {
-                      setCommercialSpace([...commercialSpace, option]);
-                    }
-                  }}>
-                  <Text
-                    style={[
-                      styles.toggleText,
-                      commercialSpace.includes(option) && styles.selectedText,
-                    ]}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ),
-            )}
-          </ScrollView>
-        </View>
+       <View style={styles.section}>
+  <Text style={styles.label}>Commercial Space (Suitable For)</Text>
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    style={styles.toggleRow}
+  >
+    {commercialOptions.map(option => (
+      <TouchableOpacity
+        key={option}
+        style={[
+          styles.optionButton,
+          commercialSpace.includes(option) && styles.selectedBtn,
+        ]}
+        onPress={() => {
+          if (commercialSpace.includes(option)) {
+            // Unselect
+            setCommercialSpace(prev => prev.filter(item => item !== option));
+            // If it was a custom one, also remove it from options
+            if (
+              !['Shop', 'Office', 'Showroom', 'Hotel', 'Restaurant'].includes(option)
+            ) {
+              setCommercialOptions(prev => prev.filter(item => item !== option));
+            }
+          } else {
+            // Select
+            setCommercialSpace(prev => [...prev, option]);
+          }
+        }}
+      >
+        <Text
+          style={[
+            styles.toggleText,
+            commercialSpace.includes(option) && styles.selectedText,
+          ]}
+        >
+          {option}
+        </Text>
+      </TouchableOpacity>
+    ))}
+
+    {/* + Add custom button */}
+    <TouchableOpacity
+      key="add-custom"
+      style={[styles.optionButton, styles.addButton]}
+      onPress={() => setShowCustomInput(true)}
+    >
+      <Text style={styles.toggleText}>＋</Text>
+    </TouchableOpacity>
+  </ScrollView>
+
+  {showCustomInput && (
+    <View style={styles.customRow}>
+      <TextInput
+        style={[styles.input, {flex: 1, marginRight: 8}]}
+        value={customCommercial}
+        onChangeText={setCustomCommercial}
+        placeholder="Enter custom space type"
+        placeholderTextColor={COLOR.grey}
+        onSubmitEditing={() => {
+          const trimmed = customCommercial.trim();
+          if (!trimmed) return;
+          // Add to options and select it
+          setCommercialOptions(prev => [...prev, trimmed]);
+          setCommercialSpace(prev => [...prev, trimmed]);
+          setCustomCommercial('');
+          setShowCustomInput(false);
+        }}
+      />
+      <TouchableOpacity
+        style={styles.addConfirm}
+        onPress={() => {
+          const trimmed = customCommercial.trim();
+          if (!trimmed) return;
+          setCommercialOptions(prev => [...prev, trimmed]);
+          setCommercialSpace(prev => [...prev, trimmed]);
+          setCustomCommercial('');
+          setShowCustomInput(false);
+        }}
+      >
+        <Text style={{color: '#fff'}}>Add</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
 
         {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK, true)}
         {renderOptions(
@@ -685,4 +748,21 @@ const styles = StyleSheet.create({
     borderColor: COLOR.primary || '#007AFF',
   },
   toggleText: {fontSize: 14, color: '#333'},
+addButton: {
+  borderStyle: 'dashed',
+  borderWidth: 1,
+  borderColor: COLOR.primary,
+  backgroundColor: 'transparent',
+},
+customRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 10,
+},
+addConfirm: {
+  backgroundColor: COLOR.primary,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderRadius: 8,
+},
 });

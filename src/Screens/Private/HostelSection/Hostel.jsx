@@ -115,9 +115,7 @@ const Hostel = ({navigation}) => {
         id: 'occupancy_capacity',
         type: 'occupancy_capacity',
         name: 'Occupancy Capacity',
-        data: [
-        "10-20", "20-50", "50+"
-    ],
+        data: [],
       },
     ]);
   const isFocus = useIsFocused();
@@ -153,14 +151,62 @@ const Hostel = ({navigation}) => {
         }
       });
     } else {
-      if (filters.selectedRoomTypes) formData.append('room_types[0]', filters.selectedRoomTypes);
-      if (filters.selectedGenders) formData.append('genders[0]', filters.selectedGenders);
       if (filters.minPrice) formData.append('min_price', filters.minPrice);
       if (filters.maxPrice) formData.append('max_price', filters.maxPrice);
-      if (filters.selectedFacilities) formData.append('facilities[0]', filters.selectedFacilities);
-      if (filters.selectedFoodOptions) formData.append('food_options[0]', filters.selectedFoodOptions);
-      if (filters.selectedStayTypes) formData.append('stay_types[0]', filters.selectedStayTypes);
-      if (filters.selectedOccupancy) formData.append('occupancy_capacity', filters.selectedOccupancy);
+
+      if (filters.selectedFacilities) {
+        if(Array.isArray(filters.selectedFacilities)){
+          filters.selectedFacilities?.forEach((v,i) =>{
+            formData.append(`facilities[${i}]`,v)
+          })
+        }else{
+          formData.append('facilities[0]', filters.selectedFacilities)
+        }
+      };
+
+      if (filters.selectedFoodOptions) {
+        if(Array.isArray(filters.selectedFoodOptions)){
+          filters.selectedFoodOptions?.forEach((v,i) =>{
+            formData.append(`food_option[${i}]`,v)
+          })
+        }else{
+          formData.append('food_options[0]', filters.selectedFoodOptions)
+        }
+      };
+
+       if (filters.selectedGenders) {
+        if(Array.isArray(filters.selectedGenders)){
+          filters.selectedGenders?.forEach((v,i) =>{
+            formData.append(`genders[${i}]`,v)
+          })
+        }else{
+          formData.append('genders[0]', filters.selectedGenders)
+        }
+      };
+
+      if (filters.selectedStayTypes) {
+        if(Array.isArray(filters.selectedStayTypes)){
+          filters.selectedStayTypes?.forEach((v,i) =>{
+            formData.append(`stay_types[${i}]`,v)
+          })
+        }else{
+          formData.append('stay_types[0]', filters.selectedStayTypes)
+        }
+      };
+
+       if (filters.selectedRoomTypes) {
+        if(Array.isArray(filters.selectedRoomTypes)){
+          filters.selectedRoomTypes?.forEach((v,i) =>{
+            formData.append(`room_types[${i}]`,v)
+          })
+        }else{
+          formData.append('room_types[0]', filters.selectedRoomTypes)
+        }
+      };
+
+      if(filters?.minOccupancy) formData.append('min_occupancy',filters?.minOccupancy);
+      if(filters?.maxOccupancy) formData.append('max_occupancy',filters?.maxOccupancy);
+
       if (currentAddress?.lat) formData.append('lat', currentAddress.lat);
       if (currentAddress?.lng) formData.append('long', currentAddress.lng);
     }

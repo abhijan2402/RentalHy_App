@@ -184,50 +184,47 @@ export const HOSTEL_FILTERS = {
     },
 
     roomTypes: [
-        'single',
-        'double',
-        'triple',
-        'four',
-        'dormitory',
+        { key: 'Single', value: 'single' },
+        { key: 'Double', value: 'double' },
+        { key: 'Triple', value: 'triple' },
+        { key: 'Four', value: 'four' },
+        { key: 'Dormitory', value: 'dormitory' },
     ],
 
     genders: [
-        'male',
-        'female',
-        'co-living',
+        { key: 'Male', value: 'male' },
+        { key: 'Female', value: 'female' },
+        { key: 'Co-Living', value: 'co-living' },
     ],
 
     facilities: [
-        "wifi",
-        "ac",
-        "laundry_service",
-        "housekeeping",
-        "hot_water",
-        "power_backup",
-        "parking",
-        "gym",
-        "tv",
-        "dining_table",
-        "security",
-        "ro_water",
-        "study_area"
+        { key: 'Wifi', value: 'wifi' },
+        { key: 'Ac', value: 'ac' },
+        { key: 'Laundry-Service', value: 'laundry' },
+        { key: 'House-keeping', value: 'housekeeping' },
+        { key: 'Hot-Water', value: 'hot_water' },
+        { key: 'Power-Backup', value: 'power_backup' },
+        { key: 'Parking', value: 'parking' },
+        { key: 'Gym', value: 'gym' },
+        { key: 'Tv', value: 'tv' },
+        { key: 'Dining-Table', value: 'dining_table' },
+        { key: 'Security', value: 'security' },
+        { key: 'RO-Water', value: 'ro_water' },
+        { key: 'Study-Area', value: 'study_area' },
     ],
 
     foodOptions: [
-        "veg",
-        "non_veg",
-        "mess",
-        "breakfast",
-        "lunch",
-        "dinner"
+        { key: 'Veg', value: 'Veg' },
+        { key: 'Non-Veg', value: 'Non Veg' },
+        { key: 'Mess', value: 'mess' },
+        { key: 'Breakfast', value: 'breakfast' },
+        { key: 'Lunch', value: 'lunch' },
+        { key: 'Dinner', value: 'dinner' },
     ],
 
     stayTypes: [
-        "short-term",
-        "long-term"
+        { key: 'Short-Term', value: 'short-term' },
+        { key: 'Long-Term', value: 'long-term' },
     ],
 
-    occupancyCapacity: [
-        "10-20", "20-50", "50+"
-    ],
 };

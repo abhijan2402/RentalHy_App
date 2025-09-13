@@ -140,11 +140,6 @@ const FarmHouseFilter = ({navigation, route}) => {
           soundSystemAvailable,
           setSoundSystemAvailable,
         )}
-        {renderOptions(
-          'Sound System Allowed',
-          soundSystemAllowed,
-          setSoundSystemAllowed,
-        )}
         {renderOptions('Children Games', childrenGames, setChildrenGames)}
         {renderOptions('Adult Games', adultGames, setAdultGames)}
         {renderOptions(

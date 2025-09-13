@@ -429,8 +429,10 @@ const Home = ({navigation}) => {
   };
 
   useEffect(() => {
-    requestPermission();
-  }, []);
+    if(!currentAddress?.address){
+        requestPermission();
+    }
+  }, [currentAddress?.address]);
 
   return (
     <SafeAreaView style={styles.container}>
