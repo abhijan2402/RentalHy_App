@@ -193,10 +193,7 @@ const ConventionHall = ({
           paddingVertical: 6,
           borderRadius: 10,
         }}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
             let displayText = filterGroup.name;
@@ -217,7 +214,6 @@ const ConventionHall = ({
               }
             }
 
-            
             return (
               <TouchableOpacity
                 onPress={() => {
@@ -686,9 +682,18 @@ const Convention = ({navigation, route}) => {
       id: 'visit_type',
       type: 'visit_type',
       name: 'Visit type',
-      data: ['Day', 'Night','Full Day' , "Corporate" , "Banquet hall" , "Occassion Booking" , "Room Booking" , "Any other"],
+      data: [
+        'Day',
+        'Night',
+        'Full Day',
+        'Corporate',
+        'Banquet hall',
+        'Occassion Booking',
+        'Room Booking',
+        'Any other',
+      ],
     },
-     {
+    {
       id: 'ac_available',
       type: 'ac_available',
       name: 'A/C Available',
@@ -706,7 +711,7 @@ const Convention = ({navigation, route}) => {
       id: 'pool_type',
       type: 'pool_type',
       name: 'Pool type',
-      data: ['Adult', 'Child','Both'],
+      data: ['Adult', 'Child', 'Both'],
     },
     {
       id: 'adult_games',
@@ -1062,7 +1067,11 @@ const Convention = ({navigation, route}) => {
         />
       )}
       <AnimatedButton
-        title="Upload a Hall/Farm"
+        title={
+          activeTab === 'convention'
+            ? 'Upload Convention Hall'
+            : 'Upload Farm House'
+        }
         onPress={() => navigation.navigate('CreateConvention')}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
       />

@@ -326,7 +326,7 @@ const Booking = ({navigation, route}) => {
         {type == 'convention' && (
           <>
             {/* Catering */}
-            <View style={styles.section}>
+            {/* <View style={styles.section}>
               <Text style={styles.label}>Catering Needed?</Text>
               <View style={styles.toggleRow}>
                 {['yes', 'no'].map(option => (
@@ -347,10 +347,10 @@ const Booking = ({navigation, route}) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+            </View> */}
 
             {/* Chef */}
-            <View style={styles.section}>
+            {/* <View style={styles.section}>
               <Text style={styles.label}>Chef Needed?</Text>
               <View style={styles.toggleRow}>
                 {['yes', 'no'].map(option => (
@@ -371,14 +371,8 @@ const Booking = ({navigation, route}) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
-            {/* {renderToggle(
-              'Photographers Required',
-              PhotographersReq,
-              setPhotographersReq,
-            )} */}
-            {/* Decorations */}
-            <View style={styles.section}>
+            </View> */}
+            {/* <View style={styles.section}>
               <Text style={styles.label}>Photographers Required?</Text>
               <View style={styles.toggleRow}>
                 {['yes', 'no'].map(option => (
@@ -399,10 +393,10 @@ const Booking = ({navigation, route}) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+            </View> */}
 
             {/* Decorations */}
-            <View style={styles.section}>
+            {/* <View style={styles.section}>
               <Text style={styles.label}>Decorations Needed?</Text>
               <View style={styles.toggleRow}>
                 {['yes', 'no'].map(option => (
@@ -423,10 +417,10 @@ const Booking = ({navigation, route}) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+            </View> */}
 
             {/* Groceries */}
-            <View style={styles.section}>
+            {/* <View style={styles.section}>
               <Text style={styles.label}>Groceries Needed?</Text>
               <View style={styles.toggleRow}>
                 {['yes', 'no'].map(option => (
@@ -447,8 +441,8 @@ const Booking = ({navigation, route}) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
-            <View style={styles.section}>
+            </View> */}
+            {/* <View style={styles.section}>
               <Text style={styles.label}>Comments (optional)</Text>
               <TextInput
                 style={[styles.input, {minHeight: 80}]}
@@ -457,7 +451,7 @@ const Booking = ({navigation, route}) => {
                 placeholder="Enter any comments..."
                 multiline
               />
-            </View>
+            </View> */}
           </>
         )}
       </ScrollView>

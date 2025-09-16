@@ -99,7 +99,7 @@ const Login = ({navigation}) => {
   return (
     <KeyboardAvoidingView
       style={{flex: 1, backgroundColor: COLOR.white}}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
       {/* <Header title={'Sign In'} /> */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={{flexGrow: 1}}>
@@ -111,9 +111,9 @@ const Login = ({navigation}) => {
           <Image
             style={{
               width: windowWidth,
-              height: 200,
+              height: 225,
               alignSelf: 'center',
-              marginBottom: windowHeight / 9,
+              marginBottom: windowHeight * 0.05,
               marginTop: windowHeight * 0.08,
             }}
             source={{uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg'}}
@@ -144,7 +144,19 @@ const Login = ({navigation}) => {
               onChangeText={setPassword}
               secureTextEntry
             />
-
+            <View
+              style={{
+                alignItems: 'flex-end',
+                marginTop: 10,
+                paddingHorizontal: 30,
+              }}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={{color: COLOR.primary, fontWeight: '500'}}>
+                  Forgot Password?
+                </Text>
+              </TouchableOpacity>
+            </View>
             <CustomButton
               loading={loading}
               title="Login"

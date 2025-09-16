@@ -225,7 +225,9 @@ const Home = ({navigation}) => {
     }
 
     setPage(resData?.current_page || 1);
-    setloader(false);
+    setTimeout(() => {
+      setloader(false);
+    }, 2000);
     setLoadingMore(false);
   };
 
@@ -371,11 +373,6 @@ const Home = ({navigation}) => {
             buttonPositive: 'OK',
           },
         );
-        console.log(
-          granted,
-          'GRANNNTEDDDD',
-          PermissionsAndroid.RESULTS.GRANTED,
-        );
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           getCurrentLocation();
@@ -429,8 +426,8 @@ const Home = ({navigation}) => {
   };
 
   useEffect(() => {
-    if(!currentAddress?.address){
-        requestPermission();
+    if (!currentAddress?.address) {
+      requestPermission();
     }
   }, [currentAddress?.address]);
 

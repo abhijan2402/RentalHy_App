@@ -15,7 +15,7 @@ export const useApi = () => {
   const postRequest = async (endpoint, data = {}, isMultipart = false) => {
     console.log(data, 'DATA');
     console.log(token, 'TOKEN');
-    // console.log(`${BASE_URL}${endpoint}`);
+    console.log(`${BASE_URL}${endpoint}`, "URLLLLL");
     const headers = {
       ...(isMultipart ? {} : { 'Content-Type': 'application/json' }),
       Authorization: `Bearer ${token}`,
