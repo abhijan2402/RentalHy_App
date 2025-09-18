@@ -30,7 +30,7 @@ const PropertyDetail = ({navigation, route}) => {
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
 
-  console.log(AllData,"AllDataAllDataAllData")
+  console.log(AllData, 'AllDataAllDataAllData');
   const [buttonLoader, setButtonLoader] = useState(false);
   const {type, propertyData} = route?.params;
   const [reviews, setReviews] = useState({
@@ -212,7 +212,7 @@ const PropertyDetail = ({navigation, route}) => {
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
 
-  console.log(AllData,"AllDataAllDataAllData")
+  console.log(AllData, 'AllDataAllDataAllData');
 
   return (
     <View style={styles.container}>
@@ -252,26 +252,28 @@ const PropertyDetail = ({navigation, route}) => {
                 alignItems: 'center',
               }}>
               <Text style={styles.title}>{AllData?.title}</Text>
-             {type != 'convention' && <TouchableOpacity
-                style={styles.wishlistIcon}
-                onPress={() =>
-                  AllData?.is_wishlist == 1
-                    ? removeLike(AllData?.id)
-                    : toggleLike(AllData?.id)
-                }>
-                <Image
-                  source={{
-                    uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
-                  }}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    tintColor: AllData?.is_wishlist
-                      ? COLOR.primary
-                      : COLOR.grey,
-                  }}
-                />
-              </TouchableOpacity>}
+              {type != 'convention' && (
+                <TouchableOpacity
+                  style={styles.wishlistIcon}
+                  onPress={() =>
+                    AllData?.is_wishlist == 1
+                      ? removeLike(AllData?.id)
+                      : toggleLike(AllData?.id)
+                  }>
+                  <Image
+                    source={{
+                      uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
+                    }}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      tintColor: AllData?.is_wishlist
+                        ? COLOR.primary
+                        : COLOR.grey,
+                    }}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
             {/* Read More / Less */}
             <Text style={styles.description}>
@@ -335,7 +337,9 @@ const PropertyDetail = ({navigation, route}) => {
                   }}
                   style={styles.iconLarge}
                 />
-                <Text style={styles.phoneHighlighted}>{AllData?.location}</Text>
+                <Text style={styles.phoneHighlighted}>
+                  {AllData?.location || AllData?.address}
+                </Text>
               </TouchableOpacity>
             </View>
             {/* Location Section */}
@@ -351,7 +355,7 @@ const PropertyDetail = ({navigation, route}) => {
                   style={styles.iconLarge}
                 />
                 <Text style={styles.locationHighlighted}>
-                  {AllData?.location}
+                  {AllData?.location || AllData?.address}
                 </Text>
               </View>
 

@@ -199,37 +199,34 @@ const CreateConvention = ({navigation}) => {
   const [otherFacilities, setOtherFacilities] = useState('');
   const [timeBlocks, setTimeBlocks] = useState({});
 
-  const [royaltyDecPrice , setRoyaltiDecPrice] = useState('');
+  const [royaltyDecPrice, setRoyaltiDecPrice] = useState('');
 
- const toggleDate = day => {
+  const toggleDate = day => {
     const date = day.dateString;
     setUnavailableDates(prev => {
-      const newDates = { ...prev };
+      const newDates = {...prev};
       if (newDates[date]) {
         delete newDates[date];
-        const updatedTimes = { ...timeBlocks };
+        const updatedTimes = {...timeBlocks};
         delete updatedTimes[date];
         setTimeBlocks(updatedTimes);
       } else {
-        newDates[date] = { selected: true, selectedColor: 'red' };
+        newDates[date] = {selected: true, selectedColor: 'red'};
       }
       return newDates;
     });
   };
 
-    const toggleTimeBlock = (date, block) => {
+  const toggleTimeBlock = (date, block) => {
     setTimeBlocks(prev => {
       const current = prev[date] || [];
       const exists = current.includes(block);
       return {
         ...prev,
-        [date]: exists
-          ? current.filter(b => b !== block)
-          : [...current, block],
+        [date]: exists ? current.filter(b => b !== block) : [...current, block],
       };
     });
   };
-
 
   const renderTimeOptions = date => {
     const options = ['Day', 'Night', 'Full Day'];
@@ -244,8 +241,7 @@ const CreateConvention = ({navigation}) => {
                 styles.optionButton,
                 selected && styles.optionButtonSelected,
               ]}
-              onPress={() => toggleTimeBlock(date, opt)}
-            >
+              onPress={() => toggleTimeBlock(date, opt)}>
               <Text style={selected && styles.optionTextSelected}>{opt}</Text>
             </TouchableOpacity>
           );
@@ -253,8 +249,6 @@ const CreateConvention = ({navigation}) => {
       </View>
     );
   };
-
-
 
   const pickImages = setter => {
     ImagePicker.openPicker({
@@ -293,6 +287,7 @@ const CreateConvention = ({navigation}) => {
     formData.append('royalty_kitchen', royaltyKitchen === 'yes' ? 1 : 0);
     formData.append('generator_available', generator === 'yes' ? 1 : 0);
     formData.append('water_for_cooking', normalWater === 'yes' ? 1 : 0);
+    formData.append('address', address?.address);
     formData.append(
       'drinking_water_available',
       drinkingWater === 'yes' ? 1 : 0,
@@ -387,8 +382,7 @@ const CreateConvention = ({navigation}) => {
 
     let url = uploadType === 'Farm House' ? 'farm' : 'hall';
 
-    console.log(formData,"formdataformdata")
-
+    console.log(formData, 'formdataformdata');
     const response = await postRequest(
       `public/api/hall_add/${url}`,
       formData,
@@ -403,7 +397,7 @@ const CreateConvention = ({navigation}) => {
     setLoading(false);
   };
 
-  console.log(childrenGames,"childrenGameschildrenGames")
+  console.log(childrenGames, 'childrenGameschildrenGames');
 
   const renderImagePicker = (label, imagesArray, setter) => (
     <View style={styles.section}>
@@ -437,7 +431,7 @@ const CreateConvention = ({navigation}) => {
     descriptionInput = false,
     descriptionVal = '',
     setDescriptionVal,
-    field =  ''
+    field = '',
   ) => (
     <View style={styles.section}>
       <Text style={styles.label}>{label}</Text>
@@ -733,7 +727,7 @@ const CreateConvention = ({navigation}) => {
               true,
               decorationContact,
               setDecorationContact,
-              'Dex'
+              'Dex',
             )}
             {renderToggle(
               'Royalty for Kitchen',
@@ -942,27 +936,29 @@ const CreateConvention = ({navigation}) => {
             {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
           </>
         )}
-         <View style={styles.section}>
-        <Text style={styles.label}>Unavailable : Day-time Night-time Full-day</Text>
-        <Calendar
-          onDayPress={toggleDate}
-          markedDates={unavailableDates}
-          markingType={'multi-dot'}
-        />
-        <Text style={styles.note}>
-          Note: Please select only those dates on which your hall is NOT
-          available for booking. All other dates will be considered available.
-        </Text>
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.label}>
+            Unavailable : Day-time Night-time Full-day
+          </Text>
+          <Calendar
+            onDayPress={toggleDate}
+            markedDates={unavailableDates}
+            markingType={'multi-dot'}
+          />
+          <Text style={styles.note}>
+            Note: Please select only those dates on which your hall is NOT
+            available for booking. All other dates will be considered available.
+          </Text>
+        </View>
 
-      <View style={styles.section}>
-        {Object.keys(unavailableDates).map(date => (
-          <View key={date} style={styles.deltaRow}>
-            <Text style={styles.dateText}>{date}</Text>
-            {renderTimeOptions(date)}
-          </View>
-        ))}
-      </View>
+        <View style={styles.section}>
+          {Object.keys(unavailableDates).map(date => (
+            <View key={date} style={styles.deltaRow}>
+              <Text style={styles.dateText}>{date}</Text>
+              {renderTimeOptions(date)}
+            </View>
+          ))}
+        </View>
         {/* Post Space */}
         <CustomButton
           title={
@@ -1079,7 +1075,7 @@ const styles = StyleSheet.create({
     height: 24,
     tintColor: 'green',
   },
-   optionButton: {
+  optionButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
@@ -1091,6 +1087,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR?.primary,
     borderColor: COLOR?.primary,
   },
-  optionTextSelected: { color: 'white' },
-  optionRow: { flexDirection: 'row', gap: 8 },
+  optionTextSelected: {color: 'white'},
+  optionRow: {flexDirection: 'row', gap: 8},
 });

@@ -10,79 +10,93 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
-import { COLOR } from '../../../Constants/Colors';
-import { useApi } from '../../../Backend/Api';
-import { useToast } from '../../../Constants/ToastContext';
+import {COLOR} from '../../../Constants/Colors';
+import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
 
-const OrderCard = ({ order, postRequest, showToast   }) => {
+const OrderCard = ({order, postRequest, showToast}) => {
   const [status, setStatus] = useState(order.status);
-  const [buttonLoader, setButtonLoader] = useState({type:'accept', loading: false});
-  const [modalVisible, setModalVisible] = useState({visible : false , orderId : null});
+  const [buttonLoader, setButtonLoader] = useState({
+    type: 'accept',
+    loading: false,
+  });
+  const [modalVisible, setModalVisible] = useState({
+    visible: false,
+    orderId: null,
+  });
   const [rejectReason, setRejectReason] = useState('');
 
-  const handleAccept = async (order) => {
-    setButtonLoader({type:'accept', loading: true});
+  const handleAccept = async order => {
+    setButtonLoader({type: 'accept', loading: true});
     const res = await postRequest(`public/api/payments/${order.id}/accept`);
     if (res.data.success || res.data.status) {
       setStatus('accepted');
-      showToast('Order accepted successfully' , "success");
+      showToast('Order accepted successfully', 'success');
     } else {
-      showToast(res.data.message || 'Failed to accept order' , "error");
-
+      showToast(res.data.message || 'Failed to accept order', 'error');
     }
-    setButtonLoader({type:'accept', loading: false});
+    setButtonLoader({type: 'accept', loading: false});
   };
 
-  const handleReject = (order) => {
-    setModalVisible({visible : true , orderId : order.id});
+  const handleReject = order => {
+    setModalVisible({visible: true, orderId: order.id});
   };
 
   const submitReject = async () => {
-    if(!rejectReason.trim()) {
-      showToast('Please provide a reason for rejection' , "error");
+    if (!rejectReason.trim()) {
+      showToast('Please provide a reason for rejection', 'error');
       return;
     }
-    setModalVisible({visible : false , orderId : null});
+    setModalVisible({visible: false, orderId: null});
     setRejectReason('');
-    setButtonLoader({type:'reject', loading: true});
+    setButtonLoader({type: 'reject', loading: true});
     const formData = new FormData();
     formData.append('reason', rejectReason || 'No reason provided');
-    const res = await postRequest(`public/api/payments/${modalVisible.orderId}/reject`, formData , true);
+    const res = await postRequest(
+      `public/api/payments/${modalVisible.orderId}/reject`,
+      formData,
+      true,
+    );
     console.log('Reject Response:', res);
     if (res.data.success || res.data.status) {
       setStatus('cancelled');
-      showToast('Order rejected successfully' , "success");
+      showToast('Order rejected successfully', 'success');
     } else {
-      showToast(res.data.message || 'Failed to reject order' , "error");
-
+      showToast(res.data.message || 'Failed to reject order', 'error');
     }
-    setButtonLoader({type:'reject', loading: false});
+    setButtonLoader({type: 'reject', loading: false});
   };
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Image source={{ uri: order?.convention_hall?.type_images[0]?.image_url || '' }} style={styles.image} />
-        <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={styles.propertyName}>{order?.convention_hall?.title}</Text>
+        <Image
+          source={{
+            uri: order?.convention_hall?.type_images[0]?.image_url || '',
+          }}
+          style={styles.image}
+        />
+        <View style={{flex: 1, marginLeft: 10}}>
+          <Text style={styles.propertyName}>
+            {order?.convention_hall?.title}
+          </Text>
           <Text style={styles.price}>{order?.amount}</Text>
           <Text
             style={[
               styles.status,
               status === 'accepted' || status === 'success'
-                ? { color: 'green' }
+                ? {color: 'green'}
                 : status.includes('cancelled')
-                  ? { color: 'red' }
-                  : { color: '#e67e22' },
-                  {textTransform: 'capitalize'}
+                ? {color: 'red'}
+                : {color: '#e67e22'},
+              {textTransform: 'capitalize'},
             ]}>
             Status: {status}
           </Text>
         </View>
       </View>
-
 
       <View style={styles.details}>
         <Text style={styles.label}>Customer: {order.full_name}</Text>
@@ -98,14 +112,20 @@ const OrderCard = ({ order, postRequest, showToast   }) => {
 
       {status === 'pending' && (
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.acceptBtn} onPress={()  => handleAccept(order)} disabled={buttonLoader.loading && buttonLoader.type === 'accept'}>
+          <TouchableOpacity
+            style={styles.acceptBtn}
+            onPress={() => handleAccept(order)}
+            disabled={buttonLoader.loading && buttonLoader.type === 'accept'}>
             {buttonLoader.loading && buttonLoader.type === 'accept' ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.btnText}>Accept</Text>
             )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.rejectBtn} onPress={() => handleReject(order)} disabled={buttonLoader.loading && buttonLoader.type === 'reject'}>
+          <TouchableOpacity
+            style={styles.rejectBtn}
+            onPress={() => handleReject(order)}
+            disabled={buttonLoader.loading && buttonLoader.type === 'reject'}>
             <Text style={styles.btnText}>Reject</Text>
           </TouchableOpacity>
         </View>
@@ -115,7 +135,7 @@ const OrderCard = ({ order, postRequest, showToast   }) => {
         transparent={true}
         visible={modalVisible?.visible ? true : false}
         animationType="slide"
-        onRequestClose={() => setModalVisible({visible : false , orderId : null})}>
+        onRequestClose={() => setModalVisible({visible: false, orderId: null})}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Reason for Rejection</Text>
@@ -143,11 +163,10 @@ const OrderCard = ({ order, postRequest, showToast   }) => {
   );
 };
 
-const SpaceOrders = ({ navigation }) => {
-
+const SpaceOrders = ({navigation}) => {
   const [dummyOrders, setDummyOrders] = useState([]);
   const isFocus = navigation.isFocused();
-  const { getRequest , postRequest } = useApi();
+  const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
@@ -161,6 +180,8 @@ const SpaceOrders = ({ navigation }) => {
 
     await getRequest(`public/api/vendor/payment_list?page=${pageNum}`)
       .then(res => {
+        console.log(res?.data, 'SPACE ORDERS RESPONSE');
+
         if (res.data.success) {
           const apiData = res.data.data;
           setLastPage(apiData.last_page);
@@ -200,15 +221,14 @@ const SpaceOrders = ({ navigation }) => {
 
   if (loader && !loadingMore) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Text>Loading...</Text>
       </View>
     );
   }
 
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
         title={'Space Orders'}
         showBack
@@ -217,12 +237,25 @@ const SpaceOrders = ({ navigation }) => {
 
       <FlatList
         data={dummyOrders}
-        keyExtractor={(item) => item.id?.toString()}
-        renderItem={({ item }) => <OrderCard key={item.id} order={item} postRequest={postRequest} showToast={showToast} />}
-        contentContainerStyle={{ padding: 15 }}
+        keyExtractor={item => item.id?.toString()}
+        renderItem={({item}) => (
+          <OrderCard
+            key={item.id}
+            order={item}
+            postRequest={postRequest}
+            showToast={showToast}
+          />
+        )}
+        contentContainerStyle={{padding: 15}}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 50,
+            }}>
             <Text>No Order found.</Text>
           </View>
         )}
@@ -230,7 +263,11 @@ const SpaceOrders = ({ navigation }) => {
         onEndReachedThreshold={0.5}
         ListFooterComponent={() =>
           loadingMore ? (
-            <ActivityIndicator size="small" color={COLOR.primary || '#007AFF'} style={{ marginVertical: 15 }} />
+            <ActivityIndicator
+              size="small"
+              color={COLOR.primary || '#007AFF'}
+              style={{marginVertical: 15}}
+            />
           ) : null
         }
       />
