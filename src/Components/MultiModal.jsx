@@ -18,7 +18,7 @@ const MultiModal = ({
 }) => {
   const [selectedFilters, setSelectedFilters] = useState(initialSelected);
   const [priceRange, setPriceRange] = useState([0, 100000]);
-  const [seatingRange, setSeatingRange] = useState([0, 1000]);
+  const [seatingRange, setSeatingRange] = useState([10, 5000]);
   const [occupancyRange, setOccupancyRange] = useState([1, 1000]); // occupancy
 
   useEffect(() => {
@@ -32,8 +32,8 @@ const MultiModal = ({
     }
 
     if (filterValueData?.type === 'seating_capacity') {
-      const min = initialSelected?.seating_capacity_min ?? 0;
-      const max = initialSelected?.seating_capacity_max ?? 1000;
+      const min = initialSelected?.seating_capacity_min ?? 10;
+      const max = initialSelected?.seating_capacity_max ?? 5000;
       setSeatingRange([min, max]);
     }
 
@@ -87,7 +87,7 @@ const MultiModal = ({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} >
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>
@@ -117,13 +117,13 @@ const MultiModal = ({
           {filterValueData?.type === 'seating_capacity' && (
             <View style={{marginBottom: 20}}>
               <Text style={styles.sliderLabel}>
-                Seating Capacity : {seatingRange[0]} - {seatingRange[1]}
+                Seating Capacity : {seatingRange[0]}+  - {seatingRange[1]}+
               </Text>
               <MultiSlider
                 values={seatingRange}
                 onValuesChange={setSeatingRange}
-                min={0}
-                max={1000}
+                min={10}
+                max={5000}
                 step={10}
                 allowOverlap={false}
                 snapped
@@ -138,7 +138,7 @@ const MultiModal = ({
           {filterValueData?.type === 'occupancy_capacity' && (
             <View style={{marginBottom: 20}}>
               <Text style={styles.sliderLabel}>
-                Occupancy Capacity : {occupancyRange[0]} - {occupancyRange[1]}
+                Current Vacant Space : {occupancyRange[0]} - {occupancyRange[1]}
               </Text>
               <MultiSlider
                 values={occupancyRange}

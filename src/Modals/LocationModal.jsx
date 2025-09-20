@@ -1,6 +1,14 @@
 import React, {useContext, useState} from 'react';
-import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {COLOR} from '../Constants/Colors'; // adjust import if you have COLORS
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import {COLOR} from '../Constants/Colors';
 import {AuthContext} from '../Backend/AuthContent';
 import GooglePlacePicker from '../Components/GooglePicker';
 
@@ -14,7 +22,10 @@ const LocationModal = ({visible, onCreateAccount, onCancel}) => {
       animationType="fade"
       visible={visible}
       onRequestClose={onCancel}>
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView
+        style={styles.overlay}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Search Location here</Text>
 
@@ -30,7 +41,7 @@ const LocationModal = ({visible, onCreateAccount, onCancel}) => {
             <TouchableOpacity
               style={[styles.button, styles.createBtn]}
               onPress={() => {
-                setCurrentAddress(selectedAddress);
+                if (selectedAddress) setCurrentAddress(selectedAddress);
                 onCancel();
               }}>
               <Text style={styles.btnText}>Add</Text>
@@ -43,7 +54,7 @@ const LocationModal = ({visible, onCreateAccount, onCancel}) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

@@ -14,12 +14,9 @@ const App = () => {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <SafeAreaView style={styles.safeArea}>
-          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
           <NavigationContainer>
             <MainNavigation />
           </NavigationContainer>
-        </SafeAreaView>
       </AuthProvider>
     </LanguageProvider>
   );
@@ -28,7 +25,7 @@ const App = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'red',
   },
   center: {
     flex: 1,

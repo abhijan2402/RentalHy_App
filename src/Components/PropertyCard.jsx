@@ -121,6 +121,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 8,
     elevation: 2,
+    borderWidth: 0.5,
+    borderColor: '#ccc',
+
   },
   propertyImage: {
     width: '100%',

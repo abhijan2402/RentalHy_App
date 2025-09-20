@@ -190,5 +190,6 @@ const styles = StyleSheet.create({
   specText: {
     fontSize: 14,
     marginBottom: 5,
+    fontWeight:'bold'
   },
 });

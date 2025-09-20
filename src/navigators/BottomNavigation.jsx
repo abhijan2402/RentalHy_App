@@ -36,12 +36,12 @@ const BottomNavigation = () => {
         },
         tabBarStyle: {
           paddingVertical: 8,
-          height: 60 + insets.bottom, // Add safe area bottom inset for Android/iOS
-          paddingBottom: 0 + insets.bottom, // Padding to prevent overlap with nav buttons
+          height: 60 + insets.bottom, 
+          paddingBottom: 0 + insets.bottom, 
           height:
-            Platform.OS === 'android' && Platform.Version < 35 // Android 14 and below
-              ? 60 // don’t add inset because it already has nav bar spacing
-              : 60 + insets.bottom, // Android 15+ or iOS
+            Platform.OS === 'android' && Platform.Version < 35 
+              ? 60 
+              : 50 + insets.bottom, 
           paddingBottom:
             Platform.OS === 'android' && Platform.Version < 35
               ? 0
@@ -64,7 +64,7 @@ const BottomNavigation = () => {
         },
         tabBarLabel: ({color}) => {
           let label = route.name;
-          if (route.name === 'MyBids') label = 'My Bids'; // Fix label spacing
+          if (route.name === 'MyBids') label = 'My Bids'; 
 
           return (
             <Text
@@ -75,8 +75,8 @@ const BottomNavigation = () => {
         },
       })}>
       <Tab.Screen name={'Home'} component={Home} />
-      <Tab.Screen name={'Convention'} component={Convention} />
       <Tab.Screen name={'Hostel'} component={Hostel} />
+      <Tab.Screen name={'Convention'} component={Convention} />
       {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}
       <Tab.Screen name={'Profile'} component={Account} />
     </Tab.Navigator>

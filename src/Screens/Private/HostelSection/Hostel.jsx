@@ -1,4 +1,6 @@
+
 import {
+  Animated,
   FlatList,
   Image,
   Platform,
@@ -12,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {COLOR} from '../../../Constants/Colors';
 import {AnimatedButton, HomeHeader} from '../Dashboard/Home';
 import OptionSelector from '../Dashboard/OptionSelector';
@@ -28,6 +30,8 @@ import MultiModal from '../../../Components/MultiModal';
 import LocationModal from '../../../Modals/LocationModal';
 
 const Hostel = ({navigation}) => {
+  const filterHeight = useRef(new Animated.Value(40)).current;
+  let scrollOffset = 0;
   const {postRequest} = useApi()
   const [propertiesFake , setpropertiesFake] = useState([]);
   const [tabLoader, settabLoader] = useState(false);
@@ -60,7 +64,7 @@ const Hostel = ({navigation}) => {
       {
         id: 'room_types',
         type: 'room_types',
-        name: 'Room Types',
+        name: 'Sharing Type',
         data: ['Single', 'Double', 'Triple', 'Four' , 'Dormitory'],
       },
       {
@@ -114,7 +118,7 @@ const Hostel = ({navigation}) => {
       {
         id: 'occupancy_capacity',
         type: 'occupancy_capacity',
-        name: 'Occupancy Capacity',
+        name: 'Current Vacant Spaces',
         data: [],
       },
     ]);
@@ -125,6 +129,26 @@ const Hostel = ({navigation}) => {
       settabLoader(false);
     }, 10);
   }, [isFocus]);
+
+   const onScrollFlatlist = (event) => {
+      const currentOffset = event.nativeEvent.contentOffset.y;
+      const diff = currentOffset - scrollOffset;
+  
+      if (diff > 10 && currentOffset > 40) {
+        Animated.timing(filterHeight, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      } else if (diff < -10) {
+        Animated.timing(filterHeight, {
+          toValue: 40,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+      scrollOffset = currentOffset;
+    };
 
    const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
@@ -303,14 +327,14 @@ const Hostel = ({navigation}) => {
           />
           <TextInput
             value={searchQuery}
-            placeholder="Search Convention Halls or Location"
+            placeholder="search for hostel"
             style={styles.searchInput}
             placeholderTextColor={COLOR.grey}
             onChangeText={setSearchQuery}
 
           />
 
-          <TouchableOpacity onPress={() => setSortVisible(true)}>
+          <TouchableOpacity onPress={() => setSortVisible(false)}>
             <Image
               source={{
                 uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -341,8 +365,15 @@ const Hostel = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-              <View style={{width: windowWidth - 40, alignSelf: 'center'}}>
-                      <ScrollView
+<Animated.View
+        style={{
+          overflow: 'hidden',
+          height: filterHeight,
+          width:windowWidth - 40,
+          alignSelf:'center',
+          backgroundColor: COLOR.white,
+          justifyContent: 'center',
+        }}>                      <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}>
                         {avaialbleFilter?.map(filterGroup => {
@@ -369,6 +400,7 @@ const Hostel = ({navigation}) => {
                                 borderWidth: 1,
                                 borderColor: '#ccc',
                                 paddingHorizontal: 10,
+                                marginBottom:10,
                                 paddingVertical: 5,
                                 borderRadius: 5,
                                 backgroundColor:
@@ -378,7 +410,6 @@ const Hostel = ({navigation}) => {
                                 marginRight: 8,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                // height: 55,
                               }}>
                               <Text
                                 style={{
@@ -386,7 +417,8 @@ const Hostel = ({navigation}) => {
                                   fontWeight: 'bold',
                                   color:
                                     attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                                  height: 20,
+                    paddingVertical:2,
+                              
                                   textTransform: 'capitalize',
                                   textAlignVertical: 'center',
                                 }}>
@@ -396,7 +428,8 @@ const Hostel = ({navigation}) => {
                           );
                         })}
                       </ScrollView>
-                    </View>
+                         </Animated.View>
+                   
 
         <View style={{flex: 1}}>
           <FlatList
@@ -408,6 +441,9 @@ const Hostel = ({navigation}) => {
             showsVerticalScrollIndicator={false}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
+            onScroll={onScrollFlatlist}
+            scrollEventThrottle={16}
+
             refreshControl={
               <RefreshControl
                 refreshing={tabLoader}

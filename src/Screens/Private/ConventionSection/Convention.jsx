@@ -10,8 +10,10 @@ import {
   FlatList,
   RefreshControl,
   ActivityIndicator,
+  SafeAreaView,
+  Animated,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {AnimatedButton, HomeHeader} from '../Dashboard/Home';
@@ -112,7 +114,29 @@ const ConventionHall = ({
   sortQuery,
   AppliedModalFilter,
   setAppliedModalFilter,
+  filterHeight,
+  scrollOffset
 }) => {
+
+    const onScrollFlatlist = (event) => {
+      const currentOffset = event.nativeEvent.contentOffset.y;
+      const diff = currentOffset - scrollOffset;
+  
+      if (diff > 10 && currentOffset > 40) {
+        Animated.timing(filterHeight, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      } else if (diff < -10) {
+        Animated.timing(filterHeight, {
+          toValue: 40,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+      scrollOffset = currentOffset;
+    };
   const renderHall = ({item}) => (
     <HallCard
       key={item.id}
@@ -160,7 +184,7 @@ const ConventionHall = ({
           value={searchQuery}
         />
 
-        <TouchableOpacity onPress={onPressSort}>
+        <TouchableOpacity onPress={() => {}}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -185,14 +209,15 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
       </View>
-      <View
-        style={{
-          width: windowWidth - 40,
-          alignSelf: 'center',
-          marginVertical: 6,
-          paddingVertical: 6,
-          borderRadius: 10,
-        }}>
+     <Animated.View
+             style={{
+               overflow: 'hidden',
+               height: filterHeight,
+               width:windowWidth - 40,
+               alignSelf:'center',
+               backgroundColor: COLOR.white,
+               justifyContent: 'center',
+             }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
@@ -226,6 +251,7 @@ const ConventionHall = ({
                   borderColor: '#ccc',
                   paddingHorizontal: 10,
                   paddingVertical: 5,
+                  marginBottom:10,
                   borderRadius: 5,
                   backgroundColor:
                     attendedFilter?.id == filterGroup?.id
@@ -234,7 +260,6 @@ const ConventionHall = ({
                   marginRight: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  // height: 55,
                 }}>
                 <Text
                   style={{
@@ -242,7 +267,6 @@ const ConventionHall = ({
                     fontWeight: 'bold',
                     color:
                       attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    height: 20,
                     textTransform: 'capitalize',
                     textAlignVertical: 'center',
                   }}>
@@ -252,7 +276,7 @@ const ConventionHall = ({
             );
           })}
         </ScrollView>
-      </View>
+        </Animated.View>
 
       <FlatList
         data={hallData}
@@ -262,6 +286,7 @@ const ConventionHall = ({
         contentContainerStyle={{paddingBottom: 20}}
         onEndReached={onHandleMore}
         onEndReachedThreshold={0.5}
+        onScroll={onScrollFlatlist}
         refreshControl={
           <RefreshControl
             refreshing={loader}
@@ -279,8 +304,8 @@ const ConventionHall = ({
                 false,
               );
             }}
-            colors={[COLOR.primary]} // Android
-            tintColor={COLOR.primary} // iOS
+            colors={[COLOR.primary]} 
+            tintColor={COLOR.primary} 
           />
         }
         ListEmptyComponent={() => {
@@ -353,6 +378,8 @@ const FarmHouse = ({
   sortQuery,
   AppliedModalFilter,
   setAppliedModalFilter,
+  filterHeight,
+  scrollOffset
 }) => {
   const renderHall = ({item}) => (
     <HallCard
@@ -383,6 +410,26 @@ const FarmHouse = ({
       }
     />
   );
+
+   const onScrollFlatlist = (event) => {
+      const currentOffset = event.nativeEvent.contentOffset.y;
+      const diff = currentOffset - scrollOffset;
+  
+      if (diff > 10 && currentOffset > 40) {
+        Animated.timing(filterHeight, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      } else if (diff < -10) {
+        Animated.timing(filterHeight, {
+          toValue: 40,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+      scrollOffset = currentOffset;
+    };
   return (
     <View style={styles.content}>
       <View style={styles.searchContainer}>
@@ -393,14 +440,14 @@ const FarmHouse = ({
           style={styles.searchIcon}
         />
         <TextInput
-          placeholder="Search Convention Halls or Location"
+          placeholder="search for Resort/Farm"
           style={styles.searchInput}
           placeholderTextColor={COLOR.grey}
           onChangeText={setSearchQuery}
           value={searchQuery}
         />
 
-        <TouchableOpacity onPress={onPressSort}>
+        <TouchableOpacity onPress={() => {}}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
@@ -425,28 +472,19 @@ const FarmHouse = ({
           />
         </TouchableOpacity>
       </View>
-      <View
-        style={{
-          width: windowWidth - 40,
-          alignSelf: 'center',
-          marginVertical: 6,
-          paddingVertical: 6,
-          borderRadius: 10,
-        }}>
+      <Animated.View
+             style={{
+               overflow: 'hidden',
+               height: filterHeight,
+               width:windowWidth - 40,
+               alignSelf:'center',
+               backgroundColor: COLOR.white,
+               justifyContent: 'center',
+             }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            {
-              // marginVertical: 2,
-              // marginLeft: 20,
-              // // borderWidth: 1,
-              // flex: 0.5,
-              // height: 44,
-              // borderWidth: 1,
-              // width: windowWidth,
-            }
-          }>
+          >
           {avaialbleFilterFarm.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
             let displayText = filterGroup.name;
@@ -472,6 +510,7 @@ const FarmHouse = ({
                   borderColor: '#ccc',
                   paddingHorizontal: 10,
                   paddingVertical: 5,
+                  marginBottom:10,
                   borderRadius: 5,
                   backgroundColor:
                     attendedFilter?.id == filterGroup?.id
@@ -480,7 +519,6 @@ const FarmHouse = ({
                   marginRight: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  // height: 55,
                 }}>
                 <Text
                   style={{
@@ -488,7 +526,6 @@ const FarmHouse = ({
                     fontWeight: 'bold',
                     color:
                       attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    height: 20,
                     textTransform: 'capitalize',
                     textAlignVertical: 'center',
                   }}>
@@ -498,7 +535,7 @@ const FarmHouse = ({
             );
           })}
         </ScrollView>
-      </View>
+        </Animated.View>
 
       <FlatList
         data={data}
@@ -508,6 +545,7 @@ const FarmHouse = ({
         contentContainerStyle={{paddingBottom: 20}}
         onEndReached={onHandleMore}
         onEndReachedThreshold={0.5}
+        onScroll={onScrollFlatlist}
         refreshControl={
           <RefreshControl
             refreshing={loader}
@@ -574,6 +612,9 @@ const FarmHouse = ({
 };
 
 const Convention = ({navigation, route}) => {
+  const filterHeight = useRef(new Animated.Value(40)).current;
+  let scrollOffset = 0;
+  
   const {currentAddress} = useContext(AuthContext);
   const {postRequest} = useApi();
   const type = route?.params?.type;
@@ -929,15 +970,13 @@ const Convention = ({navigation, route}) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: '#fff',
         paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
       }}>
-      {/* <Header title={'Convention Space'} /> */}
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
-
       <HomeHeader
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
@@ -1025,6 +1064,9 @@ const Convention = ({navigation, route}) => {
           MultiFilter={multiFilter}
           AppliedModalFilter={AppliedModalFilter}
           setAppliedModalFilter={setAppliedModalFilter}
+          Animated={Animated}
+          filterHeight={filterHeight}
+          scrollOffset={scrollOffset}
         />
       ) : (
         <FarmHouse
@@ -1064,6 +1106,9 @@ const Convention = ({navigation, route}) => {
           AppliedModalFilter={AppliedModalFilter}
           setAppliedModalFilter={setAppliedModalFilter}
           avaialbleFilterFarm={avaialbleFilterFarm}
+          Animated={Animated}
+          filterHeight={filterHeight}
+          scrollOffset={scrollOffset}
         />
       )}
       <AnimatedButton
@@ -1120,7 +1165,7 @@ const Convention = ({navigation, route}) => {
         onClose={() => setLocationModalVisible(false)}
         onCancel={() => setLocationModalVisible(false)}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
