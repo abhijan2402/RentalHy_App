@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState, useContext} from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,29 +17,31 @@ import {
   RefreshControl,
   PermissionsAndroid,
 } from 'react-native';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
 import MultiModal from '../../../Components/MultiModal';
 import SortModal from '../../../Components/SortModal';
 import LottieView from 'lottie-react-native';
-import {windowHeight, windowWidth} from '../../../Constants/Dimensions';
+import { windowHeight, windowWidth } from '../../../Constants/Dimensions';
 import OptionSelector from './OptionSelector';
-import {showPost} from '../../../Constants/Data';
-import {useIsFocused} from '@react-navigation/native';
-import {useApi} from '../../../Backend/Api';
-import {useToast} from '../../../Constants/ToastContext';
-import {AuthContext} from '../../../Backend/AuthContent';
+import { showPost } from '../../../Constants/Data';
+import { useIsFocused } from '@react-navigation/native';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
+import { AuthContext } from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import LocationModal from '../../../Modals/LocationModal';
-import {getCityFromAddress} from '../../../utils/helper';
+import { getCityFromAddress } from '../../../utils/helper';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
+  const filterHeight = useRef(new Animated.Value(40)).current;
+  let scrollOffset = 0;
   Geocoder.init('AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk');
-  const {postRequest} = useApi();
+  const { postRequest } = useApi();
   const {
     user,
     showDemoCard,
@@ -48,10 +50,10 @@ const Home = ({navigation}) => {
     setCurrentAddress,
   } = useContext(AuthContext);
 
-  const {currentStatus} = useContext(AuthContext);
+  const { currentStatus } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const focus = useIsFocused();
   const [loader, setloader] = useState(true);
   const [properties, setProperties] = useState([]);
@@ -86,6 +88,27 @@ const Home = ({navigation}) => {
       showToast(response?.error, 'error');
     }
   };
+
+  const onScrollFlatlist = (event) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    const diff = currentOffset - scrollOffset;
+
+    if (diff > 10 && currentOffset > 40) {
+      Animated.timing(filterHeight, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    } else if (diff < -10) {
+      Animated.timing(filterHeight, {
+        toValue: 40,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }
+    scrollOffset = currentOffset;
+  };
+
 
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
@@ -227,7 +250,7 @@ const Home = ({navigation}) => {
     setPage(resData?.current_page || 1);
     setTimeout(() => {
       setloader(false);
-    }, 2000);
+    }, 3000);
     setLoadingMore(false);
   };
 
@@ -335,10 +358,10 @@ const Home = ({navigation}) => {
     },
   ]);
   const sortOptions = [
-    {label: 'Price: Low to High', value: 'price_low_to_high'},
-    {label: 'Price: High to Low', value: 'price_high_to_low'},
-    {label: 'Newest', value: 'newest_first'},
-    {label: 'Oldest', value: 'oldest_first'},
+    { label: 'Price: Low to High', value: 'price_low_to_high' },
+    { label: 'Price: High to Low', value: 'price_high_to_low' },
+    { label: 'Newest', value: 'newest_first' },
+    { label: 'Oldest', value: 'oldest_first' },
   ];
 
   useEffect(() => {
@@ -348,7 +371,7 @@ const Home = ({navigation}) => {
   useEffect(() => {
     setTimeout(() => {
       setloader(false);
-    }, 1000);
+    }, 3000);
   }, []);
   const isFocus = useIsFocused();
   useEffect(() => {
@@ -384,7 +407,6 @@ const Home = ({navigation}) => {
         setLocationStatus('Permission error.');
       }
     } else if (Platform.OS === 'ios') {
-      // iOS prompts automatically when using navigator.geolocation
       getCurrentLocation();
     } else {
       setLocationStatus('Unsupported platform.');
@@ -395,7 +417,7 @@ const Home = ({navigation}) => {
     Geolocation.getCurrentPosition(
       async pos => {
         console.log('POS (coarse):', pos);
-        const {latitude, longitude} = pos.coords;
+        const { latitude, longitude } = pos.coords;
         setLocationStatus(`Latitude: ${latitude}, Longitude: ${longitude}`);
 
         try {
@@ -421,7 +443,7 @@ const Home = ({navigation}) => {
         console.log('Error (coarse):', err);
         setLocationStatus(`Error: ${err.message}`);
       },
-      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
     );
   };
 
@@ -441,7 +463,7 @@ const Home = ({navigation}) => {
         navigation={navigation}
       />
       {tabLoader ? (
-        <View style={{height: 115}}></View>
+        <View style={{ height: 115 }}></View>
       ) : (
         <OptionSelector
           navigation={navigation}
@@ -508,21 +530,19 @@ const Home = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
-      <View style={{width: windowWidth - 40, alignSelf: 'center'}}>
+      <Animated.View
+        style={{
+          overflow: 'hidden',
+          height: filterHeight,
+          width:windowWidth - 40,
+          alignSelf:'center',
+          backgroundColor: COLOR.white,
+          justifyContent: 'center',
+        }}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            {
-              // marginVertical: 2,
-              // marginLeft: 20,
-              // // borderWidth: 1,
-              // flex: 0.5,
-              // height: 44,
-              // borderWidth: 1,
-              // width: windowWidth,
-            }
-          }>
+        >
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
             let displayText = filterGroup.name;
@@ -556,15 +576,14 @@ const Home = ({navigation}) => {
                   marginRight: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  // height: 55,
                 }}>
                 <Text
                   style={{
                     fontSize: 12,
                     fontWeight: 'bold',
+                    paddingVertical: 2,
                     color:
                       attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    height: 20,
                     textTransform: 'capitalize',
                     textAlignVertical: 'center',
                   }}>
@@ -574,7 +593,7 @@ const Home = ({navigation}) => {
             );
           })}
         </ScrollView>
-      </View>
+      </Animated.View>
 
       {/* Properties Grid */}
       {showDemoCard && loader ? (
@@ -586,33 +605,33 @@ const Home = ({navigation}) => {
           />
           <View style={styles.flagcontainer}>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
-            <Text style={styles.text}>Made in India</Text>
+            <Text style={styles.text}>Made In India</Text>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
           </View>
           <View style={styles.flagcontainer}>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
-            <Text style={styles.text}>Made for India</Text>
+            <Text style={styles.text}>Made In India</Text>
             <Image
-              source={{uri: 'https://flagcdn.com/w20/in.png'}}
+              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
               style={styles.flag}
             />
           </View>
         </>
       ) : (
         <>
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <FlatList
               data={properties}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <PropertyCard
                   item={item}
                   toggleLike={toggleLike}
@@ -621,10 +640,12 @@ const Home = ({navigation}) => {
               )}
               keyExtractor={item => item.id?.toString()}
               numColumns={2}
-              contentContainerStyle={{paddingBottom: 20, marginHorizontal: 10}}
+              contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
               showsVerticalScrollIndicator={false}
               onEndReached={handleLoadMore}
               onEndReachedThreshold={0.5}
+              onScroll={onScrollFlatlist}
+              scrollEventThrottle={16}
               refreshControl={
                 <RefreshControl
                   refreshing={loader}
@@ -647,7 +668,7 @@ const Home = ({navigation}) => {
               }
               ListFooterComponent={
                 loadingMore ? (
-                  <View style={{padding: 16}}>
+                  <View style={{ padding: 16 }}>
                     <ActivityIndicator size="small" color={COLOR.primary} />
                   </View>
                 ) : null
@@ -719,7 +740,7 @@ const Home = ({navigation}) => {
 
 export default Home;
 
-export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
+export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -745,7 +766,7 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
         bottom: 50,
         right: 20,
         opacity: fadeAnim,
-        transform: [{translateY: floatAnim}],
+        transform: [{ translateY: floatAnim }],
       }}>
       <TouchableOpacity
         style={{
@@ -762,7 +783,7 @@ export const AnimatedButton = ({onPress, title = 'Post Property', iconUrl}) => {
           source={{
             uri: iconUrl,
           }}
-          style={{width: 25, height: 25}}
+          style={{ width: 25, height: 25 }}
         />
         <Text
           style={{
@@ -815,14 +836,14 @@ export const DemoCard = ({
           borderRadius: 10,
           alignSelf: 'flex-start',
         }}>
-        <Text style={{color: '#fff', fontWeight: '600'}}>{buttonText}</Text>
+        <Text style={{ color: '#fff', fontWeight: '600' }}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-export const HomeHeader = ({navigation, setLocationModalVisible}) => {
-  const {user, currentAddress} = useContext(AuthContext);
+export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
+  const { user, currentAddress } = useContext(AuthContext);
   const CityName = getCityFromAddress(currentAddress?.address);
 
   return (
@@ -835,13 +856,13 @@ export const HomeHeader = ({navigation, setLocationModalVisible}) => {
           style={styles.locationIcon}
         />
         <TouchableOpacity
-          style={{flexDirection: 'row', alignItems: 'center', width: '50%'}}
+          style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}
           onPress={() => setLocationModalVisible(true)}>
           <Image
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
             }}
-            style={[styles.locationIcon, {width: 25, height: 25}]}
+            style={[styles.locationIcon, { width: 25, height: 25 }]}
           />
 
           <View>
@@ -852,6 +873,14 @@ export const HomeHeader = ({navigation, setLocationModalVisible}) => {
           </View>
         </TouchableOpacity>
       </View>
+       <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
+        <Image
+          source={{
+            uri:'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
+          }}
+          style={styles.wishListIcon}
+        />
+      </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
         <Image
           source={{
@@ -905,6 +934,12 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 20,
   },
+
+  wishListIcon: {
+    width: 25,
+    height: 25,
+    tintColor: COLOR?.primary
+  },
   banner: {
     width: width - 60,
     height: 140,
@@ -929,7 +964,7 @@ const styles = StyleSheet.create({
     shadowColor: COLOR.black,
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
   },
   propertyImage: {
     width: '100%',
@@ -976,14 +1011,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginHorizontal: 20,
   },
-  searchIcon: {width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8},
+  searchIcon: { width: 20, height: 20, tintColor: COLOR.grey, marginRight: 8 },
   searchInput: {
     flex: 1,
     paddingVertical: 8,
     fontSize: 14,
     color: COLOR.black,
   },
-  filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
+  filterIcon: { width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8 },
   filterTagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1000,8 +1035,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 6,
   },
-  filterText: {fontSize: 12, color: COLOR.white, marginRight: 6},
-  crossIcon: {width: 11, height: 11, tintColor: COLOR.white},
+  filterText: { fontSize: 12, color: COLOR.white, marginRight: 6 },
+  crossIcon: { width: 11, height: 11, tintColor: COLOR.white },
   row: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,

@@ -22,6 +22,23 @@ const FarmHouseFilter = ({navigation, route}) => {
   const [swimmingPool, setSwimmingPool] = useState(
     existingFilters.swimmingPool || '',
   );
+
+   const [acAvailable, setAcAvailable] = useState(
+    existingFilters.acAvailable || '',
+  );
+
+     const [visitType, setVisitType] = useState(
+    existingFilters.visitType || '',
+  );
+
+   const [poolOption, setPoolOption] = useState(
+    existingFilters.poolOption || '',
+  );
+
+  const [roomAvailable, setRoomAvailable] = useState(
+    existingFilters.roomAvailable || '',
+  );
+  
   const [foodAvailable, setFoodAvailable] = useState(
     existingFilters.foodAvailable || '',
   );
@@ -49,30 +66,63 @@ const FarmHouseFilter = ({navigation, route}) => {
   const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
   const yesNoOptions = ['Yes', 'No'];
 
-  const renderOptions = (label, selected, setSelected) => (
+  const visitTypeOptions = [
+        'Day',
+        'Night',
+        'Full Day',
+        'Corporate',
+        'Banquet hall',
+        'Occassion Booking',
+        'Room Booking',
+        'Any other',
+      ];
+
+  const pooltypeOption = ['Adult', 'Child', 'Both'];
+
+const renderOptions = (label, selected, setSelected, multi = false , renderoption) => {
+  let mapData = renderoption ? renderoption : yesNoOptions;
+  return (
     <>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.optionRow}>
-        {yesNoOptions.map(option => (
+    <Text style={styles.label}>{label}</Text>
+    <ScrollView horizontal bounces={false} style={styles.optionRow} showsHorizontalScrollIndicator={false}>
+      {mapData.map(option => {
+        const isSelected = multi
+          ? selected.includes(option)
+          : selected === option;
+
+        return (
           <TouchableOpacity
             key={option}
             style={[
               styles.optionButton,
-              selected === option && styles.optionSelected,
+              isSelected && styles.optionSelected,
             ]}
-            onPress={() => setSelected(option)}>
+            onPress={() => {
+              if (multi) {
+                setSelected(prev =>
+                  prev.includes(option)
+                    ? prev.filter(o => o !== option)
+                    : [...prev, option],
+                );
+              } else {
+                setSelected(option);
+              }
+            }}>
             <Text
               style={[
                 styles.optionText,
-                selected === option && styles.optionTextSelected,
+                isSelected && styles.optionTextSelected,
               ]}>
               {option}
             </Text>
           </TouchableOpacity>
-        ))}
-      </View>
-    </>
-  );
+        );
+      })}
+    </ScrollView>
+  </>
+  )
+};
+
 
   const handleReset = () => {
     setSwimmingPool('');
@@ -88,6 +138,10 @@ const FarmHouseFilter = ({navigation, route}) => {
     setMinPrice(1000);
     setMaxPrice(1000000);
     setPriceRange([1000, 1000000]);
+    setAcAvailable('')
+    setRoomAvailable('')
+    setVisitType('')
+    setPoolOption('')
     navigation.goBack();
   };
 
@@ -107,6 +161,10 @@ const FarmHouseFilter = ({navigation, route}) => {
       minPrice,
       maxPrice,
       activeTab,
+      acAvailable,
+      roomAvailable,
+      visitType,
+      poolOption
     };
 
     console.log('FarmHouse Filters:', filters);
@@ -131,7 +189,17 @@ const FarmHouseFilter = ({navigation, route}) => {
       />
 
       <ScrollView contentContainerStyle={styles.form}>
+      {renderOptions('Visit Type' , visitType , setVisitType , true , visitTypeOptions)}
+
+      {renderOptions('Pool Options' , poolOption , setPoolOption , true , pooltypeOption)}
+
+
         {renderOptions('Swimming Pool', swimmingPool, setSwimmingPool)}
+        {renderOptions('AC Available', acAvailable, setAcAvailable)}
+        {renderOptions('Room Available', roomAvailable, setRoomAvailable)}
+
+
+
         {renderOptions('Food Available', foodAvailable, setFoodAvailable)}
         {renderOptions('Outside Food Allowed', outsideFood, setOutsideFood)}
         {renderOptions('CCTV Available', cctv, setCctv)}
@@ -215,8 +283,9 @@ const styles = StyleSheet.create({
   },
   optionRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 12,
     marginBottom: 12,
+    flexWrap: 'wrap'
   },
   optionButton: {
     borderWidth: 1,
@@ -225,6 +294,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     backgroundColor: COLOR.white,
+    marginHorizontal:4
   },
   optionSelected: {
     backgroundColor: COLOR.primary,

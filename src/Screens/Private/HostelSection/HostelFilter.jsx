@@ -150,7 +150,7 @@ const handleValuesChange = values => {
           </View>
         </View>
 
-          <Text style={styles.sectionTitle}>Room Type</Text>
+          <Text style={styles.sectionTitle}>Sharing Type</Text>
           <View style={styles.multiSelectContainer}>
           {HOSTEL_FILTERS.roomTypes.map(option => (
             <TouchableOpacity
@@ -287,8 +287,8 @@ const handleValuesChange = values => {
           ))}
       </View>
 
-        {/* Occupancy Capacity */}
-        <Text style={styles.sectionTitle}>Occupancy Capacity</Text>
+        {/* Current Vacant Spaces */}
+        <Text style={styles.sectionTitle}>Current Vacant Spaces</Text>
         <View style={{marginHorizontal: 10}}>
           <MultiSlider
             values={selectedOccupancy}

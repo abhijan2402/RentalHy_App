@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
@@ -26,11 +26,11 @@ const PropertyDetail = ({navigation, route}) => {
   const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
   const [showFullDesc, setShowFullDesc] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
-
-  console.log(AllData, 'AllDataAllDataAllData');
   const [buttonLoader, setButtonLoader] = useState(false);
   const {type, propertyData} = route?.params;
   const [reviews, setReviews] = useState({
@@ -47,6 +47,14 @@ const PropertyDetail = ({navigation, route}) => {
   });
   const [description, setDescription] = useState('');
   const [user_reviewed, setuser_reviewed] = useState(false);
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+  if (viewableItems.length > 0) {
+    setCurrentIndex(viewableItems[0].index);
+  }
+}).current;
+
+const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   /** Handle thumb press */
   const handleReviewPress = (key, value) => {
@@ -217,7 +225,7 @@ const PropertyDetail = ({navigation, route}) => {
   return (
     <View style={styles.container}>
       <Header
-        title={type == 'convention' ? 'Convention Detail' : 'Property Detail'}
+        title={type == 'convention' ? 'Convention Detail' : type == 'hostel' ? 'Hostel Details' : 'Property Detail'}
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -230,16 +238,35 @@ const PropertyDetail = ({navigation, route}) => {
       ) : (
         <ScrollView>
           {/* Horizontal Image Carousel */}
-          <FlatList
-            data={images}
-            horizontal
-            keyExtractor={(item, index) => index.toString()}
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            renderItem={({item}) => (
-              <Image source={{uri: item}} style={styles.propertyImage} />
-            )}
-          />
+         <View>
+  <FlatList
+    data={images}
+    horizontal
+    keyExtractor={(item, index) => index.toString()}
+    showsHorizontalScrollIndicator={false}
+    pagingEnabled
+    onViewableItemsChanged={onViewableItemsChanged}
+    viewabilityConfig={viewConfigRef}
+    renderItem={({ item }) => (
+      <Image source={{ uri: item }} style={styles.propertyImage} />
+    )}
+  />
+
+  {/* Dot indicator */}
+  {images.length > 1 && (
+    <View style={styles.indicatorContainer}>
+      {images.map((_, i) => (
+        <View
+          key={i}
+          style={[
+            styles.dot,
+            { opacity: i === currentIndex ? 1 : 0.3 },
+          ]}
+        />
+      ))}
+    </View>
+  )}
+</View>
 
           {/* Content */}
           <View style={styles.content}>
@@ -266,7 +293,7 @@ const PropertyDetail = ({navigation, route}) => {
                     }}
                     style={{
                       width: 20,
-                      height: 20,
+                    paddingVertical:2,
                       tintColor: AllData?.is_wishlist
                         ? COLOR.primary
                         : COLOR.grey,
@@ -690,4 +717,17 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
+  indicatorContainer: {
+  position: 'absolute',
+  bottom: 10,
+  alignSelf: 'center',
+  flexDirection: 'row',
+},
+dot: {
+  height: 8,
+  width: 8,
+  borderRadius: 4,
+  backgroundColor: '#fff',
+  marginHorizontal: 4,
+},
 });

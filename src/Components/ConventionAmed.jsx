@@ -148,7 +148,7 @@ const ConventionAmed = ({AllData}) => {
           <Text style={styles.sectionHeader}>Unavailability Dates</Text>
           {Object.entries(AllData.dates).map(([date, value]) => (
             <View style={styles.dateRow} key={date}>
-              <Text style={styles.specText}>{date}</Text>
+              <Text style={[styles.specText ]}>{date}</Text>
               <Text style={styles.specText}>{value}</Text>
             </View>
           ))}
@@ -162,10 +162,11 @@ export default ConventionAmed;
 
 const styles = StyleSheet.create({
   specText: {
-    fontSize: 14,
-    marginVertical: 2,
-    color: '#333',
-  },
+  fontSize: 15,
+  marginVertical: 2,
+  color: '#333',
+  fontWeight: 'bold',
+},
   sectionHeader: {
     fontSize: 16,
     fontWeight: 'bold',

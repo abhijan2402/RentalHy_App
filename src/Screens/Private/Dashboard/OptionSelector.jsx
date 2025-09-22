@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, Image, Dimensions} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Dimensions, Platform} from 'react-native';
 import {COLOR} from '../../../Constants/Colors';
 
 const {width: windowWidth, height: windowHeight} = Dimensions.get('window');
@@ -11,7 +11,6 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
     setSelectedIndex(index);
     onSelect?.(item, index);
 
-    // navigation logic
     if (index === 0) {
       navigation.navigate('Home');
     } else if (index === 1) {
@@ -40,7 +39,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
             key={index}
             onPress={() => handlePress(item, index)}
             style={{
-              width: windowWidth / 4.7,
+              width: Platform?.OS == 'android' ? windowWidth / 4.7 : windowWidth / 4.8 ,
               borderRadius: 8,
               alignItems: 'center',
               justifyContent: 'center',
@@ -73,7 +72,8 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
                   color: 'white',
                   textAlignVertical: 'center',
                   fontSize: 11,
-                }}>
+                }}
+                numberOfLines={1}>
                 {item?.title}
               </Text>
             </View>

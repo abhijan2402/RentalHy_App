@@ -1,8 +1,8 @@
 import React, {createContext, useContext, useRef, useState} from 'react';
-import {Animated, Text, StyleSheet, View, Dimensions} from 'react-native';
+import {Animated, Text, StyleSheet, View, Dimensions, Platform} from 'react-native';
 import {COLOR} from './Colors';
 
-const ToastContext = createContext(null); // set initial value to null
+const ToastContext = createContext(null); 
 
 export const useToast = () => {
   const context = useContext(ToastContext);
@@ -57,7 +57,7 @@ export const ToastProvider = ({children}) => {
         <Animated.View
           style={[
             styles.toastContainer,
-            {backgroundColor: getBackgroundColor(), opacity},
+            {backgroundColor: getBackgroundColor(), opacity , top:Platform?.OS == 'ios' ? 70 : 50},
           ]}>
           <Text style={styles.toastText}>{toast.message}</Text>
         </Animated.View>

@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   Alert,
+  KeyboardAvoidingView,
 } from 'react-native';
 import Header from '../../../Components/FeedHeader';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -157,6 +158,7 @@ const PostProperty = ({navigation}) => {
       multiple: true,
       mediaType: 'photo',
       cropping: false,
+      compressImageQuality: 0.8,
     }).then(selectedImages => {
       const newImages = selectedImages.map(img => ({
         uri: img.path,
@@ -282,7 +284,11 @@ const PostProperty = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex:1}}
+    >
+      <View style={styles.container}>
       <Header
         title={'Post Property'}
         showBack
@@ -330,7 +336,7 @@ const PostProperty = ({navigation}) => {
           }}
         />
 
-        <Text style={styles.label}>Area (sq ft) *</Text>
+        <Text style={styles.label}>Area (sq ft) </Text>
         <TextInput
           style={styles.input}
           value={area}
@@ -365,16 +371,13 @@ const PostProperty = ({navigation}) => {
         ]}
         onPress={() => {
           if (commercialSpace.includes(option)) {
-            // Unselect
             setCommercialSpace(prev => prev.filter(item => item !== option));
-            // If it was a custom one, also remove it from options
             if (
               !['Shop', 'Office', 'Showroom', 'Hotel', 'Restaurant'].includes(option)
             ) {
               setCommercialOptions(prev => prev.filter(item => item !== option));
             }
           } else {
-            // Select
             setCommercialSpace(prev => [...prev, option]);
           }
         }}
@@ -390,7 +393,6 @@ const PostProperty = ({navigation}) => {
       </TouchableOpacity>
     ))}
 
-    {/* + Add custom button */}
     <TouchableOpacity
       key="add-custom"
       style={[styles.optionButton, styles.addButton]}
@@ -411,7 +413,6 @@ const PostProperty = ({navigation}) => {
         onSubmitEditing={() => {
           const trimmed = customCommercial.trim();
           if (!trimmed) return;
-          // Add to options and select it
           setCommercialOptions(prev => [...prev, trimmed]);
           setCommercialSpace(prev => [...prev, trimmed]);
           setCustomCommercial('');
@@ -615,6 +616,8 @@ const PostProperty = ({navigation}) => {
         />
       </ScrollView>
     </View>
+
+    </KeyboardAvoidingView>
   );
 };
 

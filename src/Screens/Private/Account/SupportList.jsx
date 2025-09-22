@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState, useCallback} from 'react';
 import Header from '../../../Components/FeedHeader';
@@ -141,7 +142,7 @@ const SupportList = ({navigation}) => {
       <CustomButton
         title="Create Ticket"
         onPress={() => navigation.navigate('CreateTicket')}
-        style={{marginBottom: 45}}
+        style={{marginBottom: Platform?.OS == 'ios' ? 25 : 45}}
       />
     </View>
   );

@@ -31,18 +31,13 @@ const BankAccountList = ({navigation}) => {
     accountType: 'Saving',
   });
 
-  // Fetch bank accounts and prefill form
   const fetchBankAccounts = async () => {
     try {
       setLoadingAccounts(true);
-      console.log('Fetching bank accounts...');
-
       const res = await getRequest('public/api/account/list', true);
-      console.log('Bank Accounts API Response:', res?.data?.data);
-
       if (res?.data?.status === true || res?.data?.success === true) {
         if (res?.data?.data?.length > 0) {
-          const account = res.data.data[0]; // take the first account
+          const account = res.data.data[0];
           setForm({
             accountNumber: account?.account_number || '',
             accountHolderName: account?.account_holder_name || '',
@@ -62,12 +57,10 @@ const BankAccountList = ({navigation}) => {
     }
   };
 
-  // Fetch accounts on mount
   useEffect(() => {
     fetchBankAccounts();
   }, []);
 
-  // Handle update / create new account
   const handleUpdate = async () => {
     setButtonLoader(true);
     const formdata = new FormData();
@@ -85,7 +78,7 @@ const BankAccountList = ({navigation}) => {
 
       if (res.data?.status === true || res?.data?.success === true) {
         showToast('Bank account details updated successfully!', 'success');
-        fetchBankAccounts(); // Refresh with updated data
+        fetchBankAccounts(); 
         navigation.goBack();
       } else {
         showToast(res?.message || 'Failed to update bank details.', 'error');
@@ -113,7 +106,6 @@ const BankAccountList = ({navigation}) => {
           <ActivityIndicator size="large" color={COLOR.royalBlue} />
         ) : (
           <>
-            {/* Account Number */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Account Number</Text>
               <TextInput

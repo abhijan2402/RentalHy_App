@@ -38,7 +38,6 @@ const GooglePlacePicker = ({
 
   const mapRef = useRef(null);
 
-  /** ✅ Request location permission (for Android) */
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
@@ -49,9 +48,7 @@ const GooglePlacePicker = ({
     return true;
   };
 
-  /** ✅ Get current location and move map + marker */
   const getCurrentLocation = () => {
-    // First try with GPS
     Geolocation.getCurrentPosition(
       position => {
         console.log('High accuracy position:', position);
@@ -87,8 +84,6 @@ const GooglePlacePicker = ({
       },
       error => {
         console.warn('High accuracy error:', error);
-
-        // ✅ Fallback to coarse location if timeout or GPS unavailable
         if (error.code === 3 || error.code === 2) {
           console.log('Retrying with coarse location...');
           Geolocation.getCurrentPosition(
@@ -114,14 +109,12 @@ const GooglePlacePicker = ({
     );
   };
 
-  /** Run on mount to ask permission and get location */
   useEffect(() => {
     requestLocationPermission().then(granted => {
       if (granted) getCurrentLocation();
     });
   }, []);
 
-  /** ✅ Fetch suggestions from Google Places API */
   const fetchSuggestions = async text => {
     setQuery(text);
     if (text.length < 2) {
@@ -205,7 +198,6 @@ const GooglePlacePicker = ({
 
   return (
     <View style={styles.container}>
-      {/* Search Input */}
       <TextInput
         value={query}
         onChangeText={fetchSuggestions}
@@ -216,7 +208,6 @@ const GooglePlacePicker = ({
 
       {loading && <ActivityIndicator style={{marginTop: 8}} />}
 
-      {/* Suggestions List */}
       <FlatList
         scrollEnabled
         data={suggestions}
@@ -232,7 +223,6 @@ const GooglePlacePicker = ({
         style={styles.suggestionList}
       />
 
-      {/* Map View */}
       {region && (
         <View>
           <MapView
@@ -241,11 +231,9 @@ const GooglePlacePicker = ({
             region={region}
             // showsUserLocation={true}
           >
-            {/* ✅ Draggable Marker */}
             <Marker coordinate={region} draggable onDragEnd={handleDragEnd} />
           </MapView>
 
-          {/* Current Location Button */}
           <TouchableOpacity
             onPress={getCurrentLocation}
             style={styles.currentLocationButton}>
@@ -290,12 +278,12 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: height * 0.35,
+    height: height * 0.20,
     marginTop: 10,
     borderRadius: 10,
   },
   suggestionList: {
-    maxHeight: 200,
+    maxHeight: 100,
     marginTop: 4,
   },
   currentLocationButton: {
