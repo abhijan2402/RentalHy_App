@@ -174,7 +174,10 @@ const FarmHouseFilter = ({navigation, route}) => {
 
             <Text style={styles.priceLabel}>
               {/* ₹{maxPrice.toLocaleString()} */}₹
-              {formatIndianCurrency(maxPrice)}
+              {/* {formatIndianCurrency(maxPrice)} */}
+              {maxPrice == '1000000'
+                ? `${formatIndianCurrency(maxPrice)}+`
+                : formatIndianCurrency(maxPrice)}
             </Text>
           </View>
         </View>

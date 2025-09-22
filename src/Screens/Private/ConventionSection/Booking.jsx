@@ -37,7 +37,7 @@ const Booking = ({navigation, route}) => {
   const [PhotographersReq, setPhotographersReq] = useState('no');
   const [comments, setComments] = useState('');
   const today = new Date().toISOString().split('T')[0];
-
+  const [additionalAmount, setadditionalAmount] = useState(null);
   const handleBooking = async () => {
     if (
       !name ||
@@ -63,13 +63,19 @@ const Booking = ({navigation, route}) => {
     formData.append('booking_date', selectedDate);
     formData.append('event_time', dayTime);
     formData.append('property_id', route?.params?.propertyData || '');
-    formData.append('catering_needed', catering === 'yes' ? 1 : 0);
-    formData.append('chef_needed', chef === 'yes' ? 1 : 0);
-    formData.append('decore_needed', decorations === 'yes' ? 1 : 0);
-    formData.append('groceries_needed', groceries === 'yes' ? 1 : 0);
-    formData.append('photograper_needed', PhotographersReq === 'yes' ? 1 : 0);
+    // formData.append('catering_needed', catering === 'yes' ? 1 : 0);
+    // formData.append('chef_needed', chef === 'yes' ? 1 : 0);
+    // formData.append('decore_needed', decorations === 'yes' ? 1 : 0);
+    // formData.append('groceries_needed', groceries === 'yes' ? 1 : 0);
+    // formData.append('photograper_needed', PhotographersReq === 'yes' ? 1 : 0);
     formData.append('comment', comments);
-    formData.append('amount', amount);
+    if (additionalAmount) {
+      formData.append('amount', Number(additionalAmount) + Number(amount));
+    } else {
+      formData.append('amount', amount);
+    }
+    if (additionalAmount)
+      formData.append('additional_amount', additionalAmount);
     if (address?.lat) formData.append('lat', address?.lat);
     if (address?.lng) formData.append('lng', address?.lng);
 
@@ -91,13 +97,22 @@ const Booking = ({navigation, route}) => {
           showToast('Payment setup failed. Missing order details.', 'error');
           return;
         }
+        console.log(
+          additionalAmount != null
+            ? (Number(additionalAmount) + Number(amount)) * 100
+            : Number(amount) * 100,
+          'AMOUNNNNNN',
+        );
 
         const options = {
           description: 'Booking Payment',
           image: 'https://your-logo-url.png',
           currency: 'INR',
           key: razorpay_key,
-          amount: amount * 100,
+          amount:
+            additionalAmount != null
+              ? (Number(additionalAmount) + Number(amount)) * 100
+              : Number(amount) * 100,
           name: name,
           order_id: order_id,
           prefill: {
@@ -218,10 +233,6 @@ const Booking = ({navigation, route}) => {
         {/* Address */}
         <View style={styles.section}>
           <Text style={styles.label}>Address</Text>
-          {/* <GooglePlacePicker
-            placeholder="Select Address"
-            onPlaceSelected={setAddress}
-          /> */}
           <TextInput
             style={styles.input}
             placeholder="Enter Address"
@@ -276,7 +287,16 @@ const Booking = ({navigation, route}) => {
             ))}
           </ScrollView> */}
         </View>
-
+        <View style={styles.section}>
+          <Text style={styles.label}>Any Additional Amount (Optional)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Additional Amount"
+            value={additionalAmount}
+            keyboardType="numeric"
+            onChangeText={setadditionalAmount}
+          />
+        </View>
         {/* Calendar Date Picker */}
         <View style={styles.section}>
           <Text style={styles.label}>Select Booking Date</Text>
@@ -442,7 +462,7 @@ const Booking = ({navigation, route}) => {
                 ))}
               </View>
             </View> */}
-            {/* <View style={styles.section}>
+            <View style={styles.section}>
               <Text style={styles.label}>Comments (optional)</Text>
               <TextInput
                 style={[styles.input, {minHeight: 80}]}
@@ -450,8 +470,9 @@ const Booking = ({navigation, route}) => {
                 onChangeText={setComments}
                 placeholder="Enter any comments..."
                 multiline
+                textAlignVertical="top"
               />
-            </View> */}
+            </View>
           </>
         )}
       </ScrollView>

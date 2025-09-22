@@ -14,6 +14,7 @@ import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {useApi} from '../../../Backend/Api';
+import {useToast} from '../../../Constants/ToastContext';
 
 // Enable Layout Animation for Android
 if (
@@ -67,11 +68,11 @@ export const BookingCard = ({booking, onUpdateService}) => {
           style={[
             styles.status,
             {
-              color: getStatusColor(booking.status),
+              color: getStatusColor(booking.order_status),
               textTransform: 'capitalize',
             },
           ]}>
-          {booking.status}
+          {booking.order_status}
         </Text>
       </View>
 
@@ -101,6 +102,7 @@ export const BookingCard = ({booking, onUpdateService}) => {
             {label: 'Chef Needed', key: 'chef_needed'},
             {label: 'Photographer Needed', key: 'photograper_needed'},
             {label: 'Groceries Needed', key: 'groceries_needed'},
+            {label: 'Decorations Needed', key: 'decore_needed'},
           ].map(service => (
             <View style={styles.serviceRow} key={service.key}>
               <Text style={styles.serviceLabel}>{service.label}:</Text>
@@ -162,7 +164,7 @@ const MyBooking = ({navigation}) => {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
-
+  const {showToast} = useToast();
   // Fetch bookings
   const getBooking = async (pageNum = 1, append = false) => {
     if (pageNum > lastPage) return;
@@ -173,6 +175,8 @@ const MyBooking = ({navigation}) => {
       .then(res => {
         if (res.data.success) {
           const apiData = res.data.data;
+          console.log(apiData, 'BHVVHY');
+
           setLastPage(apiData.last_page);
           setPage(apiData.current_page);
           if (append) {
@@ -206,26 +210,48 @@ const MyBooking = ({navigation}) => {
       getBooking(page + 1, true);
     }
   };
-
   // Update service API call
   const onUpdateService = async (bookingId, field, value) => {
     try {
-      const payload = {
-        booking_id: bookingId,
-        [field]: value,
-      };
+      // Find the booking object to get current states of all services
+      const currentBooking = bookings.find(b => b.id === bookingId);
 
-      const response = await postRequest('public/api/update_service', payload);
+      if (!currentBooking) return;
 
-      if (response.data.success) {
+      const formData = new FormData();
+      formData.append('groceries_needed', currentBooking.groceries_needed);
+      formData.append('decore_needed', currentBooking.decore_needed);
+      formData.append('photograper_needed', currentBooking.photograper_needed);
+      formData.append('chef_needed', currentBooking.chef_needed);
+      formData.append('catering_needed', currentBooking.catering_needed);
+
+      // Update only the changed field
+      formData.append(field, value);
+      console.log(formData, 'PAYLOADDD');
+      console.log(
+        `public/api/book-property/update-order/${bookingId}`,
+        'LOFFF',
+      );
+
+      const response = await postRequest(
+        `public/api/book-property/update-order/${bookingId}`,
+        formData,
+        true, // <- If your API expects form-data
+      );
+      console.log(response, 'RESSP');
+
+      if (response.success) {
         // Update UI immediately
-        setBookings(prevBookings =>
-          prevBookings.map(b =>
-            b.id === bookingId ? {...b, [field]: value} : b,
-          ),
+        showToast(
+          response?.data.message || 'Failed to update service',
+          'success',
         );
+        getBooking(1, false);
       } else {
-        alert(response.data.message || 'Failed to update service');
+        showToast(
+          response?.data.message || 'Failed to update service',
+          'success',
+        );
       }
     } catch (err) {
       console.error('Update Service Error:', err);

@@ -33,8 +33,9 @@ const Filter = ({navigation, route}) => {
     existingFilters.priceRange || [5000, '10,00,000'],
   );
   const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 5000);
+
   const [maxPrice, setMaxPrice] = useState(
-    existingFilters.maxPrice || '10,00,000',
+    existingFilters.maxPrice || '1000000',
   );
   const [selectedFloor, setSelectedFloor] = useState(
     existingFilters?.selectedFloor || '',
@@ -274,7 +275,9 @@ const Filter = ({navigation, route}) => {
               {minRoomSize.toLocaleString()}
             </Text>
             <Text style={styles.priceLabel}>
-              {maxRoomSize.toLocaleString()}
+              {maxRoomSize == 5000
+                ? `${maxRoomSize.toLocaleString()}+`
+                : maxRoomSize.toLocaleString()}
             </Text>
           </View>
         </View>
@@ -301,7 +304,10 @@ const Filter = ({navigation, route}) => {
               ₹{formatIndianCurrency(minPrice)}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹{formatIndianCurrency(maxPrice)}
+              ₹
+              {maxPrice == '1000000'
+                ? `${formatIndianCurrency(maxPrice)}+`
+                : formatIndianCurrency(maxPrice)}
             </Text>
           </View>
         </View>
