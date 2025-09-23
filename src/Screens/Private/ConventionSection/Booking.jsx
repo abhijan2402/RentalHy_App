@@ -6,20 +6,19 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Calendar} from 'react-native-calendars';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
-import GooglePlacePicker from '../../../Components/GooglePicker';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 import RazorpayCheckout from 'react-native-razorpay';
 
 const Booking = ({navigation, route}) => {
-  const {postRequest} = useApi();
+  const {postRequest , getRequest} = useApi();
   const {showToast} = useToast();
-  const type = route?.params?.type;
+  const {propertyData} = route?.params;
   const [name, setName] = useState('');
   const [buttonLoader, setButtonLoader] = useState(false);
   const [mobile, setMobile] = useState('');
@@ -36,6 +35,9 @@ const Booking = ({navigation, route}) => {
   const [groceries, setGroceries] = useState('no');
   const [PhotographersReq, setPhotographersReq] = useState('no');
   const [comments, setComments] = useState('');
+  const [disabledSlots, setDisabledSlots] = useState([]); 
+  const [allDates, setAllDates] = useState({});
+
   const today = new Date().toISOString().split('T')[0];
 
   const handleBooking = async () => {
@@ -161,6 +163,47 @@ const Booking = ({navigation, route}) => {
     }
   };
 
+  const fetchHallTimings = async (id) => {
+    try {
+      const res = await getRequest(`public/api/hall-timings/${id}`);
+      if (res?.data?.status) {
+        const dates = res.data.data.convention_hall.dates;
+        const marked = {};
+        Object.keys(dates).forEach(date => {
+          marked[formatDateToISO(date)] = {disabled: true, marked: true, dotColor: 'red'};
+        });
+        setAllDates(dates);
+      } else {
+        showToast('Failed to fetch hall timings', 'error');
+      }
+    } catch (err) {
+      console.error('Error fetching timings:', err);
+      showToast('Error fetching timings', 'error');
+    }
+  };
+
+   const formatDateToISO = date => {
+    const [d, m, y] = date.split('/');
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  };
+
+  const handleDateSelect = date => {
+    setSelectedDate(date.dateString);
+    const apiDate = Object.keys(allDates).find(
+      d => formatDateToISO(d) === date.dateString,
+    );
+    if (apiDate) {
+      const slots = allDates[apiDate].split(','); 
+      setDisabledSlots(slots.map(s => s.toLowerCase())); 
+    } else {
+      setDisabledSlots([]);
+    }
+  };
+
+  useEffect(() => {
+      fetchHallTimings(propertyData);
+    }, [propertyData]);
+
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
@@ -280,17 +323,15 @@ const Booking = ({navigation, route}) => {
         {/* Calendar Date Picker */}
         <View style={styles.section}>
           <Text style={styles.label}>Select Booking Date</Text>
-          <Calendar
+           <Calendar
             minDate={today}
-            onDayPress={day => {
-              setSelectedDate(day.dateString);
-            }}
+            onDayPress={handleDateSelect}
             markedDates={{
-              [selectedDate]: {
-                selected: true,
-                marked: true,
-                selectedColor: COLOR.primary || '#007AFF',
-              },
+              ...Object.keys(allDates).reduce((acc, d) => {
+                acc[formatDateToISO(d)] = {disabled: false, marked: true, dotColor: 'red'};
+                return acc;
+              }, {}),
+              [selectedDate]: {selected: true, selectedColor: COLOR.primary || '#007AFF'},
             }}
             theme={{
               todayTextColor: COLOR.primary || '#007AFF',
@@ -304,156 +345,31 @@ const Booking = ({navigation, route}) => {
         <View style={styles.section}>
           <Text style={styles.label}>Event Time</Text>
           <View style={styles.toggleRow}>
-            {['day', 'night', 'Full Day'].map(option => (
+            {['day', 'night', 'full day'].map(option => (
               <TouchableOpacity
                 key={option}
                 style={[
                   styles.toggleBtn,
                   dayTime === option && styles.selectedBtn,
+                  disabledSlots.includes(option) && {backgroundColor: '#ddd', borderColor: '#ccc'},
                 ]}
-                onPress={() => setDayTime(option)}>
+                disabled={disabledSlots.includes(option)}
+                onPress={() => setDayTime(option)}
+              >
                 <Text
                   style={[
                     styles.toggleText,
                     dayTime === option && styles.selectedText,
-                  ]}>
+                    disabledSlots.includes(option) && {color: '#999'},
+                  ]}
+                >
                   {option.toUpperCase()}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
-        {type == 'convention' && (
-          <>
-            {/* Catering */}
-            {/* <View style={styles.section}>
-              <Text style={styles.label}>Catering Needed?</Text>
-              <View style={styles.toggleRow}>
-                {['yes', 'no'].map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[
-                      styles.toggleBtn,
-                      catering === option && styles.selectedBtn,
-                    ]}
-                    onPress={() => setCatering(option)}>
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        catering === option && styles.selectedText,
-                      ]}>
-                      {option.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View> */}
-
-            {/* Chef */}
-            {/* <View style={styles.section}>
-              <Text style={styles.label}>Chef Needed?</Text>
-              <View style={styles.toggleRow}>
-                {['yes', 'no'].map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[
-                      styles.toggleBtn,
-                      chef === option && styles.selectedBtn,
-                    ]}
-                    onPress={() => setChef(option)}>
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        chef === option && styles.selectedText,
-                      ]}>
-                      {option.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View> */}
-            {/* <View style={styles.section}>
-              <Text style={styles.label}>Photographers Required?</Text>
-              <View style={styles.toggleRow}>
-                {['yes', 'no'].map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[
-                      styles.toggleBtn,
-                      PhotographersReq === option && styles.selectedBtn,
-                    ]}
-                    onPress={() => setPhotographersReq(option)}>
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        PhotographersReq === option && styles.selectedText,
-                      ]}>
-                      {option.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View> */}
-
-            {/* Decorations */}
-            {/* <View style={styles.section}>
-              <Text style={styles.label}>Decorations Needed?</Text>
-              <View style={styles.toggleRow}>
-                {['yes', 'no'].map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[
-                      styles.toggleBtn,
-                      decorations === option && styles.selectedBtn,
-                    ]}
-                    onPress={() => setDecorations(option)}>
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        decorations === option && styles.selectedText,
-                      ]}>
-                      {option.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View> */}
-
-            {/* Groceries */}
-            {/* <View style={styles.section}>
-              <Text style={styles.label}>Groceries Needed?</Text>
-              <View style={styles.toggleRow}>
-                {['yes', 'no'].map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[
-                      styles.toggleBtn,
-                      groceries === option && styles.selectedBtn,
-                    ]}
-                    onPress={() => setGroceries(option)}>
-                    <Text
-                      style={[
-                        styles.toggleText,
-                        groceries === option && styles.selectedText,
-                      ]}>
-                      {option.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View> */}
-            {/* <View style={styles.section}>
-              <Text style={styles.label}>Comments (optional)</Text>
-              <TextInput
-                style={[styles.input, {minHeight: 80}]}
-                value={comments}
-                onChangeText={setComments}
-                placeholder="Enter any comments..."
-                multiline
-              />
-            </View> */}
-          </>
-        )}
+       
       </ScrollView>
 
       {/* Book Now Button */}

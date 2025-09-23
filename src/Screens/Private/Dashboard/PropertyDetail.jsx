@@ -33,6 +33,7 @@ const PropertyDetail = ({navigation, route}) => {
   const [images, setImages] = useState([]);
   const [buttonLoader, setButtonLoader] = useState(false);
   const {type, propertyData} = route?.params;
+
   const [reviews, setReviews] = useState({
     food: null,
     cleanliness: null,
@@ -56,7 +57,6 @@ const PropertyDetail = ({navigation, route}) => {
 
 const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
-  /** Handle thumb press */
   const handleReviewPress = (key, value) => {
     setReviews(prev => ({...prev, [key]: value}));
   };
@@ -220,7 +220,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
 
-  console.log(AllData, 'AllDataAllDataAllData');
 
   return (
     <View style={styles.container}>
@@ -505,7 +504,10 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
               style={{marginTop: 20}}
               title={'Book Now'}
               onPress={() => {
-                navigation.navigate('Booking');
+                navigation.navigate('Booking' , {
+                  type: 'convention',
+          propertyData: propertyData?.id,
+                });
               }}
             />
           )}

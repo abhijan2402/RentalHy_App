@@ -1313,9 +1313,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-maps (1.26.1):
-    - react-native-maps/Maps (= 1.26.1)
-  - react-native-maps/Generated (1.26.1):
+  - react-native-maps (1.26.6):
+    - react-native-maps/Maps (= 1.26.6)
+  - react-native-maps/Generated (1.26.6):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1338,7 +1338,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-maps/Google (1.26.1):
+  - react-native-maps/Google (1.26.6):
     - DoubleConversion
     - glog
     - Google-Maps-iOS-Utils (= 6.1.0)
@@ -1365,7 +1365,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-maps/Maps (1.26.1):
+  - react-native-maps/Maps (1.26.6):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -2247,7 +2247,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 1b42bfae5831d01bcea685f95621b00ce6fdbeb3
   React-microtasksnativemodule: c752228230eae04222a6d74a7868ff9ec32450ad
   react-native-geolocation: 2e4c32df5f6d5a4e399fc46071e7791ede9fd579
-  react-native-maps: 0595cbfee8375e05e6929b6fa24f78e3c2ecbc6f
+  react-native-maps: 6f112810f864f8ce9bf18ca113d6d9d3ad8535ce
   react-native-razorpay: ab51e7be3d906f49b26198d978fc6f163e846d30
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
   react-native-safe-area-context: c0fea0f6868c961e11c247fed409963b4b83b511

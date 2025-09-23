@@ -31,7 +31,9 @@ const Wishlist = ({navigation}) => {
     console.log(`public/api/wishlist/remove/${id}`, 'ISEUSUUSUSU');
 
     const response = await postRequest(`public/api/wishlist/remove/${id}`);
+    console.log(response,"responseresponseresponseresponse")
     if (response.data?.status) {
+
       showToast('Removed from wishlist successfully', 'success');
       getData();
     }

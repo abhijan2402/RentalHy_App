@@ -369,6 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
+    height:40
   },
   cancel: {
     color: 'red',

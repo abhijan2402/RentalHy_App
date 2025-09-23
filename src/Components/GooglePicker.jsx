@@ -17,18 +17,13 @@ import Geolocation from '@react-native-community/geolocation';
 import {COLOR} from '../Constants/Colors';
 
 const {height} = Dimensions.get('window');
+const GOOGLE_API_KEY = 'AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk';
 
-const GOOGLE_API_KEY = 'AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk'; // Replace with your key
-
-const GooglePlacePicker = ({
-  placeholder = 'Search place...',
-  onPlaceSelected,
-}) => {
+const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected }) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Default region is Hyderabad
   const [region, setRegion] = useState({
     latitude: 17.385044,
     longitude: 78.486671,
@@ -37,6 +32,46 @@ const GooglePlacePicker = ({
   });
 
   const mapRef = useRef(null);
+
+  // 🔹 Reverse geocode lat/lng to formatted address
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`
+      );
+      const json = await res.json();
+      return json.results?.[0]?.formatted_address || '';
+    } catch (err) {
+      console.error('Reverse geocode error:', err);
+      return '';
+    }
+  };
+
+  const handleMapPress = async e => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setRegion(r => ({ ...r, latitude, longitude }));
+
+    const address = await reverseGeocode(latitude, longitude);
+    onPlaceSelected?.({
+      name: address || 'Dropped Pin',
+      lat: latitude,
+      lng: longitude,
+      address,
+    });
+  };
+
+  const handleDragEnd = async e => {
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setRegion(r => ({ ...r, latitude, longitude }));
+
+    const address = await reverseGeocode(latitude, longitude);
+    onPlaceSelected?.({
+      name: address || 'Dropped Pin',
+      lat: latitude,
+      lng: longitude,
+      address,
+    });
+  };
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -50,62 +85,29 @@ const GooglePlacePicker = ({
 
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
-      position => {
-        console.log('High accuracy position:', position);
-        const {latitude, longitude} = position.coords;
+      async position => {
+        const { latitude, longitude } = position.coords;
+        const address = await reverseGeocode(latitude, longitude);
 
-        setRegion({
+        const newRegion = {
           latitude,
           longitude,
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
+        };
+        setRegion(newRegion);
+
+        mapRef.current?.animateToRegion(newRegion, 1000);
+
+        onPlaceSelected?.({
+          name: 'Current Location',
+          lat: latitude,
+          lng: longitude,
+          address,
         });
-
-        if (mapRef.current) {
-          mapRef.current.animateToRegion(
-            {
-              latitude,
-              longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            },
-            1000,
-          );
-        }
-
-        if (onPlaceSelected) {
-          onPlaceSelected({
-            name: 'Current Location',
-            lat: latitude,
-            lng: longitude,
-            address: null,
-          });
-        }
       },
-      error => {
-        console.warn('High accuracy error:', error);
-        if (error.code === 3 || error.code === 2) {
-          console.log('Retrying with coarse location...');
-          Geolocation.getCurrentPosition(
-            pos => {
-              console.log('Coarse location fallback:', pos);
-              const {latitude, longitude} = pos.coords;
-
-              setRegion({
-                latitude,
-                longitude,
-                latitudeDelta: 0.05,
-                longitudeDelta: 0.05,
-              });
-            },
-            err => console.error('Coarse location failed:', err),
-            {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
-          );
-        } else if (error.code === 1) {
-          alert('Location permission denied. Please enable it in settings.');
-        }
-      },
-      {enableHighAccuracy: false, timeout: 20000, maximumAge: 10000},
+      error => console.warn('Location error:', error),
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
     );
   };
 
@@ -123,29 +125,28 @@ const GooglePlacePicker = ({
     }
     setLoading(true);
     try {
-      const response = await fetch(
+      const res = await fetch(
         `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-          text,
-        )}&key=${GOOGLE_API_KEY}&language=en`,
+          text
+        )}&key=${GOOGLE_API_KEY}&language=en`
       );
-      const json = await response.json();
+      const json = await res.json();
       setSuggestions(json.predictions || []);
-    } catch (error) {
-      console.error('Google Autocomplete Error:', error);
+    } catch (err) {
+      console.error('Autocomplete error:', err);
     }
     setLoading(false);
   };
 
-  /** ✅ When user selects a suggestion */
   const handleSelect = async item => {
     setQuery(item.description);
     setSuggestions([]);
 
     try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${GOOGLE_API_KEY}&language=en`,
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${item.place_id}&key=${GOOGLE_API_KEY}&language=en`
       );
-      const json = await response.json();
+      const json = await res.json();
       const details = json.result;
       const lat = details.geometry?.location?.lat;
       const lng = details.geometry?.location?.lng;
@@ -158,41 +159,16 @@ const GooglePlacePicker = ({
       };
 
       setRegion(newRegion);
-      if (mapRef.current) {
-        mapRef.current.animateToRegion(newRegion, 1000);
-      }
+      mapRef.current?.animateToRegion(newRegion, 1000);
 
-      if (onPlaceSelected) {
-        onPlaceSelected({
-          name: item.description,
-          lat,
-          lng,
-          address: details.formatted_address,
-        });
-      }
-    } catch (error) {
-      console.error('Google Place Details Error:', error);
-    }
-  };
-
-  /** ✅ When marker is dragged */
-  const handleDragEnd = e => {
-    const {latitude, longitude} = e.nativeEvent.coordinate;
-
-    const newRegion = {
-      ...region,
-      latitude,
-      longitude,
-    };
-    setRegion(newRegion);
-
-    if (onPlaceSelected) {
-      onPlaceSelected({
-        name: query || 'Dropped Pin',
-        lat: latitude,
-        lng: longitude,
-        address: null,
+      onPlaceSelected?.({
+        name: item.description,
+        lat,
+        lng,
+        address: details.formatted_address,
       });
+    } catch (err) {
+      console.error('Place details error:', err);
     }
   };
 
@@ -206,46 +182,34 @@ const GooglePlacePicker = ({
         placeholderTextColor={COLOR.grey}
       />
 
-      {loading && <ActivityIndicator style={{marginTop: 8}} />}
+      {loading && <ActivityIndicator style={{ marginTop: 8 }} />}
 
       <FlatList
-        scrollEnabled
         data={suggestions}
         keyExtractor={item => item.place_id}
         keyboardShouldPersistTaps="handled"
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.suggestionItem}
-            onPress={() => handleSelect(item)}>
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.suggestionItem} onPress={() => handleSelect(item)}>
             <Text style={styles.suggestionText}>{item.description}</Text>
           </TouchableOpacity>
         )}
         style={styles.suggestionList}
       />
 
-      {region && (
-        <View>
-          <MapView
-            ref={mapRef}
-            style={styles.map}
-            region={region}
-            // showsUserLocation={true}
-          >
-            <Marker coordinate={region} draggable onDragEnd={handleDragEnd} />
-          </MapView>
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        region={region}
+        onPress={handleMapPress}>
+        <Marker coordinate={region} draggable onDragEnd={handleDragEnd} />
+      </MapView>
 
-          <TouchableOpacity
-            onPress={getCurrentLocation}
-            style={styles.currentLocationButton}>
-            <Image
-              source={{
-                uri: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-              }}
-              style={{width: 25, height: 25}}
-            />
-          </TouchableOpacity>
-        </View>
-      )}
+      <TouchableOpacity onPress={getCurrentLocation} style={styles.currentLocationButton}>
+        <Image
+          source={{ uri: 'https://cdn-icons-png.flaticon.com/512/684/684908.png' }}
+          style={{ width: 25, height: 25 }}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -253,10 +217,7 @@ const GooglePlacePicker = ({
 export default GooglePlacePicker;
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    position: 'relative',
-  },
+  container: { width: '100%', position: 'relative' },
   input: {
     borderWidth: 0.5,
     borderColor: COLOR.grey,
@@ -272,19 +233,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  suggestionText: {
-    fontSize: 14,
-    color: '#444',
-  },
+  suggestionText: { fontSize: 14, color: '#444' },
+  suggestionList: { maxHeight: 100, marginTop: 4 },
   map: {
     width: '100%',
-    height: height * 0.20,
+    height: height * 0.2,
     marginTop: 10,
     borderRadius: 10,
-  },
-  suggestionList: {
-    maxHeight: 100,
-    marginTop: 4,
   },
   currentLocationButton: {
     position: 'absolute',
@@ -295,7 +250,7 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
