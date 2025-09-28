@@ -1,4 +1,4 @@
-package com.propertyapp
+package com.toletindia
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

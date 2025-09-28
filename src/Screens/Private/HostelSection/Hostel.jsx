@@ -373,7 +373,8 @@ const Hostel = ({navigation}) => {
           alignSelf:'center',
           backgroundColor: COLOR.white,
           justifyContent: 'center',
-        }}>                      <ScrollView
+        }}>                    
+          <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}>
                         {avaialbleFilter?.map(filterGroup => {
@@ -400,7 +401,7 @@ const Hostel = ({navigation}) => {
                                 borderWidth: 1,
                                 borderColor: '#ccc',
                                 paddingHorizontal: 10,
-                                marginBottom:10,
+                                marginBottom:Platform?.OS == 'ios' ? 10 : 0,
                                 paddingVertical: 5,
                                 borderRadius: 5,
                                 backgroundColor:
@@ -567,3 +568,4 @@ const styles = StyleSheet.create({
   },
   filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
 });
+
