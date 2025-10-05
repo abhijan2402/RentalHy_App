@@ -70,10 +70,10 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
                 style={{
                   textAlign: 'center',
                   color: 'white',
-                  textAlignVertical: 'center',
                   fontSize: 11,
+                  width: '100%',
                 }}
-                numberOfLines={1}>
+                numberOfLines={2}>
                 {item?.title}
               </Text>
             </View>

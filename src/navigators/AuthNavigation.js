@@ -4,6 +4,7 @@ import Login from '../Screens/Auth/Login';
 import SignUp from '../Screens/Auth/SignUp';
 import SupportList from '../Screens/Private/Account/SupportList';
 import ForgotPassword from '../Screens/Auth/ForgotPassword';
+import Cms from '../Components/Cms';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
@@ -18,7 +19,7 @@ const AuthStack = () => {
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="SupportList" component={SupportList} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-
+      <Stack.Screen name="Cms" component={Cms} />
 
       {/* <Stack.Screen name="AddFeed" component={AddFeed} />
       <Stack.Screen name="AddEvent" component={AddEvent} />
