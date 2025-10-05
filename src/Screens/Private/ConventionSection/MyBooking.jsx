@@ -207,7 +207,6 @@ const MyBooking = ({navigation}) => {
     }
   };
 
-  // Update service API call
   const onUpdateService = async (bookingId, field, value) => {
     try {
       const payload = {
@@ -216,6 +215,8 @@ const MyBooking = ({navigation}) => {
       };
 
       const response = await postRequest('public/api/update_service', payload);
+
+      console.log(response,"responseresponse")
 
       if (response.data.success) {
         // Update UI immediately

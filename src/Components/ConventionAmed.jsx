@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
 const ConventionAmed = ({AllData}) => {
@@ -43,7 +43,6 @@ const ConventionAmed = ({AllData}) => {
     wheel_chair_access: 'Wheelchair Access',
   };
 
-  // ✅ Pricing fields
   const priceFields = [
     {key: 'wedding_price', label: 'Wedding'},
     {key: 'wedding_anniversary_price', label: 'Wedding Anniversary'},
@@ -106,54 +105,112 @@ const ConventionAmed = ({AllData}) => {
     {key: 'pool_party_price', label: 'Pool Party'},
   ];
 
+
+    const durationFields = [
+    { key: 'day_duration', label: 'Day Duration (hrs)' },
+    { key: 'night_duration', label: 'Night Duration (hrs)' },
+    { key: 'full_day_duration', label: 'Full Day Duration (hrs)' },
+  ];
+
+
+   const capacityFields = [
+    { key: 'seating_capacity', label: 'Seating Capacity' },
+    { key: 'floating_capacity', label: 'Floating Capacity' },
+    { key: 'dining_capacity', label: 'Dining Capacity' },
+  ];
+
+    const renderTable = (title, fields) => {
+      const hasValidData = fields.some(
+        ({ key }) => AllData?.[key] && String(AllData[key]).trim() !== ''
+      );
+      if (!hasValidData) return null;
+  
+      return (
+        <View style={{ marginVertical: 10 }}>
+          <Text style={styles.sectionHeader}>{title}</Text>
+  
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.tableContainer}>
+              {/* Header */}
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>Field</Text>
+                <Text style={[styles.tableCell, styles.headerCell, { flex: 1 }]}>Value</Text>
+              </View>
+  
+              {/* Rows */}
+              {fields.map(
+                ({ key, label }, index) =>
+                  AllData?.[key] &&
+                  String(AllData[key]).trim() !== '' && (
+                    <View
+                      key={key}
+                      style={[
+                        styles.tableRow,
+                        { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
+                      ]}>
+                      <Text style={[styles.tableCell, { flex: 1.5 }]}>{label}</Text>
+                      <Text style={[styles.tableCell, { flex: 1 }]}>
+                        {isNaN(AllData[key])
+                          ? AllData[key]
+                          : `₹${parseFloat(AllData[key]).toFixed(2)}`}
+                      </Text>
+                    </View>
+                  )
+              )}
+            </View>
+          </ScrollView>
+        </View>
+      );
+    };
+
+    const renderDateTable = () => {
+    if (!AllData?.dates || Object.keys(AllData.dates).length === 0) return null;
+
+    const dateEntries = Object.entries(AllData.dates);
+
+    return (
+      <View style={{ marginVertical: 10 }}>
+        <Text style={styles.sectionHeader}>Unavailability Dates</Text>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.tableContainer}>
+            {/* Header */}
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.2 }]}>Date</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>Unavailable For</Text>
+            </View>
+
+            {/* Rows */}
+            {dateEntries.map(([date, value], index) => (
+              <View
+                key={date}
+                style={[
+                  styles.tableRow,
+                  { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
+                ]}>
+                <Text style={[styles.tableCell, { flex: 1.2 }]}>{date}</Text>
+                <Text style={[styles.tableCell, { flex: 1.5 }]}>{value}</Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  };
+  
   return (
     <View>
-      {/* Seating Capacity */}
       {AllData?.seating_capacity ? (
         <Text style={styles.specText}>
           • Seating Capacity: {AllData.seating_capacity}
         </Text>
       ) : null}
+{renderTable('Fields', priceFields)}
+      {renderTable('Durations', durationFields)}
+      {renderTable('Capacity Details', capacityFields)}
 
-      {/* ✅ Dynamic Boolean Fields */}
-      {Object.entries(booleanFields).map(([key, label]) =>
-        AllData?.[key] === true ? (
-          <Text key={key} style={styles.specText}>
-            • {label}
-          </Text>
-        ) : null,
-      )}
 
-      {/* ✅ Pricing Section */}
-      {priceFields.some(
-        ({key}) => AllData?.[key] && parseFloat(AllData[key]) > 0,
-      ) && (
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.sectionHeader}>Pricing</Text>
-          {priceFields.map(
-            ({key, label}) =>
-              AllData?.[key] &&
-              parseFloat(AllData[key]) > 0 && (
-                <Text key={key} style={styles.specText}>
-                  • {label}: ₹{parseFloat(AllData[key]).toFixed(2)}
-                </Text>
-              ),
-          )}
-        </View>
-      )}
-
-      {/* ✅ Unavailability Dates */}
-      {AllData?.dates && Object.keys(AllData.dates).length > 0 && (
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.sectionHeader}>Unavailability Dates</Text>
-          {Object.entries(AllData.dates).map(([date, value]) => (
-            <View style={styles.dateRow} key={date}>
-              <Text style={[styles.specText ]}>{date}</Text>
-              <Text style={styles.specText}>{value}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+     {renderDateTable()}
     </View>
   );
 };
@@ -178,5 +235,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '80%',
     paddingVertical: 2,
+  },
+   tableContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    overflow: 'hidden',
+    minWidth: '90%',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#f3f3f3',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+  },
+  tableCell: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    fontSize: 15,
+    color: '#333',
+  },
+  headerCell: {
+    fontWeight: 'bold',
+    color: '#000',
   },
 });
