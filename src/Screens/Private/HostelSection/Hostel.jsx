@@ -306,7 +306,27 @@ const Hostel = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
       <HomeHeader navigation={navigation} setLocationModalVisible={setLocationModalVisible} />
-      {tabLoader ? (
+<ScrollView
+
+  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
+  
+    GetProperties(
+      1,
+      false,
+      {},
+      '',
+      '',
+      false,
+    );
+            setSortQuery('');
+            setSearchQuery('');
+            setAppliedFilters({});
+            setAppliedModalFilter({});
+            setAttendedFilter(null);
+        }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}
+>
+
+            {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
@@ -476,6 +496,7 @@ const Hostel = ({navigation}) => {
             }
           />
         </View>
+</ScrollView>
       <AnimatedButton
         title="Upload Hostel"
         onPress={() => {

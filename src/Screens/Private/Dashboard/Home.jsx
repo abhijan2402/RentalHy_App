@@ -457,12 +457,31 @@ const Home = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
 
-      {/* Header */}
       <HomeHeader
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
       />
-      {tabLoader ? (
+ <ScrollView
+  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
+    
+      GetProperties(
+        1,
+        false,
+        {},
+        '',
+        '',
+        false,
+      );
+              setSortQuery('');
+              setSearchQuery('');
+              setAppliedFilters({});
+              setAppliedModalFilter({});
+              setAttendedFilter(null);
+          }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>
+        }
+ 
+ >
+           {tabLoader ? (
         <View style={{ height: 115 }}></View>
       ) : (
         <OptionSelector
@@ -595,7 +614,6 @@ const Home = ({ navigation }) => {
         </ScrollView>
       </Animated.View>
 
-      {/* Properties Grid */}
       {showDemoCard && loader ? (
         <>
           <LottieView
@@ -677,7 +695,11 @@ const Home = ({ navigation }) => {
           </View>
         </>
       )}
-      {!loader && (
+      
+
+ </ScrollView>
+
+ {!loader && (
         <AnimatedButton
           onPress={() => {
             if (currentStatus == -1) {
