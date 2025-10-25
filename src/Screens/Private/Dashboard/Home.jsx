@@ -34,6 +34,7 @@ import LocationModal from '../../../Modals/LocationModal';
 import { getCityFromAddress } from '../../../utils/helper';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
+import RenderFilterOptions from '../../../Components/renderFilterOptions';
 
 const { width } = Dimensions.get('window');
 
@@ -49,6 +50,7 @@ const Home = ({ navigation }) => {
     currentAddress,
     setCurrentAddress,
   } = useContext(AuthContext);
+
 
   const { currentStatus } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -89,34 +91,10 @@ const Home = ({ navigation }) => {
     }
   };
 
-  const onScrollFlatlist = (event) => {
-    const currentOffset = event.nativeEvent.contentOffset.y;
-    const diff = currentOffset - scrollOffset;
-
-    if (diff > 10 && currentOffset > 40) {
-      Animated.timing(filterHeight, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    } else if (diff < -10) {
-      Animated.timing(filterHeight, {
-        toValue: 40,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    }
-    scrollOffset = currentOffset;
-  };
-
 
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
-  };
-
-  const removeFilter = filter => {
-    setAppliedFilters(appliedFilters.filter(f => f !== filter));
-  };
+  };;
 
   const buildFormData = (
     filters,
@@ -447,11 +425,78 @@ const Home = ({ navigation }) => {
     );
   };
 
+
+  // const renderFilterOptions = () => {
+  //   return (
+  //       <ScrollView
+  //         horizontal
+  //         showsHorizontalScrollIndicator={false}
+  //       >
+  //         {avaialbleFilter.map(filterGroup => {
+  //           const selectedValues = AppliedModalFilter[filterGroup.type] || [];
+  //           let displayText = filterGroup.name;
+
+  //           if (filterGroup.type === 'price') {
+  //             const minP = AppliedModalFilter.min_price;
+  //             const maxP = AppliedModalFilter.max_price;
+  //             if (minP !== undefined && maxP !== undefined) {
+  //               displayText = `₹${minP} - ₹${maxP}`;
+  //             }
+  //           } else if (selectedValues.length > 0) {
+  //             displayText = selectedValues.join(', ');
+  //           }
+  //           return (
+  //             <TouchableOpacity
+  //               onPress={() => {
+  //                 setAttendedFilter(filterGroup);
+  //                 setMultiFilter(true);
+  //               }}
+  //               key={filterGroup.id}
+  //               style={{
+  //                 borderWidth: 1,
+  //                 borderColor: '#ccc',
+  //                 paddingHorizontal: 10,
+  //                 paddingVertical: 5,
+  //                 borderRadius: 5,
+  //                 backgroundColor:
+  //                   attendedFilter?.id == filterGroup?.id
+  //                     ? COLOR.primary
+  //                     : '#fff',
+  //                 marginRight: 8,
+  //                 justifyContent: 'center',
+  //                 alignItems: 'center',
+  //               }}>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   fontWeight: 'bold',
+  //                   paddingVertical: 2,
+  //                   color:
+  //                     attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
+  //                   textTransform: 'capitalize',
+  //                   textAlignVertical: 'center',
+  //                 }}>
+  //                 {displayText}
+  //               </Text>
+  //             </TouchableOpacity>
+  //           );
+  //         })}
+  //       </ScrollView>
+  //   )
+  // }
+
   useEffect(() => {
     if (!currentAddress?.address) {
       requestPermission();
     }
   }, [currentAddress?.address]);
+
+  useEffect(() => {
+      if(Object.keys(appliedFilters).length > 0 ){
+        setAppliedModalFilter(appliedFilters);
+
+      }
+  }, [appliedFilters]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -461,6 +506,20 @@ const Home = ({ navigation }) => {
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
       />
+
+         {tabLoader ? (
+        <View style={{ height: 115 }}></View>
+      ) : (
+        <OptionSelector
+          navigation={navigation}
+          defaultIndex={0}
+          data={showPost}
+          onSelect={(item, index) => {
+            console.log('Selected:', item, index);
+          }}
+        />
+      )}
+      {showDemoCard && <DemoCard />}
  <ScrollView
   refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
     
@@ -481,19 +540,7 @@ const Home = ({ navigation }) => {
         }
  
  >
-           {tabLoader ? (
-        <View style={{ height: 115 }}></View>
-      ) : (
-        <OptionSelector
-          navigation={navigation}
-          defaultIndex={0}
-          data={showPost}
-          onSelect={(item, index) => {
-            console.log('Selected:', item, index);
-          }}
-        />
-      )}
-      {showDemoCard && <DemoCard />}
+        
       <View style={styles.searchContainer}>
         <Image
           source={{
@@ -539,6 +586,7 @@ const Home = ({ navigation }) => {
             navigation.navigate('Filter', {
               onApplyFilter: handleFilterChange,
               existingFilters: appliedFilters,
+              modalFilters:AppliedModalFilter
             })
           }>
           <Image
@@ -549,70 +597,28 @@ const Home = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
-      <Animated.View
+      <View
         style={{
           overflow: 'hidden',
-          height: filterHeight,
-          width:windowWidth - 40,
+          height: 50,
+          width:'90%',
           alignSelf:'center',
           backgroundColor: COLOR.white,
           justifyContent: 'center',
         }}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
-          {avaialbleFilter.map(filterGroup => {
-            const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-            let displayText = filterGroup.name;
 
-            if (filterGroup.type === 'price') {
-              const minP = AppliedModalFilter.min_price;
-              const maxP = AppliedModalFilter.max_price;
-              if (minP !== undefined && maxP !== undefined) {
-                displayText = `₹${minP} - ₹${maxP}`;
-              }
-            } else if (selectedValues.length > 0) {
-              displayText = selectedValues.join(', ');
-            }
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  setAttendedFilter(filterGroup);
-                  setMultiFilter(true);
-                }}
-                key={filterGroup.id}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  borderRadius: 5,
-                  backgroundColor:
-                    attendedFilter?.id == filterGroup?.id
-                      ? COLOR.primary
-                      : '#fff',
-                  marginRight: 8,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                    paddingVertical: 2,
-                    color:
-                      attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    textTransform: 'capitalize',
-                    textAlignVertical: 'center',
-                  }}>
-                  {displayText}
-                </Text>
-              </TouchableOpacity>
-            );
+          {RenderFilterOptions({
+            avaialbleFilter,
+            AppliedModalFilter,
+            attendedFilter,
+            setAttendedFilter,
+            setMultiFilter,
+            setAppliedModalFilter,
+            COLOR,
+            appliedFilters,
           })}
-        </ScrollView>
-      </Animated.View>
+      
+      </View>
 
       {showDemoCard && loader ? (
         <>
@@ -662,7 +668,6 @@ const Home = ({ navigation }) => {
               showsVerticalScrollIndicator={false}
               onEndReached={handleLoadMore}
               onEndReachedThreshold={0.5}
-              onScroll={onScrollFlatlist}
               scrollEventThrottle={16}
               refreshControl={
                 <RefreshControl
@@ -738,14 +743,12 @@ const Home = ({ navigation }) => {
         visible={sortVisible}
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
-          console.log('Selected Sort:', sortType);
           setSortQuery(sortType);
         }}
       />
       <CreateAccountModal
         visible={modalVisible}
         onCreateAccount={() => {
-          console.log('Navigate to signup screen');
           setModalVisible(false);
         }}
         onCancel={() => setModalVisible(false)}
@@ -821,7 +824,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
 };
 
 export const DemoCard = ({
-  title = 'App Demo video',
+  title = 'Take a tour of ToLet India app',
   buttonText = 'Click here',
   onPress,
 }) => {

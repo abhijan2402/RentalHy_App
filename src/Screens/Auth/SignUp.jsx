@@ -75,7 +75,7 @@ const [acceptPrivacy, setAcceptPrivacy] = useState(false);
       showToast(res?.data?.message, "success")
       // Alert.alert('Success', `OTP sent to your ${type}`);
     } else {
-      Alert.alert('Error', res.error || `Failed to send ${type} OTP`);
+      // Alert.alert('Error', res.error || `Failed to send ${type} OTP`);
     }
   };
 
@@ -111,14 +111,14 @@ const registerUser = async () => {
     return;
   }
 
-   if (!acceptTerms || !acceptPrivacy) {
+   if (!acceptTerms) {
       showToast(`Please accept Terms & Conditions and Privacy Policy`, 'error');
       return;
     }
 
   if (password.length < 6) {
     showToast(`Password must be at least 8 characters`, 'error');
-    return;
+    return; 
   }
 
   if (password !== confirmPassword) {
@@ -167,7 +167,7 @@ const registerUser = async () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView style={{flex: 1, backgroundColor: COLOR.white}}>
-          <Header title={'Create New Account'} showBack />
+          <Header title={'Create New Account'} showBack onBackPress={() => navigation.goBack()} />
           {/* <LottieView
             ref={animationRef}
             source={require('../../assets/Lottie/SignUp.json')}
@@ -230,12 +230,12 @@ const registerUser = async () => {
             />
 
              <View style={{marginVertical: 15, marginHorizontal:16}}>
-              <TouchableOpacity
+              <View
                 style={styles.checkRow}
-                onPress={() => setAcceptTerms(!acceptTerms)}>
-                <View style={[styles.checkbox, acceptTerms && styles.checkedBox]} />
+                >
+                <Text style={[styles.checkbox, acceptTerms && styles.checkedBox]} onPress={() => setAcceptTerms(!acceptTerms)} />
                 <Text style={styles.checkLabel}>
-                  I accept the <Text style={styles.linkText} onPress={() => {
+                  I accept the  <Text style={styles.linkText} onPress={() => {
                     navigation.navigate('Cms',
                       {
         title: `Terms & Conditions`,
@@ -244,15 +244,10 @@ const registerUser = async () => {
                       
                     );
                   }}>Terms & Conditions</Text>
-                </Text>
-              </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.checkRow}
-                onPress={() => setAcceptPrivacy(!acceptPrivacy)}>
-                <View style={[styles.checkbox, acceptPrivacy && styles.checkedBox]} />
-                <Text style={styles.checkLabel}>
-                  I accept the <Text style={styles.linkText}onPress={() => {
+                  {' '} and {' '}
+
+                  <Text style={styles.linkText}onPress={() => {
                     navigation.navigate('Cms',
                       {
         title: `Privacy Policy`,
@@ -262,7 +257,10 @@ const registerUser = async () => {
                     );
                   }}  >Privacy Policy</Text>
                 </Text>
-              </TouchableOpacity>
+
+                
+              </View>
+
             </View>
 
             <CustomButton

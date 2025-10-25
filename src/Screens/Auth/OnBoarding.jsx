@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import {COLOR} from '../../Constants/Colors';
 import CustomButton from '../../Components/CustomButton';
 import strings from '../../localization/en';
+import { AuthContext } from '../../Backend/AuthContent';
 
 const {width, height} = Dimensions.get('window');
 const slides = [
@@ -43,6 +44,7 @@ const slides = [
 
 const OnBoarding = () => {
   const navigation = useNavigation();
+  const {setShowIntroScreens , showIntroScreens} = useContext(AuthContext);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef();
 
@@ -55,6 +57,7 @@ const OnBoarding = () => {
     if (currentIndex < slides.length - 1) {
       flatListRef.current.scrollToIndex({index: currentIndex + 1});
     } else {
+      setShowIntroScreens('introPressed');
       navigation.navigate('Login');
     }
   };

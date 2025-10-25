@@ -38,7 +38,9 @@ const months = [
   'December',
 ];
 
-const CreateConvention = ({ navigation }) => {
+const CreateConvention = ({ navigation, route }) => {
+  console.log(route?.params?.activeTabKey, 'route route');
+  const activeTab = route?.params?.activeTabKey || 'Function/Convention Hall';
   const { postRequest } = useApi();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -47,7 +49,7 @@ const CreateConvention = ({ navigation }) => {
   const [kitchenImages, setKitchenImages] = useState([]);
   const [parkingImages, setParkingImages] = useState([]);
   const [BridGroomImages, setBridGroomImages] = useState([]);
-  const [uploadType, setUploadType] = useState('Function/Convention Hall');
+  const [uploadType, setUploadType] = useState(activeTab == 'farmhouse' ? 'Farm House' : 'Function/Convention Hall');
 
   // General info
   const [title, setTitle] = useState('');
@@ -492,10 +494,10 @@ const CreateConvention = ({ navigation }) => {
         automaticallyAdjustKeyboardInsets={false}
         keyboardDismissMode="on-drag"
       >
-        <Text style={[styles.label, { paddingHorizontal: 20 }]}>
+        {/* <Text style={[styles.label, { paddingHorizontal: 20 }]}>
           Choose Upload Type *
-        </Text>
-        <View
+        </Text> */}
+        {/* <View
           style={{
             flexDirection: 'row',
             paddingHorizontal: 20,
@@ -522,7 +524,7 @@ const CreateConvention = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </View> */}
         {/* Images */}
         {renderImagePicker(
           `${uploadType == 'Farm House' ? 'Farm Images' : 'Hall Images'}`,
@@ -969,7 +971,6 @@ const CreateConvention = ({ navigation }) => {
             </View>
           ))}
         </View>
-        {/* Post Space */}
         <CustomButton
           title={
             uploadType !== 'Farm House' ? 'Post Convention Hall' : 'Post Farm'

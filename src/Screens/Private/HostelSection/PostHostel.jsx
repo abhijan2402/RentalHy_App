@@ -20,6 +20,7 @@ import { useToast } from '../../../Constants/ToastContext';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 const PostHostel = ({ navigation }) => {
   const { postRequest } = useApi();
   const { showToast } = useToast();
@@ -39,6 +40,7 @@ const PostHostel = ({ navigation }) => {
   const [dormWeek, setDormWeek] = useState('');
   const [dormMonth, setDormMonth] = useState('');
   const [dormDeposit, setDormDeposit] = useState('');
+  const [tempDate, setTempDate] = useState(new Date()); // holds temporary value
 
   const [mapLink, setMapLink] = useState('');
   const [location, setLocation] = useState('');
@@ -514,40 +516,62 @@ const PostHostel = ({ navigation }) => {
             />
           )} */}
 
-          <Modal
-            visible={showPicker}
-            transparent
-            animationType="slide"
-            onRequestClose={() => setShowPicker(false)}>
-            <View style={styles.modalBackdrop}>
-              <View style={styles.modalContent}>
-                <DateTimePicker
-                  value={new Date()}
-                  mode={pickerMode}
-                  display="spinner"
-                  onChange={(e, date) => {
-                    onChange(e, date);
-                    if (Platform.OS === 'ios' || Platform?.OS == 'android') setShowPicker(false);
-                  }}
-                />
-              </View>
-            </View>
-          </Modal>
+             <Modal
+      visible={showPicker}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowPicker(false)}>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalContent}>
+          <DateTimePicker
+            value={tempDate}
+            mode={pickerMode}
+            display="spinner"
+            onChange={(event, selectedDate) => {
+              if (selectedDate) setTempDate(selectedDate);
+            }}
+          />
+
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.btn, styles.cancelBtn]}
+              onPress={() => setShowPicker(false)}>
+              <Text style={styles.btnText}>Cancel</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.btn, styles.okBtn]}
+              onPress={() => {
+                onChange(null, tempDate);
+                setShowPicker(false);
+              }}>
+              <Text style={styles.btnText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
 
           {/* Documents */}
           {renderInput('Documents Required', documents, setDocuments, true)}
 
           {/* Rules */}
           {/* {renderInput('Rules & Policies', rules, setRules, true)} */}
-          {renderMultiSelect(
+          {/* {renderMultiSelect(
             'Rules & Policies',
             RULES_POLICIES_OPTIONS,
             rulesPolicies,
             setRulesPolicies,
-          )}
+          )} */}
+
+          {renderToggle('Visitors Allowed', rulesPolicies, setRulesPolicies)}
+
           {renderTimingInput('Gate Opening Time', 'opening')}
           {renderTimingInput('Gate Closing Time', 'closing')}
           {renderToggle('Pets Allowed', PetsAllowed, setPetsAllowed)}
+
+          
 
           {renderToggle('Smoking Allowed', smokingAllowed, setSmokingAllowed)}
 
@@ -657,5 +681,38 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     width: '90%',
+  },
+   modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    width: '85%',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  btn: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginLeft: 10,
+  },
+  cancelBtn: {
+    backgroundColor: '#ccc',
+  },
+  okBtn: {
+    backgroundColor: COLOR.primary,
+  },
+  btnText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });

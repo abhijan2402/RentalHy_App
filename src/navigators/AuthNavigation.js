@@ -5,16 +5,19 @@ import SignUp from '../Screens/Auth/SignUp';
 import SupportList from '../Screens/Private/Account/SupportList';
 import ForgotPassword from '../Screens/Auth/ForgotPassword';
 import Cms from '../Components/Cms';
+import { AuthContext } from '../Backend/AuthContent';
+import { useContext } from 'react';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
+  const {showIntroScreens} = useContext(AuthContext);
+
   return (
     <Stack.Navigator
-      initialRouteName="OnBoarding"
       screenOptions={{
         headerShown: false,
       }}>
-      <Stack.Screen name="OnBoarding" component={OnBoarding} />
+      {showIntroScreens != 'introPressed' && <Stack.Screen name="OnBoarding" component={OnBoarding} />}
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="SupportList" component={SupportList} />

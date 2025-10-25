@@ -306,6 +306,18 @@ const Hostel = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
       <HomeHeader navigation={navigation} setLocationModalVisible={setLocationModalVisible} />
+         {tabLoader ? (
+        <View style={{height: 115}}></View>
+      ) : (
+        <OptionSelector
+          navigation={navigation}
+          defaultIndex={1}
+          data={showPost}
+          onSelect={(item, index) => {
+            console.log('Selected:', item, index);
+          }}
+        />
+      )}
 <ScrollView
 
   refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
@@ -326,18 +338,7 @@ const Hostel = ({navigation}) => {
         }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}
 >
 
-            {tabLoader ? (
-        <View style={{height: 115}}></View>
-      ) : (
-        <OptionSelector
-          navigation={navigation}
-          defaultIndex={1}
-          data={showPost}
-          onSelect={(item, index) => {
-            console.log('Selected:', item, index);
-          }}
-        />
-      )}
+         
         <View style={styles.searchContainer}>
           <Image
             source={{
@@ -374,6 +375,7 @@ const Hostel = ({navigation}) => {
             onPress={() => navigation.navigate('HostelFilterScreen',{
               onApplyFilter: handleFilterChange,
               existingFilters: appliedFilters,
+              modalFilters: AppliedModalFilter,
             })}>
 
             <Image
@@ -385,7 +387,7 @@ const Hostel = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-<Animated.View
+<View
         style={{
           overflow: 'hidden',
           height: filterHeight,
@@ -449,7 +451,7 @@ const Hostel = ({navigation}) => {
                           );
                         })}
                       </ScrollView>
-                         </Animated.View>
+                         </View>
                    
 
         <View style={{flex: 1}}>
@@ -462,7 +464,7 @@ const Hostel = ({navigation}) => {
             showsVerticalScrollIndicator={false}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
-            onScroll={onScrollFlatlist}
+            // onScroll={onScrollFlatlist}
             scrollEventThrottle={16}
 
             refreshControl={

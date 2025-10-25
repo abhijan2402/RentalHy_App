@@ -8,11 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentStatus, setCurrentStatus] = useState(-1);
-
   const [currentAddress, setCurrentAddress] = useState(null);
-
-
-  // 👇 New state for DemoCard
+  const [showIntroScreens, setShowIntroScreens] = useState('');
   const [showDemoCard, setShowDemoCard] = useState(false);
 
   useEffect(() => {
@@ -20,15 +17,19 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = await AsyncStorage.getItem('user');
         const storedToken = await AsyncStorage.getItem('token');
-        const seenDemo = await AsyncStorage.getItem('seenDemo'); // 👈 check demo flag
-        const storedAddress = await AsyncStorage.getItem('currentAddress'); // 👈 load address
+        const seenDemo = await AsyncStorage.getItem('seenDemo'); 
+        const storedAddress = await AsyncStorage.getItem('currentAddress'); 
+        const storedShowIntroScreens = await AsyncStorage.getItem('showIntroScreens');
+
+        if (storedShowIntroScreens) {
+          setShowIntroScreens(storedShowIntroScreens);
+        }
 
         if (storedUser && storedToken) {
           setUser(JSON.parse(storedUser));
           setToken(storedToken);
           setCurrentStatus(1)
 
-          // show demo only if user has not seen it yet
           if (!seenDemo) {
             setShowDemoCard(true);
             await AsyncStorage.setItem('seenDemo', 'true');
@@ -103,6 +104,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const saveShowIntroScreens = async (value) => {
+    try {
+      if (value) {
+        await AsyncStorage.setItem('showIntroScreens', value);
+        setShowIntroScreens(value);
+      } else {
+        await AsyncStorage.removeItem('showIntroScreens');
+        setShowIntroScreens('');
+      }
+    } catch (e) {
+      console.log('Error saving showIntroScreens:', e);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -117,6 +132,8 @@ export const AuthProvider = ({ children }) => {
         setCurrentStatus: setCurrentStatus,
         currentAddress,
         setCurrentAddress: saveCurrentAddress,
+        showIntroScreens,
+        setShowIntroScreens: saveShowIntroScreens,
       }}
     >
       {children}

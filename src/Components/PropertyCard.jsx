@@ -40,7 +40,7 @@ const PropertyCard = ({
         style={styles.propertyImage}
       />
 
-      {(type === 'wishlist' || type === 'home') && <TouchableOpacity
+      {(type === 'wishlist' || type === 'home') && ( currentStatus != -1) && <TouchableOpacity
         style={styles.wishlistIcon}
         onPress={() =>
           type == 'wishlist' ? removewishlist(item.property_id) : toggleLike(item.id)

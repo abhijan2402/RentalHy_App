@@ -106,7 +106,7 @@ const Account = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Header title={'Account'} showBack />
+      <Header title={'Account'} showBack onBackPress={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={{paddingBottom: 20}}>
         {/* Profile Section */}

@@ -16,74 +16,77 @@ import {formatIndianCurrency} from './Filter';
 const ConventionMainFilter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
   const existingFilters = route?.params?.existingFilters || {};
+  const {modalFilters} = route?.params || {};
 
   const [priceRange, setPriceRange] = useState(
-    existingFilters.priceRange || ['1000', '1000000'],
+    existingFilters.priceRange || (modalFilters?.min_price && [modalFilters.min_price, modalFilters.max_price]) || ['1000', '1000000'],
   );
   const [seatingCapacity, setSeatingCapacity] = useState(
-    existingFilters.seatingCapacity || ['10', '5000'],
+    existingFilters.seatingCapacity || (modalFilters?.seating_capacity_min && [modalFilters.seating_capacity_min, modalFilters.seating_capacity_max]) || ['10', '5000'],
   );
-  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
-  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
+  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || modalFilters?.min_price || 1000);
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || modalFilters?.max_price || 1000000);
   const [minCapacity, setMinCapacity] = useState(
-    existingFilters.minCapacity || 10,
+    existingFilters.minCapacity || modalFilters?.seating_capacity_min || 10,
   );
   const [maxCapacity, setMaxCapacity] = useState(
-    existingFilters.maxCapacity || 5000,
+    existingFilters.maxCapacity || modalFilters?.seating_capacity_max || 5000,
   );
 
   const [carParking, setCarParking] = useState(
-    existingFilters.carParking || '',
-  );
-  const [bikeParking, setBikeParking] = useState(
-    existingFilters.bikeParking || '',
-  );
-  const [busParking, setBusParking] = useState(
-    existingFilters.busParking || '',
-  );
+  existingFilters.carParking || modalFilters.car_parking || '',
+);
+const [bikeParking, setBikeParking] = useState(
+  existingFilters.bikeParking || modalFilters.bike_parking || '',
+);
+const [busParking, setBusParking] = useState(
+  existingFilters.busParking || modalFilters.bus_parking || '',
+);
 
-  const [valetParking, setValetParking] = useState(
-    existingFilters.valetParking || '',
-  );
-  const [royaltyDecoration, setRoyaltyDecoration] = useState(
-    existingFilters.royaltyDecoration || '',
-  );
-  const [decorationContact, setDecorationContact] = useState(
-    existingFilters.decorationContact || '',
-  );
-  const [royaltyKitchen, setRoyaltyKitchen] = useState(
-    existingFilters.royaltyKitchen || '',
-  );
-  const [generator, setGenerator] = useState(existingFilters.generator || '');
-  const [normalWater, setNormalWater] = useState(
-    existingFilters.normalWater || '',
-  );
-  const [drinkingWater, setDrinkingWater] = useState(
-    existingFilters.drinkingWater || '',
-  );
-  const [cateringPersons, setCateringPersons] = useState(
-    existingFilters.cateringPersons || '',
-  );
+const [valetParking, setValetParking] = useState(
+  existingFilters.valetParking || modalFilters.valet_parking || '',
+);
+const [royaltyDecoration, setRoyaltyDecoration] = useState(
+  existingFilters.royaltyDecoration || modalFilters.royalty_decoration || '',
+);
+const [decorationContact, setDecorationContact] = useState(
+  existingFilters.decorationContact || modalFilters.decoration_contact || '',
+);
+const [royaltyKitchen, setRoyaltyKitchen] = useState(
+  existingFilters.royaltyKitchen || modalFilters.royalty_kitchen || '',
+);
+const [generator, setGenerator] = useState(
+  existingFilters.generator || modalFilters.generator_available || '',
+);
+const [normalWater, setNormalWater] = useState(
+  existingFilters.normalWater || modalFilters.normal_water || '',
+);
+const [drinkingWater, setDrinkingWater] = useState(
+  existingFilters.drinkingWater || modalFilters.drinking_water || '',
+);
+const [cateringPersons, setCateringPersons] = useState(
+  existingFilters.cateringPersons || modalFilters.catering_persons || '',
+);
 
-  const [acAvailable, setAcAvailable] = useState(
-    existingFilters.acAvailable || false,
-  );
-  const [roomsAvailable, setRoomsAvailable] = useState(
-    existingFilters.roomsAvailable || false,
-  );
-  const [alcoholAllowed, setAlcoholAllowed] = useState(
-    existingFilters.alcoholAllowed || false,
-  );
-  const [photoShootsAllowed, setPhotoShootsAllowed] = useState(
-    existingFilters.photoShootsAllowed || false,
-  );
-  const [childrenGames, setChildrenGames] = useState(
-    existingFilters.childrenGames || false,
-  );
+const [acAvailable, setAcAvailable] = useState(
+  existingFilters.acAvailable || modalFilters.ac_available || false,
+);
+const [roomsAvailable, setRoomsAvailable] = useState(
+  existingFilters.roomsAvailable || modalFilters.rooms_available || false,
+);
+const [alcoholAllowed, setAlcoholAllowed] = useState(
+  existingFilters.alcoholAllowed || modalFilters.alcohol_allowed || false,
+);
+const [photoShootsAllowed, setPhotoShootsAllowed] = useState(
+  existingFilters.photoShootsAllowed || modalFilters.photoshoot_all || false,
+);
+const [childrenGames, setChildrenGames] = useState(
+  existingFilters.childrenGames || modalFilters.adult_games || false,
+);
 
-  const [timeOfOccasion, setTimeOfOccasion] = useState(
-    existingFilters.timeOfOccasion || '',
-  );
+const [timeOfOccasion, setTimeOfOccasion] = useState(
+  existingFilters.timeOfOccasion || modalFilters.time_of_occasion || '',
+);
 
   const yesNoOptions = ['Yes', 'No'];
   const timeOfOccasionOptions = ['Daytime', 'Night time', 'Full day'];

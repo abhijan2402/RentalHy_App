@@ -134,7 +134,7 @@ const ConventionAmed = ({AllData}) => {
               {/* Header */}
               <View style={styles.tableHeader}>
                 <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>Field</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { flex: 1 }]}>Value</Text>
+                <Text style={[styles.tableCell, styles.headerCell, { flex: 1.6 }]}>Value</Text>
               </View>
   
               {/* Rows */}
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 6,
     overflow: 'hidden',
-    minWidth: '90%',
+    minWidth: '100%',
   },
   tableHeader: {
     flexDirection: 'row',

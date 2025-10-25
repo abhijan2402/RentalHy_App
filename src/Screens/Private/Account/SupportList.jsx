@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
+  ScrollView,
 } from 'react-native';
 import React, {useEffect, useState, useCallback} from 'react';
 import Header from '../../../Components/FeedHeader';
@@ -84,7 +85,11 @@ const SupportList = ({navigation}) => {
   };
 
   const renderTicket = ({item}) => (
-    <TouchableOpacity style={styles.ticketCard}>
+   
+          <TouchableOpacity style={styles.ticketCard}>
+             <ScrollView style={{
+maxHeight: 150
+    }} nestedScrollEnabled={true}>
       <View style={styles.ticketHeader}>
         <Text style={styles.ticketTitle}>{item.title}</Text>
         <Text
@@ -97,6 +102,8 @@ const SupportList = ({navigation}) => {
         </Text>
       </View>
       <Text style={styles.ticketDescription}>{item.description}</Text>
+    </ScrollView>
+      
     </TouchableOpacity>
   );
 
@@ -115,6 +122,7 @@ const SupportList = ({navigation}) => {
         keyExtractor={item => String(item.id)}
         renderItem={renderTicket}
         contentContainerStyle={styles.listContainer}
+        nestedScrollEnabled={true}
         ListEmptyComponent={() => (
           <View
             style={{
