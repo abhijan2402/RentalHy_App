@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import {COLOR} from '../../Constants/Colors';
 import CustomButton from '../../Components/CustomButton';
-import LottieView from 'lottie-react-native';
 import Input from '../../Components/Input';
 import {useApi} from '../../Backend/Api';
 import Header from '../../Components/FeedHeader';
@@ -36,11 +35,15 @@ const SignUp = ({navigation}) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [acceptTerms, setAcceptTerms] = useState(false);
+const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+
+
   const [emailVerified, setEmailVerified] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
 
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [otpTarget, setOtpTarget] = useState(''); // 'email' or 'phone'
+  const [otpTarget, setOtpTarget] = useState(''); 
   const [otpInput, setOtpInput] = useState('');
   const [UserID, setUserID] = useState(null);
 
@@ -107,6 +110,11 @@ const registerUser = async () => {
     showToast(`Please verify email first`, 'error');
     return;
   }
+
+   if (!acceptTerms || !acceptPrivacy) {
+      showToast(`Please accept Terms & Conditions and Privacy Policy`, 'error');
+      return;
+    }
 
   if (password.length < 6) {
     showToast(`Password must be at least 8 characters`, 'error');
@@ -221,6 +229,42 @@ const registerUser = async () => {
               secureTextEntry
             />
 
+             <View style={{marginVertical: 15, marginHorizontal:16}}>
+              <TouchableOpacity
+                style={styles.checkRow}
+                onPress={() => setAcceptTerms(!acceptTerms)}>
+                <View style={[styles.checkbox, acceptTerms && styles.checkedBox]} />
+                <Text style={styles.checkLabel}>
+                  I accept the <Text style={styles.linkText} onPress={() => {
+                    navigation.navigate('Cms',
+                      {
+        title: `Terms & Conditions`,
+        slug: 'terms-conditions',
+      },
+                      
+                    );
+                  }}>Terms & Conditions</Text>
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.checkRow}
+                onPress={() => setAcceptPrivacy(!acceptPrivacy)}>
+                <View style={[styles.checkbox, acceptPrivacy && styles.checkedBox]} />
+                <Text style={styles.checkLabel}>
+                  I accept the <Text style={styles.linkText}onPress={() => {
+                    navigation.navigate('Cms',
+                      {
+        title: `Privacy Policy`,
+        slug: 'privacy-policy',
+      },
+                      
+                    );
+                  }}  >Privacy Policy</Text>
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <CustomButton
               title="Create Account"
               loading={loading}
@@ -239,7 +283,7 @@ const registerUser = async () => {
           </View>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('SupportList')} // or your query screen
+            onPress={() => navigation.navigate('SupportList')} 
           >
             <Text
               style={{
@@ -369,6 +413,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
+    height:40
   },
   cancel: {
     color: 'red',
@@ -377,5 +422,37 @@ const styles = StyleSheet.create({
   verify: {
     color: 'green',
     fontWeight: 'bold',
+  },
+   checkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 6,
+    marginHorizontal: 20,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: COLOR.royalBlue,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  checkedBox: {
+    backgroundColor: COLOR.royalBlue,
+  },
+  checkLabel: {
+    fontSize: 13,
+    color: '#333',
+  },
+  linkText: {
+    color: COLOR.royalBlue,
+    fontWeight: 'bold',
+  },
+  supportLink: {
+    color: COLOR.royalBlue,
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 10,
+    textDecorationLine: 'underline',
   },
 });

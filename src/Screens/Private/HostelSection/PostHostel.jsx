@@ -368,7 +368,7 @@ const PostHostel = ({ navigation }) => {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={100}>
+        keyboardVerticalOffset={0}>
         <ScrollView
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}>

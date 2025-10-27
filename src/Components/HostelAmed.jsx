@@ -1,176 +1,109 @@
-import {StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 
-const HostelAmed = ({AllData}) => {
+const InfoRow = ({ label, value }) => (
+  <View style={styles.row}>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
+const Section = ({ title, data }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionHeader}>{title}</Text>
+    {data.map((item, index) => (
+      <InfoRow key={index} label={item.label} value={item.value} />
+    ))}
+  </View>
+);
+
+const HostelAmed = ({ AllData }) => {
+  const generalInfo = [
+    { label: 'Room Size Min', value: AllData?.room_size_min || 'N/A' },
+    { label: 'Room Size Max', value: AllData?.room_size_max || 'N/A' },
+    { label: 'Hostel Type', value: AllData?.hostel_type || 'N/A' },
+    { label: 'Furnishing Status', value: AllData?.furnishing_status || 'N/A' },
+  ];
+
+  const priceInfo = [
+    { label: 'Single Room Price', value: AllData?.single_room_price || 'N/A' },
+    { label: 'Double Sharing Price', value: AllData?.double_sharing_price || 'N/A' },
+    { label: 'Triple Sharing Price', value: AllData?.triple_sharing_price || 'N/A' },
+    { label: 'Four Sharing Price', value: AllData?.four_sharing_price || 'N/A' },
+    { label: 'Security Deposit', value: AllData?.security_deposit || 'N/A' },
+  ];
+
+  const stayInfo = [
+    { label: 'One Day Stay', value: AllData?.one_day_stay || 'N/A' },
+    { label: 'One Week Stay', value: AllData?.one_week_stay || 'N/A' },
+    { label: 'One Month Stay', value: AllData?.one_month_stay || 'N/A' },
+  ];
+
+  const facilityInfo = [
+    { label: 'Bathroom Type', value: AllData?.bathroom_type || 'N/A' },
+    { label: 'Kitchen', value: AllData?.kitchen ? 'Yes' : 'No' },
+    { label: 'Wifi', value: AllData?.wifi ? 'Yes' : 'No' },
+    { label: 'AC', value: AllData?.ac ? 'Yes' : 'No' },
+    { label: 'Laundry Service', value: AllData?.laundry_service ? 'Yes' : 'No' },
+    { label: 'Housekeeping', value: AllData?.housekeeping ? 'Yes' : 'No' },
+    { label: 'Hot Water', value: AllData?.hot_water ? 'Yes' : 'No' },
+    { label: 'Power Backup', value: AllData?.power_backup ? 'Yes' : 'No' },
+    { label: 'Parking', value: AllData?.parking ? 'Yes' : 'No' },
+    { label: 'Gym', value: AllData?.gym ? 'Yes' : 'No' },
+    { label: 'Play Area', value: AllData?.play_area ? 'Yes' : 'No' },
+    { label: 'TV', value: AllData?.tv ? 'Yes' : 'No' },
+    { label: 'Dining Table', value: AllData?.dining_table ? 'Yes' : 'No' },
+    { label: 'Security', value: AllData?.security ? 'Yes' : 'No' },
+    { label: 'RO Water', value: AllData?.ro_water ? 'Yes' : 'No' },
+    { label: 'Study Area', value: AllData?.study_area ? 'Yes' : 'No' },
+    { label: 'Mess', value: AllData?.mess ? 'Yes' : 'No' },
+  ];
+
+  const mealInfo = [
+    { label: 'Breakfast', value: AllData?.breakfast ? 'Yes' : 'No' },
+    { label: 'Lunch', value: AllData?.lunch ? 'Yes' : 'No' },
+    { label: 'Dinner', value: AllData?.dinner ? 'Yes' : 'No' },
+    { label: 'Tea/Coffee', value: AllData?.tea_coffee ? 'Yes' : 'No' },
+    { label: 'Snacks', value: AllData?.snacks ? 'Yes' : 'No' },
+  ];
+
+  const mealTiming = [
+    { label: 'Breakfast Timing', value: AllData?.breakfast_timing || 'N/A' },
+    { label: 'Tea/Coffee Timing', value: AllData?.tea_coffee_timing || 'N/A' },
+    { label: 'Lunch Timing', value: AllData?.lunch_timing || 'N/A' },
+    { label: 'Snacks Timing', value: AllData?.snacks_timing || 'N/A' },
+    { label: 'Dinner Timing', value: AllData?.dinner_timing || 'N/A' },
+  ];
+
+  const policyInfo = [
+    { label: 'Documents Required', value: AllData?.documents_required || 'N/A' },
+    { label: 'Rules & Policies', value: AllData?.rules_policies || 'N/A' },
+    { label: 'Gate Closing Time', value: AllData?.gate_closing_time || 'N/A' },
+    { label: 'Visitors Allowed', value: AllData?.visitors_allowed ? 'Yes' : 'No' },
+    { label: 'Smoking/Alcohol Policy', value: AllData?.smoking_alcohol_policy || 'N/A' },
+  ];
+
+  const extraInfo = [
+    { label: 'Single Room Day Price', value: AllData?.single_room_day_price || 'N/A' },
+    { label: 'Open Time', value: AllData?.get_open_time || 'N/A' },
+    { label: 'Alcohol', value: AllData?.alcohol || 'N/A' },
+    { label: 'Pet Allowed', value: AllData?.pet_allowed || 'N/A' },
+    { label: 'Floor', value: AllData?.floor || 'N/A' },
+    { label: 'Map Link', value: AllData?.map_link || 'N/A' },
+  ];
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Hostel Details</Text>
 
-      {/* Room Sizes */}
-      <Text style={styles.specText}>
-        • Room Size Min: {AllData?.room_size_min || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Room Size Max: {AllData?.room_size_max || 'N/A'}
-      </Text>
-
-      {/* Hostel Type */}
-      <Text style={styles.specText}>
-        • Hostel Type: {AllData?.hostel_type || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Furnishing Status: {AllData?.furnishing_status || 'N/A'}
-      </Text>
-
-      {/* Room Prices */}
-      <Text style={styles.specText}>
-        • Single Room Price: {AllData?.single_room_price || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Double Sharing Price: {AllData?.double_sharing_price || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Triple Sharing Price: {AllData?.triple_sharing_price || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Four Sharing Price: {AllData?.four_sharing_price || 'N/A'}
-      </Text>
-
-      {/* Security Deposit */}
-      <Text style={styles.specText}>
-        • Security Deposit: {AllData?.security_deposit || 'N/A'}
-      </Text>
-
-      {/* Stays */}
-      <Text style={styles.specText}>
-        • One Day Stay: {AllData?.one_day_stay || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • One Week Stay: {AllData?.one_week_stay || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • One Month Stay: {AllData?.one_month_stay || 'N/A'}
-      </Text>
-
-      {/* Map Link */}
-      <Text style={styles.specText}>
-        • Map Link: {AllData?.map_link || 'N/A'}
-      </Text>
-
-      {/* Bathroom and Kitchen */}
-      <Text style={styles.specText}>
-        • Bathroom Type: {AllData?.bathroom_type || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Kitchen: {AllData?.kitchen ? 'Yes' : 'No'}
-      </Text>
-
-      {/* Facilities */}
-      <Text style={styles.specText}>
-        • Wifi: {AllData?.wifi ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>• AC: {AllData?.ac ? 'Yes' : 'No'}</Text>
-      <Text style={styles.specText}>
-        • Laundry Service: {AllData?.laundry_service ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Housekeeping: {AllData?.housekeeping ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Hot Water: {AllData?.hot_water ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Power Backup: {AllData?.power_backup ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Parking: {AllData?.parking ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>• Gym: {AllData?.gym ? 'Yes' : 'No'}</Text>
-      <Text style={styles.specText}>
-        • Play Area: {AllData?.play_area ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>• TV: {AllData?.tv ? 'Yes' : 'No'}</Text>
-      <Text style={styles.specText}>
-        • Dining Table: {AllData?.dining_table ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Security: {AllData?.security ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • RO Water: {AllData?.ro_water ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Study Area: {AllData?.study_area ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Mess: {AllData?.mess ? 'Yes' : 'No'}
-      </Text>
-
-      {/* Meals */}
-      <Text style={styles.specText}>
-        • Breakfast: {AllData?.breakfast ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Lunch: {AllData?.lunch ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Dinner: {AllData?.dinner ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Tea/Coffee: {AllData?.tea_coffee ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Snacks: {AllData?.snacks ? 'Yes' : 'No'}
-      </Text>
-
-      {/* Meal Timings */}
-      <Text style={styles.specText}>
-        • Breakfast Timing: {AllData?.breakfast_timing || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Tea/Coffee Timing: {AllData?.tea_coffee_timing || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Lunch Timing: {AllData?.lunch_timing || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Snacks Timing: {AllData?.snacks_timing || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Dinner Timing: {AllData?.dinner_timing || 'N/A'}
-      </Text>
-
-      {/* Documents and Policies */}
-      <Text style={styles.specText}>
-        • Documents Required: {AllData?.documents_required || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Rules & Policies: {AllData?.rules_policies || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Gate Closing Time: {AllData?.gate_closing_time || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Visitors Allowed: {AllData?.visitors_allowed ? 'Yes' : 'No'}
-      </Text>
-      <Text style={styles.specText}>
-        • Smoking/Alcohol Policy: {AllData?.smoking_alcohol_policy || 'N/A'}
-      </Text>
-
-      {/* Extra Info */}
-      <Text style={styles.specText}>
-        • Single Room Day Price: {AllData?.single_room_day_price || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Open Time: {AllData?.get_open_time || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Alcohol: {AllData?.alcohol || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>
-        • Pet Allowed: {AllData?.pet_allowed || 'N/A'}
-      </Text>
-      <Text style={styles.specText}>• Floor: {AllData?.floor || 'N/A'}</Text>
+      <Section title="General Information" data={generalInfo} />
+      <Section title="Room Prices" data={priceInfo} />
+      <Section title="Stay Duration" data={stayInfo} />
+      <Section title="Facilities" data={facilityInfo} />
+      <Section title="Meals Available" data={mealInfo} />
+      <Section title="Meal Timings" data={mealTiming} />
+      <Section title="Documents & Policies" data={policyInfo} />
+      <Section title="Additional Information" data={extraInfo} />
     </View>
   );
 };
@@ -180,16 +113,43 @@ export default HostelAmed;
 const styles = StyleSheet.create({
   container: {
     padding: 15,
-    paddingHorizontal: 5,
+    backgroundColor: '#fff',
   },
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 12,
+    color: '#333',
   },
-  specText: {
+  section: {
+    marginBottom: 18,
+  },
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#555',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    marginBottom: 6,
+    paddingBottom: 3,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#eee',
+  },
+  label: {
     fontSize: 14,
-    marginBottom: 5,
-    fontWeight:'bold'
+    fontWeight: '600',
+    color: '#333',
+    width: '60%',
+  },
+  value: {
+    fontSize: 14,
+    color: '#555',
+    width: '40%',
+    textAlign: 'right',
   },
 });

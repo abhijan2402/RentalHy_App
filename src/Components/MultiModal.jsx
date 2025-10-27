@@ -9,6 +9,10 @@ import {
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import {COLOR} from '../Constants/Colors';
 
+const formatPrice = (num) => {
+  return num.toLocaleString('en-IN'); 
+};
+
 const MultiModal = ({
   visible,
   onClose,
@@ -17,17 +21,18 @@ const MultiModal = ({
   initialSelected = {},
 }) => {
   const [selectedFilters, setSelectedFilters] = useState(initialSelected);
-  const [priceRange, setPriceRange] = useState([0, 100000]);
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [seatingRange, setSeatingRange] = useState([10, 5000]);
-  const [occupancyRange, setOccupancyRange] = useState([1, 1000]); // occupancy
+  const [occupancyRange, setOccupancyRange] = useState([1, 1000]);
+
 
   useEffect(() => {
     if (!visible) return;
     setSelectedFilters(initialSelected);
 
-    if (filterValueData?.type === 'price') {
+     if (filterValueData?.type === 'price') {
       const min = initialSelected?.min_price ?? 0;
-      const max = initialSelected?.max_price ?? 100000;
+      const max = initialSelected?.max_price ?? 1000000;
       setPriceRange([min, max]);
     }
 
@@ -37,7 +42,6 @@ const MultiModal = ({
       setSeatingRange([min, max]);
     }
 
-    // occupancy slider init
     if (filterValueData?.type === 'occupancy_capacity') {
       const min = initialSelected?.min_occupancy ?? 1;
       const max = initialSelected?.max_occupancy ?? 1000;
@@ -76,7 +80,6 @@ const MultiModal = ({
       updated.seating_capacity_max = seatingRange[1];
     }
 
-    // store min_occupancy / max_occupancy
     if (filterValueData?.type === 'occupancy_capacity') {
       updated.min_occupancy = occupancyRange[0];
       updated.max_occupancy = occupancyRange[1];
@@ -97,14 +100,14 @@ const MultiModal = ({
           {filterValueData?.type === 'price' && (
             <View style={{marginBottom: 20}}>
               <Text style={styles.sliderLabel}>
-                Price : ₹{priceRange[0]} - ₹{priceRange[1]}
+          Price : ₹{formatPrice(priceRange[0])} - ₹{formatPrice(priceRange[1])}
               </Text>
               <MultiSlider
                 values={priceRange}
                 onValuesChange={setPriceRange}
                 min={0}
-                max={100000}
-                step={1000}
+                max={1000000}
+                step={100}
                 allowOverlap={false}
                 snapped
                 selectedStyle={{backgroundColor: COLOR.primary}}

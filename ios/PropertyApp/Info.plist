@@ -25,16 +25,25 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<false/>
-		<key>NSAllowsLocalNetworking</key>
-		<true/>
-	</dict>
+<dict>
+  <key>NSExceptionDomains</key>
+  <dict>
+    <key>hotpink-rook-901841.hostingersite.com</key>
+    <dict>
+      <key>NSIncludesSubdomains</key>
+      <true/>
+      <key>NSExceptionAllowsInsecureHTTPLoads</key>
+      <true/>
+      <key>NSExceptionRequiresForwardSecrecy</key>
+      <false/>
+    </dict>
+  </dict>
+</dict>
+
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>App wants to access location</string>
+	<string>This App wants to access location to show near by properties.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>App wants to access location</string>
+<string>This App wants to access location to show near by properties.</string>
 <key>NSPhotoLibraryUsageDescription</key>
 <string>App wants to access your photo library for profile picture</string>
 	<key>UILaunchStoryboardName</key>

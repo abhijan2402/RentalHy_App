@@ -306,7 +306,27 @@ const Hostel = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
       <HomeHeader navigation={navigation} setLocationModalVisible={setLocationModalVisible} />
-      {tabLoader ? (
+<ScrollView
+
+  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
+  
+    GetProperties(
+      1,
+      false,
+      {},
+      '',
+      '',
+      false,
+    );
+            setSortQuery('');
+            setSearchQuery('');
+            setAppliedFilters({});
+            setAppliedModalFilter({});
+            setAttendedFilter(null);
+        }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}
+>
+
+            {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
@@ -373,7 +393,8 @@ const Hostel = ({navigation}) => {
           alignSelf:'center',
           backgroundColor: COLOR.white,
           justifyContent: 'center',
-        }}>                      <ScrollView
+        }}>                    
+          <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}>
                         {avaialbleFilter?.map(filterGroup => {
@@ -400,7 +421,7 @@ const Hostel = ({navigation}) => {
                                 borderWidth: 1,
                                 borderColor: '#ccc',
                                 paddingHorizontal: 10,
-                                marginBottom:10,
+                                marginBottom:Platform?.OS == 'ios' ? 10 : 0,
                                 paddingVertical: 5,
                                 borderRadius: 5,
                                 backgroundColor:
@@ -475,6 +496,7 @@ const Hostel = ({navigation}) => {
             }
           />
         </View>
+</ScrollView>
       <AnimatedButton
         title="Upload Hostel"
         onPress={() => {
@@ -567,3 +589,4 @@ const styles = StyleSheet.create({
   },
   filterIcon: {width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8},
 });
+

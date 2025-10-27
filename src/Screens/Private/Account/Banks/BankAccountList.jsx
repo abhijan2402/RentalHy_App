@@ -31,6 +31,7 @@ const BankAccountList = ({navigation}) => {
     accountType: 'Saving',
   });
 
+
   const fetchBankAccounts = async () => {
     try {
       setLoadingAccounts(true);
@@ -60,6 +61,8 @@ const BankAccountList = ({navigation}) => {
   useEffect(() => {
     fetchBankAccounts();
   }, []);
+
+  console.log(form.accountType,"form.accountTypeform.accountType")
 
   const handleUpdate = async () => {
     setButtonLoader(true);

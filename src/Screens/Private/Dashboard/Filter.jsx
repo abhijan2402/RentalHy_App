@@ -275,9 +275,7 @@ const Filter = ({navigation, route}) => {
               {minRoomSize.toLocaleString()}
             </Text>
             <Text style={styles.priceLabel}>
-              {maxRoomSize == 5000
-                ? `${maxRoomSize.toLocaleString()}+`
-                : maxRoomSize.toLocaleString()}
+              {maxRoomSize.toLocaleString() + ' ' + '+'}
             </Text>
           </View>
         </View>
@@ -301,13 +299,10 @@ const Filter = ({navigation, route}) => {
           />
           <View style={styles.priceLabelRow}>
             <Text style={styles.priceLabel}>
-              ₹{formatIndianCurrency(minPrice)}
+              ₹{minPrice.toLocaleString()}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹
-              {maxPrice == '1000000'
-                ? `${formatIndianCurrency(maxPrice)}+`
-                : formatIndianCurrency(maxPrice)}
+              ₹{maxPrice.toLocaleString()}
             </Text>
           </View>
         </View>

@@ -57,6 +57,12 @@ const Account = ({navigation}) => {
       navigate: 'MyBooking',
     },
     {
+      id: 9,
+      title: 'Space Management',
+      icon: 'https://cdn-icons-png.flaticon.com/128/1067/1067566.png',
+      navigate: 'SpaceManagement',
+    },
+    {
       id: 10,
       title: 'Bank Account Details',
       icon: 'https://cdn-icons-png.flaticon.com/128/2830/2830289.png',

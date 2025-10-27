@@ -38,7 +38,12 @@ const PropertyAnalytics = ({navigation}) => {
         marginVertical: 5,
         marginHorizontal: 10,
         borderRadius: 8,
-        elevation: 2,
+           borderWidth: 1,
+    borderColor: '#eee',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 2,
       }}>
       <Image
         source={
@@ -78,6 +83,7 @@ const PropertyAnalytics = ({navigation}) => {
         keyExtractor={item => item.id}
         renderItem={renderItem}
         contentContainerStyle={{paddingVertical: 10}}
+        bounces={false}
       />
     </View>
   );

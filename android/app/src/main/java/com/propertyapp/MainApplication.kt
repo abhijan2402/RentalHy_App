@@ -1,4 +1,4 @@
-package com.propertyapp
+package com.toletindia
 
 import android.app.Application
 import com.facebook.react.PackageList

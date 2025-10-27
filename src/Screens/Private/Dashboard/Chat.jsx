@@ -90,7 +90,6 @@ const Chat = ({navigation , route}) => {
     <KeyboardAvoidingView
       style={{flex: 1}}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // offset for header
     >
       <View style={{flex: 1, backgroundColor: COLOR.white}}>
         <Header
@@ -164,6 +163,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: '#f5f5f5',
     borderRadius: 20,
+    height:40
   },
   sendIcon: {
     width: 28,

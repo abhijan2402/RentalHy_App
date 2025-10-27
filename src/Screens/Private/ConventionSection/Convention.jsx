@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Animated,
+  Alert,
 } from 'react-native';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
@@ -286,6 +287,7 @@ const ConventionHall = ({
         contentContainerStyle={{paddingBottom: 20}}
         onEndReached={onHandleMore}
         onEndReachedThreshold={0.5}
+        nestedScrollEnabled={true}
         onScroll={onScrollFlatlist}
         refreshControl={
           <RefreshControl
@@ -981,7 +983,16 @@ const Convention = ({navigation, route}) => {
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
       />
-      {tabLoader ? (
+      <ScrollView  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
+
+        GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, activeTab);
+          setSearchQuery('');
+          setAppliedFilters({});
+          setAppliedModalFilter({});
+          setAttendedFilter(null);
+      }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}>
+
+        {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
@@ -1026,7 +1037,6 @@ const Convention = ({navigation, route}) => {
         />
       )}
 
-      {/* Render Components */}
       {activeTab === 'convention' ? (
         <ConventionHall
           loader={tabLoader}
@@ -1111,6 +1121,7 @@ const Convention = ({navigation, route}) => {
           scrollOffset={scrollOffset}
         />
       )}
+      </ScrollView>
       <AnimatedButton
         title={
           activeTab === 'convention'

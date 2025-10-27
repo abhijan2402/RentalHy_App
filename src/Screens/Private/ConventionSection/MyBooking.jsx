@@ -210,7 +210,6 @@ const MyBooking = ({navigation}) => {
       getBooking(page + 1, true);
     }
   };
-  // Update service API call
   const onUpdateService = async (bookingId, field, value) => {
     try {
       // Find the booking object to get current states of all services
@@ -218,29 +217,9 @@ const MyBooking = ({navigation}) => {
 
       if (!currentBooking) return;
 
-      const formData = new FormData();
-      formData.append('groceries_needed', currentBooking.groceries_needed);
-      formData.append('decore_needed', currentBooking.decore_needed);
-      formData.append('photograper_needed', currentBooking.photograper_needed);
-      formData.append('chef_needed', currentBooking.chef_needed);
-      formData.append('catering_needed', currentBooking.catering_needed);
+      console.log(response,"responseresponse")
 
-      // Update only the changed field
-      formData.append(field, value);
-      console.log(formData, 'PAYLOADDD');
-      console.log(
-        `public/api/book-property/update-order/${bookingId}`,
-        'LOFFF',
-      );
-
-      const response = await postRequest(
-        `public/api/book-property/update-order/${bookingId}`,
-        formData,
-        true, // <- If your API expects form-data
-      );
-      console.log(response, 'RESSP');
-
-      if (response.success) {
+      if (response.data.success) {
         // Update UI immediately
         showToast(
           response?.data.message || 'Failed to update service',

@@ -10,6 +10,8 @@ import {useNavigation} from '@react-navigation/native';
 import RenderHTML from 'react-native-render-html';
 import Header from './FeedHeader';
 import { useApi } from '../Backend/Api';
+import he from 'he';
+
 
 const Cms = ({route}) => {
   const {getRequest} = useApi();
@@ -22,16 +24,17 @@ const Cms = ({route}) => {
 
 
   const cmsData = async (slug) => {
-      setLoading(true);
+    setLoading(true);
     const response = await getRequest(`public/api/cms/${slug}`);
-       setHtmlContent(response?.data?.data?.content)
-      console.log(response, 'CMS RESPONSE');
-      setLoading(false);
+const decodedHtml = he.decode(response?.data?.data?.content || '');
+  setHtmlContent(decodedHtml);    setLoading(false);
   }
 
   useEffect( () => {
        cmsData(slug)
   },[])
+
+
 
   return (
     <View style={styles.container}>
