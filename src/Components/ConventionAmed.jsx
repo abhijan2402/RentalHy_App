@@ -134,7 +134,7 @@ const ConventionAmed = ({AllData}) => {
               {/* Header */}
               <View style={styles.tableHeader}>
                 <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>Field</Text>
-                <Text style={[styles.tableCell, styles.headerCell, { flex: 1.6 }]}>Value</Text>
+                <Text style={[styles.tableCell, styles.headerCell, { flex: 0}]}>Value</Text>
               </View>
   
               {/* Rows */}
@@ -149,7 +149,7 @@ const ConventionAmed = ({AllData}) => {
                         { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
                       ]}>
                       <Text style={[styles.tableCell, { flex: 1.5 }]}>{label}</Text>
-                      <Text style={[styles.tableCell, { flex: 1 }]}>
+                      <Text style={[styles.tableCell, { flex: 0 }]}>
                         {isNaN(AllData[key])
                           ? AllData[key]
                           : `₹${parseFloat(AllData[key]).toFixed(2)}`}
@@ -175,9 +175,9 @@ const ConventionAmed = ({AllData}) => {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.tableContainer}>
             {/* Header */}
-            <View style={styles.tableHeader}>
+            <View style={[styles.tableHeader]}>
               <Text style={[styles.tableCell, styles.headerCell, { flex: 1.2 }]}>Date</Text>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>Unavailable For</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 0 }]}>Unavailable For</Text>
             </View>
 
             {/* Rows */}
@@ -189,7 +189,7 @@ const ConventionAmed = ({AllData}) => {
                   { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
                 ]}>
                 <Text style={[styles.tableCell, { flex: 1.2 }]}>{date}</Text>
-                <Text style={[styles.tableCell, { flex: 1.5 }]}>{value}</Text>
+                <Text style={[styles.tableCell, { flex: 0 }]}>{value}</Text>
               </View>
             ))}
           </View>
