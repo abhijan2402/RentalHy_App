@@ -362,33 +362,48 @@ const Booking = ({navigation, route}) => {
         </View>
 
         {/* Event Time Filter */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Event Time</Text>
-          <View style={styles.toggleRow}>
-            {['day', 'night', 'full day'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  dayTime === option && styles.selectedBtn,
-                  disabledSlots.includes(option) && {backgroundColor: '#ddd', borderColor: '#ccc'},
-                ]}
-                disabled={disabledSlots.includes(option)}
-                onPress={() => setDayTime(option)}
-              >
-                <Text
-                  style={[
-                    styles.toggleText,
-                    dayTime === option && styles.selectedText,
-                    disabledSlots.includes(option) && {color: '#999'},
-                  ]}
-                >
-                  {option.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+      <View style={styles.section}>
+  <Text style={styles.label}>Event Time</Text>
+  <View style={styles.toggleRow}>
+    {['day', 'night', 'full day'].map(option => {
+      // Logic for conditional disabling
+      const isFullDayDisabled = disabledSlots.includes('full day');
+      const isDayOrNightDisabled =
+        disabledSlots.includes('day') || disabledSlots.includes('night');
+
+      // If "full day" is disabled → all options disabled
+      // If "day" or "night" is disabled → "full day" also disabled
+      const shouldDisable =
+        isFullDayDisabled ||
+        disabledSlots.includes(option) ||
+        (option === 'full day' && isDayOrNightDisabled);
+
+      return (
+        <TouchableOpacity
+          key={option}
+          style={[
+            styles.toggleBtn,
+            dayTime === option && styles.selectedBtn,
+            shouldDisable && {backgroundColor: '#ddd', borderColor: '#ccc'},
+          ]}
+          disabled={shouldDisable}
+          onPress={() => setDayTime(option)}
+        >
+          <Text
+            style={[
+              styles.toggleText,
+              dayTime === option && styles.selectedText,
+              shouldDisable && {color: '#999'},
+            ]}
+          >
+            {option.toUpperCase()}
+          </Text>
+        </TouchableOpacity>
+      );
+    })}
+  </View>
+</View>
+
        
       </ScrollView>
 

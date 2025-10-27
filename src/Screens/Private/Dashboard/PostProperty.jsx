@@ -24,6 +24,9 @@ const PostProperty = ({navigation}) => {
   const {showToast} = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [addressDescription, setAddressDescription] = useState('');
+
+  
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [area, setArea] = useState('');
@@ -41,6 +44,8 @@ const PostProperty = ({navigation}) => {
   const [familyTypeValue, setFamilyTypeValue] = useState('');
   const [landmark, setLandmark] = useState('');
   const [mapData, setMapData] = useState([]);
+
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const [commercialOptions, setCommercialOptions] = useState([
   'Shop',
@@ -198,6 +203,14 @@ const PostProperty = ({navigation}) => {
       formData.append('long', address.lng);
     }
 
+    if(phoneNumber){
+      formData.append('phone_number', phoneNumber);
+    }
+
+    if(addressDescription){
+      formData.append('address_description', addressDescription);
+    }
+
     if (maintainance) {
       formData.append('mentains_chargers', 1);
       formData.append('mentains_amount', maintainanceValue || '0');
@@ -279,8 +292,6 @@ const PostProperty = ({navigation}) => {
     }
     setLoading(false);
 
-    // Alert.alert('Success', 'Your property has been posted successfully!');
-    // navigation.goBack();
   };
 
   return (
@@ -317,6 +328,18 @@ const PostProperty = ({navigation}) => {
           multiline
         />
 
+        <Text style={styles.label}>Phone Number*</Text>
+        <TextInput
+          style={styles.input}
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          placeholder="Enter phone number"
+          placeholderTextColor={COLOR.grey}
+          keyboardType="numeric"
+        />
+
+
+
         <Text style={styles.label}>Price *</Text>
         <TextInput
           style={styles.input}
@@ -334,6 +357,16 @@ const PostProperty = ({navigation}) => {
             setAddress(place);
             setLocation(place.address);
           }}
+        />
+
+        <Text style={[styles.label,{ marginTop:20}]}>Address Description</Text>
+        <TextInput
+          style={[styles.input, styles.textArea] }
+          value={addressDescription}
+          onChangeText={setAddressDescription}
+          placeholder="Enter address description"
+          placeholderTextColor={COLOR.grey}
+          multiline
         />
 
         <Text style={styles.label}>Area (sq ft) </Text>

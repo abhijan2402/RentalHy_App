@@ -16,54 +16,69 @@ const FarmHouseFilter = ({navigation, route}) => {
   const existingFilters = route?.params?.existingFilters || {};
   const onApplyFilter = route?.params?.onApplyFilter;
   const activeTab = route?.params?.activeTab || 'farmhouse';
+    const {modalFilters} = route?.params || {};
+
   const [priceRange, setPriceRange] = useState(
-    existingFilters.priceRange || ['1000', '1000000+'],
+    existingFilters.priceRange || (modalFilters?.min_price && [modalFilters.min_price, modalFilters.max_price]) || ['1000', '1000000+'],
   );
-  const [swimmingPool, setSwimmingPool] = useState(
-    existingFilters.swimmingPool || '',
-  );
+const [swimmingPool, setSwimmingPool] = useState(
+  existingFilters.swimmingPool || modalFilters.swimming_pool || ''
+);
 
-   const [acAvailable, setAcAvailable] = useState(
-    existingFilters.acAvailable || '',
-  );
+const [acAvailable, setAcAvailable] = useState(
+  existingFilters.acAvailable || modalFilters.ac_available || false
+);
 
-     const [visitType, setVisitType] = useState(
-    existingFilters.visitType || '',
-  );
+const [visitType, setVisitType] = useState(
+  existingFilters.visitType || modalFilters.visit_type || ''
+);
 
-   const [poolOption, setPoolOption] = useState(
-    existingFilters.poolOption || '',
-  );
+const [poolOption, setPoolOption] = useState(
+  existingFilters.poolOption || modalFilters.pool_type || ''
+);
 
-  const [roomAvailable, setRoomAvailable] = useState(
-    existingFilters.roomAvailable || '',
-  );
-  
-  const [foodAvailable, setFoodAvailable] = useState(
-    existingFilters.foodAvailable || '',
-  );
-  const [outsideFood, setOutsideFood] = useState(
-    existingFilters.outsideFood || '',
-  );
-  const [cctv, setCctv] = useState(existingFilters.cctv || '');
-  const [soundSystemAvailable, setSoundSystemAvailable] = useState(
-    existingFilters.soundSystemAvailable || '',
-  );
-  const [soundSystemAllowed, setSoundSystemAllowed] = useState(
-    existingFilters.soundSystemAllowed || '',
-  );
-  const [childrenGames, setChildrenGames] = useState(
-    existingFilters.childrenGames || '',
-  );
-  const [adultGames, setAdultGames] = useState(
-    existingFilters.adultGames || '',
-  );
-  const [kitchenSetup, setKitchenSetup] = useState(
-    existingFilters.kitchenSetup || '',
-  );
-  const [parking, setParking] = useState(existingFilters.parking || '');
-  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 1000);
-  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 1000000);
+const [roomAvailable, setRoomAvailable] = useState(
+  existingFilters.roomAvailable || modalFilters.room_available || false
+);
+
+const [foodAvailable, setFoodAvailable] = useState(
+  existingFilters.foodAvailable || modalFilters.food_available || ''
+);
+
+const [outsideFood, setOutsideFood] = useState(
+  existingFilters.outsideFood || modalFilters.outside_food || ''
+);
+
+const [cctv, setCctv] = useState(
+  existingFilters.cctv || modalFilters.cctv || ''
+);
+
+const [soundSystemAvailable, setSoundSystemAvailable] = useState(
+  existingFilters.soundSystemAvailable || modalFilters.Sound_system || false
+);
+
+const [soundSystemAllowed, setSoundSystemAllowed] = useState(
+  existingFilters.soundSystemAllowed || modalFilters.sound_system_allowed || ''
+);
+
+const [childrenGames, setChildrenGames] = useState(
+  existingFilters.childrenGames || modalFilters.children_games || false
+);
+
+const [adultGames, setAdultGames] = useState(
+  existingFilters.adultGames || modalFilters.adult_games || false
+);
+
+const [kitchenSetup, setKitchenSetup] = useState(
+  existingFilters.kitchenSetup || modalFilters.kitchen_setup || ''
+);
+
+const [parking, setParking] = useState(
+  existingFilters.parking || modalFilters.Parking_available || false
+);
+
+  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || modalFilters?.min_price || 1000);
+  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || modalFilters?.max_price || 1000000);
   const yesNoOptions = ['Yes', 'No'];
 
   const visitTypeOptions = [

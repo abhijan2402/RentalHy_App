@@ -159,6 +159,7 @@ const EditProfile = ({navigation}) => {
           onChangeText={setEmail}
           placeholder="Enter your email id"
           placeholderTextColor={COLOR.grey}
+          editable={false}
         />
         {/* Save Button */}
         {/* <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>

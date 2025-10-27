@@ -210,7 +210,7 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
       </View>
-     <Animated.View
+     <View
              style={{
                overflow: 'hidden',
                height: filterHeight,
@@ -277,7 +277,7 @@ const ConventionHall = ({
             );
           })}
         </ScrollView>
-        </Animated.View>
+        </View>
 
       <FlatList
         data={hallData}
@@ -288,7 +288,7 @@ const ConventionHall = ({
         onEndReached={onHandleMore}
         onEndReachedThreshold={0.5}
         nestedScrollEnabled={true}
-        onScroll={onScrollFlatlist}
+        // onScroll={onScrollFlatlist}
         refreshControl={
           <RefreshControl
             refreshing={loader}
@@ -474,7 +474,7 @@ const FarmHouse = ({
           />
         </TouchableOpacity>
       </View>
-      <Animated.View
+      <View
              style={{
                overflow: 'hidden',
                height: filterHeight,
@@ -537,7 +537,7 @@ const FarmHouse = ({
             );
           })}
         </ScrollView>
-        </Animated.View>
+        </View>
 
       <FlatList
         data={data}
@@ -547,7 +547,7 @@ const FarmHouse = ({
         contentContainerStyle={{paddingBottom: 20}}
         onEndReached={onHandleMore}
         onEndReachedThreshold={0.5}
-        onScroll={onScrollFlatlist}
+        // onScroll={onScrollFlatlist}
         refreshControl={
           <RefreshControl
             refreshing={loader}
@@ -983,16 +983,7 @@ const Convention = ({navigation, route}) => {
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
       />
-      <ScrollView  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
-
-        GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, activeTab);
-          setSearchQuery('');
-          setAppliedFilters({});
-          setAppliedModalFilter({});
-          setAttendedFilter(null);
-      }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}>
-
-        {tabLoader ? (
+         {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
@@ -1036,6 +1027,16 @@ const Convention = ({navigation, route}) => {
           }}
         />
       )}
+      <ScrollView  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
+
+        GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, activeTab);
+          setSearchQuery('');
+          setAppliedFilters({});
+          setAppliedModalFilter({});
+          setAttendedFilter(null);
+      }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}>
+
+     
 
       {activeTab === 'convention' ? (
         <ConventionHall
@@ -1053,6 +1054,7 @@ const Convention = ({navigation, route}) => {
             navigation.navigate('ConventionMainFilter', {
               onApplyFilter: handleFilterChange,
               existingFilters: appliedFilters,
+              modalFilters: AppliedModalFilter,
             })
           }
           onHandleMore={() => {
@@ -1094,6 +1096,7 @@ const Convention = ({navigation, route}) => {
             navigation.navigate('ConventionFilter', {
               onApplyFilter: handleFilterChange,
               existingFilters: appliedFilters,
+              modalFilters: AppliedModalFilter,
             });
           }}
           onHandleMore={() => {
@@ -1128,7 +1131,7 @@ const Convention = ({navigation, route}) => {
             ? 'Upload Convention Hall'
             : 'Upload Farm House'
         }
-        onPress={() => navigation.navigate('CreateConvention')}
+        onPress={() => navigation.navigate('CreateConvention',{ activeTabKey:activeTab})}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
       />
       <SortModal

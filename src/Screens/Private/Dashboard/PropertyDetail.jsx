@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
@@ -20,8 +20,11 @@ import {useToast} from '../../../Constants/ToastContext';
 import {useIsFocused} from '@react-navigation/native';
 import ConventionAmed from '../../../Components/ConventionAmed';
 import HostelAmed from '../../../Components/HostelAmed';
+import { AuthContext } from '../../../Backend/AuthContent';
 
 const PropertyDetail = ({navigation, route}) => {
+
+  const {currentStatus} = useContext(AuthContext);
   const isFocus = useIsFocused();
   const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
@@ -251,10 +254,9 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
     )}
   />
 
-  {/* Dot indicator */}
-  {images.length > 1 && (
+  {images?.length > 1 && (
     <View style={styles.indicatorContainer}>
-      {images.map((_, i) => (
+      {images?.map((_, i) => (
         <View
           key={i}
           style={[
@@ -267,7 +269,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
   )}
 </View>
 
-          {/* Content */}
           <View style={styles.content}>
             <View
               style={{
@@ -278,7 +279,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                 alignItems: 'center',
               }}>
               <Text style={styles.title}>{AllData?.title}</Text>
-              {type != 'convention' && (
+              {(type != 'convention' && currentStatus != -1) && (
                 <TouchableOpacity
                   style={styles.wishlistIcon}
                   onPress={() =>
@@ -292,6 +293,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                     }}
                     style={{
                       width: 20,
+                      height: 20,
                     paddingVertical:2,
                       tintColor: AllData?.is_wishlist
                         ? COLOR.primary
@@ -299,9 +301,8 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                     }}
                   />
                 </TouchableOpacity>
-              )}
+               )} 
             </View>
-            {/* Read More / Less */}
             <Text style={styles.description}>
               {showFullDesc
                 ? AllData?.description
@@ -327,12 +328,10 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
             </View>
-            {/* Contact Section */}
             {type != 'convention' && (
               <View style={styles.contactContainer}>
                 <Text style={styles.contactTitle}>Contact Options</Text>
 
-                {/* Phone */}
                 <TouchableOpacity
                   style={styles.locationRow}
                   onPress={() =>
@@ -354,8 +353,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
             )}
             <View style={styles.contactContainer}>
               <Text style={styles.contactTitle}>Address</Text>
-
-              {/* Phone */}
               <TouchableOpacity style={styles.locationRow}>
                 <Image
                   source={{
@@ -368,11 +365,9 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                 </Text>
               </TouchableOpacity>
             </View>
-            {/* Location Section */}
             <View style={styles.locationContainer}>
               <Text style={styles.contactTitle}>Location</Text>
 
-              {/* Address */}
               <View style={styles.locationRow}>
                 <Image
                   source={{
@@ -385,7 +380,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                 </Text>
               </View>
 
-              {/* Map Preview */}
               <TouchableOpacity
                 onPress={() => {
                   handleLocation(AllData?.location);
@@ -406,7 +400,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
               </TouchableOpacity>
             </View>
 
-            {/* Amenities */}
             {type !== 'convention' &&
               type !== 'hostel' &&
               AllData?.amenities &&
@@ -423,7 +416,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                 </>
               )}
 
-            {'}'}
             {type === 'convention' && (
               <>
                 <ConventionAmed AllData={AllData} />
@@ -431,6 +423,8 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
             )}
             {type === 'hostel' && <HostelAmed AllData={AllData} />}
           </View>
+
+          
           <View style={{marginHorizontal: 15, marginBottom: 20}}>
             {type === 'hostel' && (
               <>
@@ -468,7 +462,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                   </View>
                 ))}
 
-                {/* Description Input */}
                 <Text style={styles.descriptionLabel}>Additional Feedback</Text>
                 <TextInput
                   style={styles.textInput}
@@ -655,9 +648,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   wishlistIcon: {
-    // position: 'absolute',
-    // top: 10,
-    // right: 10,
+    top: 10,
+    right: -10,
+    height:40,width:40
   },
   MainStyle: {
     flexDirection: 'row',

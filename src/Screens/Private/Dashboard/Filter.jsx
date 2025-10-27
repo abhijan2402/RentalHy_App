@@ -15,10 +15,13 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 const Filter = ({navigation, route}) => {
   const onApplyFilter = route?.params?.onApplyFilter;
   const existingFilters = route?.params?.existingFilters || {};
+  const modalFilters = route?.params?.modalFilters || {};
 
-  const [selectedBHK, setSelectedBHK] = useState(existingFilters.BHK || '');
+  const [selectedBHK, setSelectedBHK] = useState(
+    modalFilters.BHK || existingFilters.BHK || '',
+  );
   const [propertyType, setPropertyType] = useState(
-    existingFilters.propertyType || '',
+    modalFilters.property_type || existingFilters.propertyType || '',
   );
   const [roomSize, setRoomSize] = useState(
     existingFilters.roomSize || [100, 5000],
@@ -30,34 +33,45 @@ const Filter = ({navigation, route}) => {
     existingFilters.maxRoomSize || 5000,
   );
   const [priceRange, setPriceRange] = useState(
-    existingFilters.priceRange || [5000, '10,00,000'],
+    existingFilters.priceRange ||
+      (modalFilters.min_price && [
+        modalFilters.min_price,
+        modalFilters.max_price,
+      ]) || [5000, '10,00,000'],
   );
-  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 5000);
-
+  const [minPrice, setMinPrice] = useState(
+    modalFilters.min_price || existingFilters.minPrice || 5000,
+  );
   const [maxPrice, setMaxPrice] = useState(
-    existingFilters.maxPrice || '1000000',
+    modalFilters.max_price || existingFilters.maxPrice || '10,00,000',
   );
   const [selectedFloor, setSelectedFloor] = useState(
-    existingFilters?.selectedFloor || '',
+    modalFilters.floor || existingFilters?.selectedFloor || '',
   );
 
   const [furnishing, setFurnishing] = useState(
-    existingFilters.furnishing || '',
+    modalFilters.furnishing_status || existingFilters.furnishing || '',
   );
   const [availability, setAvailability] = useState(
-    existingFilters.availability || '',
+    modalFilters.availability || existingFilters.availability || '',
   );
-  const [bathrooms, setBathrooms] = useState(existingFilters.bathrooms || '');
-  const [parking, setParking] = useState(existingFilters.parking || '');
+  const [bathrooms, setBathrooms] = useState(
+    modalFilters.bathrooms || existingFilters.bathrooms || '',
+  );
+  const [parking, setParking] = useState(
+    modalFilters.parking_available || existingFilters.parking || '',
+  );
   const [facing, setFacing] = useState(existingFilters.facing || '');
   const [advanceValue, setAdvanceValue] = useState(
-    existingFilters.advanceValue || '',
+    modalFilters.advance || existingFilters.advanceValue || '',
   );
   const [familyTypeValue, setFamilyTypeValue] = useState(
-    existingFilters.familyTypeValue || '',
+    modalFilters.preferred_tenant_type || existingFilters.familyTypeValue || '',
   );
   const [selectedCommercialSpace, setselectedCommercialSpace] = useState(
-    existingFilters.selectedCommercialSpace || '',
+    modalFilters.commercial_space ||
+      existingFilters.selectedCommercialSpace ||
+      '',
   );
 
   const bhkOptions = ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'];
@@ -157,6 +171,7 @@ const Filter = ({navigation, route}) => {
       familyTypeValue,
       selectedCommercialSpace,
       selectedFloor,
+      ...(minPrice && maxPrice ? {priceFilterType: 'price'} : {}),
     };
 
     if (onApplyFilter) onApplyFilter(filters);
@@ -298,12 +313,8 @@ const Filter = ({navigation, route}) => {
             trackStyle={{height: 4}}
           />
           <View style={styles.priceLabelRow}>
-            <Text style={styles.priceLabel}>
-              ₹{minPrice.toLocaleString()}
-            </Text>
-            <Text style={styles.priceLabel}>
-              ₹{maxPrice.toLocaleString()}
-            </Text>
+            <Text style={styles.priceLabel}>₹{minPrice.toLocaleString()}</Text>
+            <Text style={styles.priceLabel}>₹{maxPrice.toLocaleString()}</Text>
           </View>
         </View>
 

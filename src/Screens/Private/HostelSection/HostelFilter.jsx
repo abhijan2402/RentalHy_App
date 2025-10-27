@@ -15,27 +15,84 @@ import {COLOR} from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
 
 const HostelFilterScreen = ({navigation, route}) => {
-  const {existingFilters} = route.params;
+  const {existingFilters, modalFilters} = route.params;
   const onApplyFilter = route?.params?.onApplyFilter;
 
 
+  const normalize = text => text?.toLowerCase()?.trim();
+
+
+  const extractSelectedValues = (modalList, configList, fallbackList) => {
+  if (modalList?.length) {
+    const selected = modalList.map(v =>
+      configList?.find(
+        item =>
+          normalize(item.key) === normalize(v) ||
+          normalize(item.value) === normalize(v)
+      )?.value || normalize(v)
+    );
+    return selected.filter(Boolean);
+  }
+  return (fallbackList || []).map(normalize);
+};
+
+
   const [priceRange, setPriceRange] = useState(
-    existingFilters.priceRange || [100, 25000],
+    existingFilters.priceRange ||  (modalFilters.min_price && [modalFilters.min_price,modalFilters.max_price]) || [100, 25000],
   );
 
-  const [minPrice, setMinPrice] = useState(existingFilters.minPrice || 100);
-  const [maxPrice, setMaxPrice] = useState(existingFilters.maxPrice || 25000);
+  const [minPrice, setMinPrice] = useState(modalFilters.min_price || existingFilters.minPrice || 100);
+  const [maxPrice, setMaxPrice] = useState(modalFilters.max_price || existingFilters.maxPrice || 25000);
 
   const [selectedOccupancy, setSelectedOccupancy] = useState(existingFilters.selectedOccupancy || [1, 100]);
 
   const [minOccupancy , setMinOccupancy] = useState(existingFilters?.minOccupancy || 1);
   const [maxOccupancy , setMaxOccupancy] = useState(existingFilters?.maxOccupancy || 100);
+const [selectedRoomTypes, setSelectedRoomTypes] = useState(() =>
+  extractSelectedValues(
+    modalFilters?.room_types,
+    HOSTEL_FILTERS.roomTypes,
+    existingFilters?.selectedRoomTypes
+  )
+);
 
-  const [selectedRoomTypes, setSelectedRoomTypes] = useState(existingFilters.selectedRoomTypes || '');
-  const [selectedGenders, setSelectedGenders] = useState(existingFilters.selectedGenders || '');
-  const [selectedFacilities, setSelectedFacilities] = useState(existingFilters.selectedFacilities || '');
-  const [selectedFoodOptions, setSelectedFoodOptions] = useState(existingFilters.selectedFoodOptions || '');
-  const [selectedStayTypes, setSelectedStayTypes] = useState(existingFilters.selectedStayTypes || '');
+// ✅ Genders
+const [selectedGenders, setSelectedGenders] = useState(() =>
+  extractSelectedValues(
+    modalFilters?.genders,
+    HOSTEL_FILTERS.genders,
+    existingFilters?.selectedGenders
+  )
+);
+
+// ✅ Facilities
+const [selectedFacilities, setSelectedFacilities] = useState(() =>
+  extractSelectedValues(
+    modalFilters?.facilities,
+    HOSTEL_FILTERS.facilities,
+    existingFilters?.selectedFacilities
+  )
+);
+
+// ✅ Food Options
+const [selectedFoodOptions, setSelectedFoodOptions] = useState(() =>
+  extractSelectedValues(
+    modalFilters?.food_options,
+    HOSTEL_FILTERS.foodOptions,
+    existingFilters?.selectedFoodOptions
+  )
+);
+
+// ✅ Stay Types
+const [selectedStayTypes, setSelectedStayTypes] = useState(() =>
+  extractSelectedValues(
+    modalFilters?.stay_types,
+    HOSTEL_FILTERS.stayTypes,
+    existingFilters?.selectedStayTypes
+  )
+);
+
+  console.log(modalFilters,selectedGenders,"modalFiltersmodalFilters")
 
   const toggleSelection = (item, list, setList) => {
     if (list.includes(item)) {
