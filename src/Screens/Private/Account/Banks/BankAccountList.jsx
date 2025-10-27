@@ -19,7 +19,8 @@ const BankAccountList = ({navigation}) => {
   const {postRequest, getRequest} = useApi();
   const {user} = useContext(AuthContext);
   const {showToast} = useToast();
-
+  const [bankAccount, setbankAccount] = useState([]);
+  const [selectedId, setselectedId] = useState(null);
   const [buttonLoader, setButtonLoader] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(false);
 
@@ -31,14 +32,16 @@ const BankAccountList = ({navigation}) => {
     accountType: 'Saving',
   });
 
-
   const fetchBankAccounts = async () => {
     try {
       setLoadingAccounts(true);
       const res = await getRequest('public/api/account/list', true);
+      console.log(res.data.data, 'CACAGFC');
       if (res?.data?.status === true || res?.data?.success === true) {
         if (res?.data?.data?.length > 0) {
+          setbankAccount(res.data.data);
           const account = res.data.data[0];
+          setselectedId(account.id);
           setForm({
             accountNumber: account?.account_number || '',
             accountHolderName: account?.account_holder_name || '',
@@ -62,7 +65,7 @@ const BankAccountList = ({navigation}) => {
     fetchBankAccounts();
   }, []);
 
-  console.log(form.accountType,"form.accountTypeform.accountType")
+  console.log(form.accountType, 'form.accountTypeform.accountType');
 
   const handleUpdate = async () => {
     setButtonLoader(true);
@@ -81,7 +84,7 @@ const BankAccountList = ({navigation}) => {
 
       if (res.data?.status === true || res?.data?.success === true) {
         showToast('Bank account details updated successfully!', 'success');
-        fetchBankAccounts(); 
+        fetchBankAccounts();
         navigation.goBack();
       } else {
         showToast(res?.message || 'Failed to update bank details.', 'error');
@@ -94,6 +97,39 @@ const BankAccountList = ({navigation}) => {
     }
   };
 
+  const UpdateBankAccount = async () => {
+    setButtonLoader(true);
+    const formdata = new FormData();
+    formdata.append('account_number', form.accountNumber);
+    formdata.append('account_holder_name', form.accountHolderName);
+    formdata.append('ifsc_code', form.ifscCode);
+    formdata.append('branch', form.branch);
+    formdata.append('account_type', form.accountType);
+
+    console.log('Submitting Account Form Data:', form);
+
+    try {
+      const res = await postRequest(
+        `public/api/account/update/${selectedId}`,
+        formdata,
+        true,
+      );
+      console.log('Update API Response:', res);
+
+      if (res.data?.status === true || res?.data?.success === true) {
+        showToast('Bank account details updated successfully!', 'success');
+        fetchBankAccounts();
+        navigation.goBack();
+      } else {
+        showToast(res?.message || 'Failed to update bank details.', 'error');
+      }
+    } catch (err) {
+      console.error('Update API Error:', err);
+      showToast('An error occurred. Please try again.', 'error');
+    } finally {
+      setButtonLoader(false);
+    }
+  };
   return (
     <View style={styles.container}>
       <Header
@@ -203,7 +239,17 @@ const BankAccountList = ({navigation}) => {
       <CustomButton
         title={'Update'}
         loading={buttonLoader}
-        onPress={handleUpdate}
+        onPress={() => {
+          if (bankAccount?.length == 0) {
+            console.log('CALLED');
+
+            handleUpdate();
+          } else {
+            console.log('CALLED2');
+
+            UpdateBankAccount();
+          }
+        }}
       />
     </View>
   );

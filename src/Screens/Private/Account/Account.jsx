@@ -39,6 +39,12 @@ const Account = ({navigation}) => {
       navigate: 'Wishlist',
     },
     {
+      id: 15,
+      title: 'Chat',
+      icon: 'https://cdn-icons-png.flaticon.com/128/811/811476.png',
+      navigate: 'ChatList',
+    },
+    {
       id: 7,
       title: 'Property Analytics',
       icon: 'https://cdn-icons-png.flaticon.com/128/602/602175.png',
@@ -106,7 +112,11 @@ const Account = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Header title={'Account'} showBack onBackPress={() => navigation.goBack()} />
+      <Header
+        title={'Account'}
+        showBack
+        onBackPress={() => navigation.goBack()}
+      />
 
       <ScrollView contentContainerStyle={{paddingBottom: 20}}>
         {/* Profile Section */}
