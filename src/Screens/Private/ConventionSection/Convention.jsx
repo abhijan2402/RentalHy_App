@@ -116,28 +116,27 @@ const ConventionHall = ({
   AppliedModalFilter,
   setAppliedModalFilter,
   filterHeight,
-  scrollOffset
+  scrollOffset,
 }) => {
+  const onScrollFlatlist = event => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    const diff = currentOffset - scrollOffset;
 
-    const onScrollFlatlist = (event) => {
-      const currentOffset = event.nativeEvent.contentOffset.y;
-      const diff = currentOffset - scrollOffset;
-  
-      if (diff > 10 && currentOffset > 40) {
-        Animated.timing(filterHeight, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      } else if (diff < -10) {
-        Animated.timing(filterHeight, {
-          toValue: 40,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      }
-      scrollOffset = currentOffset;
-    };
+    if (diff > 10 && currentOffset > 40) {
+      Animated.timing(filterHeight, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    } else if (diff < -10) {
+      Animated.timing(filterHeight, {
+        toValue: 40,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }
+    scrollOffset = currentOffset;
+  };
   const renderHall = ({item}) => (
     <HallCard
       key={item.id}
@@ -210,15 +209,15 @@ const ConventionHall = ({
           />
         </TouchableOpacity>
       </View>
-     <View
-             style={{
-               overflow: 'hidden',
-               height: filterHeight,
-               width:windowWidth - 40,
-               alignSelf:'center',
-               backgroundColor: COLOR.white,
-               justifyContent: 'center',
-             }}>
+      <View
+        style={{
+          overflow: 'hidden',
+          height: filterHeight,
+          width: windowWidth - 40,
+          alignSelf: 'center',
+          backgroundColor: COLOR.white,
+          justifyContent: 'center',
+        }}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {avaialbleFilter.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
@@ -252,7 +251,7 @@ const ConventionHall = ({
                   borderColor: '#ccc',
                   paddingHorizontal: 10,
                   paddingVertical: 5,
-                  marginBottom:10,
+                  marginBottom: 10,
                   borderRadius: 5,
                   backgroundColor:
                     attendedFilter?.id == filterGroup?.id
@@ -277,7 +276,7 @@ const ConventionHall = ({
             );
           })}
         </ScrollView>
-        </View>
+      </View>
 
       <FlatList
         data={hallData}
@@ -306,8 +305,8 @@ const ConventionHall = ({
                 false,
               );
             }}
-            colors={[COLOR.primary]} 
-            tintColor={COLOR.primary} 
+            colors={[COLOR.primary]}
+            tintColor={COLOR.primary}
           />
         }
         ListEmptyComponent={() => {
@@ -381,57 +380,60 @@ const FarmHouse = ({
   AppliedModalFilter,
   setAppliedModalFilter,
   filterHeight,
-  scrollOffset
+  scrollOffset,
 }) => {
-  const renderHall = ({item}) => (
-    <HallCard
-      key={item.id}
-      image={item?.images_grouped}
-      title={item?.title}
-      description={item?.description}
-      location={item?.location}
-      capacity={item?.seating_capacity}
-      price={item}
-      priceType={item?.priceType}
-      ac={item.ac_available}
-      onPress={() => {
-        if (currentStatus === -1) {
-          setShowModal(true);
-        } else {
-          navigation.navigate('PropertyDetail', {
+  const renderHall = ({item}) => {
+    // console.log(item, 'ITEMMMMM');
+    return (
+      <HallCard
+        key={item.id}
+        image={item?.images_grouped}
+        title={item?.title}
+        description={item?.description}
+        location={item?.address || item?.location}
+        capacity={item?.seating_capacity}
+        price={item}
+        priceType={item?.priceType}
+        ac={item.ac_available}
+        onPress={() => {
+          if (currentStatus === -1) {
+            setShowModal(true);
+          } else {
+            navigation.navigate('PropertyDetail', {
+              type: 'convention',
+              propertyData: item,
+            });
+          }
+        }}
+        onBook={() =>
+          navigation.navigate('Booking', {
             type: 'convention',
-            propertyData: item,
-          });
+            propertyData: item?.id,
+          })
         }
-      }}
-      onBook={() =>
-        navigation.navigate('Booking', {
-          type: 'convention',
-          propertyData: item?.id,
-        })
-      }
-    />
-  );
+      />
+    );
+  };
 
-   const onScrollFlatlist = (event) => {
-      const currentOffset = event.nativeEvent.contentOffset.y;
-      const diff = currentOffset - scrollOffset;
-  
-      if (diff > 10 && currentOffset > 40) {
-        Animated.timing(filterHeight, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      } else if (diff < -10) {
-        Animated.timing(filterHeight, {
-          toValue: 40,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      }
-      scrollOffset = currentOffset;
-    };
+  const onScrollFlatlist = event => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    const diff = currentOffset - scrollOffset;
+
+    if (diff > 10 && currentOffset > 40) {
+      Animated.timing(filterHeight, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    } else if (diff < -10) {
+      Animated.timing(filterHeight, {
+        toValue: 40,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }
+    scrollOffset = currentOffset;
+  };
   return (
     <View style={styles.content}>
       <View style={styles.searchContainer}>
@@ -475,18 +477,15 @@ const FarmHouse = ({
         </TouchableOpacity>
       </View>
       <View
-             style={{
-               overflow: 'hidden',
-               height: filterHeight,
-               width:windowWidth - 40,
-               alignSelf:'center',
-               backgroundColor: COLOR.white,
-               justifyContent: 'center',
-             }}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          >
+        style={{
+          overflow: 'hidden',
+          height: filterHeight,
+          width: windowWidth - 40,
+          alignSelf: 'center',
+          backgroundColor: COLOR.white,
+          justifyContent: 'center',
+        }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {avaialbleFilterFarm.map(filterGroup => {
             const selectedValues = AppliedModalFilter[filterGroup.type] || [];
             let displayText = filterGroup.name;
@@ -512,7 +511,7 @@ const FarmHouse = ({
                   borderColor: '#ccc',
                   paddingHorizontal: 10,
                   paddingVertical: 5,
-                  marginBottom:10,
+                  marginBottom: 10,
                   borderRadius: 5,
                   backgroundColor:
                     attendedFilter?.id == filterGroup?.id
@@ -537,7 +536,7 @@ const FarmHouse = ({
             );
           })}
         </ScrollView>
-        </View>
+      </View>
 
       <FlatList
         data={data}
@@ -616,7 +615,7 @@ const FarmHouse = ({
 const Convention = ({navigation, route}) => {
   const filterHeight = useRef(new Animated.Value(40)).current;
   let scrollOffset = 0;
-  
+
   const {currentAddress} = useContext(AuthContext);
   const {postRequest} = useApi();
   const type = route?.params?.type;
@@ -931,6 +930,8 @@ const Convention = ({navigation, route}) => {
         : 'public/api/farm_listing';
     const response = await postRequest(url, formData, true);
     const resData = response?.data?.data;
+    console.log(resData, 'DATATTATAT');
+
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
 
@@ -983,7 +984,7 @@ const Convention = ({navigation, route}) => {
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
       />
-         {tabLoader ? (
+      {tabLoader ? (
         <View style={{height: 115}}></View>
       ) : (
         <OptionSelector
@@ -1027,103 +1028,115 @@ const Convention = ({navigation, route}) => {
           }}
         />
       )}
-      <ScrollView  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
-
-        GetProperties(1, false, appliedFilters, searchQuery, sortQuery, false, activeTab);
-          setSearchQuery('');
-          setAppliedFilters({});
-          setAppliedModalFilter({});
-          setAttendedFilter(null);
-      }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>}>
-
-     
-
-      {activeTab === 'convention' ? (
-        <ConventionHall
-          loader={tabLoader}
-          hallData={hallData}
-          navigation={navigation}
-          onPressSort={() => {
-            setSortVisible(true);
-          }}
-          currentStatus={currentStatus}
-          setShowModal={() => {
-            setModalVisible(true);
-          }}
-          onPressFilter={() =>
-            navigation.navigate('ConventionMainFilter', {
-              onApplyFilter: handleFilterChange,
-              existingFilters: appliedFilters,
-              modalFilters: AppliedModalFilter,
-            })
-          }
-          onHandleMore={() => {
-            handleLoadMore();
-          }}
-          setAppliedFilters={setAppliedFilters}
-          setSortQuery={setSortQuery}
-          appliedFilters={appliedFilters}
-          searchQuery={searchQuery}
-          sortQuery={sortQuery}
-          GetProperties={GetProperties}
-          loadingMore={loadingMore}
-          setSearchQuery={setSearchQuery}
-          avaialbleFilter={avaialbleFilter}
-          setavaialbleFilter={setavaialbleFilter}
-          setAttendedFilter={setAttendedFilter}
-          attendedFilter={attendedFilter}
-          setMultiFilter={setMultiFilter}
-          MultiFilter={multiFilter}
-          AppliedModalFilter={AppliedModalFilter}
-          setAppliedModalFilter={setAppliedModalFilter}
-          Animated={Animated}
-          filterHeight={filterHeight}
-          scrollOffset={scrollOffset}
-        />
-      ) : (
-        <FarmHouse
-          currentStatus={currentStatus}
-          loader={tabLoader}
-          data={hallData}
-          onPressSort={() => {
-            setSortVisible(true);
-          }}
-          setShowModal={() => {
-            setModalVisible(true);
-          }}
-          navigation={navigation}
-          onPressFilter={() => {
-            navigation.navigate('ConventionFilter', {
-              onApplyFilter: handleFilterChange,
-              existingFilters: appliedFilters,
-              modalFilters: AppliedModalFilter,
-            });
-          }}
-          onHandleMore={() => {
-            handleLoadMore();
-          }}
-          setAppliedFilters={setAppliedFilters}
-          setSortQuery={setSortQuery}
-          appliedFilters={appliedFilters}
-          searchQuery={searchQuery}
-          sortQuery={sortQuery}
-          GetProperties={GetProperties}
-          loadingMore={loadingMore}
-          setSearchQuery={setSearchQuery}
-          avaialbleFilter={avaialbleFilter}
-          setavaialbleFilter={setavaialbleFilter}
-          setAttendedFilter={setAttendedFilter}
-          attendedFilter={attendedFilter}
-          setMultiFilter={setMultiFilter}
-          MultiFilter={multiFilter}
-          AppliedModalFilter={AppliedModalFilter}
-          setAppliedModalFilter={setAppliedModalFilter}
-          avaialbleFilterFarm={avaialbleFilterFarm}
-          Animated={Animated}
-          filterHeight={filterHeight}
-          scrollOffset={scrollOffset}
-        />
-      )}
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={false}
+            onRefresh={() => {
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+                activeTab,
+              );
+              setSearchQuery('');
+              setAppliedFilters({});
+              setAppliedModalFilter({});
+              setAttendedFilter(null);
+            }}
+            colors={[COLOR.primary]}
+            tintColor={COLOR.primary}
+          />
+        }>
+        {activeTab === 'convention' ? (
+          <ConventionHall
+            loader={tabLoader}
+            hallData={hallData}
+            navigation={navigation}
+            onPressSort={() => {
+              setSortVisible(true);
+            }}
+            currentStatus={currentStatus}
+            setShowModal={() => {
+              setModalVisible(true);
+            }}
+            onPressFilter={() =>
+              navigation.navigate('ConventionMainFilter', {
+                onApplyFilter: handleFilterChange,
+                existingFilters: appliedFilters,
+                modalFilters: AppliedModalFilter,
+              })
+            }
+            onHandleMore={() => {
+              handleLoadMore();
+            }}
+            setAppliedFilters={setAppliedFilters}
+            setSortQuery={setSortQuery}
+            appliedFilters={appliedFilters}
+            searchQuery={searchQuery}
+            sortQuery={sortQuery}
+            GetProperties={GetProperties}
+            loadingMore={loadingMore}
+            setSearchQuery={setSearchQuery}
+            avaialbleFilter={avaialbleFilter}
+            setavaialbleFilter={setavaialbleFilter}
+            setAttendedFilter={setAttendedFilter}
+            attendedFilter={attendedFilter}
+            setMultiFilter={setMultiFilter}
+            MultiFilter={multiFilter}
+            AppliedModalFilter={AppliedModalFilter}
+            setAppliedModalFilter={setAppliedModalFilter}
+            Animated={Animated}
+            filterHeight={filterHeight}
+            scrollOffset={scrollOffset}
+          />
+        ) : (
+          <FarmHouse
+            currentStatus={currentStatus}
+            loader={tabLoader}
+            data={hallData}
+            onPressSort={() => {
+              setSortVisible(true);
+            }}
+            setShowModal={() => {
+              setModalVisible(true);
+            }}
+            navigation={navigation}
+            onPressFilter={() => {
+              navigation.navigate('ConventionFilter', {
+                onApplyFilter: handleFilterChange,
+                existingFilters: appliedFilters,
+                modalFilters: AppliedModalFilter,
+              });
+            }}
+            onHandleMore={() => {
+              handleLoadMore();
+            }}
+            setAppliedFilters={setAppliedFilters}
+            setSortQuery={setSortQuery}
+            appliedFilters={appliedFilters}
+            searchQuery={searchQuery}
+            sortQuery={sortQuery}
+            GetProperties={GetProperties}
+            loadingMore={loadingMore}
+            setSearchQuery={setSearchQuery}
+            avaialbleFilter={avaialbleFilter}
+            setavaialbleFilter={setavaialbleFilter}
+            setAttendedFilter={setAttendedFilter}
+            attendedFilter={attendedFilter}
+            setMultiFilter={setMultiFilter}
+            MultiFilter={multiFilter}
+            AppliedModalFilter={AppliedModalFilter}
+            setAppliedModalFilter={setAppliedModalFilter}
+            avaialbleFilterFarm={avaialbleFilterFarm}
+            Animated={Animated}
+            filterHeight={filterHeight}
+            scrollOffset={scrollOffset}
+          />
+        )}
       </ScrollView>
       <AnimatedButton
         title={
@@ -1131,7 +1144,9 @@ const Convention = ({navigation, route}) => {
             ? 'Upload Convention Hall'
             : 'Upload Farm House'
         }
-        onPress={() => navigation.navigate('CreateConvention',{ activeTabKey:activeTab})}
+        onPress={() =>
+          navigation.navigate('CreateConvention', {activeTabKey: activeTab})
+        }
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
       />
       <SortModal

@@ -36,15 +36,15 @@ const BottomNavigation = () => {
         },
         tabBarStyle: {
           paddingVertical: 8,
-          height: 60 + insets.bottom, 
-          paddingBottom: 0 + insets.bottom, 
+          height: 65 + insets.bottom,
+          paddingBottom: 0 + insets.bottom,
           height:
-            Platform.OS === 'android' && Platform.Version < 35 
-              ? 60 
-              : 50 + insets.bottom, 
+            Platform.OS === 'android' && Platform.Version < 35
+              ? 60
+              : 55 + insets.bottom,
           paddingBottom:
             Platform.OS === 'android' && Platform.Version < 35
-              ? 0
+              ? 10
               : insets.bottom,
         },
         tabBarIcon: ({focused}) => {
@@ -64,7 +64,7 @@ const BottomNavigation = () => {
         },
         tabBarLabel: ({color}) => {
           let label = route.name;
-          if (route.name === 'MyBids') label = 'My Bids'; 
+          if (route.name === 'MyBids') label = 'My Bids';
 
           return (
             <Text

@@ -7,14 +7,14 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Header from '../../../Components/FeedHeader';
-import { COLOR } from '../../../Constants/Colors';
+import {COLOR} from '../../../Constants/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
 import CustomButton from '../../../Components/CustomButton';
-import { Calendar } from 'react-native-calendars';
-import { useToast } from '../../../Constants/ToastContext';
-import { useApi } from '../../../Backend/Api';
+import {Calendar} from 'react-native-calendars';
+import {useToast} from '../../../Constants/ToastContext';
+import {useApi} from '../../../Backend/Api';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 import moment from 'moment';
 
@@ -38,18 +38,20 @@ const months = [
   'December',
 ];
 
-const CreateConvention = ({ navigation, route }) => {
+const CreateConvention = ({navigation, route}) => {
   console.log(route?.params?.activeTabKey, 'route route');
   const activeTab = route?.params?.activeTabKey || 'Function/Convention Hall';
-  const { postRequest } = useApi();
-  const { showToast } = useToast();
+  const {postRequest} = useApi();
+  const {showToast} = useToast();
   const [loading, setLoading] = useState(false);
   // Images
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
   const [parkingImages, setParkingImages] = useState([]);
   const [BridGroomImages, setBridGroomImages] = useState([]);
-  const [uploadType, setUploadType] = useState(activeTab == 'farmhouse' ? 'Farm House' : 'Function/Convention Hall');
+  const [uploadType, setUploadType] = useState(
+    activeTab == 'farmhouse' ? 'Farm House' : 'Function/Convention Hall',
+  );
 
   // General info
   const [title, setTitle] = useState('');
@@ -140,7 +142,7 @@ const CreateConvention = ({ navigation, route }) => {
   const [buses, setBuses] = useState('');
   const [valet, setValet] = useState('yes');
 
-  const [adultPool,setAdultPool] = useState();
+  const [adultPool, setAdultPool] = useState();
 
   // Facilities
   const [royaltyDecoration, setRoyaltyDecoration] = useState('no');
@@ -172,7 +174,7 @@ const CreateConvention = ({ navigation, route }) => {
   const [area, setArea] = useState(null);
   const years = getYears();
   const [unavailableDates, setUnavailableDates] = useState({});
-  const [rows, setRows] = useState([{ field: 'Any Other', value: '' }]);
+  const [rows, setRows] = useState([{field: 'Any Other', value: ''}]);
   const [address, setAddress] = useState({});
 
   const [parkingGuard, setParkingGuard] = useState(false);
@@ -208,14 +210,14 @@ const CreateConvention = ({ navigation, route }) => {
   const toggleDate = day => {
     const date = day.dateString;
     setUnavailableDates(prev => {
-      const newDates = { ...prev };
+      const newDates = {...prev};
       if (newDates[date]) {
         delete newDates[date];
-        const updatedTimes = { ...timeBlocks };
+        const updatedTimes = {...timeBlocks};
         delete updatedTimes[date];
         setTimeBlocks(updatedTimes);
       } else {
-        newDates[date] = { selected: true, selectedColor: 'red' };
+        newDates[date] = {selected: true, selectedColor: 'red'};
       }
       return newDates;
     });
@@ -261,7 +263,7 @@ const CreateConvention = ({ navigation, route }) => {
       compressImageQuality: 0.8,
     })
       .then(res =>
-        setter(prev => [...prev, ...res.map(img => ({ uri: img.path }))]),
+        setter(prev => [...prev, ...res.map(img => ({uri: img.path}))]),
       )
       .catch(err => console.log(err));
   };
@@ -315,12 +317,19 @@ const CreateConvention = ({ navigation, route }) => {
 
     const selectedOptions =
       uploadType === 'Farm House' ? priceOptionsFarm : priceOptions;
-
-    selectedOptions.forEach(opt => {
-      if (prices[opt]) {
-        formData.append(`${normalizeKey(opt)}_price`, prices[opt]);
-      }
-    });
+    if (uploadType === 'Farm House') {
+      selectedOptions.forEach(opt => {
+        if (prices[opt]) {
+          formData.append(`${normalizeKey(opt)}`, prices[opt]);
+        }
+      });
+    } else {
+      selectedOptions.forEach(opt => {
+        if (prices[opt]) {
+          formData.append(`${normalizeKey(opt)}_price`, prices[opt]);
+        }
+      });
+    }
 
     rows.forEach(row => {
       if (row.field && row.value) {
@@ -401,25 +410,24 @@ const CreateConvention = ({ navigation, route }) => {
     setLoading(false);
   };
 
-
   const renderImagePicker = (label, imagesArray, setter) => (
     <View style={styles.section}>
       <Text style={styles.label}>{label} *</Text>
       <View style={styles.imageContainer}>
         {imagesArray.map((img, index) => (
           <View key={index} style={styles.imageWrapper}>
-            <Image source={{ uri: img.uri }} style={styles.image} />
+            <Image source={{uri: img.uri}} style={styles.image} />
             <TouchableOpacity
               style={styles.removeBtn}
               onPress={() => removeImage(setter, index)}>
-              <Text style={{ color: 'red', fontSize: 10 }}>X</Text>
+              <Text style={{color: 'red', fontSize: 10}}>X</Text>
             </TouchableOpacity>
           </View>
         ))}
         <TouchableOpacity
           style={styles.addImageBox}
           onPress={() => pickImages(setter)}>
-          <Text style={{ fontSize: 28, color: COLOR.primary || '#007AFF' }}>
+          <Text style={{fontSize: 28, color: COLOR.primary || '#007AFF'}}>
             +
           </Text>
         </TouchableOpacity>
@@ -453,7 +461,7 @@ const CreateConvention = ({ navigation, route }) => {
       </View>
       {descriptionInput && value === 'no' && (
         <TextInput
-          style={[styles.input, { marginTop: 10 }]}
+          style={[styles.input, {marginTop: 10}]}
           value={descriptionVal}
           onChangeText={setDescriptionVal}
           placeholder="Enter Name and Number of hall decorator"
@@ -461,7 +469,7 @@ const CreateConvention = ({ navigation, route }) => {
       )}
       {field === 'Dex' && value === 'yes' && (
         <TextInput
-          style={[styles.input, { marginTop: 10 }]}
+          style={[styles.input, {marginTop: 10}]}
           value={royaltyDecPrice}
           onChangeText={setRoyaltiDecPrice}
           placeholder="Enter royalty decorator price"
@@ -476,10 +484,10 @@ const CreateConvention = ({ navigation, route }) => {
   };
 
   const addRow = () => {
-    setRows([...rows, { field: '', value: '' }]);
+    setRows([...rows, {field: '', value: ''}]);
   };
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{flex: 1, backgroundColor: '#fff'}}>
       <Header
         title={
           uploadType !== 'Farm House'
@@ -489,11 +497,11 @@ const CreateConvention = ({ navigation, route }) => {
         showBack
         onBackPress={() => navigation.goBack()}
       />
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}
+      <ScrollView
+        contentContainerStyle={{paddingBottom: 20}}
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets={false}
-        keyboardDismissMode="on-drag"
-      >
+        keyboardDismissMode="on-drag">
         {/* <Text style={[styles.label, { paddingHorizontal: 20 }]}>
           Choose Upload Type *
         </Text> */}
@@ -567,7 +575,7 @@ const CreateConvention = ({ navigation, route }) => {
         <View style={styles.section}>
           <Text style={styles.label}>Description *</Text>
           <TextInput
-            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+            style={[styles.input, {height: 80, textAlignVertical: 'top'}]}
             value={description}
             onChangeText={setDescription}
             multiline
@@ -599,22 +607,22 @@ const CreateConvention = ({ navigation, route }) => {
                     alignItems: 'center',
                     marginBottom: 8,
                   }}>
-                  <Text style={{ flex: 1 }}>{opt}</Text>
+                  <Text style={{flex: 1}}>{opt}</Text>
                   <TextInput
-                    style={[styles.input, { flex: 1 }]}
+                    style={[styles.input, {flex: 1}]}
                     placeholder="Enter Price"
                     keyboardType="numeric"
                     value={prices[opt] || ''}
-                    onChangeText={val => setPrices({ ...prices, [opt]: val })}
+                    onChangeText={val => setPrices({...prices, [opt]: val})}
                   />
                 </View>
               ))}
               {
-                <View style={{ marginTop: 10 }}>
+                <View style={{marginTop: 10}}>
                   {rows.map((row, index) => (
                     <View key={index} style={styles.row}>
                       <TextInput
-                        style={[styles.inputVal, { flex: 1 }]}
+                        style={[styles.inputVal, {flex: 1}]}
                         placeholder="Enter Field Name"
                         value={row.field}
                         onChangeText={text =>
@@ -622,7 +630,7 @@ const CreateConvention = ({ navigation, route }) => {
                         }
                       />
                       <TextInput
-                        style={[styles.inputVal, { flex: 1 }]}
+                        style={[styles.inputVal, {flex: 1}]}
                         placeholder="Enter Price"
                         value={row.value}
                         keyboardType="numeric"
@@ -653,22 +661,22 @@ const CreateConvention = ({ navigation, route }) => {
                     alignItems: 'center',
                     marginBottom: 8,
                   }}>
-                  <Text style={{ flex: 1 }}>{opt}</Text>
+                  <Text style={{flex: 1}}>{opt}</Text>
                   <TextInput
-                    style={[styles.input, { flex: 1 }]}
+                    style={[styles.input, {flex: 1}]}
                     placeholder="Enter Price"
                     keyboardType="numeric"
                     value={prices[opt] || ''}
-                    onChangeText={val => setPrices({ ...prices, [opt]: val })}
+                    onChangeText={val => setPrices({...prices, [opt]: val})}
                   />
                 </View>
               ))}
               {
-                <View style={{ marginTop: 10 }}>
+                <View style={{marginTop: 10}}>
                   {rows.map((row, index) => (
                     <View key={index} style={styles.row}>
                       <TextInput
-                        style={[styles.inputVal, { flex: 1 }]}
+                        style={[styles.inputVal, {flex: 1}]}
                         placeholder="Enter Field Name"
                         value={row.field}
                         onChangeText={text =>
@@ -676,7 +684,7 @@ const CreateConvention = ({ navigation, route }) => {
                         }
                       />
                       <TextInput
-                        style={[styles.inputVal, { flex: 1 }]}
+                        style={[styles.inputVal, {flex: 1}]}
                         placeholder="Enter Price"
                         value={row.value}
                         keyboardType="numeric"
@@ -807,7 +815,7 @@ const CreateConvention = ({ navigation, route }) => {
             )}
 
             {renderToggle('Children Games', childrenGames, setChildrenGames)}
-            {childrenGames  && (
+            {childrenGames && (
               <View style={styles.section}>
                 <Text style={styles.label}>
                   Mention if any (Children Games)
@@ -837,7 +845,6 @@ const CreateConvention = ({ navigation, route }) => {
             {renderToggle('Pay Later', payLater, setPayLater)}
 
             {renderToggle('Adult Pool', adultPool, setAdultPool)}
-
 
             {renderToggle('Child Pool', childPool, setChildPool)}
 
@@ -870,8 +877,6 @@ const CreateConvention = ({ navigation, route }) => {
             {renderToggle('Free Wifi', wifi, setWifi)}
 
             {renderToggle('Play Ground', playGround, setPlayGround)}
-
-            
 
             {renderToggle('Kitchen', kitchen, setKitchen)}
 
@@ -915,7 +920,7 @@ const CreateConvention = ({ navigation, route }) => {
 
         {parkingAvailable === 'yes' && (
           <>
-            <View style={{ marginHorizontal: 20 }}>
+            <View style={{marginHorizontal: 20}}>
               <TextInput
                 style={styles.input}
                 value={cars}
@@ -986,8 +991,8 @@ const CreateConvention = ({ navigation, route }) => {
 export default CreateConvention;
 
 const styles = StyleSheet.create({
-  section: { marginVertical: 10, paddingHorizontal: 20 },
-  label: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333' },
+  section: {marginVertical: 10, paddingHorizontal: 20},
+  label: {fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333'},
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -1002,8 +1007,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
   },
-  imageWrapper: { position: 'relative', marginRight: 10, marginBottom: 10 },
-  image: { width: 90, height: 90, borderRadius: 8 },
+  imageWrapper: {position: 'relative', marginRight: 10, marginBottom: 10},
+  image: {width: 90, height: 90, borderRadius: 8},
   removeBtn: {
     position: 'absolute',
     top: 5,
@@ -1024,7 +1029,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     marginBottom: 10,
   },
-  toggleRow: { flexDirection: 'row', marginTop: 10 },
+  toggleRow: {flexDirection: 'row', marginTop: 10},
   toggleBtn: {
     // flex: 0.5,
     paddingVertical: 5,
@@ -1040,8 +1045,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.primary || '#007AFF',
     borderColor: COLOR.primary || '#007AFF',
   },
-  toggleText: { fontSize: 14, color: '#333' },
-  selectedText: { color: '#fff', fontWeight: '600' },
+  toggleText: {fontSize: 14, color: '#333'},
+  selectedText: {color: '#fff', fontWeight: '600'},
   dateBox: {
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -1052,7 +1057,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     marginBottom: 13,
   },
-  dateText: { fontSize: 14, color: '#333' },
+  dateText: {fontSize: 14, color: '#333'},
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1072,7 +1077,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     height: 40,
   },
-  dateText: { fontSize: 16, width: 110 },
+  dateText: {fontSize: 16, width: 110},
   inputVal: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -1098,6 +1103,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR?.primary,
     borderColor: COLOR?.primary,
   },
-  optionTextSelected: { color: 'white' },
-  optionRow: { flexDirection: 'row', gap: 8 },
+  optionTextSelected: {color: 'white'},
+  optionRow: {flexDirection: 'row', gap: 8},
 });
