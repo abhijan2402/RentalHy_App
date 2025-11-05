@@ -28,6 +28,7 @@ import {AuthContext} from '../../../Backend/AuthContent';
 import { useApi } from '../../../Backend/Api';
 import MultiModal from '../../../Components/MultiModal';
 import LocationModal from '../../../Modals/LocationModal';
+import RenderFilterOptions from '../../../Components/renderFilterOptions';
 
 const Hostel = ({navigation}) => {
   const filterHeight = useRef(new Animated.Value(40)).current;
@@ -376,6 +377,7 @@ const Hostel = ({navigation}) => {
               onApplyFilter: handleFilterChange,
               existingFilters: appliedFilters,
               modalFilters: AppliedModalFilter,
+              setAppliedModalFilter: setAppliedModalFilter,
             })}>
 
             <Image
@@ -387,71 +389,28 @@ const Hostel = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-<View
+        <View
         style={{
-          overflow: 'hidden',
-          height: filterHeight,
-          width:windowWidth - 40,
-          alignSelf:'center',
-          backgroundColor: COLOR.white,
-          justifyContent: 'center',
+        overflow: 'hidden',
+        height: filterHeight,
+        width:windowWidth - 40,
+        alignSelf:'center',
+        backgroundColor: COLOR.white,
+        justifyContent: 'center',
         }}>                    
-          <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}>
-                        {avaialbleFilter?.map(filterGroup => {
-                          const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-                          let displayText = filterGroup.name;
-              
-                          if (filterGroup.type === 'price') {
-                            const minP = AppliedModalFilter.min_price;
-                            const maxP = AppliedModalFilter.max_price;
-                            if (minP !== undefined && maxP !== undefined) {
-                              displayText = `₹${minP} - ₹${maxP}`;
-                            }
-                          } else if (selectedValues.length > 0) {
-                            displayText = selectedValues.join(', ');
-                          }
-                          return (
-                            <TouchableOpacity
-                              onPress={() => {
-                                setAttendedFilter(filterGroup);
-                                setMultiFilter(true);
-                              }}
-                              key={filterGroup.id}
-                              style={{
-                                borderWidth: 1,
-                                borderColor: '#ccc',
-                                paddingHorizontal: 10,
-                                marginBottom:Platform?.OS == 'ios' ? 10 : 0,
-                                paddingVertical: 5,
-                                borderRadius: 5,
-                                backgroundColor:
-                                  attendedFilter?.id == filterGroup?.id
-                                    ? COLOR.primary
-                                    : '#fff',
-                                marginRight: 8,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              }}>
-                              <Text
-                                style={{
-                                  fontSize: 12,
-                                  fontWeight: 'bold',
-                                  color:
-                                    attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    paddingVertical:2,
-                              
-                                  textTransform: 'capitalize',
-                                  textAlignVertical: 'center',
-                                }}>
-                                {displayText}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </ScrollView>
-                         </View>
+  
+
+        {RenderFilterOptions({
+          avaialbleFilter,
+          AppliedModalFilter,
+          attendedFilter,
+          setAppliedModalFilter,
+          setAttendedFilter,
+          setMultiFilter,
+          COLOR,
+          appliedFilters
+        })}
+        </View>
                    
 
         <View style={{flex: 1}}>

@@ -217,9 +217,24 @@ const MyBooking = ({navigation}) => {
 
       if (!currentBooking) return;
 
-      console.log(response,"responseresponse")
+      const formData = new FormData();
+      formData.append('groceries_needed', currentBooking.groceries_needed);
+      formData.append('decore_needed', currentBooking.decore_needed);
+      formData.append('photograper_needed', currentBooking.photograper_needed);
+      formData.append('chef_needed', currentBooking.chef_needed);
+      formData.append('catering_needed', currentBooking.catering_needed);
 
-      if (response.data.success) {
+      // Update only the changed field
+      formData.append(field, value);
+
+      const response = await postRequest(
+        `public/api/book-property/update-order/${bookingId}`,
+        formData,
+        true, // <- If your API expects form-data
+      );
+      console.log(response, 'RESSP');
+
+      if (response.success) {
         // Update UI immediately
         showToast(
           response?.data.message || 'Failed to update service',

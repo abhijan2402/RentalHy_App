@@ -49,7 +49,9 @@ const CreateConvention = ({ navigation, route }) => {
   const [kitchenImages, setKitchenImages] = useState([]);
   const [parkingImages, setParkingImages] = useState([]);
   const [BridGroomImages, setBridGroomImages] = useState([]);
-  const [uploadType, setUploadType] = useState(activeTab == 'farmhouse' ? 'Farm House' : 'Function/Convention Hall');
+  const [uploadType, setUploadType] = useState(
+    activeTab == 'farmhouse' ? 'Farm House' : 'Function/Convention Hall',
+  );
 
   // General info
   const [title, setTitle] = useState('');
@@ -140,7 +142,7 @@ const CreateConvention = ({ navigation, route }) => {
   const [buses, setBuses] = useState('');
   const [valet, setValet] = useState('yes');
 
-  const [adultPool,setAdultPool] = useState();
+  const [adultPool, setAdultPool] = useState();
 
   // Facilities
   const [royaltyDecoration, setRoyaltyDecoration] = useState('no');
@@ -297,10 +299,10 @@ const CreateConvention = ({ navigation, route }) => {
       drinkingWater === 'yes' ? 1 : 0,
     );
     formData.append('provides_catering_persons', catering === 'yes' ? 1 : 0);
-    formData.append(
-      'photographers_required',
-      PhotographersReq === 'yes' ? 1 : 0,
-    );
+    // formData.append(
+    //   'photographers_required',
+    //   PhotographersReq === 'yes' ? 1 : 0,
+    // );
     formData.append('children_games', childrenGames === true ? 1 : 0);
     formData.append('parking_available', parkingAvailable === true ? 1 : 0);
     formData.append('parking_guard', parkingGuard === true ? 1 : 0);
@@ -315,12 +317,19 @@ const CreateConvention = ({ navigation, route }) => {
 
     const selectedOptions =
       uploadType === 'Farm House' ? priceOptionsFarm : priceOptions;
-
-    selectedOptions.forEach(opt => {
-      if (prices[opt]) {
-        formData.append(`${normalizeKey(opt)}_price`, prices[opt]);
-      }
-    });
+    if (uploadType === 'Farm House') {
+      selectedOptions.forEach(opt => {
+        if (prices[opt]) {
+          formData.append(`${normalizeKey(opt)}`, prices[opt]);
+        }
+      });
+    } else {
+      selectedOptions.forEach(opt => {
+        if (prices[opt]) {
+          formData.append(`${normalizeKey(opt)}_price`, prices[opt]);
+        }
+      });
+    }
 
     rows.forEach(row => {
       if (row.field && row.value) {
@@ -400,7 +409,6 @@ const CreateConvention = ({ navigation, route }) => {
     }
     setLoading(false);
   };
-
 
   const renderImagePicker = (label, imagesArray, setter) => (
     <View style={styles.section}>
@@ -489,11 +497,11 @@ const CreateConvention = ({ navigation, route }) => {
         showBack
         onBackPress={() => navigation.goBack()}
       />
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 20 }}
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets={false}
-        keyboardDismissMode="on-drag"
-      >
+        keyboardDismissMode="on-drag">
         {/* <Text style={[styles.label, { paddingHorizontal: 20 }]}>
           Choose Upload Type *
         </Text> */}
@@ -749,11 +757,11 @@ const CreateConvention = ({ navigation, route }) => {
               setDrinkingWater,
             )}
             {renderToggle('Provides Catering Persons', catering, setCatering)}
-            {renderToggle(
+            {/* {renderToggle(
               'Photographers Required',
               PhotographersReq,
               setPhotographersReq,
-            )}
+            )} */}
           </>
         )}
 
@@ -807,7 +815,7 @@ const CreateConvention = ({ navigation, route }) => {
             )}
 
             {renderToggle('Children Games', childrenGames, setChildrenGames)}
-            {childrenGames  && (
+            {childrenGames && (
               <View style={styles.section}>
                 <Text style={styles.label}>
                   Mention if any (Children Games)
@@ -837,7 +845,6 @@ const CreateConvention = ({ navigation, route }) => {
             {renderToggle('Pay Later', payLater, setPayLater)}
 
             {renderToggle('Adult Pool', adultPool, setAdultPool)}
-
 
             {renderToggle('Child Pool', childPool, setChildPool)}
 
@@ -870,8 +877,6 @@ const CreateConvention = ({ navigation, route }) => {
             {renderToggle('Free Wifi', wifi, setWifi)}
 
             {renderToggle('Play Ground', playGround, setPlayGround)}
-
-            
 
             {renderToggle('Kitchen', kitchen, setKitchen)}
 

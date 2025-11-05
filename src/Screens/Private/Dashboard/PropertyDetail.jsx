@@ -20,10 +20,10 @@ import {useToast} from '../../../Constants/ToastContext';
 import {useIsFocused} from '@react-navigation/native';
 import ConventionAmed from '../../../Components/ConventionAmed';
 import HostelAmed from '../../../Components/HostelAmed';
-import { AuthContext } from '../../../Backend/AuthContent';
+import {AuthContext} from '../../../Backend/AuthContent';
+import PropertyAmed from '../../../Components/PropertyAmed';
 
 const PropertyDetail = ({navigation, route}) => {
-
   const {currentStatus} = useContext(AuthContext);
   const isFocus = useIsFocused();
   const {getRequest, postRequest} = useApi();
@@ -52,13 +52,13 @@ const PropertyDetail = ({navigation, route}) => {
   const [description, setDescription] = useState('');
   const [user_reviewed, setuser_reviewed] = useState(false);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-  if (viewableItems.length > 0) {
-    setCurrentIndex(viewableItems[0].index);
-  }
-}).current;
+  const onViewableItemsChanged = useRef(({viewableItems}) => {
+    if (viewableItems.length > 0) {
+      setCurrentIndex(viewableItems[0].index);
+    }
+  }).current;
 
-const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 50}).current;
 
   const handleReviewPress = (key, value) => {
     setReviews(prev => ({...prev, [key]: value}));
@@ -71,6 +71,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
   ];
   const thumbUpUrl = 'https://cdn-icons-png.flaticon.com/128/739/739231.png';
   const getPropertyDetails = async (id, load = true) => {
+    setLoading(true);
     if (load) {
       setLoading(false);
     }
@@ -81,6 +82,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
         ? `public/api/hostels/${id}`
         : `public/api/properties/${id}`;
 
+    console.log(type, 'TYPPEPEPEPE');
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
       console.log(response?.data, 'Property Details');
@@ -123,7 +125,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   useEffect(() => {
     if (propertyData?.id) {
-      getPropertyDetails(propertyData?.id);
+      getPropertyDetails(propertyData?.id, false);
       propertyViewed(propertyData?.id);
     }
   }, [propertyData?.id]);
@@ -223,11 +225,16 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
 
-
   return (
     <View style={styles.container}>
       <Header
-        title={type == 'convention' ? 'Convention Detail' : type == 'hostel' ? 'Hostel Details' : 'Property Detail'}
+        title={
+          type == 'convention'
+            ? 'Convention Detail'
+            : type == 'hostel'
+            ? 'Hostel Details'
+            : 'Property Detail'
+        }
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -240,34 +247,34 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
       ) : (
         <ScrollView>
           {/* Horizontal Image Carousel */}
-         <View>
-  <FlatList
-    data={images}
-    horizontal
-    keyExtractor={(item, index) => index.toString()}
-    showsHorizontalScrollIndicator={false}
-    pagingEnabled
-    onViewableItemsChanged={onViewableItemsChanged}
-    viewabilityConfig={viewConfigRef}
-    renderItem={({ item }) => (
-      <Image source={{ uri: item }} style={styles.propertyImage} />
-    )}
-  />
+          <View>
+            <FlatList
+              data={images}
+              horizontal
+              keyExtractor={(item, index) => index.toString()}
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              onViewableItemsChanged={onViewableItemsChanged}
+              viewabilityConfig={viewConfigRef}
+              renderItem={({item}) => (
+                <Image source={{uri: item}} style={styles.propertyImage} />
+              )}
+            />
 
-  {images?.length > 1 && (
-    <View style={styles.indicatorContainer}>
-      {images?.map((_, i) => (
-        <View
-          key={i}
-          style={[
-            styles.dot,
-            { opacity: i === currentIndex ? 1 : 0.3 },
-          ]}
-        />
-      ))}
-    </View>
-  )}
-</View>
+            {images?.length > 1 && (
+              <View style={styles.indicatorContainer}>
+                {images?.map((_, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.dot,
+                      {opacity: i === currentIndex ? 1 : 0.3},
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+          </View>
 
           <View style={styles.content}>
             <View
@@ -279,7 +286,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                 alignItems: 'center',
               }}>
               <Text style={styles.title}>{AllData?.title}</Text>
-              {(type != 'convention' && currentStatus != -1) && (
+              {type != 'convention' && currentStatus != -1 && (
                 <TouchableOpacity
                   style={styles.wishlistIcon}
                   onPress={() =>
@@ -294,14 +301,14 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                     style={{
                       width: 20,
                       height: 20,
-                    paddingVertical:2,
+                      paddingVertical: 2,
                       tintColor: AllData?.is_wishlist
                         ? COLOR.primary
                         : COLOR.grey,
                     }}
                   />
                 </TouchableOpacity>
-               )} 
+              )}
             </View>
             <Text style={styles.description}>
               {showFullDesc
@@ -400,7 +407,7 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
               </TouchableOpacity>
             </View>
 
-            {type !== 'convention' &&
+            {/* {type !== 'convention' &&
               type !== 'hostel' &&
               AllData?.amenities &&
               Object.keys(AllData.amenities).length > 0 && (
@@ -414,8 +421,12 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
                     ))}
                   </View>
                 </>
-              )}
-
+              )} */}
+            {type == 'home' && (
+              <>
+                <PropertyAmed AllData={AllData} />
+              </>
+            )}
             {type === 'convention' && (
               <>
                 <ConventionAmed AllData={AllData} />
@@ -424,7 +435,6 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
             {type === 'hostel' && <HostelAmed AllData={AllData} />}
           </View>
 
-          
           <View style={{marginHorizontal: 15, marginBottom: 20}}>
             {type === 'hostel' && (
               <>
@@ -497,9 +507,9 @@ const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
               style={{marginTop: 20}}
               title={'Book Now'}
               onPress={() => {
-                navigation.navigate('Booking' , {
+                navigation.navigate('Booking', {
                   type: 'convention',
-          propertyData: propertyData?.id,
+                  propertyData: propertyData?.id,
                 });
               }}
             />
@@ -650,7 +660,8 @@ const styles = StyleSheet.create({
   wishlistIcon: {
     top: 10,
     right: -10,
-    height:40,width:40
+    height: 40,
+    width: 40,
   },
   MainStyle: {
     flexDirection: 'row',
@@ -713,16 +724,16 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   indicatorContainer: {
-  position: 'absolute',
-  bottom: 10,
-  alignSelf: 'center',
-  flexDirection: 'row',
-},
-dot: {
-  height: 8,
-  width: 8,
-  borderRadius: 4,
-  backgroundColor: '#fff',
-  marginHorizontal: 4,
-},
+    position: 'absolute',
+    bottom: 10,
+    alignSelf: 'center',
+    flexDirection: 'row',
+  },
+  dot: {
+    height: 8,
+    width: 8,
+    borderRadius: 4,
+    backgroundColor: '#fff',
+    marginHorizontal: 4,
+  },
 });

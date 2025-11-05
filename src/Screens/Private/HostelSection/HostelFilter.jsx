@@ -1,379 +1,193 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
-  FlatList,
+  StyleSheet,
 } from 'react-native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import {HOSTEL_FILTERS} from '../../../Constants/Data';
+import { HOSTEL_FILTERS } from '../../../Constants/Data';
 import Header from '../../../Components/FeedHeader';
-import {windowHeight} from '../../../Constants/Dimensions';
-import {COLOR} from '../../../Constants/Colors';
-import CustomButton from '../../../Components/CustomButton';
+import { COLOR } from '../../../Constants/Colors';
 
-const HostelFilterScreen = ({navigation, route}) => {
-  const {existingFilters, modalFilters} = route.params;
-  const onApplyFilter = route?.params?.onApplyFilter;
+const HostelFilterScreen = ({ route, navigation }) => {
+  const {
+    onApplyFilter,
+    existingFilters = {},
+    modalFilters = {},
+    setAppliedModalFilter,
+  } = route.params;
 
+  const [filters, setFilters] = useState({});
 
-  const normalize = text => text?.toLowerCase()?.trim();
-
-
-  const extractSelectedValues = (modalList, configList, fallbackList) => {
-  if (modalList?.length) {
-    const selected = modalList.map(v =>
-      configList?.find(
-        item =>
-          normalize(item.key) === normalize(v) ||
-          normalize(item.value) === normalize(v)
-      )?.value || normalize(v)
-    );
-    return selected.filter(Boolean);
-  }
-  return (fallbackList || []).map(normalize);
-};
-
-
-  const [priceRange, setPriceRange] = useState(
-    existingFilters.priceRange ||  (modalFilters.min_price && [modalFilters.min_price,modalFilters.max_price]) || [100, 25000],
-  );
-
-  const [minPrice, setMinPrice] = useState(modalFilters.min_price || existingFilters.minPrice || 100);
-  const [maxPrice, setMaxPrice] = useState(modalFilters.max_price || existingFilters.maxPrice || 25000);
-
-  const [selectedOccupancy, setSelectedOccupancy] = useState(existingFilters.selectedOccupancy || [1, 100]);
-
-  const [minOccupancy , setMinOccupancy] = useState(existingFilters?.minOccupancy || 1);
-  const [maxOccupancy , setMaxOccupancy] = useState(existingFilters?.maxOccupancy || 100);
-const [selectedRoomTypes, setSelectedRoomTypes] = useState(() =>
-  extractSelectedValues(
-    modalFilters?.room_types,
-    HOSTEL_FILTERS.roomTypes,
-    existingFilters?.selectedRoomTypes
-  )
-);
-
-// ✅ Genders
-const [selectedGenders, setSelectedGenders] = useState(() =>
-  extractSelectedValues(
-    modalFilters?.genders,
-    HOSTEL_FILTERS.genders,
-    existingFilters?.selectedGenders
-  )
-);
-
-// ✅ Facilities
-const [selectedFacilities, setSelectedFacilities] = useState(() =>
-  extractSelectedValues(
-    modalFilters?.facilities,
-    HOSTEL_FILTERS.facilities,
-    existingFilters?.selectedFacilities
-  )
-);
-
-// ✅ Food Options
-const [selectedFoodOptions, setSelectedFoodOptions] = useState(() =>
-  extractSelectedValues(
-    modalFilters?.food_options,
-    HOSTEL_FILTERS.foodOptions,
-    existingFilters?.selectedFoodOptions
-  )
-);
-
-// ✅ Stay Types
-const [selectedStayTypes, setSelectedStayTypes] = useState(() =>
-  extractSelectedValues(
-    modalFilters?.stay_types,
-    HOSTEL_FILTERS.stayTypes,
-    existingFilters?.selectedStayTypes
-  )
-);
-
-  console.log(modalFilters,selectedGenders,"modalFiltersmodalFilters")
-
-  const toggleSelection = (item, list, setList) => {
-    if (list.includes(item)) {
-      setList(list.filter(i => i !== item));
-    } else {
-      setList([...list, item]);
-    }
-  };
-const handleValuesChange = values => {
-    setPriceRange(values);
-    setMinPrice(values[0]);
-    setMaxPrice(values[1]);
-  };
-
-  const handleOccupancyCapacity = values => {
-    setSelectedOccupancy(values);
-    setMinOccupancy(values[0]);
-    setMaxOccupancy(values[1]);
-
-  }
-
-  const handleReset = () => {
-    setPriceRange([100, 25000]);
-    setMinPrice(100);
-    setMaxPrice(25000);
-    setSelectedRoomTypes([]);
-    setSelectedGenders([]);
-    setSelectedFacilities([]);
-    setSelectedFoodOptions([]);
-    setSelectedStayTypes([]);
-    setSelectedOccupancy([]);
-    onApplyFilter({});
-    setMinOccupancy(1);
-    setMaxOccupancy(100);
-    navigation.goBack();
-  };
-
-   const handleApply = () => {
-    const filters = {
-      minPrice,
-      maxPrice,
-      priceRange,
-      selectedRoomTypes,
-      selectedGenders,
-      selectedFacilities,
-      selectedFoodOptions,
-      selectedStayTypes,
-      selectedOccupancy,
-      minOccupancy,
-      maxOccupancy
+  // ✅ Initialize or update filters when modalFilters/existingFilters change
+  useEffect(() => {
+    const initialState = {
+      price: {
+        min: modalFilters.min_price ?? existingFilters.minPrice ?? HOSTEL_FILTERS.priceRange.min,
+        max: modalFilters.max_price ?? existingFilters.maxPrice ?? HOSTEL_FILTERS.priceRange.max,
+      },
+      occupancy: {
+        min: modalFilters.minOccupancy ?? existingFilters.minOccupancy ?? 1,
+        max: modalFilters.maxOccupancy ?? existingFilters.maxOccupancy ?? 100,
+      },
+      room_types: (modalFilters.room_types || existingFilters.room_types || []).map(i => i.toLowerCase()),
+      genders: (modalFilters.genders || existingFilters.genders || []).map(i => i.toLowerCase()),
+      facilities: (modalFilters.facilities || existingFilters.facilities || []).map(i => i.toLowerCase()),
+      foodOptions: (modalFilters.foodOptions || existingFilters.foodOptions || []).map(i => i.toLowerCase()),
+      stayTypes: (modalFilters.stayTypes || existingFilters.stayTypes || []).map(i => i.toLowerCase()),
     };
 
-    if (onApplyFilter) onApplyFilter(filters);
+    setFilters(initialState);
+  }, [modalFilters, existingFilters]);
+
+  // ✅ Handle selecting/unselecting a filter option
+  const handleSelect = (type, option) => {
+    const normalizedOption = option.toLowerCase();
+    setFilters(prev => {
+      const current = prev[type] || [];
+      const updatedValues = current.includes(normalizedOption)
+        ? current.filter(i => i !== normalizedOption)
+        : [...current, normalizedOption];
+      return { ...prev, [type]: updatedValues };
+    });
+  };
+
+  // ✅ Handle slider change (price / occupancy)
+  const handleSliderChange = (type, values) => {
+    setFilters(prev => ({
+      ...prev,
+      [type]: { min: values[0], max: values[1] },
+    }));
+  };
+
+  // ✅ Apply Filters
+  const handleApply = () => {
+    const formattedFilters = {
+      min_price: filters.price?.min ?? HOSTEL_FILTERS.priceRange.min,
+      max_price: filters.price?.max ?? HOSTEL_FILTERS.priceRange.max,
+      minOccupancy: filters.occupancy?.min ?? 1,
+      maxOccupancy: filters.occupancy?.max ?? 100,
+      room_types: filters.room_types || [],
+      genders: filters.genders || [],
+      facilities: filters.facilities || [],
+      foodOptions: filters.foodOptions || [],
+      stayTypes: filters.stayTypes || [],
+    };
+
+    setAppliedModalFilter(formattedFilters);
+    onApplyFilter(formattedFilters);
     navigation.goBack();
   };
- 
-  
-  const renderOptions = (label, options, selected, setSelected) => (
-  <FlatList
-    data={options}
-    keyExtractor={(item, index) => index.toString()}
-    numColumns={3}
-    contentContainerStyle={styles.optionRow}
-    renderItem={({ item }) => (
-      <TouchableOpacity
-        style={[
-          styles.optionButton,
-          selected === item && styles.optionSelected,
-        ]}
-        onPress={() => setSelected(item)}>
-        <Text
-          style={[
-            styles.optionText,
-            selected === item && styles.optionTextSelected,
-          ]}>
-          {item}
-        </Text>
-      </TouchableOpacity>
-    )}
-  />
-);
+
+  // ✅ Clear all filters
+  const handleReset = () => {
+    setFilters({});
+    setAppliedModalFilter({});
+  };
+
+  // ✅ Render each filter block
+  const renderOptions = (title, type, options) => {
+    const selectedValues = Array.isArray(filters[type]) ? filters[type] : [];
+    return (
+      <View style={styles.filterBlock}>
+        <Text style={styles.filterTitle}>{title}</Text>
+        <View style={styles.optionContainer}>
+          {options.map(option => {
+            const isSelected = selectedValues.includes(option.value.toLowerCase());
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.optionButton,
+                  isSelected && styles.optionButtonSelected,
+                ]}
+                onPress={() => handleSelect(type, option.value)}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSelected && styles.optionTextSelected,
+                  ]}>
+                  {option.key}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Header
-        title={'Hostel Filter'}
-        showBack
-        onBackPress={() => navigation.goBack()}
-      />
-      <ScrollView style={{paddingHorizontal: 16}}>
-        {/* Price Range */}
-        <Text style={styles.sectionTitle}>
-          {HOSTEL_FILTERS.priceRange.label}
-        </Text>
-        <View style={{marginHorizontal: 10}}>
+      <Header title={'Hostel Filter'} showBack={true} onBackPress={() => navigation.goBack()} />
+      <ScrollView>
+
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterTitle}>{HOSTEL_FILTERS.priceRange.label}</Text>
           <MultiSlider
-            values={priceRange}
-            min={100}
-            max={25000}
-            step={10}
-            onValuesChange={handleValuesChange}
-            selectedStyle={{backgroundColor: COLOR.primary}}
-            markerStyle={{
-              backgroundColor: COLOR.primary,
-              height: 20,
-              width: 20,
-            }}
+            values={[
+              filters.price?.min ?? HOSTEL_FILTERS.priceRange.min,
+              filters.price?.max ?? HOSTEL_FILTERS.priceRange.max,
+            ]}
+            min={HOSTEL_FILTERS.priceRange.min}
+            max={HOSTEL_FILTERS.priceRange.max}
+            step={HOSTEL_FILTERS.priceRange.step}
+            onValuesChange={values => handleSliderChange('price', values)}
+             selectedStyle={{ backgroundColor: COLOR.primary }}
+                          markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+                          trackStyle={{ height: 4 }}
           />
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.rangeText}> ₹{minPrice.toLocaleString()}</Text>
-            <Text style={styles.rangeText}> ₹{maxPrice.toLocaleString() + ' +'}</Text>
-          </View>
+          <Text style={styles.valueText}>
+            ₹{filters.price?.min ?? HOSTEL_FILTERS.priceRange.min} - ₹
+            {filters.price?.max ?? HOSTEL_FILTERS.priceRange.max}
+          </Text>
         </View>
 
-          <Text style={styles.sectionTitle}>Sharing Type</Text>
-          <View style={styles.multiSelectContainer}>
-          {HOSTEL_FILTERS.roomTypes.map(option => (
-            <TouchableOpacity
-              key={option?.key}
-              style={[
-                styles.multiSelectItem,
-                selectedRoomTypes.includes(option?.value) &&
-                  styles.multiSelectItemSelected,
-              ]}
-              onPress={() =>
-                toggleSelection(option?.value, selectedRoomTypes, setSelectedRoomTypes)
-              }>
-              <Text
-                style={[
-                  styles.multiSelectText,
-                  selectedRoomTypes.includes(option?.value) &&
-                    styles.multiSelectTextSelected,
-                ]}>
-                {option?.key}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          </View>
-
-        {/* Gender */}
-        <Text style={styles.sectionTitle}>Gender</Text>
-        <View style={styles.multiSelectContainer}>
-          {HOSTEL_FILTERS.genders.map(option => (
-            <TouchableOpacity
-              key={option?.key}
-              style={[
-                styles.multiSelectItem,
-                selectedGenders.includes(option?.value) &&
-                  styles.multiSelectItemSelected,
-              ]}
-              onPress={() =>
-                toggleSelection(option?.value, selectedGenders, setSelectedGenders)
-              }>
-              <Text
-                style={[
-                  styles.multiSelectText,
-                  selectedGenders.includes(option?.value) &&
-                    styles.multiSelectTextSelected,
-                ]}>
-                {option?.key}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Facilities */}
-        <Text style={styles.sectionTitle}>Facilities</Text>
-        <View style={styles.multiSelectContainer}>
-          {HOSTEL_FILTERS.facilities.map(option => (
-            <TouchableOpacity
-              key={option?.key}
-              style={[
-                styles.multiSelectItem,
-                selectedFacilities.includes(option?.value) &&
-                  styles.multiSelectItemSelected,
-              ]}
-              onPress={() =>
-                toggleSelection(
-                  option?.value,
-                  selectedFacilities,
-                  setSelectedFacilities,
-                )
-              }>
-              <Text
-                style={[
-                  styles.multiSelectText,
-                  selectedFacilities.includes(option?.value) &&
-                    styles.multiSelectTextSelected,
-                ]}>
-                {option?.key}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Food Options */}
-        <Text style={styles.sectionTitle}>Food Options</Text>
-        <View style={styles.multiSelectContainer}>
-          {HOSTEL_FILTERS.foodOptions.map(item => (
-            <TouchableOpacity
-              key={item}
-              style={[
-                styles.multiSelectItem,
-                selectedFoodOptions.includes(item?.value) &&
-                  styles.multiSelectItemSelected,
-              ]}
-              onPress={() =>
-                toggleSelection(
-                  item?.value,
-                  selectedFoodOptions,
-                  setSelectedFoodOptions,
-                )
-              }>
-              <Text
-                style={[
-                  styles.multiSelectText,
-                  selectedFoodOptions.includes(item?.value) &&
-                    styles.multiSelectTextSelected,
-                ]}>
-                {item?.key}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Stay Type */}
-        <Text style={styles.sectionTitle}>Stay Type</Text>
-       <View style={styles.multiSelectContainer}>
-          {HOSTEL_FILTERS.stayTypes.map(item => (
-            <TouchableOpacity
-              key={item.key}
-              style={[
-                styles.multiSelectItem,
-                selectedStayTypes.includes(item.value) && 
-                  styles.multiSelectItemSelected,
-              ]}
-              onPress={() =>
-                toggleSelection(item.value, selectedStayTypes, setSelectedStayTypes) // ✅ pass value to toggle
-              }>
-              <Text
-                style={[
-                  styles.multiSelectText,
-                  selectedStayTypes.includes(item.value) &&
-                    styles.multiSelectTextSelected,
-                ]}>
-                {item.key}  
-              </Text>
-            </TouchableOpacity>
-          ))}
-      </View>
-
-        {/* Current Vacant Spaces */}
-        <Text style={styles.sectionTitle}>Current Vacant Spaces</Text>
-        <View style={{marginHorizontal: 10}}>
+        {/* Occupancy */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterTitle}>Occupancy</Text>
           <MultiSlider
-            values={selectedOccupancy}
+            values={[filters.occupancy?.min ?? 1, filters.occupancy?.max ?? 100]}
             min={1}
             max={100}
             step={1}
-            onValuesChange={handleOccupancyCapacity}
-            selectedStyle={{backgroundColor: COLOR.primary}}
-            markerStyle={{
-              backgroundColor: COLOR.primary,
-              height: 20,
-              width: 20,
-            }}
+            onValuesChange={values => handleSliderChange('occupancy', values)}
+             selectedStyle={{ backgroundColor: COLOR.primary }}
+                          markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+                          trackStyle={{ height: 4 }}
           />
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.rangeText}> {minOccupancy.toLocaleString()}</Text>
-            <Text style={styles.rangeText}> {maxOccupancy.toLocaleString() + ' +'}</Text>
-          </View>
+          <Text style={styles.valueText}>
+            {filters.occupancy?.min ?? 1} - {filters.occupancy?.max ?? 100}%
+          </Text>
         </View>
-        <View style={styles.buttonRow}>
-          <CustomButton title="Apply" onPress={handleApply} />
-          <CustomButton
-            title="Reset"
-            onPress={handleReset}
-            style={{backgroundColor: COLOR.grey}}
-          />
-        </View>
+
+        {/* Room Types */}
+        {renderOptions('Room Type', 'room_types', HOSTEL_FILTERS.roomTypes)}
+
+        {/* Gender */}
+        {renderOptions('Gender', 'genders', HOSTEL_FILTERS.genders)}
+
+        {/* Facilities */}
+        {renderOptions('Facilities', 'facilities', HOSTEL_FILTERS.facilities)}
+
+        {/* Food Options */}
+        {renderOptions('Food Options', 'foodOptions', HOSTEL_FILTERS.foodOptions)}
+
+        {/* Stay Type */}
+        {renderOptions('Stay Type', 'stayTypes', HOSTEL_FILTERS.stayTypes)}
       </ScrollView>
+
+      {/* Apply & Reset Buttons */}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+          <Text style={styles.resetText}>Reset</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
+          <Text style={styles.applyText}>Apply</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -381,43 +195,49 @@ const handleValuesChange = values => {
 export default HostelFilterScreen;
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLOR.black,
-    marginBottom: 8,
-    marginTop: 12,
-  },
-  optionRow: {flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12},
+  container: { flex: 1, backgroundColor: '#fff' },
+  filterBlock: { marginVertical: 10, paddingHorizontal: 16 },
+  filterTitle: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
+  optionContainer: { flexDirection: 'row', flexWrap: 'wrap' },
   optionButton: {
     borderWidth: 1,
-    borderColor: COLOR.grey,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: COLOR.white,
-    marginRight: 10,
-  },
-  optionSelected: {backgroundColor: COLOR.primary, borderColor: COLOR.primary},
-  optionText: {color: COLOR.black},
-  optionTextSelected: {color: COLOR.white},
-  container: {flex: 1, height: windowHeight, backgroundColor: COLOR.white},
-  sectionTitle: {fontSize: 16, fontWeight: '600', marginVertical: 10},
-  rangeText: {textAlign: 'center', marginBottom: 10, fontSize: 14},
-  multiSelectContainer: {flexDirection: 'row', flexWrap: 'wrap'},
-  multiSelectItem: {
-    borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
+    borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    margin: 5,
+    marginRight: 8,
+    marginBottom: 8,
   },
-  multiSelectItemSelected: {
+  optionButtonSelected: { backgroundColor: COLOR.primary, borderColor: COLOR.primary },
+  optionText: { color: '#333' },
+  optionTextSelected: { color: '#fff' },
+  bottomContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: '#eee',
+  },
+  applyButton: {
     backgroundColor: COLOR.primary,
-    borderColor: COLOR.primary,
+    borderRadius: 25,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
   },
-  multiSelectText: {fontSize: 14, color: '#333'},
-  multiSelectTextSelected: {color: '#fff'},
-  buttonRow: {justifyContent: 'space-between', padding: 16, gap: 10},
+  applyText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  resetButton: {
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: COLOR.primary,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+  },
+  resetText: { color: COLOR.primary, fontSize: 16, fontWeight: '600' },
+  valueText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 8,
+    width:'100%',
+  },
 });

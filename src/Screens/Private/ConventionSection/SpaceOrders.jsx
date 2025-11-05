@@ -101,7 +101,9 @@ const OrderCard = ({order, postRequest, showToast}) => {
       <View style={styles.details}>
         <Text style={styles.label}>Customer: {order.full_name}</Text>
         <Text style={styles.label}>Phone: {order.mobail_number}</Text>
-        <Text style={styles.label}>Address: {order.address}</Text>
+        <Text style={styles.label}>
+          Address: {order?.address || order?.convention_hall?.address}
+        </Text>
         {/* <Text style={styles.label}>Slots:</Text> */}
         {/* {order.slots.map((slot, idx) => (
           <Text key={idx} style={styles.slot}>
