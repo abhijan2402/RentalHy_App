@@ -28,6 +28,7 @@ import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import { useApi } from '../../../Backend/Api';
 import LocationModal from '../../../Modals/LocationModal';
 import MultiModal from '../../../Components/MultiModal';
+import RenderFilterOptions from '../../../Components/renderFilterOptions';
 
 const TabButton = ({ title, isActive, onPress }) => {
   return (
@@ -218,64 +219,16 @@ const ConventionHall = ({
           backgroundColor: COLOR.white,
           justifyContent: 'center',
         }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {avaialbleFilter.map(filterGroup => {
-            const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-            let displayText = filterGroup.name;
-
-            if (filterGroup.type === 'price') {
-              const minP = AppliedModalFilter.min_price;
-              const maxP = AppliedModalFilter.max_price;
-              if (minP !== undefined && maxP !== undefined) {
-                displayText = `₹${minP} - ₹${maxP}`;
-              }
-            } else if (selectedValues.length > 0) {
-              displayText = selectedValues.join(', ');
-            } else if (filterGroup.type === 'seating_capacity') {
-              const minP = AppliedModalFilter.seating_capacity_min;
-              const maxP = AppliedModalFilter.seating_capacity_max;
-              if (minP !== undefined && maxP !== undefined) {
-                displayText = `${minP} - ${maxP}`;
-              }
-            }
-
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  setAttendedFilter(filterGroup);
-                  setMultiFilter(true);
-                }}
-                key={filterGroup.id}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  marginBottom: 10,
-                  borderRadius: 5,
-                  backgroundColor:
-                    attendedFilter?.id == filterGroup?.id
-                      ? COLOR.primary
-                      : '#fff',
-                  marginRight: 8,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                    color:
-                      attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    textTransform: 'capitalize',
-                    textAlignVertical: 'center',
-                  }}>
-                  {displayText}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+       {RenderFilterOptions({
+          avaialbleFilter,
+          AppliedModalFilter,
+          attendedFilter,
+          setAppliedModalFilter,
+          setAttendedFilter,
+          setMultiFilter,
+          COLOR,
+          appliedFilters
+        })}
       </View>
 
       <FlatList
@@ -928,7 +881,6 @@ const Convention = ({ navigation, route }) => {
     if (pageNum === 1) settabLoader(true);
     else setLoadingMore(true);
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
-    console.log(activeTab, "TABBBBBB");
 
     let url =
       activeTab == 'convention'
@@ -1077,6 +1029,7 @@ const Convention = ({ navigation, route }) => {
                 onApplyFilter: handleFilterChange,
                 existingFilters: appliedFilters,
                 modalFilters: AppliedModalFilter,
+                setAppliedModalFilter: setAppliedModalFilter,
               })
             }
             onHandleMore={() => {

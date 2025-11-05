@@ -12,6 +12,15 @@ import CustomButton from '../../../Components/CustomButton';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { COLOR } from '../../../Constants/Colors';
 
+export const formatIndianCurrency = (amount) => {
+  if (amount === null || amount === undefined || isNaN(amount)) return '0';
+
+  const num = Number(amount);
+  
+  // Use toLocaleString with Indian locale
+  return num.toLocaleString('en-IN');
+};
+
 const Filter = ({ navigation, route }) => {
   const onApplyFilter = route?.params?.onApplyFilter;
   const existingFilters = route?.params?.existingFilters || {};
