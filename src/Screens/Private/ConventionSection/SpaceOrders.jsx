@@ -17,7 +17,7 @@ import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 
 const OrderCard = ({order, postRequest, showToast}) => {
-  const [status, setStatus] = useState(order.status);
+  const [status, setStatus] = useState(order.order_status);
   const [buttonLoader, setButtonLoader] = useState({
     type: 'accept',
     loading: false,

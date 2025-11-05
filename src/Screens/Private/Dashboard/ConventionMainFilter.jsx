@@ -201,7 +201,6 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(
       acAvailable,
       roomsAvailable,
     };
-    console.log('Convention Filters:', filters);
 
     if (onApplyFilter) {
       onApplyFilter(filters);
@@ -344,7 +343,10 @@ const [timeOfOccasion, setTimeOfOccasion] = useState(
               ₹{formatIndianCurrency(minPrice)}
             </Text>
             <Text style={styles.priceLabel}>
-              ₹{formatIndianCurrency(maxPrice)}
+              {/* ₹{formatIndianCurrency(maxPrice)} */}
+              {maxPrice == '1000000'
+                ? `${formatIndianCurrency(maxPrice)}+`
+                : formatIndianCurrency(maxPrice)}
             </Text>
           </View>
         </View>

@@ -1,3 +1,100 @@
+// import React, { useCallback, useMemo } from 'react';
+// import { ScrollView, TouchableOpacity, Text } from 'react-native';
+
+// const RenderFilterOptions = ({
+//   avaialbleFilter,
+//   AppliedModalFilter,
+//   attendedFilter,
+//   setAttendedFilter,
+//   setMultiFilter,
+//   setAppliedModalFilter,
+//   appliedFilters,
+//   COLOR,
+// }) => {
+
+
+
+
+//   const renderFilterOptions = useCallback(() => {
+//     return (
+//       <ScrollView
+//         horizontal
+//         showsHorizontalScrollIndicator={false}
+//       >
+//         {avaialbleFilter.map(filterGroup => {
+//           const selectedValues = AppliedModalFilter[filterGroup.type] || AppliedModalFilter;
+//           let displayText = filterGroup.name;
+
+//           if (filterGroup.type === 'price' ) {
+//             const minP = AppliedModalFilter.min_price ;
+//             const maxP = AppliedModalFilter.max_price ;
+//             if (minP !== undefined && maxP !== undefined) {
+//               displayText = `₹${minP} - ₹${maxP}`;
+//             }
+//           } else if (selectedValues.length > 0) {
+//             displayText = selectedValues.join(', ');
+//           }
+
+//           return (
+//             <TouchableOpacity
+//               key={filterGroup.id}
+//               onPress={() => {
+//                 setAttendedFilter(filterGroup);
+//                 setMultiFilter(true);
+//               }}
+//               style={{
+//                 borderWidth: 1,
+//                 borderColor: '#ccc',
+//                 paddingHorizontal: 10,
+//                 paddingVertical: 5,
+//                 borderRadius: 5,
+//                 backgroundColor:
+//                   attendedFilter?.id == filterGroup?.id
+//                     ? COLOR.primary
+//                     : '#fff',
+//                 marginRight: 8,
+//                 justifyContent: 'center',
+//                 alignItems: 'center',
+//               }}>
+//               <Text
+//                 style={{
+//                   fontSize: 12,
+//                   fontWeight: 'bold',
+//                   paddingVertical: 2,
+//                   color:
+//                     attendedFilter?.id == filterGroup?.id
+//                       ? 'white'
+//                       : '#333',
+//                   textTransform: 'capitalize',
+//                   textAlignVertical: 'center',
+//                 }}>
+//                 {displayText}
+//               </Text>
+//             </TouchableOpacity>
+//           );
+//         })}
+//       </ScrollView>
+//     );
+//   }, [
+//     avaialbleFilter,
+//     AppliedModalFilter,
+//     attendedFilter,
+//     COLOR,
+//     setAttendedFilter,
+//     setMultiFilter,
+//   ]);
+
+//   // Optional memoization to prevent unnecessary recalculation
+//   const renderedFilters = useMemo(() => renderFilterOptions(), [renderFilterOptions]);
+
+//   return renderedFilters;
+// };
+
+// export default RenderFilterOptions;
+
+
+
+
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView, TouchableOpacity, Text } from 'react-native';
 
@@ -8,25 +105,41 @@ const RenderFilterOptions = ({
   setAttendedFilter,
   setMultiFilter,
   setAppliedModalFilter,
-  appliedFilters,
   COLOR,
 }) => {
 
+  const handleFilterTap = useCallback(
+    filterGroup => {
+      setAttendedFilter(filterGroup);
+      setMultiFilter(true);
+    },
+    [setAttendedFilter, setMultiFilter],
+  );
 
+  const handleQuickToggle = useCallback(
+    (filterGroup) => {
+      const updated = { ...AppliedModalFilter };
+      if (filterGroup.type === 'price') {
+        delete updated.min_price;
+        delete updated.max_price;
+      } else {
+        updated[filterGroup.type] = [];
+      }
+      setAppliedModalFilter(updated);
+    },
+    [AppliedModalFilter, setAppliedModalFilter],
+  );
 
   const renderFilterOptions = useCallback(() => {
     return (
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {avaialbleFilter.map(filterGroup => {
-          const selectedValues = AppliedModalFilter[filterGroup.type] || AppliedModalFilter;
+          const selectedValues = AppliedModalFilter[filterGroup.type] || [];
           let displayText = filterGroup.name;
 
-          if (filterGroup.type === 'price' ) {
-            const minP = AppliedModalFilter.min_price ;
-            const maxP = AppliedModalFilter.max_price ;
+          if (filterGroup.type === 'price') {
+            const minP = AppliedModalFilter.min_price;
+            const maxP = AppliedModalFilter.max_price;
             if (minP !== undefined && maxP !== undefined) {
               displayText = `₹${minP} - ₹${maxP}`;
             }
@@ -34,23 +147,24 @@ const RenderFilterOptions = ({
             displayText = selectedValues.join(', ');
           }
 
+          const isActive =
+            attendedFilter?.id === filterGroup.id ||
+            (filterGroup.type === 'price'
+              ? AppliedModalFilter.min_price && AppliedModalFilter.max_price
+              : selectedValues.length > 0);
+
           return (
             <TouchableOpacity
               key={filterGroup.id}
-              onPress={() => {
-                setAttendedFilter(filterGroup);
-                setMultiFilter(true);
-              }}
+              onPress={() => handleFilterTap(filterGroup)}
+              onLongPress={() => handleQuickToggle(filterGroup)} // long press to clear
               style={{
                 borderWidth: 1,
-                borderColor: '#ccc',
+                borderColor: isActive ? COLOR.primary : '#ccc',
                 paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: 5,
-                backgroundColor:
-                  attendedFilter?.id == filterGroup?.id
-                    ? COLOR.primary
-                    : '#fff',
+                paddingVertical: 6,
+                borderRadius: 6,
+                backgroundColor: isActive ? COLOR.primary : '#fff',
                 marginRight: 8,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -59,13 +173,8 @@ const RenderFilterOptions = ({
                 style={{
                   fontSize: 12,
                   fontWeight: 'bold',
-                  paddingVertical: 2,
-                  color:
-                    attendedFilter?.id == filterGroup?.id
-                      ? 'white'
-                      : '#333',
+                  color: isActive ? '#fff' : '#333',
                   textTransform: 'capitalize',
-                  textAlignVertical: 'center',
                 }}>
                 {displayText}
               </Text>
@@ -79,11 +188,10 @@ const RenderFilterOptions = ({
     AppliedModalFilter,
     attendedFilter,
     COLOR,
-    setAttendedFilter,
-    setMultiFilter,
+    handleFilterTap,
+    handleQuickToggle,
   ]);
 
-  // Optional memoization to prevent unnecessary recalculation
   const renderedFilters = useMemo(() => renderFilterOptions(), [renderFilterOptions]);
 
   return renderedFilters;

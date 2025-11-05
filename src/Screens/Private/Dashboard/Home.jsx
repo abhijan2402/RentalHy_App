@@ -342,6 +342,7 @@ const Home = ({ navigation }) => {
     { label: 'Oldest', value: 'oldest_first' },
   ];
 
+
   useEffect(() => {
     animationRef.current?.play(30, 120);
   }, []);
@@ -426,64 +427,6 @@ const Home = ({ navigation }) => {
   };
 
 
-  // const renderFilterOptions = () => {
-  //   return (
-  //       <ScrollView
-  //         horizontal
-  //         showsHorizontalScrollIndicator={false}
-  //       >
-  //         {avaialbleFilter.map(filterGroup => {
-  //           const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-  //           let displayText = filterGroup.name;
-
-  //           if (filterGroup.type === 'price') {
-  //             const minP = AppliedModalFilter.min_price;
-  //             const maxP = AppliedModalFilter.max_price;
-  //             if (minP !== undefined && maxP !== undefined) {
-  //               displayText = `₹${minP} - ₹${maxP}`;
-  //             }
-  //           } else if (selectedValues.length > 0) {
-  //             displayText = selectedValues.join(', ');
-  //           }
-  //           return (
-  //             <TouchableOpacity
-  //               onPress={() => {
-  //                 setAttendedFilter(filterGroup);
-  //                 setMultiFilter(true);
-  //               }}
-  //               key={filterGroup.id}
-  //               style={{
-  //                 borderWidth: 1,
-  //                 borderColor: '#ccc',
-  //                 paddingHorizontal: 10,
-  //                 paddingVertical: 5,
-  //                 borderRadius: 5,
-  //                 backgroundColor:
-  //                   attendedFilter?.id == filterGroup?.id
-  //                     ? COLOR.primary
-  //                     : '#fff',
-  //                 marginRight: 8,
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //               }}>
-  //               <Text
-  //                 style={{
-  //                   fontSize: 12,
-  //                   fontWeight: 'bold',
-  //                   paddingVertical: 2,
-  //                   color:
-  //                     attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-  //                   textTransform: 'capitalize',
-  //                   textAlignVertical: 'center',
-  //                 }}>
-  //                 {displayText}
-  //               </Text>
-  //             </TouchableOpacity>
-  //           );
-  //         })}
-  //       </ScrollView>
-  //   )
-  // }
 
   useEffect(() => {
     if (!currentAddress?.address) {
@@ -586,7 +529,8 @@ const Home = ({ navigation }) => {
             navigation.navigate('Filter', {
               onApplyFilter: handleFilterChange,
               existingFilters: appliedFilters,
-              modalFilters:AppliedModalFilter
+              modalFilters:AppliedModalFilter,
+              setAppliedModalFilter: setAppliedModalFilter,
             })
           }>
           <Image
