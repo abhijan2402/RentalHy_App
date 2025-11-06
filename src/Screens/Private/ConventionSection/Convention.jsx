@@ -219,7 +219,7 @@ const ConventionHall = ({
           backgroundColor: COLOR.white,
           justifyContent: 'center',
         }}>
-       {RenderFilterOptions({
+        {RenderFilterOptions({
           avaialbleFilter,
           AppliedModalFilter,
           attendedFilter,
@@ -746,7 +746,7 @@ const Convention = ({ navigation, route }) => {
   ];
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
-    setActiveTab(newFilters?.activeTab || 'farmhouse');
+    // setActiveTab(newFilters?.activeTab || 'farmhouse');
   };
   const isFocus = useIsFocused();
 

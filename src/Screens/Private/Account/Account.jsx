@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,16 +8,16 @@ import {
   ScrollView,
 } from 'react-native';
 import Header from '../../../Components/FeedHeader';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
-import {AuthContext} from '../../../Backend/AuthContent';
+import { AuthContext } from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
-const Account = ({navigation}) => {
-  const {setUser} = useContext(AuthContext);
-  const {user} = useContext(AuthContext);
-  const {currentStatus} = useContext(AuthContext);
+const Account = ({ navigation }) => {
+  const { setUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const { currentStatus } = useContext(AuthContext);
   const isFocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const profileImage =
@@ -56,6 +56,13 @@ const Account = ({navigation}) => {
       icon: 'https://cdn-icons-png.flaticon.com/128/9752/9752284.png',
       navigate: 'SpaceOrders',
     },
+    {
+      id: 8,
+      title: 'Hostel Management',
+      icon: 'https://cdn-icons-png.flaticon.com/128/10607/10607354.png',
+      navigate: 'HostelReviewManagement',
+    },
+
     {
       id: 9,
       title: 'My Bookings',
@@ -118,11 +125,11 @@ const Account = ({navigation}) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <Image
-            source={{uri: user?.image || profileImage}}
+            source={{ uri: user?.image || profileImage }}
             style={styles.profileImage}
           />
           <Text style={styles.profileName}>{user?.name}</Text>
@@ -138,16 +145,16 @@ const Account = ({navigation}) => {
               activeOpacity={0.7}
               onPress={() => navigation.navigate(item.navigate, item.params)}>
               <View style={styles.tabLeft}>
-                <Image source={{uri: item.icon}} style={styles.leftIcon} />
+                <Image source={{ uri: item.icon }} style={styles.leftIcon} />
                 <Text style={styles.tabText}>{item.title}</Text>
               </View>
-              <Image source={{uri: arrowIcon}} style={styles.arrowIcon} />
+              <Image source={{ uri: arrowIcon }} style={styles.arrowIcon} />
             </TouchableOpacity>
           ))}
         </View>
         <CustomButton
           title={'Log Out'}
-          style={{marginTop: '10%'}}
+          style={{ marginTop: '10%' }}
           onPress={() => {
             setUser('');
           }}

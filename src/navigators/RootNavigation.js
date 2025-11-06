@@ -27,6 +27,7 @@ import Wishlist from '../Screens/Private/Wishlist';
 import BankAccountList from '../Screens/Private/Account/Banks/BankAccountList';
 import SpaceManagement from '../Screens/Private/Account/SpaceManagement';
 import ChatList from '../Screens/Private/Account/ChatList';
+import HostelReviewManagement from '../Screens/Private/Account/HostelReviewManagement';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -65,6 +66,7 @@ const RootNavigation = () => {
                 <Stack.Screen name="ChatList" component={ChatList} />
 
                 <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="HostelReviewManagement" component={HostelReviewManagement} />
 
 
             </Stack.Navigator>
