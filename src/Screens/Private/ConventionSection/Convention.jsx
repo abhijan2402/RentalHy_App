@@ -219,7 +219,7 @@ const ConventionHall = ({
           backgroundColor: COLOR.white,
           justifyContent: 'center',
         }}>
-       {RenderFilterOptions({
+        {RenderFilterOptions({
           avaialbleFilter,
           AppliedModalFilter,
           attendedFilter,
@@ -368,25 +368,7 @@ const FarmHouse = ({
     );
   };
 
-  const onScrollFlatlist = event => {
-    const currentOffset = event.nativeEvent.contentOffset.y;
-    const diff = currentOffset - scrollOffset;
 
-    if (diff > 10 && currentOffset > 40) {
-      Animated.timing(filterHeight, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    } else if (diff < -10) {
-      Animated.timing(filterHeight, {
-        toValue: 40,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    }
-    scrollOffset = currentOffset;
-  };
   return (
     <View style={styles.content}>
       <View style={styles.searchContainer}>
@@ -438,57 +420,20 @@ const FarmHouse = ({
           backgroundColor: COLOR.white,
           justifyContent: 'center',
         }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {avaialbleFilterFarm.map(filterGroup => {
-            const selectedValues = AppliedModalFilter[filterGroup.type] || [];
-            let displayText = filterGroup.name;
 
-            if (filterGroup.type === 'price') {
-              const minP = AppliedModalFilter.min_price;
-              const maxP = AppliedModalFilter.max_price;
-              if (minP !== undefined && maxP !== undefined) {
-                displayText = `₹${minP} - ₹${maxP}`;
-              }
-            } else if (selectedValues.length > 0) {
-              displayText = selectedValues.join(', ');
-            }
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  setAttendedFilter(filterGroup);
-                  setMultiFilter(true);
-                }}
-                key={filterGroup.id}
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  marginBottom: 10,
-                  borderRadius: 5,
-                  backgroundColor:
-                    attendedFilter?.id == filterGroup?.id
-                      ? COLOR.primary
-                      : '#fff',
-                  marginRight: 8,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                    color:
-                      attendedFilter?.id == filterGroup?.id ? 'white' : '#333',
-                    textTransform: 'capitalize',
-                    textAlignVertical: 'center',
-                  }}>
-                  {displayText}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+
+
+        {RenderFilterOptions({
+          avaialbleFilter: avaialbleFilterFarm,
+          AppliedModalFilter,
+          attendedFilter,
+          setAppliedModalFilter,
+          setAttendedFilter,
+          setMultiFilter,
+          COLOR,
+          appliedFilters
+        })}
+
       </View>
 
       <FlatList
@@ -746,7 +691,7 @@ const Convention = ({ navigation, route }) => {
   ];
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
-    setActiveTab(newFilters?.activeTab || 'farmhouse');
+    // setActiveTab(newFilters?.activeTab || 'farmhouse');
   };
   const isFocus = useIsFocused();
 
@@ -1072,6 +1017,7 @@ const Convention = ({ navigation, route }) => {
                 onApplyFilter: handleFilterChange,
                 existingFilters: appliedFilters,
                 modalFilters: AppliedModalFilter,
+                setAppliedModalFilter: setAppliedModalFilter,
               });
             }}
             onHandleMore={() => {

@@ -1,369 +1,14 @@
-
-
-
-
-
-
-// import React, { useState, useCallback } from 'react';
-// import {
-//   StyleSheet,
-//   Text,
-//   View,
-//   TouchableOpacity,
-//   ScrollView,
-//   TextInput,
-// } from 'react-native';
-// import Header from '../../../Components/FeedHeader';
-// import CustomButton from '../../../Components/CustomButton';
-// import MultiSlider from '@ptomasroos/react-native-multi-slider';
-// import { COLOR } from '../../../Constants/Colors';
-
-// /** 🔹 Currency Formatter */
-// const formatIndianCurrency = amount => {
-//   if (!amount) return '0';
-//   return amount.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ',');
-// };
-
-// const ConventionMainFilter = ({ navigation, route }) => {
-//   const {
-//     onApplyFilter,
-//     existingFilters = {},
-//     modalFilters = {},
-//     setAppliedModalFilter = () => {},
-//   } = route.params || {};
-
-//   console.log(modalFilters,"modalFiltersmodalFilters")
-
-//   const [availableFilters, setAvailableFilters] = useState([
-//     {
-//       id: 'priceRange',
-//       type: 'range',
-//       name: 'Price Range (₹)',
-//       min: 1000,
-//       max: 1000000,
-//       step: 1000,
-//       value:
-//         existingFilters.priceRange ||
-//         (modalFilters.min_price && [modalFilters.min_price, modalFilters.max_price]) ||
-//         [1000, 1000000],
-//     },
-//     {
-//       id: 'seating_capacity',
-//       type: 'range',
-//       name: 'Seating Capacity',
-//       min: 10,
-//       max: 5000,
-//       step: 10,
-//       value:
-//         existingFilters.seatingCapacity ||
-//         (modalFilters.seating_capacity_min && [
-//           modalFilters.seating_capacity_min,
-//           modalFilters.seating_capacity_max,
-//         ]) ||
-//         [10, 5000],
-//     },
-//     {
-//       id: 'time_of_occasion',
-//       type: 'select',
-//       name: 'Time of Occasion',
-//       data: ['Daytime', 'Night time', 'Full day'],
-//       value: existingFilters.timeOfOccasion || modalFilters.time_of_occasion || '',
-//     },
-//     {
-//       id: 'ac_available',
-//       type: 'boolean',
-//       name: 'A/C Available',
-//       value: existingFilters.acAvailable || modalFilters.ac_available || '',
-//     },
-//     {
-//       id: 'valet_parking',
-//       type: 'boolean',
-//       name: 'Valet Parking',
-//       value: existingFilters.valetParking || modalFilters.valet_parking || '',
-//     },
-//     {
-//       id: 'royalty_decoration',
-//       type: 'boolean',
-//       name: 'Royalty for Decoration',
-//       value:
-//         existingFilters.royaltyDecoration || modalFilters.royalty_decoration || '',
-//       showInputIf: 'No', // triggers decorationContact field
-//     },
-//     {
-//       id: 'decoration_contact',
-//       type: 'text',
-//       name: 'Decoration Person Contact',
-//       value:
-//         existingFilters.decorationContact || modalFilters.decoration_contact || '',
-//       dependsOn: 'royalty_decoration',
-//     },
-//     {
-//       id: 'royalty_kitchen',
-//       type: 'boolean',
-//       name: 'Royalty for Kitchen',
-//       value: existingFilters.royaltyKitchen || modalFilters.royalty_kitchen || '',
-//     },
-//     {
-//       id: 'generator_available',
-//       type: 'boolean',
-//       name: 'Generator Available',
-//       value: existingFilters.generator || modalFilters.generator_available || '',
-//     },
-//     {
-//       id: 'drinking_water',
-//       type: 'boolean',
-//       name: 'Drinking Water Available',
-//       value: existingFilters.drinkingWater || modalFilters.drinking_water || '',
-//     },
-//     {
-//       id: 'normal_water',
-//       type: 'boolean',
-//       name: 'Normal Water for Cooking',
-//       value: existingFilters.normalWater || modalFilters.normal_water || '',
-//     },
-//     {
-//       id: 'catering_persons',
-//       type: 'boolean',
-//       name: 'Provides Catering Persons',
-//       value:
-//         existingFilters.cateringPersons || modalFilters.catering_persons || '',
-//     },
-//     {
-//       id: 'alcohol_allowed',
-//       type: 'boolean',
-//       name: 'Alcohol Allowed',
-//       value: existingFilters.alcoholAllowed || modalFilters.alcohol_allowed || '',
-//     },
-//     {
-//       id: 'photoshoot_all',
-//       type: 'boolean',
-//       name: 'Photo Shoot Allowed',
-//       value:
-//         existingFilters.photoShootsAllowed || modalFilters.photoshoot_all || '',
-//     },
-//     {
-//       id: 'adult_games',
-//       type: 'boolean',
-//       name: 'Children Games',
-//       value: existingFilters.childrenGames || modalFilters.adult_games || '',
-//     },
-//     {
-//       id: 'rooms_available',
-//       type: 'boolean',
-//       name: 'Rooms Available',
-//       value: existingFilters.roomsAvailable || modalFilters.rooms_available || '',
-//     },
-//   ]);
-
-//   /** 🔹 Handle Filter Change */
-//   const handleFilterChange = useCallback((id, value) => {
-//     setAvailableFilters(prev =>
-//       prev.map(f => (f.id === id ? { ...f, value } : f))
-//     );
-//   }, []);
-
-//   /** 🔹 Handle Reset */
-//   const handleReset = () => {
-//     const reset = availableFilters.map(f => {
-//       if (f.type === 'range') return { ...f, value: [f.min, f.max] };
-//       return { ...f, value: '' };
-//     });
-//     setAvailableFilters(reset);
-//     onApplyFilter({});
-//     navigation.goBack();
-//   };
-
-//   /** 🔹 Handle Apply */
-//   const handleApply = () => {
-//     const result = {};
-//     availableFilters.forEach(f => {
-//       result[f.id] = f.value;
-//       if (f.type === 'range') {
-//         result[`min_${f.id}`] = f.value[0];
-//         result[`max_${f.id}`] = f.value[1];
-//       }
-//     });
-//     setAppliedModalFilter(result);
-//     onApplyFilter(result);
-//     navigation.goBack();
-//   };
-
-//   /** 🔹 Render Option Buttons */
-//   const renderOptionButtons = (selected, setSelected, data = ['Yes', 'No']) => (
-//     <View style={styles.optionRow}>
-//       {data.map(option => (
-//         <TouchableOpacity
-//           key={option}
-//           style={[
-//             styles.optionButton,
-//             selected === option && styles.optionSelected,
-//           ]}
-//           onPress={() => setSelected(option)}>
-//           <Text
-//             style={[
-//               styles.optionText,
-//               selected === option && styles.optionTextSelected,
-//             ]}>
-//             {option}
-//           </Text>
-//         </TouchableOpacity>
-//       ))}
-//     </View>
-//   );
-
-//   return (
-//     <View style={styles.container}>
-//       <Header title="Convention Filters" showBack onBackPress={() => navigation.goBack()} />
-//       <ScrollView contentContainerStyle={styles.form}>
-//         {availableFilters.map((filter, index) => (
-//           <View key={index}>
-//             <Text style={styles.label}>{filter.name}</Text>
-
-//             {/* RANGE FILTER */}
-//             {filter.type === 'range' && (
-//               <View style={{ marginHorizontal: 15 }}>
-//                 <MultiSlider
-//                   values={filter.value}
-//                   onValuesChange={values => handleFilterChange(filter.id, values)}
-//                   min={filter.min}
-//                   max={filter.max}
-//                   step={filter.step}
-//                   selectedStyle={{ backgroundColor: COLOR.primary }}
-//                   markerStyle={{
-//                     backgroundColor: COLOR.primary,
-//                     height: 20,
-//                     width: 20,
-//                   }}
-//                   trackStyle={{ height: 4 }}
-//                 />
-//                 <View style={styles.priceLabelRow}>
-//                   <Text style={styles.priceLabel}>
-//                     {filter.id === 'priceRange'
-//                       ? `₹${formatIndianCurrency(filter.value[0])}`
-//                       : `${filter.value[0]}+`}
-//                   </Text>
-//                   <Text style={styles.priceLabel}>
-//                     {filter.id === 'priceRange'
-//                       ? `₹${formatIndianCurrency(filter.value[1])}`
-//                       : `${filter.value[1]}+`}
-//                   </Text>
-//                 </View>
-//               </View>
-//             )}
-
-//             {/* BOOLEAN / SELECT */}
-//             {(filter.type === 'boolean' || filter.type === 'select') &&
-//               renderOptionButtons(filter.value, val =>
-//                 handleFilterChange(filter.id, val),
-//                 filter.data
-//               )}
-
-//             {/* CONDITIONAL TEXT INPUT */}
-//             {filter.type === 'text' &&
-//               (() => {
-//                 const parent = availableFilters.find(
-//                   f => f.id === filter.dependsOn
-//                 );
-//                 if (parent?.value === 'No') {
-//                   return (
-//                     <TextInput
-//                       placeholder={filter.name}
-//                       value={filter.value}
-//                       onChangeText={val => handleFilterChange(filter.id, val)}
-//                       style={[styles.input, { marginTop: 8 }]}
-//                     />
-//                   );
-//                 }
-//                 return null;
-//               })()}
-//           </View>
-//         ))}
-
-//         {/* ACTION BUTTONS */}
-//         <View style={styles.buttonRow}>
-//           <CustomButton title="Apply" onPress={handleApply} />
-//           <CustomButton
-//             title="Reset"
-//             onPress={handleReset}
-//             style={{ backgroundColor: COLOR.grey }}
-//           />
-//         </View>
-//       </ScrollView>
-//     </View>
-//   );
-// };
-
-// export default ConventionMainFilter;
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1, backgroundColor: COLOR.white },
-//   form: { padding: 16 },
-//   label: {
-//     fontSize: 14,
-//     fontWeight: '500',
-//     color: COLOR.black,
-//     marginBottom: 8,
-//     marginTop: 12,
-//   },
-//   optionRow: {
-//     flexDirection: 'row',
-//     gap: 8,
-//     marginBottom: 12,
-//   },
-//   optionButton: {
-//     borderWidth: 1,
-//     borderColor: COLOR.grey,
-//     borderRadius: 8,
-//     paddingHorizontal: 12,
-//     paddingVertical: 8,
-//     backgroundColor: COLOR.white,
-//   },
-//   optionSelected: {
-//     backgroundColor: COLOR.primary,
-//     borderColor: COLOR.primary,
-//   },
-//   optionText: { color: COLOR.black },
-//   optionTextSelected: { color: COLOR.white },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: COLOR.grey,
-//     borderRadius: 8,
-//     paddingHorizontal: 10,
-//     paddingVertical: 8,
-//     backgroundColor: COLOR.white,
-//   },
-//   priceLabelRow: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginTop: 8,
-//   },
-//   priceLabel: {
-//     fontSize: 14,
-//     fontWeight: '500',
-//     color: COLOR.black,
-//   },
-//   buttonRow: {
-//     justifyContent: 'space-between',
-//     padding: 16,
-//     gap: 10,
-//   },
-// });
-
-
-
-
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
   TouchableOpacity,
   ScrollView,
+  StyleSheet,
   TextInput,
 } from 'react-native';
-import Header from '../../../Components/FeedHeader';
-import CustomButton from '../../../Components/CustomButton';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import Header from '../../../Components/FeedHeader';
 import { COLOR } from '../../../Constants/Colors';
 
 /** 🔹 Currency Formatter */
@@ -372,309 +17,290 @@ const formatIndianCurrency = amount => {
   return amount.toString().replace(/\B(?=(\d{2})+(?!\d))/g, ',');
 };
 
-const ConventionMainFilter = ({ navigation, route }) => {
+const ConventionMainFilter = ({ route, navigation }) => {
   const {
     onApplyFilter,
     existingFilters = {},
     modalFilters = {},
-    setAppliedModalFilter = () => {},
+    setAppliedModalFilter,
   } = route.params || {};
 
-  console.log(modalFilters, 'modalFiltersmodalFilters');
+  const [filters, setFilters] = useState({});
 
-  /** 🧩 Normalize Filter Inputs */
-  const normalizeValue = value => {
-    if (Array.isArray(value)) {
-      // handle multi-value cases — use the first one
-      return value.length ? value[0] : '';
-    }
-    return value || '';
+  /** ✅ Initialize or update filters */
+  useEffect(() => {
+    const initialState = {
+      priceRange: {
+        min:
+          modalFilters.min_price ??
+          existingFilters.min_price ??
+          1000,
+        max:
+          modalFilters.max_price ??
+          existingFilters.max_price ??
+          1000000,
+      },
+      seatingCapacity: {
+        min:
+          modalFilters.seating_capacity_min ??
+          existingFilters.seating_capacity_min ??
+          10,
+        max:
+          modalFilters.seating_capacity_max ??
+          existingFilters.seating_capacity_max ??
+          5000,
+      },
+      time_of_occasion: [
+        ...(modalFilters.time_of_occasion || existingFilters.time_of_occasion || []),
+      ],
+
+      // ✅ Boolean filters stored as arrays like ['yes']
+      booleanFilters: Object.fromEntries(
+        [
+          'ac_available',
+          'valet_parking',
+          'royalty_decoration',
+          'royalty_kitchen',
+          'generator_available',
+          'drinking_water',
+          'normal_water',
+          'catering_persons',
+          'alcohol_allowed',
+          'photoshoot_all',
+          'adult_games',
+          'rooms_available',
+        ].map(key => {
+          const modalVal = modalFilters[key];
+          const existVal = existingFilters[key];
+          const val = (modalVal || existVal || '')
+            ?.toString()
+            ?.toLowerCase();
+          return [key, val ? [val] : []];
+        })
+      ),
+
+      decoration_contact:
+        modalFilters.decoration_contact ??
+        existingFilters.decoration_contact ??
+        '',
+    };
+
+    setFilters(initialState);
+  }, [modalFilters, existingFilters]);
+
+  /** ✅ Handle slider change */
+  const handleSliderChange = (type, values) => {
+    setFilters(prev => ({
+      ...prev,
+      [type]: { min: values[0], max: values[1] },
+    }));
   };
 
-  /** 🔹 Define Available Filters */
-  const [availableFilters, setAvailableFilters] = useState([
-    {
-      id: 'priceRange',
-      type: 'range',
-      name: 'Price Range (₹)',
-      min: 1000,
-      max: 1000000,
-      step: 1000,
-      value:
-        existingFilters.priceRange ||
-        (modalFilters.min_price && [modalFilters.min_price, modalFilters.max_price]) ||
-        [1000, 1000000],
-    },
-    {
-      id: 'seating_capacity',
-      type: 'range',
-      name: 'Seating Capacity',
-      min: 10,
-      max: 5000,
-      step: 10,
-      value:
-        existingFilters.seatingCapacity ||
-        (modalFilters.seating_capacity_min && [
-          modalFilters.seating_capacity_min,
-          modalFilters.seating_capacity_max,
-        ]) ||
-        [10, 5000],
-    },
-    {
-      id: 'time_of_occasion',
-      type: 'select',
-      name: 'Time of Occasion',
-      data: ['Daytime', 'Night time', 'Full day'],
-      value: normalizeValue(
-        existingFilters.timeOfOccasion || modalFilters.time_of_occasion
-      ),
-    },
-    {
-      id: 'ac_available',
-      type: 'boolean',
-      name: 'A/C Available',
-      value: normalizeValue(
-        existingFilters.acAvailable || modalFilters.ac_available
-      ),
-    },
-    {
-      id: 'valet_parking',
-      type: 'boolean',
-      name: 'Valet Parking',
-      value: normalizeValue(
-        existingFilters.valetParking || modalFilters.valet_parking
-      ),
-    },
-    {
-      id: 'royalty_decoration',
-      type: 'boolean',
-      name: 'Royalty for Decoration',
-      value: normalizeValue(
-        existingFilters.royaltyDecoration || modalFilters.royalty_decoration
-      ),
-      showInputIf: 'No',
-    },
-    {
-      id: 'decoration_contact',
-      type: 'text',
-      name: 'Decoration Person Contact',
-      value: normalizeValue(
-        existingFilters.decorationContact || modalFilters.decoration_contact
-      ),
-      dependsOn: 'royalty_decoration',
-    },
-    {
-      id: 'royalty_kitchen',
-      type: 'boolean',
-      name: 'Royalty for Kitchen',
-      value: normalizeValue(
-        existingFilters.royaltyKitchen || modalFilters.royalty_kitchen
-      ),
-    },
-    {
-      id: 'generator_available',
-      type: 'boolean',
-      name: 'Generator Available',
-      value: normalizeValue(
-        existingFilters.generator || modalFilters.generator_available
-      ),
-    },
-    {
-      id: 'drinking_water',
-      type: 'boolean',
-      name: 'Drinking Water Available',
-      value: normalizeValue(
-        existingFilters.drinkingWater || modalFilters.drinking_water
-      ),
-    },
-    {
-      id: 'normal_water',
-      type: 'boolean',
-      name: 'Normal Water for Cooking',
-      value: normalizeValue(
-        existingFilters.normalWater || modalFilters.normal_water
-      ),
-    },
-    {
-      id: 'catering_persons',
-      type: 'boolean',
-      name: 'Provides Catering Persons',
-      value: normalizeValue(
-        existingFilters.cateringPersons || modalFilters.catering_persons
-      ),
-    },
-    {
-      id: 'alcohol_allowed',
-      type: 'boolean',
-      name: 'Alcohol Allowed',
-      value: normalizeValue(
-        existingFilters.alcoholAllowed || modalFilters.alcohol_allowed
-      ),
-    },
-    {
-      id: 'photoshoot_all',
-      type: 'boolean',
-      name: 'Photo Shoot Allowed',
-      value: normalizeValue(
-        existingFilters.photoShootsAllowed || modalFilters.photoshoot_all
-      ),
-    },
-    {
-      id: 'adult_games',
-      type: 'boolean',
-      name: 'Children Games',
-      value: normalizeValue(
-        existingFilters.childrenGames || modalFilters.adult_games
-      ),
-    },
-    {
-      id: 'rooms_available',
-      type: 'boolean',
-      name: 'Rooms Available',
-      value: normalizeValue(
-        existingFilters.roomsAvailable || modalFilters.rooms_available
-      ),
-    },
-  ]);
-
-  /** 🔹 Handle Filter Change */
-  const handleFilterChange = useCallback((id, value) => {
-    setAvailableFilters(prev =>
-      prev.map(f => (f.id === id ? { ...f, value } : f))
-    );
-  }, []);
-
-  /** 🔹 Handle Reset */
-  const handleReset = () => {
-    const reset = availableFilters.map(f => {
-      if (f.type === 'range') return { ...f, value: [f.min, f.max] };
-      return { ...f, value: '' };
+  /** ✅ Handle toggle/select buttons (always arrays) */
+  const handleSelect = (section, key, value) => {
+    const normalizedValue = value.toLowerCase();
+    setFilters(prev => {
+      const current = Array.isArray(prev[section]?.[key])
+        ? prev[section][key]
+        : [];
+      const updated =
+        current.includes(normalizedValue) ? [] : [normalizedValue];
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [key]: updated,
+        },
+      };
     });
-    setAvailableFilters(reset);
-    onApplyFilter({});
-    navigation.goBack();
   };
 
-  /** 🔹 Handle Apply */
+  /** ✅ Text input handler */
+  const handleTextChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  /** ✅ Apply Filters */
   const handleApply = () => {
-    const result = {};
-    availableFilters.forEach(f => {
-      result[f.id] = f.value;
-      if (f.type === 'range') {
-        result[`min_${f.id}`] = f.value[0];
-        result[`max_${f.id}`] = f.value[1];
-      }
-    });
-    setAppliedModalFilter(result);
-    onApplyFilter(result);
+    const formattedFilters = {
+      min_price: filters.priceRange?.min ?? 1000,
+      max_price: filters.priceRange?.max ?? 1000000,
+      seating_capacity_min: filters.seatingCapacity?.min ?? 10,
+      seating_capacity_max: filters.seatingCapacity?.max ?? 5000,
+      time_of_occasion: filters.time_of_occasion || [],
+      ...filters.booleanFilters,
+      decoration_contact: filters.decoration_contact || '',
+    };
+
+    if (setAppliedModalFilter) setAppliedModalFilter(formattedFilters);
+    if (onApplyFilter) onApplyFilter(formattedFilters);
     navigation.goBack();
   };
 
-  /** 🔹 Render Option Buttons */
-  const renderOptionButtons = (selected, setSelected, data = ['Yes', 'No']) => (
-    <View style={styles.optionRow}>
-      {data.map(option => (
-        <TouchableOpacity
-          key={option}
-          style={[
-            styles.optionButton,
-            selected === option && styles.optionSelected,
-          ]}
-          onPress={() => setSelected(option)}>
-          <Text
-            style={[
-              styles.optionText,
-              selected === option && styles.optionTextSelected,
-            ]}>
-            {option}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
+  /** ✅ Reset Filters */
+  const handleReset = () => {
+    setFilters({});
+    if (setAppliedModalFilter) setAppliedModalFilter({});
+    if (onApplyFilter) onApplyFilter({});
+    navigation.goBack();
+  };
+
+  /** ✅ Render Yes/No toggle */
+  const renderBooleanRow = (label, key) => {
+    const selectedValues = filters.booleanFilters?.[key] || [];
+    const selected = selectedValues[0]; // e.g. 'yes' or 'no'
+    return (
+      <View style={styles.filterBlock}>
+        <Text style={styles.filterTitle}>{label}</Text>
+        <View style={styles.optionRow}>
+          {['Yes', 'No'].map(option => {
+            const normalized = option.toLowerCase();
+            const isSelected = selected === normalized;
+            return (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.optionButton,
+                  isSelected && styles.optionButtonSelected,
+                ]}
+                onPress={() =>
+                  handleSelect('booleanFilters', key, option)
+                }>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSelected && styles.optionTextSelected,
+                  ]}>
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Header
-        title="Convention Filters"
-        showBack
-        onBackPress={() => navigation.goBack()}
-      />
-      <ScrollView contentContainerStyle={styles.form}>
-        {availableFilters.map((filter, index) => (
-          <View key={index}>
-            <Text style={styles.label}>{filter.name}</Text>
-
-            {/* RANGE FILTER */}
-            {filter.type === 'range' && (
-              <View style={{ marginHorizontal: 15 }}>
-                <MultiSlider
-                  values={filter.value}
-                  onValuesChange={values => handleFilterChange(filter.id, values)}
-                  min={filter.min}
-                  max={filter.max}
-                  step={filter.step}
-                  selectedStyle={{ backgroundColor: COLOR.primary }}
-                  markerStyle={{
-                    backgroundColor: COLOR.primary,
-                    height: 20,
-                    width: 20,
-                  }}
-                  trackStyle={{ height: 4 }}
-                />
-                <View style={styles.priceLabelRow}>
-                  <Text style={styles.priceLabel}>
-                    {filter.id === 'priceRange'
-                      ? `₹${formatIndianCurrency(filter.value[0])}`
-                      : `${filter.value[0]}+`}
-                  </Text>
-                  <Text style={styles.priceLabel}>
-                    {filter.id === 'priceRange'
-                      ? `₹${formatIndianCurrency(filter.value[1])}`
-                      : `${filter.value[1]}+`}
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            {/* BOOLEAN / SELECT */}
-            {(filter.type === 'boolean' || filter.type === 'select') &&
-              renderOptionButtons(filter.value, val =>
-                handleFilterChange(filter.id, val),
-                filter.data
-              )}
-
-            {/* CONDITIONAL TEXT INPUT */}
-            {filter.type === 'text' &&
-              (() => {
-                const parent = availableFilters.find(
-                  f => f.id === filter.dependsOn
-                );
-                if (parent?.value === 'No') {
-                  return (
-                    <TextInput
-                      placeholder={filter.name}
-                      value={filter.value}
-                      onChangeText={val => handleFilterChange(filter.id, val)}
-                      style={[styles.input, { marginTop: 8 }]}
-                    />
-                  );
-                }
-                return null;
-              })()}
-          </View>
-        ))}
-
-        {/* ACTION BUTTONS */}
-        <View style={styles.buttonRow}>
-          <CustomButton title="Apply" onPress={handleApply} />
-          <CustomButton
-            title="Reset"
-            onPress={handleReset}
-            style={{ backgroundColor: COLOR.grey }}
+      <Header title="Convention Filters" showBack onBackPress={() => navigation.goBack()} />
+      <ScrollView>
+        {/* Price Range */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterTitle}>Price Range (₹)</Text>
+          <MultiSlider
+            values={[
+              filters.priceRange?.min ?? 1000,
+              filters.priceRange?.max ?? 1000000,
+            ]}
+            min={1000}
+            max={1000000}
+            step={1000}
+            onValuesChange={values => handleSliderChange('priceRange', values)}
+            selectedStyle={{ backgroundColor: COLOR.primary }}
+            markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+            trackStyle={{ height: 4 }}
           />
+          <Text style={styles.valueText}>
+            ₹{formatIndianCurrency(filters.priceRange?.min ?? 1000)} - ₹
+            {formatIndianCurrency(filters.priceRange?.max ?? 1000000)}
+          </Text>
         </View>
+
+        {/* Seating Capacity */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterTitle}>Seating Capacity</Text>
+          <MultiSlider
+            values={[
+              filters.seatingCapacity?.min ?? 10,
+              filters.seatingCapacity?.max ?? 5000,
+            ]}
+            min={10}
+            max={5000}
+            step={10}
+            onValuesChange={values =>
+              handleSliderChange('seatingCapacity', values)
+            }
+            selectedStyle={{ backgroundColor: COLOR.primary }}
+            markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+            trackStyle={{ height: 4 }}
+          />
+          <Text style={styles.valueText}>
+            {filters.seatingCapacity?.min ?? 10} -{' '}
+            {filters.seatingCapacity?.max ?? 5000}
+          </Text>
+        </View>
+
+        {/* Time of Occasion */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterTitle}>Time of Occasion</Text>
+          <View style={styles.optionRow}>
+            {['Daytime', 'Night time', 'Full day'].map(option => {
+              const selected = filters.time_of_occasion?.includes(option);
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.optionButton,
+                    selected && styles.optionButtonSelected,
+                  ]}
+                  onPress={() =>
+                    setFilters(prev => {
+                      const existing = prev.time_of_occasion || [];
+                      const updated = selected
+                        ? existing.filter(o => o !== option)
+                        : [...existing, option];
+                      return { ...prev, time_of_occasion: updated };
+                    })
+                  }>
+                  <Text
+                    style={[
+                      styles.optionText,
+                      selected && styles.optionTextSelected,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* Boolean Filters */}
+        {renderBooleanRow('A/C Available', 'ac_available')}
+        {renderBooleanRow('Valet Parking', 'valet_parking')}
+        {renderBooleanRow('Royalty for Decoration', 'royalty_decoration')}
+        {filters.booleanFilters?.royalty_decoration?.[0] === 'no' && (
+          <TextInput
+            placeholder="Decoration Person Contact"
+            style={styles.input}
+            value={filters.decoration_contact}
+            onChangeText={val => handleTextChange('decoration_contact', val)}
+          />
+        )}
+        {renderBooleanRow('Royalty for Kitchen', 'royalty_kitchen')}
+        {renderBooleanRow('Generator Available', 'generator_available')}
+        {renderBooleanRow('Drinking Water Available', 'drinking_water')}
+        {renderBooleanRow('Normal Water for Cooking', 'normal_water')}
+        {renderBooleanRow('Provides Catering Persons', 'catering_persons')}
+        {renderBooleanRow('Alcohol Allowed', 'alcohol_allowed')}
+        {renderBooleanRow('Photo Shoot Allowed', 'photoshoot_all')}
+        {renderBooleanRow('Children Games', 'adult_games')}
+        {renderBooleanRow('Rooms Available', 'rooms_available')}
       </ScrollView>
+
+      {/* Action Buttons */}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+          <Text style={styles.resetText}>Reset</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
+          <Text style={styles.applyText}>Apply</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -682,55 +308,58 @@ const ConventionMainFilter = ({ navigation, route }) => {
 export default ConventionMainFilter;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLOR.white },
-  form: { padding: 16 },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLOR.black,
-    marginBottom: 8,
-    marginTop: 12,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  filterBlock: { marginVertical: 10, paddingHorizontal: 16 },
+  filterTitle: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
+  optionRow: { flexDirection: 'row', flexWrap: 'wrap' },
   optionButton: {
     borderWidth: 1,
-    borderColor: COLOR.grey,
-    borderRadius: 8,
+    borderColor: '#ccc',
+    borderRadius: 20,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: COLOR.white,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
   },
-  optionSelected: {
-    backgroundColor: COLOR.primary,
-    borderColor: COLOR.primary,
-  },
-  optionText: { color: COLOR.black },
-  optionTextSelected: { color: COLOR.white },
+  optionButtonSelected: { backgroundColor: COLOR.primary, borderColor: COLOR.primary },
+  optionText: { color: '#333' },
+  optionTextSelected: { color: '#fff' },
   input: {
     borderWidth: 1,
-    borderColor: COLOR.grey,
+    borderColor: '#ccc',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: COLOR.white,
-  },
-  priceLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    marginHorizontal: 16,
     marginTop: 8,
   },
-  priceLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLOR.black,
-  },
-  buttonRow: {
+  bottomContainer: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16,
-    gap: 10,
+    borderTopWidth: 1,
+    borderColor: '#eee',
+  },
+  applyButton: {
+    backgroundColor: COLOR.primary,
+    borderRadius: 25,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+  },
+  applyText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  resetButton: {
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: COLOR.primary,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+  },
+  resetText: { color: COLOR.primary, fontSize: 16, fontWeight: '600' },
+  valueText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 8,
+    width: '100%',
   },
 });

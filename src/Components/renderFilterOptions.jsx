@@ -47,8 +47,10 @@ const RenderFilterOptions = ({
             if (minP !== undefined && maxP !== undefined) {
               displayText = `₹${minP} - ₹${maxP}`;
             }
-          } else if (selectedValues.length > 0) {
-            displayText = selectedValues.join(', ');
+          } else if (selectedValues?.length > 0) {
+
+            console.log(selectedValues,"selectedValuesselectedValues")
+            displayText = selectedValues?.join(', ');
           }
 
           const isActive =

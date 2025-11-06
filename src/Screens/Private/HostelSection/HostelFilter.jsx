@@ -81,7 +81,7 @@ const HostelFilterScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  // ✅ Clear all filters
+
   const handleReset = () => {
     setFilters({});
     setAppliedModalFilter({});
