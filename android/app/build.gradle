@@ -82,8 +82,8 @@ android {
         applicationId "com.toletindia"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "3.2"
+        versionCode 7
+        versionName "3.5"
     }
     signingConfigs {
         debug {

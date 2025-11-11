@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,11 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import {COLOR} from '../Constants/Colors';
+import { COLOR } from '../Constants/Colors';
 
-const {height} = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const GOOGLE_API_KEY = 'AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk';
 
 const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected }) => {
@@ -107,7 +107,7 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
         });
       },
       error => console.warn('Location error:', error),
-      { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 },
+      { enableHighAccuracy: true, timeout: 30000, maximumAge: 10000 },
     );
   };
 
@@ -128,7 +128,7 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
       const res = await fetch(
         `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
           text
-        )}&key=${GOOGLE_API_KEY}&language=en`
+        )}&key=${GOOGLE_API_KEY}&language=en&components=country:IN`
       );
       const json = await res.json();
       setSuggestions(json.predictions || []);

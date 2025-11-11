@@ -10,6 +10,7 @@ import {
 import Header from '../../../Components/FeedHeader';
 import { useApi } from '../../../Backend/Api';
 import { COLOR } from '../../../Constants/Colors';
+import { windowWidth } from '../../../Constants/Dimensions';
 
 const HostelReviewManagement = ({ navigation }) => {
     const { getRequest } = useApi();
@@ -41,17 +42,22 @@ const HostelReviewManagement = ({ navigation }) => {
     const renderReview = ({ item }) => {
         const hostel = item.hostel_details;
         const imageUri = hostel?.images?.[0]?.image_path
-            ? `https://yourdomain.com/${hostel.images[0].image_path}`
+            ? `${hostel.images[0].image_path}`
             : null;
 
         return (
             <View style={styles.card}>
-                {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
-                <Text style={styles.hostelName}>{hostel?.title}</Text>
-                <Text style={styles.price}>
-                    ₹{hostel?.min_price || 'N/A'} - ₹{hostel.max_price || 'N/A'}
-                </Text>
-                <Text style={styles.location}>{hostel.location}</Text>
+                <View style={{ flexDirection: "row" }}>
+                    {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+                    <View style={{ marginLeft: 10 }}>
+                        <Text style={styles.hostelName}>{hostel?.title}</Text>
+                        <Text style={styles.price}>
+                            ₹{hostel?.min_price || 'N/A'} - ₹{hostel.max_price || 'N/A'}
+                        </Text>
+                        <Text style={styles.location} numberOfLines={2}>{hostel.location}</Text>
+                    </View>
+
+                </View>
 
                 {hostel.reviews?.length > 0 ? (
                     hostel.reviews.map((rev, i) => (
@@ -123,7 +129,8 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     image: {
-        height: 160,
+        height: 80,
+        width: 80,
         borderRadius: 10,
         marginBottom: 10,
     },
@@ -133,7 +140,7 @@ const styles = StyleSheet.create({
         color: '#222',
     },
     price: {
-        fontSize: 15,
+        fontSize: 13,
         color: '#28a745',
         marginTop: 3,
     },
@@ -141,6 +148,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#555',
         marginVertical: 5,
+        width: windowWidth / 1.8
     },
     reviewBox: {
         backgroundColor: '#fff',

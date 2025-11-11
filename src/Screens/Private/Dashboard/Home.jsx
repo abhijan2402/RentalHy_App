@@ -435,10 +435,10 @@ const Home = ({ navigation }) => {
   }, [currentAddress?.address]);
 
   useEffect(() => {
-      if(Object.keys(appliedFilters).length > 0 ){
-        setAppliedModalFilter(appliedFilters);
+    if (Object.keys(appliedFilters).length > 0) {
+      setAppliedModalFilter(appliedFilters);
 
-      }
+    }
   }, [appliedFilters]);
 
   return (
@@ -450,7 +450,7 @@ const Home = ({ navigation }) => {
         navigation={navigation}
       />
 
-         {tabLoader ? (
+      {tabLoader ? (
         <View style={{ height: 115 }}></View>
       ) : (
         <OptionSelector
@@ -463,93 +463,93 @@ const Home = ({ navigation }) => {
         />
       )}
       {showDemoCard && <DemoCard />}
- <ScrollView
-  refreshControl={<RefreshControl refreshing={false} onRefresh={()=>{
-    
-      GetProperties(
-        1,
-        false,
-        {},
-        '',
-        '',
-        false,
-      );
-              setSortQuery('');
-              setSearchQuery('');
-              setAppliedFilters({});
-              setAppliedModalFilter({});
-              setAttendedFilter(null);
-          }} colors={[COLOR.primary]} tintColor={COLOR.primary}/>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={false} onRefresh={() => {
+
+          GetProperties(
+            1,
+            false,
+            {},
+            '',
+            '',
+            false,
+          );
+          setSortQuery('');
+          setSearchQuery('');
+          setAppliedFilters({});
+          setAppliedModalFilter({});
+          setAttendedFilter(null);
+        }} colors={[COLOR.primary]} tintColor={COLOR.primary} />
         }
- 
- >
-        
-      <View style={styles.searchContainer}>
-        <Image
-          source={{
-            uri: 'https://cdn-icons-png.flaticon.com/128/622/622669.png',
-          }}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          placeholder="Search Properties or Location"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          style={styles.searchInput}
-          placeholderTextColor={COLOR.grey}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            GetProperties(
-              1,
-              false,
-              appliedFilters,
-              searchQuery,
-              sortQuery,
-              false,
-            );
+
+      >
+
+        <View style={styles.searchContainer}>
+          <Image
+            source={{
+              uri: 'https://cdn-icons-png.flaticon.com/128/622/622669.png',
+            }}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            placeholder="Search Properties or Location"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.searchInput}
+            placeholderTextColor={COLOR.grey}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+              );
+            }}>
+            <Image
+              source={{
+                uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
+              }}
+              style={styles.filterIcon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSortVisible(true)}>
+            <Image
+              source={{
+                uri: 'https://cdn-icons-png.flaticon.com/128/4662/4662255.png',
+              }}
+              style={styles.filterIcon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('Filter', {
+                onApplyFilter: handleFilterChange,
+                existingFilters: appliedFilters,
+                modalFilters: AppliedModalFilter,
+                setAppliedModalFilter: setAppliedModalFilter,
+              })
+            }>
+            <Image
+              source={{
+                uri: 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
+              }}
+              style={styles.filterIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            overflow: 'hidden',
+            height: 50,
+            width: '90%',
+            alignSelf: 'center',
+            backgroundColor: COLOR.white,
+            justifyContent: 'center',
           }}>
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/54/54481.png',
-            }}
-            style={styles.filterIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setSortVisible(true)}>
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/4662/4662255.png',
-            }}
-            style={styles.filterIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('Filter', {
-              onApplyFilter: handleFilterChange,
-              existingFilters: appliedFilters,
-              modalFilters:AppliedModalFilter,
-              setAppliedModalFilter: setAppliedModalFilter,
-            })
-          }>
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/7693/7693332.png',
-            }}
-            style={styles.filterIcon}
-          />
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          overflow: 'hidden',
-          height: 50,
-          width:'90%',
-          alignSelf:'center',
-          backgroundColor: COLOR.white,
-          justifyContent: 'center',
-        }}>
 
           {RenderFilterOptions({
             avaialbleFilter,
@@ -561,94 +561,94 @@ const Home = ({ navigation }) => {
             COLOR,
             appliedFilters,
           })}
-      
-      </View>
 
-      {showDemoCard && loader ? (
-        <>
-          <LottieView
-            ref={animationRef}
-            source={require('../../../assets/Lottie/Loading1.json')}
-            style={styles.image}
-          />
-          <View style={styles.flagcontainer}>
-            <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
-              style={styles.flag}
-            />
-            <Text style={styles.text}>Made In India</Text>
-            <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
-              style={styles.flag}
-            />
-          </View>
-          <View style={styles.flagcontainer}>
-            <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
-              style={styles.flag}
-            />
-            <Text style={styles.text}>Made In India</Text>
-            <Image
-              source={{ uri: 'https://flagcdn.com/w20/in.png' }}
-              style={styles.flag}
-            />
-          </View>
-        </>
-      ) : (
-        <>
-          <View style={{ flex: 1 }}>
-            <FlatList
-              data={properties}
-              renderItem={({ item }) => (
-                <PropertyCard
-                  item={item}
-                  toggleLike={toggleLike}
-                  type={'home'}
-                />
-              )}
-              keyExtractor={item => item.id?.toString()}
-              numColumns={2}
-              contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
-              showsVerticalScrollIndicator={false}
-              onEndReached={handleLoadMore}
-              onEndReachedThreshold={0.5}
-              scrollEventThrottle={16}
-              refreshControl={
-                <RefreshControl
-                  refreshing={loader}
-                  onRefresh={() => {
-                    setAppliedModalFilter({});
-                    setAttendedFilter(null);
-                    setSortQuery(null);
-                    GetProperties(
-                      1,
-                      false,
-                      appliedFilters,
-                      searchQuery,
-                      sortQuery,
-                      false,
-                    );
-                  }}
-                  colors={[COLOR.primary]} // Android
-                  tintColor={COLOR.primary} // iOS
-                />
-              }
-              ListFooterComponent={
-                loadingMore ? (
-                  <View style={{ padding: 16 }}>
-                    <ActivityIndicator size="small" color={COLOR.primary} />
-                  </View>
-                ) : null
-              }
-            />
-          </View>
-        </>
-      )}
-      
+        </View>
 
- </ScrollView>
+        {showDemoCard && loader ? (
+          <>
+            <LottieView
+              ref={animationRef}
+              source={require('../../../assets/Lottie/Loading1.json')}
+              style={styles.image}
+            />
+            <View style={styles.flagcontainer}>
+              <Image
+                source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+                style={styles.flag}
+              />
+              <Text style={styles.text}>Made In India</Text>
+              <Image
+                source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+                style={styles.flag}
+              />
+            </View>
+            <View style={styles.flagcontainer}>
+              <Image
+                source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+                style={styles.flag}
+              />
+              <Text style={styles.text}>Made In India</Text>
+              <Image
+                source={{ uri: 'https://flagcdn.com/w20/in.png' }}
+                style={styles.flag}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={properties}
+                renderItem={({ item }) => (
+                  <PropertyCard
+                    item={item}
+                    toggleLike={toggleLike}
+                    type={'home'}
+                  />
+                )}
+                keyExtractor={item => item.id?.toString()}
+                numColumns={2}
+                contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
+                showsVerticalScrollIndicator={false}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.5}
+                scrollEventThrottle={16}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={loader}
+                    onRefresh={() => {
+                      setAppliedModalFilter({});
+                      setAttendedFilter(null);
+                      setSortQuery(null);
+                      GetProperties(
+                        1,
+                        false,
+                        appliedFilters,
+                        searchQuery,
+                        sortQuery,
+                        false,
+                      );
+                    }}
+                    colors={[COLOR.primary]} // Android
+                    tintColor={COLOR.primary} // iOS
+                  />
+                }
+                ListFooterComponent={
+                  loadingMore ? (
+                    <View style={{ padding: 16 }}>
+                      <ActivityIndicator size="small" color={COLOR.primary} />
+                    </View>
+                  ) : null
+                }
+              />
+            </View>
+          </>
+        )}
 
- {!loader && (
+
+      </ScrollView>
+
+      {!loader && (
         <AnimatedButton
           onPress={() => {
             if (currentStatus == -1) {
@@ -768,7 +768,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
 };
 
 export const DemoCard = ({
-  title = 'Take a tour of ToLet India app',
+  title = 'Take a tour of ToLet India',
   buttonText = 'Click here',
   onPress,
 }) => {
@@ -842,10 +842,10 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
           </View>
         </TouchableOpacity>
       </View>
-       <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
+      <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
         <Image
           source={{
-            uri:'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
+            uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
           }}
           style={styles.wishListIcon}
         />
