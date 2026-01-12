@@ -1,9 +1,9 @@
 // PropertyCard.js
-import React, {useContext, useState} from 'react';
-import {TouchableOpacity, Image, Text, View, StyleSheet} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {COLOR} from '../Constants/Colors';
-import {AuthContext} from '../Backend/AuthContent';
+import React, { useContext, useState } from 'react';
+import { TouchableOpacity, Image, Text, View, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { COLOR } from '../Constants/Colors';
+import { AuthContext } from '../Backend/AuthContent';
 import CreateAccountModal from '../Modals/CreateAccountModal';
 
 const PropertyCard = ({
@@ -15,7 +15,7 @@ const PropertyCard = ({
 }) => {
 
   const navigation = useNavigation();
-  const {currentStatus} = useContext(AuthContext);
+  const { currentStatus } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
   return (
     <TouchableOpacity
@@ -25,7 +25,7 @@ const PropertyCard = ({
         } else {
           navigation.navigate('PropertyDetail', {
             propertyData: type === 'wishlist' ? item?.property : item,
-            type:type
+            type: type
           });
         }
       }}
@@ -35,12 +35,12 @@ const PropertyCard = ({
           uri: item?.image
             ? item?.image
             : item?.property?.images[0]?.image_url ||
-              item?.images[0]?.image_url,
+            item?.images[0]?.image_url,
         }}
         style={styles.propertyImage}
       />
 
-      {(type === 'wishlist' || type === 'home') && ( currentStatus != -1) && <TouchableOpacity
+      {(type === 'wishlist' || type === 'home') && (currentStatus != -1) && <TouchableOpacity
         style={styles.wishlistIcon}
         onPress={() =>
           type == 'wishlist' ? removewishlist(item.property_id) : toggleLike(item.id)
@@ -92,8 +92,8 @@ const PropertyCard = ({
           {item?.property?.price != null && item?.property?.price !== undefined
             ? '₹' + item.property.price
             : item?.price != null && item?.price !== undefined
-            ? '₹' + item.price
-            :'₹' +  item?.min_price + ' - ' + item?.max_price}
+              ? '₹' + item.price
+              : '₹' + item?.min_price + ' - ' + item?.max_price}
         </Text>
         {(item?.status || item?.property?.status) == 1 && (
           <Text style={styles.TagStyle}>Featured</Text>
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 8,
+    color: COLOR.black
   },
   propertyLocation: {
     fontSize: 14,

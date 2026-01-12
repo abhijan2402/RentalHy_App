@@ -11,23 +11,23 @@ import {
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Header from '../../../Components/FeedHeader';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
-import {useApi} from '../../../Backend/Api';
-import {useToast} from '../../../Constants/ToastContext';
-import {useIsFocused} from '@react-navigation/native';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
+import { useIsFocused } from '@react-navigation/native';
 import ConventionAmed from '../../../Components/ConventionAmed';
 import HostelAmed from '../../../Components/HostelAmed';
-import {AuthContext} from '../../../Backend/AuthContent';
+import { AuthContext } from '../../../Backend/AuthContent';
 import PropertyAmed from '../../../Components/PropertyAmed';
 
-const PropertyDetail = ({navigation, route}) => {
-  const {currentStatus} = useContext(AuthContext);
+const PropertyDetail = ({ navigation, route }) => {
+  const { currentStatus } = useContext(AuthContext);
   const isFocus = useIsFocused();
-  const {getRequest, postRequest} = useApi();
-  const {showToast} = useToast();
+  const { getRequest, postRequest } = useApi();
+  const { showToast } = useToast();
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -35,7 +35,7 @@ const PropertyDetail = ({navigation, route}) => {
   const [AllData, setAllData] = useState();
   const [images, setImages] = useState([]);
   const [buttonLoader, setButtonLoader] = useState(false);
-  const {type, propertyData} = route?.params;
+  const { type, propertyData, semiType } = route?.params;
 
   const [reviews, setReviews] = useState({
     food: null,
@@ -52,22 +52,22 @@ const PropertyDetail = ({navigation, route}) => {
   const [description, setDescription] = useState('');
   const [user_reviewed, setuser_reviewed] = useState(false);
 
-  const onViewableItemsChanged = useRef(({viewableItems}) => {
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index);
     }
   }).current;
 
-  const viewConfigRef = useRef({viewAreaCoveragePercentThreshold: 50}).current;
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const handleReviewPress = (key, value) => {
-    setReviews(prev => ({...prev, [key]: value}));
+    setReviews(prev => ({ ...prev, [key]: value }));
   };
   const questions = [
-    {key: 'food', text: 'Food is good?'},
-    {key: 'cleanliness', text: 'Room Cleanliness is good?'},
-    {key: 'staff', text: 'Staff is good?'},
-    {key: 'safety', text: 'Safe to stay?'},
+    { key: 'food', text: 'Food is good?' },
+    { key: 'cleanliness', text: 'Room Cleanliness is good?' },
+    { key: 'staff', text: 'Staff is good?' },
+    { key: 'safety', text: 'Safe to stay?' },
   ];
   const thumbUpUrl = 'https://cdn-icons-png.flaticon.com/128/739/739231.png';
   const getPropertyDetails = async (id, load = true) => {
@@ -79,10 +79,10 @@ const PropertyDetail = ({navigation, route}) => {
       type === 'convention'
         ? `public/api/hall_deatils/${id}`
         : type === 'hostel'
-        ? `public/api/hostels/${id}`
-        : `public/api/properties/${id}`;
+          ? `public/api/hostels/${id}`
+          : `public/api/properties/${id}`;
 
-    console.log(type, 'TYPPEPEPEPE');
+    console.log(type, 'TYPPEPEPEPE', url);
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
       console.log(response?.data, 'Property Details');
@@ -221,19 +221,26 @@ const PropertyDetail = ({navigation, route}) => {
   };
 
   const handleLocation = location => {
+
     const query = encodeURIComponent(location);
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
 
   return (
     <View style={styles.container}>
+      {
+        console.log(type, "TYYY")
+
+      }
       <Header
         title={
-          type == 'convention'
-            ? 'Convention Detail'
-            : type == 'hostel'
-            ? 'Hostel Details'
-            : 'Property Detail'
+          semiType ? "Resort/Farm Details" :
+            type == 'convention'
+              ? 'Convention Detail'
+              : type == 'farm' ? "Resort / Farm house Details" :
+                type == 'hostel'
+                  ? 'Hostel Details'
+                  : 'Property Detail'
         }
         showBack
         onBackPress={() => navigation.goBack()}
@@ -242,7 +249,7 @@ const PropertyDetail = ({navigation, route}) => {
         <ActivityIndicator
           size={'large'}
           color={COLOR?.primary}
-          style={{top: '30%'}}
+          style={{ top: '30%' }}
         />
       ) : (
         <ScrollView>
@@ -256,8 +263,8 @@ const PropertyDetail = ({navigation, route}) => {
               pagingEnabled
               onViewableItemsChanged={onViewableItemsChanged}
               viewabilityConfig={viewConfigRef}
-              renderItem={({item}) => (
-                <Image source={{uri: item}} style={styles.propertyImage} />
+              renderItem={({ item }) => (
+                <Image source={{ uri: item }} style={styles.propertyImage} />
               )}
             />
 
@@ -268,7 +275,7 @@ const PropertyDetail = ({navigation, route}) => {
                     key={i}
                     style={[
                       styles.dot,
-                      {opacity: i === currentIndex ? 1 : 0.3},
+                      { opacity: i === currentIndex ? 1 : 0.3 },
                     ]}
                   />
                 ))}
@@ -328,36 +335,36 @@ const PropertyDetail = ({navigation, route}) => {
                   (AllData?.price
                     ? AllData?.price
                     : type == 'convention'
-                    ? AllData?.min_amount + ' - ' + AllData?.max_amount
-                    : AllData?.min_price + ' - ' + AllData?.max_price)}
+                      ? AllData?.min_amount + ' - ' + AllData?.max_amount
+                      : AllData?.min_price + ' - ' + AllData?.max_price)}
               </Text>
               {AllData?.status == 1 && (
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
             </View>
-            {type != 'convention' && (
-              <View style={styles.contactContainer}>
-                <Text style={styles.contactTitle}>Contact Options</Text>
+            {/* {type != 'convention' && ( */}
+            <View style={styles.contactContainer}>
+              <Text style={styles.contactTitle}>Contact Options</Text>
 
-                <TouchableOpacity
-                  style={styles.locationRow}
-                  onPress={() =>
-                    handleCall(
-                      AllData?.user?.phone_number || AllData?.contact_number,
-                    )
-                  }>
-                  <Image
-                    source={{
-                      uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
-                    }}
-                    style={styles.iconLarge}
-                  />
-                  <Text style={styles.phoneHighlighted}>
-                    {AllData?.user?.phone_number || AllData?.contact_number}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
+              <TouchableOpacity
+                style={styles.locationRow}
+                onPress={() =>
+                  handleCall(
+                    AllData?.user?.phone_number || AllData?.contact_number,
+                  )
+                }>
+                <Image
+                  source={{
+                    uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
+                  }}
+                  style={styles.iconLarge}
+                />
+                <Text style={styles.phoneHighlighted}>
+                  {AllData?.user?.phone_number || AllData?.contact_number}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {/* )} */}
             <View style={styles.contactContainer}>
               <Text style={styles.contactTitle}>Address</Text>
               <TouchableOpacity style={styles.locationRow}>
@@ -389,7 +396,7 @@ const PropertyDetail = ({navigation, route}) => {
 
               <TouchableOpacity
                 onPress={() => {
-                  handleLocation(AllData?.location);
+                  handleLocation(AllData?.location || AllData?.address);
                 }}
                 activeOpacity={0.8}>
                 <ImageBackground
@@ -435,7 +442,7 @@ const PropertyDetail = ({navigation, route}) => {
             {type === 'hostel' && <HostelAmed AllData={AllData} />}
           </View>
 
-          <View style={{marginHorizontal: 15, marginBottom: 20}}>
+          <View style={{ marginHorizontal: 15, marginBottom: 20 }}>
             {type === 'hostel' && (
               <>
                 <Text
@@ -457,14 +464,14 @@ const PropertyDetail = ({navigation, route}) => {
                       <TouchableOpacity
                         onPress={() => handleReviewPress(item.key, '1')}>
                         <Image
-                          source={{uri: thumbUpUrl}}
+                          source={{ uri: thumbUpUrl }}
                           style={[
                             styles.thumbIcon,
                             reviews[item.key] == '1' || user_reviewed
                               ? {
-                                  tintColor: COLOR.primary,
-                                }
-                              : {tintColor: COLOR.grey},
+                                tintColor: COLOR.primary,
+                              }
+                              : { tintColor: COLOR.grey },
                           ]}
                         />
                       </TouchableOpacity>
@@ -484,7 +491,7 @@ const PropertyDetail = ({navigation, route}) => {
                 {!user_reviewed && (
                   <CustomButton
                     title="Submit Feedback"
-                    style={{marginTop: 15}}
+                    style={{ marginTop: 15 }}
                     loading={buttonLoader}
                     onPress={() => {
                       submitFeedback();
@@ -504,7 +511,7 @@ const PropertyDetail = ({navigation, route}) => {
           />
           {type == 'convention' && (
             <CustomButton
-              style={{marginTop: 20}}
+              style={{ marginTop: 20 }}
               title={'Book Now'}
               onPress={() => {
                 navigation.navigate('Booking', {
@@ -565,7 +572,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
   },
@@ -576,7 +583,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     shadowColor: '#000',
     shadowOpacity: 0.08,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 1,
   },

@@ -49,7 +49,7 @@ const RenderFilterOptions = ({
             }
           } else if (selectedValues?.length > 0) {
 
-            console.log(selectedValues,"selectedValuesselectedValues")
+            console.log(selectedValues, "selectedValuesselectedValues")
             displayText = selectedValues?.join(', ');
           }
 

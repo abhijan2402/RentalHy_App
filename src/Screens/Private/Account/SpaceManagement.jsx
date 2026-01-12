@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,14 +12,14 @@ import {
   TextInput,
 } from 'react-native';
 import Header from '../../../Components/FeedHeader';
-import {COLOR} from '../../../Constants/Colors';
-import {useApi} from '../../../Backend/Api';
-import {useIsFocused} from '@react-navigation/native';
-import {useToast} from '../../../Constants/ToastContext';
+import { COLOR } from '../../../Constants/Colors';
+import { useApi } from '../../../Backend/Api';
+import { useIsFocused } from '@react-navigation/native';
+import { useToast } from '../../../Constants/ToastContext';
 
-const SpaceManagement = ({navigation}) => {
-  const {getRequest, postRequest} = useApi();
-  const {showToast} = useToast();
+const SpaceManagement = ({ navigation }) => {
+  const { getRequest, postRequest } = useApi();
+  const { showToast } = useToast();
   const isFocus = useIsFocused();
 
   const [loader, setLoader] = useState(true);
@@ -37,11 +37,11 @@ const SpaceManagement = ({navigation}) => {
       const endpoint =
         type === 'property'
           ? 'public/api/my-property'
-          : 'public/api/hostels/list';
+          : 'public/api/my-list/hostels';
       const response =
         type === 'property'
           ? await getRequest(endpoint)
-          : await postRequest(endpoint);
+          : await getRequest(endpoint);
 
       if (response?.data?.status || response?.data?.success) {
         setPropertyData(response.data.data || []);
@@ -62,7 +62,7 @@ const SpaceManagement = ({navigation}) => {
     setPropertyData(prev =>
       prev.map(item =>
         item.id === id
-          ? {...item, is_active: !Boolean(item.is_active)}
+          ? { ...item, is_active: !Boolean(item.is_active) }
           : item
       )
     );
@@ -76,7 +76,7 @@ const SpaceManagement = ({navigation}) => {
       setPropertyData(prev =>
         prev.map(item =>
           item.id === id
-            ? {...item, is_active: !Boolean(item.is_active)}
+            ? { ...item, is_active: !Boolean(item.is_active) }
             : item
         )
       );
@@ -114,7 +114,7 @@ const SpaceManagement = ({navigation}) => {
     if (isFocus) fetchData();
   }, [isFocus, activeTab]);
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     const isPropertyTab = activeTab === 'property';
     const id = item?.id;
     const isActive = !!item?.is_active; // ✅ always boolean
@@ -124,18 +124,18 @@ const SpaceManagement = ({navigation}) => {
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() =>
-            navigation.navigate('PropertyDetail', {propertyData: item})
+            navigation.navigate('PropertyDetail', { propertyData: item })
           }
           style={styles.leftContent}>
-          <Image
+          {/* <Image
             source={
               item?.images?.length > 0 && item?.images[0]?.image_path
-                ? {uri: item?.images[0]?.image_url || item.images[0].image_path}
-                : {uri: 'https://cdn-icons-png.flaticon.com/128/25/25694.png'}
+                ? { uri: item?.images[0]?.image_url || item.images[0].image_path }
+                : { uri: 'https://cdn-icons-png.flaticon.com/128/25/25694.png' }
             }
             style={styles.image}
             resizeMode="cover"
-          />
+          /> */}
           <View style={styles.info}>
             <Text style={styles.title} numberOfLines={1}>
               {item?.title || 'Untitled'}
@@ -158,17 +158,17 @@ const SpaceManagement = ({navigation}) => {
             <Text style={styles.toggleLabel}>
               {isActive ? 'Active' : 'Inactive'}
             </Text>
-       <Switch
-  value={!!isActive}
-  onValueChange={() => togglePropertyStatus(id)}
-  trackColor={{
-    false: '#ccc',    
-    true:  '#999',   
-  }}
-  thumbColor={isActive ? COLOR.primary : '#888'}  
-  ios_backgroundColor="#ccc"                      
-  style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }} 
-/>
+            <Switch
+              value={!!isActive}
+              onValueChange={() => togglePropertyStatus(id)}
+              trackColor={{
+                false: '#ccc',
+                true: '#999',
+              }}
+              thumbColor={isActive ? COLOR.primary : '#888'}
+              ios_backgroundColor="#ccc"
+              style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+            />
 
           </View>
         ) : (
@@ -182,7 +182,7 @@ const SpaceManagement = ({navigation}) => {
     );
   };
 
-  const TabButton = ({label, value}) => (
+  const TabButton = ({ label, value }) => (
     <TouchableOpacity
       style={[styles.tabButton, activeTab === value && styles.tabButtonActive]}
       onPress={() => activeTab !== value && setActiveTab(value)}>
@@ -193,7 +193,7 @@ const SpaceManagement = ({navigation}) => {
   );
 
   return (
-    <View style={{flex: 1, backgroundColor: COLOR.white}}>
+    <View style={{ flex: 1, backgroundColor: COLOR.white }}>
       <Header
         title="Space Management"
         showBack
@@ -206,15 +206,15 @@ const SpaceManagement = ({navigation}) => {
       </View>
 
       {loader ? (
-        <ActivityIndicator size="large" color={COLOR.primary} style={{marginTop: 20}} />
+        <ActivityIndicator size="large" color={COLOR.primary} style={{ marginTop: 20 }} />
       ) : (
         <FlatList
           data={propertyData}
           keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
           renderItem={renderItem}
-          contentContainerStyle={{paddingVertical: 10, paddingBottom: 40}}
+          contentContainerStyle={{ paddingVertical: 10, paddingBottom: 40 }}
           ListEmptyComponent={
-            <Text style={{textAlign: 'center', marginTop: 20, color: '#888'}}>
+            <Text style={{ textAlign: 'center', marginTop: 20, color: '#888' }}>
               No data found
             </Text>
           }
@@ -239,14 +239,14 @@ const SpaceManagement = ({navigation}) => {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalBtn, {backgroundColor: COLOR.primary}]}
+                style={[styles.modalBtn, { backgroundColor: COLOR.primary }]}
                 onPress={updateCapacity}>
                 <Text style={styles.modalBtnText}>Update</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalBtn, {backgroundColor: '#ccc'}]}
+                style={[styles.modalBtn, { backgroundColor: '#ccc' }]}
                 onPress={() => setEditModalVisible(false)}>
-                <Text style={[styles.modalBtnText, {color: '#333'}]}>Cancel</Text>
+                <Text style={[styles.modalBtnText, { color: '#333' }]}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -267,10 +267,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  tabButton: {flex: 1, paddingVertical: 10, alignItems: 'center'},
-  tabButtonActive: {backgroundColor: COLOR.primary},
-  tabText: {fontSize: 15, color: '#666', fontWeight: '600'},
-  tabTextActive: {color: COLOR.white},
+  tabButton: { flex: 1, paddingVertical: 10, alignItems: 'center' },
+  tabButtonActive: { backgroundColor: COLOR.primary },
+  tabText: { fontSize: 15, color: '#666', fontWeight: '600' },
+  tabTextActive: { color: COLOR.white },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -287,14 +287,14 @@ const styles = StyleSheet.create({
     elevation: 2,
     justifyContent: 'space-between',
   },
-  leftContent: {flexDirection: 'row', alignItems: 'center', flex: 1},
-  image: {width: 84, height: 84, borderRadius: 8, marginRight: 12, backgroundColor: '#f0f0f0'},
-  info: {flex: 1},
-  title: {fontSize: 16, fontWeight: '700'},
-  location: {color: '#666', marginTop: 4},
-  priceSmall: {color: COLOR.primary, fontWeight: '700', marginTop: 6},
-  rightCol: {width: 90, alignItems: 'center', justifyContent: 'center'},
-  toggleLabel: {fontSize: 12, marginBottom: 6, color: '#444'},
+  leftContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  image: { width: 84, height: 84, borderRadius: 8, marginRight: 12, backgroundColor: '#f0f0f0' },
+  info: { flex: 1 },
+  title: { fontSize: 16, fontWeight: '700' },
+  location: { color: '#666', marginTop: 4 },
+  priceSmall: { color: COLOR.primary, fontWeight: '700', marginTop: 6 },
+  rightCol: { width: 90, alignItems: 'center', justifyContent: 'center' },
+  toggleLabel: { fontSize: 12, marginBottom: 6, color: '#444' },
   editButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignSelf: 'center',
   },
-  editText: {color: COLOR.white, fontWeight: '600', fontSize: 14},
+  editText: { color: COLOR.white, fontWeight: '600', fontSize: 14 },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
   },
-  modalHeader: {fontSize: 18, fontWeight: '700', marginBottom: 15},
+  modalHeader: { fontSize: 18, fontWeight: '700', marginBottom: 15 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
   },
-  modalButtons: {flexDirection: 'row', justifyContent: 'space-between'},
+  modalButtons: { flexDirection: 'row', justifyContent: 'space-between' },
   modalBtn: {
     flex: 1,
     paddingVertical: 12,
@@ -334,5 +334,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     alignItems: 'center',
   },
-  modalBtnText: {color: '#fff', fontWeight: '700', fontSize: 16},
+  modalBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

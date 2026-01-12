@@ -144,7 +144,7 @@ const ConventionHall = ({
       image={item?.images_grouped}
       title={item?.title}
       description={item?.description}
-      location={item?.location}
+      location={item?.location || item?.address}
       capacity={item?.seating_capacity}
       price={item}
       priceType={item?.priceType}
@@ -355,6 +355,7 @@ const FarmHouse = ({
             navigation.navigate('PropertyDetail', {
               type: 'convention',
               propertyData: item,
+              semiType: "farm"
             });
           }
         }}
@@ -544,7 +545,7 @@ const Convention = ({ navigation, route }) => {
     {
       id: 'seating_capacity',
       type: 'seating_capacity',
-      name: 'Seating Capacity',
+      name: 'Rooms availability',
       data: [],
     },
     {
@@ -833,7 +834,7 @@ const Convention = ({ navigation, route }) => {
         : 'public/api/farm_listing';
     const response = await postRequest(url, formData, true);
     const resData = response?.data?.data;
-    // console.log(resData, 'DATATTATAT');
+    console.log(resData, "RESSSSSSS");
 
     const newProperties = resData?.data || [];
     setLastPage(resData?.last_page || 1);
@@ -957,6 +958,7 @@ const Convention = ({ navigation, route }) => {
             tintColor={COLOR.primary}
           />
         }>
+
         {activeTab === 'convention' ? (
           <ConventionHall
             loader={tabLoader}

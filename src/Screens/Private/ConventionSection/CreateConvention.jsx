@@ -39,7 +39,6 @@ const months = [
 ];
 
 const CreateConvention = ({ navigation, route }) => {
-  console.log(route?.params?.activeTabKey, 'route route');
   const activeTab = route?.params?.activeTabKey || 'Function/Convention Hall';
   const { postRequest } = useApi();
   const { showToast } = useToast();
@@ -56,6 +55,7 @@ const CreateConvention = ({ navigation, route }) => {
   // General info
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [contact, setContact] = useState(null);
 
   // Price options
   const priceOptions = [
@@ -336,11 +336,12 @@ const CreateConvention = ({ navigation, route }) => {
         formData.append(`${normalizeKey(row.field)}_price`, row.value);
       }
     });
-
-    if (address?.lat && address?.lng) {
-      formData.append('lat', address.lat);
-      formData.append('long', address.lng);
+    if (contact) {
+      formData.append('contact_number', contact);
     }
+
+    formData.append('lat', address.lat);
+    formData.append('long', address.lng);
 
     hallImages.forEach((img, index) => {
       formData.append(
@@ -392,6 +393,7 @@ const CreateConvention = ({ navigation, route }) => {
         formData.append(`dates[${moment(date)?.format('DD/MM/YYYY')}]`, value);
       });
     }
+    console.log(formData, "FFNIFN");
 
     let url = uploadType === 'Farm House' ? 'farm' : 'hall';
 
@@ -582,7 +584,16 @@ const CreateConvention = ({ navigation, route }) => {
             placeholder="Enter description"
           />
         </View>
-
+        <View style={styles.section}>
+          <Text style={styles.label}>Contact Number *</Text>
+          <TextInput
+            style={[styles.input, { textAlignVertical: 'top' }]}
+            value={contact}
+            keyboardType='numeric'
+            onChangeText={setContact}
+            placeholder="Enter Contact Number"
+          />
+        </View>
         <View style={styles.section}>
           <Text style={styles.label}>location *</Text>
           <GooglePlacePicker
@@ -722,7 +733,7 @@ const CreateConvention = ({ navigation, route }) => {
         {uploadType != 'Farm House' && (
           <>
             <View style={styles.section}>
-              <Text style={styles.label}>Seating Capacity *</Text>
+              <Text style={styles.label}>Rooms availability *</Text>
               <TextInput
                 style={styles.input}
                 value={capacity}

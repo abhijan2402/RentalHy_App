@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import {COLOR} from '../Constants/Colors';
+import { COLOR } from '../Constants/Colors';
 
 const formatPrice = (num) => {
-  return num.toLocaleString('en-IN'); 
+  return num.toLocaleString('en-IN');
 };
 
 const MultiModal = ({
@@ -30,7 +30,7 @@ const MultiModal = ({
     if (!visible) return;
     setSelectedFilters(initialSelected);
 
-     if (filterValueData?.type === 'price') {
+    if (filterValueData?.type === 'price') {
       const min = initialSelected?.min_price ?? 0;
       const max = initialSelected?.max_price ?? 1000000;
       setPriceRange([min, max]);
@@ -68,7 +68,7 @@ const MultiModal = ({
   };
 
   const handleApply = () => {
-    const updated = {...selectedFilters};
+    const updated = { ...selectedFilters };
 
     if (filterValueData?.type === 'price') {
       updated.min_price = priceRange[0];
@@ -98,9 +98,9 @@ const MultiModal = ({
           </Text>
 
           {filterValueData?.type === 'price' && (
-            <View style={{marginBottom: 20}}>
+            <View style={{ marginBottom: 20 }}>
               <Text style={styles.sliderLabel}>
-          Price : ₹{formatPrice(priceRange[0])} - ₹{formatPrice(priceRange[1])}
+                Price : ₹{formatPrice(priceRange[0])} - ₹{formatPrice(priceRange[1])}
               </Text>
               <MultiSlider
                 values={priceRange}
@@ -110,15 +110,15 @@ const MultiModal = ({
                 step={100}
                 allowOverlap={false}
                 snapped
-                selectedStyle={{backgroundColor: COLOR.primary}}
-                markerStyle={{backgroundColor: COLOR.primary, height: 20, width: 20}}
-                trackStyle={{height: 4}}
+                selectedStyle={{ backgroundColor: COLOR.primary }}
+                markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+                trackStyle={{ height: 4 }}
               />
             </View>
           )}
 
           {filterValueData?.type === 'seating_capacity' && (
-            <View style={{marginBottom: 20}}>
+            <View style={{ marginBottom: 20 }}>
               <Text style={styles.sliderLabel}>
                 Seating Capacity : {seatingRange[0]}+  - {seatingRange[1]}+
               </Text>
@@ -130,16 +130,16 @@ const MultiModal = ({
                 step={10}
                 allowOverlap={false}
                 snapped
-                selectedStyle={{backgroundColor: COLOR.primary}}
-                markerStyle={{backgroundColor: COLOR.primary, height: 20, width: 20}}
-                trackStyle={{height: 4}}
+                selectedStyle={{ backgroundColor: COLOR.primary }}
+                markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+                trackStyle={{ height: 4 }}
               />
             </View>
           )}
 
           {/* Occupancy slider */}
           {filterValueData?.type === 'occupancy_capacity' && (
-            <View style={{marginBottom: 20}}>
+            <View style={{ marginBottom: 20 }}>
               <Text style={styles.sliderLabel}>
                 Current Vacant Space : {occupancyRange[0]} - {occupancyRange[1]}
               </Text>
@@ -151,9 +151,9 @@ const MultiModal = ({
                 step={1}
                 allowOverlap={false}
                 snapped
-                selectedStyle={{backgroundColor: COLOR.primary}}
-                markerStyle={{backgroundColor: COLOR.primary, height: 20, width: 20}}
-                trackStyle={{height: 4}}
+                selectedStyle={{ backgroundColor: COLOR.primary }}
+                markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+                trackStyle={{ height: 4 }}
               />
             </View>
           )}
@@ -180,6 +180,7 @@ const MultiModal = ({
                         style={[
                           styles.optionText,
                           isSelected && styles.optionTextSelected,
+                          { textTransform: 'capitalize', }
                         ]}>
                         {option}
                       </Text>
@@ -187,17 +188,17 @@ const MultiModal = ({
                   );
                 })}
               </View>
-          )}
+            )}
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={[styles.actionButton, {backgroundColor: COLOR.lightGrey}]}
+              style={[styles.actionButton, { backgroundColor: COLOR.lightGrey }]}
               onPress={onClose}>
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, {backgroundColor: COLOR.primary}]}
+              style={[styles.actionButton, { backgroundColor: COLOR.primary }]}
               onPress={handleApply}>
               <Text style={styles.applyText}>Apply</Text>
             </TouchableOpacity>
@@ -211,16 +212,16 @@ const MultiModal = ({
 export default MultiModal;
 
 const styles = StyleSheet.create({
-  overlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end'},
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalContainer: {
     backgroundColor: '#fff',
     padding: 20,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },
-  title: {fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: COLOR.black},
-  sliderLabel: {marginBottom: 10, fontSize: 16, fontWeight: '600'},
-  optionRow: {marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap'},
+  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: COLOR.black },
+  sliderLabel: { marginBottom: 10, fontSize: 16, fontWeight: '600' },
+  optionRow: { marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap' },
   optionButton: {
     borderWidth: 1,
     borderColor: COLOR.grey,
@@ -231,10 +232,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginBottom: 10,
   },
-  optionSelected: {backgroundColor: COLOR.primary, borderColor: COLOR.primary},
-  optionText: {color: COLOR.black},
-  optionTextSelected: {color: COLOR.white},
-  buttonRow: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 10},
+  optionSelected: { backgroundColor: COLOR.primary, borderColor: COLOR.primary },
+  optionText: { color: COLOR.black },
+  optionTextSelected: { color: COLOR.white },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
   actionButton: {
     flex: 1,
     paddingVertical: 12,
@@ -242,6 +243,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginHorizontal: 5,
   },
-  cancelText: {fontSize: 16, fontWeight: 'bold', color: COLOR.black},
-  applyText: {fontSize: 16, fontWeight: 'bold', color: COLOR.white},
+  cancelText: { fontSize: 16, fontWeight: 'bold', color: COLOR.black },
+  applyText: { fontSize: 16, fontWeight: 'bold', color: COLOR.white },
 });

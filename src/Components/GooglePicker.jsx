@@ -12,7 +12,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { COLOR } from '../Constants/Colors';
 
@@ -25,10 +25,10 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
   const [loading, setLoading] = useState(false);
 
   const [region, setRegion] = useState({
-    latitude: 17.385044,
-    longitude: 78.486671,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
   });
 
   const mapRef = useRef(null);
@@ -83,11 +83,20 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
     return true;
   };
 
-  const getCurrentLocation = () => {
+
+  const getCurrentLocation = async () => {
+    console.log("hi");
+    const hasPermission = await requestLocationPermission();
+    console.log(hasPermission, "HASS");
+
+    if (!hasPermission) return;
     Geolocation.getCurrentPosition(
       async position => {
         const { latitude, longitude } = position.coords;
+        console.log(position, "POSOSOO");
+
         const address = await reverseGeocode(latitude, longitude);
+        console.log(address, "ADDD");
 
         const newRegion = {
           latitude,
@@ -195,14 +204,61 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
         )}
         style={styles.suggestionList}
       />
+      {/* {
+        console.log(region, "REGIOOOON")
 
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        region={region}
-        onPress={handleMapPress}>
-        <Marker coordinate={region} draggable onDragEnd={handleDragEnd} />
-      </MapView>
+      } */}
+      {/* <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          region={region}
+          // onRegionChangeComplete={handleMapRegionChange}
+          showsUserLocation={true}
+
+          showsMyLocationButton={true}>
+          {region && (
+            <Marker
+              coordinate={{
+                latitude: region.latitude,
+                longitude: region.longitude,
+              }}
+              draggable
+              // onDragEnd={handleMarkerDragEnd}
+              pinColor={COLOR.black}
+            />
+          )}
+        </MapView>
+      </View> */}
+      <View
+        style={{
+          height: height * 0.2,
+          marginTop: 10,
+          borderRadius: 10,
+          overflow: 'hidden', // IMPORTANT for Android
+        }}
+      >
+        <MapView
+
+          provider={PROVIDER_GOOGLE}
+          ref={mapRef}
+          style={StyleSheet.absoluteFillObject}
+          region={region}
+          onPress={handleMapPress}
+        >
+          <Marker
+            tracksViewChanges={false}
+            zIndex={999}
+            coordinate={{
+              latitude: region.latitude,
+              longitude: region.longitude,
+            }}
+            draggable
+            onDragEnd={handleDragEnd}
+          />
+        </MapView>
+      </View>
+
 
       <TouchableOpacity onPress={getCurrentLocation} style={styles.currentLocationButton}>
         <Image
@@ -236,11 +292,11 @@ const styles = StyleSheet.create({
   suggestionText: { fontSize: 14, color: '#444' },
   suggestionList: { maxHeight: 100, marginTop: 4 },
   map: {
-    width: '100%',
-    height: height * 0.2,
+    flex: 1,
     marginTop: 10,
     borderRadius: 10,
-  },
+  }
+  ,
   currentLocationButton: {
     position: 'absolute',
     bottom: 15,
@@ -253,5 +309,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+
+  },
+  mapContainer: {
+    height: 300,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 16,
   },
 });

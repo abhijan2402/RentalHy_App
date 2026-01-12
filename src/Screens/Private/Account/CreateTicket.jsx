@@ -1,39 +1,39 @@
-import {StyleSheet, Text, View, TextInput, ScrollView} from 'react-native';
-import React, {useContext, useState} from 'react';
+import { StyleSheet, Text, View, TextInput, ScrollView } from 'react-native';
+import React, { useContext, useState } from 'react';
 import Header from '../../../Components/FeedHeader';
 import CustomButton from '../../../Components/CustomButton';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import { useApi } from '../../../Backend/Api';
 import { useToast } from '../../../Constants/ToastContext';
 import { AuthContext } from '../../../Backend/AuthContent';
 
-const CreateTicket = ({navigation}) => {
-  const {postRequest} = useApi();
-  const {user} = useContext(AuthContext);
-  const {showToast} = useToast();
-  const [loader , setLoader] = useState(false);
+const CreateTicket = ({ navigation }) => {
+  const { postRequest } = useApi();
+  const { user } = useContext(AuthContext);
+  const { showToast } = useToast();
+  const [loader, setLoader] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
   const handleSubmit = async () => {
     setLoader(true)
-   if (!title.trim() || !description.trim()) {
+    if (!title.trim() || !description.trim()) {
       alert('Please fill in both title and description');
       setLoader(false);
       return;
     }
     const formData = new FormData();
-    formData.append('title',title);
-    formData.append('description',description);
-    formData.append('user_id',user?.id);
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('user_id', user?.id);
     formData.append('user_type', 'existing');
-    const response = await postRequest('public/api/support/issues' , formData , true);
-    if(response?.data?.status == 'success'){
-      showToast("Ticket Created Successfully","success")
+    const response = await postRequest('public/api/support/issues', formData, true);
+    if (response?.data?.status == 'success') {
+      showToast("Ticket Created Successfully", "success")
       setLoader(false);
       navigation.goBack();
-    }else{
-      showToast("Error while creating ticket !","error")
+    } else {
+      showToast("Error while creating ticket !", "error")
       setLoader(false)
       navigation.goBack();
     }
@@ -72,6 +72,9 @@ const CreateTicket = ({navigation}) => {
         />
       </ScrollView>
       <CustomButton title="Submit Ticket" onPress={handleSubmit} loading={loader} />
+      <View style={{ marginBottom: 50 }}>
+
+      </View>
     </View>
   );
 };

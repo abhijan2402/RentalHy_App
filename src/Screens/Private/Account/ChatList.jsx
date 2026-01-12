@@ -7,15 +7,15 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState, useContext} from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Header from '../../../Components/FeedHeader';
-import {COLOR} from '../../../Constants/Colors';
-import {useApi} from '../../../Backend/Api';
-import {AuthContext} from '../../../Backend/AuthContent';
+import { COLOR } from '../../../Constants/Colors';
+import { useApi } from '../../../Backend/Api';
+import { AuthContext } from '../../../Backend/AuthContent';
 
-const ChatList = ({navigation}) => {
-  const {user} = useContext(AuthContext);
-  const {getRequest} = useApi();
+const ChatList = ({ navigation }) => {
+  const { user } = useContext(AuthContext);
+  const { getRequest } = useApi();
   const [chatList, setChatList] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,6 +24,8 @@ const ChatList = ({navigation}) => {
     try {
       const response = await getRequest('public/api/chat-list');
       if (response?.data?.data?.length > 0) {
+        console.log(response.data?.data, "RESPSPPPP");
+
         setChatList(response.data?.data);
       } else {
         console.log('Unexpected response:', response);
@@ -39,7 +41,7 @@ const ChatList = ({navigation}) => {
     getChatList();
   }, []);
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.chatContainer}
       onPress={() =>
@@ -50,9 +52,12 @@ const ChatList = ({navigation}) => {
       {/* <Image source={{uri: item.image}} style={styles.avatar} /> */}
       <View style={styles.textContainer}>
         <Text style={styles.userName}>{item.user_name}</Text>
-        <Text style={styles.lastMessage} numberOfLines={1}>
-          {item.last_message || 'No messages yet'}
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <Text style={styles.lastMessage} numberOfLines={1}>
+            {item.last_message || 'No messages yet'}
+          </Text>
+          <Text style={{ color: COLOR.blue }}>{item?.is_read ? "" : "Unread"}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -65,17 +70,17 @@ const ChatList = ({navigation}) => {
         <ActivityIndicator
           size="large"
           color={COLOR.primary}
-          style={{marginTop: 30}}
+          style={{ marginTop: 30 }}
         />
       ) : (
         <FlatList
           data={chatList}
           renderItem={renderItem}
           keyExtractor={item => item.id?.toString()}
-          contentContainerStyle={{padding: 10}}
+          contentContainerStyle={{ padding: 10 }}
           ListEmptyComponent={
             <Text
-              style={{textAlign: 'center', marginTop: 20, color: COLOR.gray}}>
+              style={{ textAlign: 'center', marginTop: 20, color: COLOR.gray }}>
               No chats available
             </Text>
           }

@@ -212,7 +212,7 @@ const ConventionMainFilter = ({ route, navigation }) => {
 
         {/* Seating Capacity */}
         <View style={styles.filterBlock}>
-          <Text style={styles.filterTitle}>Seating Capacity</Text>
+          <Text style={styles.filterTitle}>Rooms availability</Text>
           <MultiSlider
             values={[
               filters.seatingCapacity?.min ?? 10,

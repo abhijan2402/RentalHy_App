@@ -98,7 +98,7 @@ const HostelAmed = ({ AllData }) => {
 
       <Section title="General Information" data={generalInfo} />
       <Section title="Room Prices" data={priceInfo} />
-      <Section title="Stay Duration" data={stayInfo} />
+      <Section title="Dormantory Price" data={stayInfo} />
       <Section title="Facilities" data={facilityInfo} />
       <Section title="Meals Available" data={mealInfo} />
       <Section title="Meal Timings" data={mealTiming} />

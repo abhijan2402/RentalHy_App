@@ -7,10 +7,11 @@ import ForgotPassword from '../Screens/Auth/ForgotPassword';
 import Cms from '../Components/Cms';
 import { AuthContext } from '../Backend/AuthContent';
 import { useContext } from 'react';
+import CreateTicket from '../Screens/Private/Account/CreateTicket';
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
-  const {showIntroScreens} = useContext(AuthContext);
+  const { showIntroScreens } = useContext(AuthContext);
 
   return (
     <Stack.Navigator
@@ -23,7 +24,7 @@ const AuthStack = () => {
       <Stack.Screen name="SupportList" component={SupportList} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       <Stack.Screen name="Cms" component={Cms} />
-
+      <Stack.Screen name="CreateTicket" component={CreateTicket} />
       {/* <Stack.Screen name="AddFeed" component={AddFeed} />
       <Stack.Screen name="AddEvent" component={AddEvent} />
       <Stack.Screen name="EditProfile" component={Profile} />

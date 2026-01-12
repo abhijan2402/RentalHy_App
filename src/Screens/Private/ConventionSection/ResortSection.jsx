@@ -646,7 +646,7 @@ const ResortSection = ({ navigation, route }) => {
         {
             id: 'seating_capacity',
             type: 'seating_capacity',
-            name: 'Seating Capacity',
+            name: 'Rooms availability',
             data: [],
         },
         {

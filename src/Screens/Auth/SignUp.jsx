@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,21 +14,21 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import {COLOR} from '../../Constants/Colors';
+import { COLOR } from '../../Constants/Colors';
 import CustomButton from '../../Components/CustomButton';
 import Input from '../../Components/Input';
-import {useApi} from '../../Backend/Api';
+import { useApi } from '../../Backend/Api';
 import Header from '../../Components/FeedHeader';
-import {useToast} from '../../Constants/ToastContext';
+import { useToast } from '../../Constants/ToastContext';
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-const SignUp = ({navigation}) => {
-  const {postRequest} = useApi();
+const SignUp = ({ navigation }) => {
+  const { postRequest } = useApi();
   const animationRef = useRef(null);
-  const {showToast} = useToast();
+  const { showToast } = useToast();
 
-  const [ email, setEmail] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [FullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
@@ -36,14 +36,14 @@ const SignUp = ({navigation}) => {
   const [loading, setLoading] = useState(false);
 
   const [acceptTerms, setAcceptTerms] = useState(false);
-const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
 
 
   const [emailVerified, setEmailVerified] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
 
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [otpTarget, setOtpTarget] = useState(''); 
+  const [otpTarget, setOtpTarget] = useState('');
   const [otpInput, setOtpInput] = useState('');
   const [UserID, setUserID] = useState(null);
 
@@ -53,11 +53,11 @@ const [acceptPrivacy, setAcceptPrivacy] = useState(false);
 
   const sendOtp = async type => {
     const formData = new FormData();
-      if (type === 'email') {
-        formData.append('email', email);
-      } else {
-        formData.append('phone', phone);
-      }
+    if (type === 'email') {
+      formData.append('email', email);
+    } else {
+      formData.append('phone', phone);
+    }
 
     const endpoint =
       type === 'email' ? 'public/api/signup/email' : 'api/send-phone-otp';
@@ -67,7 +67,7 @@ const [acceptPrivacy, setAcceptPrivacy] = useState(false);
       return;
     }
 
-    const res = await postRequest(endpoint, formData , true);
+    const res = await postRequest(endpoint, formData, true);
     if (res.success) {
       setUserID(res?.data?.user_id)
       setOtpTarget(type);
@@ -80,19 +80,19 @@ const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   };
 
   const verifyOtp = async () => {
-      const formData = new FormData();
-      if (otpTarget === 'email') {
-            formData.append('user_id', UserID);
-            formData.append('verification_code', otpInput);
-          } else {
-            formData.append('user_id', UserID);
-            formData.append('verification_code', otpInput);
-        }
+    const formData = new FormData();
+    if (otpTarget === 'email') {
+      formData.append('user_id', UserID);
+      formData.append('verification_code', otpInput);
+    } else {
+      formData.append('user_id', UserID);
+      formData.append('verification_code', otpInput);
+    }
 
     const endpoint =
       otpTarget === 'email' ? 'public/api/signup/verify-email' : 'api/verify-phone-otp';
 
-    const res = await postRequest(endpoint, formData , true);
+    const res = await postRequest(endpoint, formData, true);
     if (res.success) {
       showToast(`${otpTarget} verified successfully`, 'success');
       // Alert.alert('Verified', `${otpTarget} verified successfully`);
@@ -105,69 +105,69 @@ const [acceptPrivacy, setAcceptPrivacy] = useState(false);
     }
   };
 
-const registerUser = async () => {
-  if (!emailVerified) {
-    showToast(`Please verify email first`, 'error');
-    return;
-  }
+  const registerUser = async () => {
+    if (!emailVerified) {
+      showToast(`Please verify email first`, 'error');
+      return;
+    }
 
-   if (!acceptTerms) {
+    if (!acceptTerms) {
       showToast(`Please accept Terms & Conditions and Privacy Policy`, 'error');
       return;
     }
 
-  if (password.length < 6) {
-    showToast(`Password must be at least 8 characters`, 'error');
-    return; 
-  }
-
-  if (password !== confirmPassword) {
-    Alert.alert('Validation', 'Passwords do not match');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('name', FullName);
-  formData.append('user_id', UserID);
-  formData.append('phone_number', phone);
-  formData.append('email', email);
-  formData.append('password', password);
-  formData.append('password_confirmation', confirmPassword);
-
-  setLoading(true);
-  
-  try {
-    const res = await postRequest('public/api/signup/complete', formData, true);
-    setLoading(false);
-
-    if (res.success) {
-      Alert.alert('Success', 'Account created successfully, please login!');
-      navigation.goBack();
-    } else {
-      if (res.errors) {
-        const errorMessages = Object.values(res.errors)
-          .flat()
-          .join('\n');
-        showToast(errorMessages, 'error');
-      } else {
-        // Alert.alert('Error', res.error || 'Registration failed');
-      }
+    if (password.length < 6) {
+      showToast(`Password must be at least 8 characters`, 'error');
+      return;
     }
-  } catch (error) {
-    setLoading(false);
-    console.error('Registration error:', error);
-    showToast('Something went wrong. Please try again later.', 'error');
-  }
-};
+
+    if (password !== confirmPassword) {
+      Alert.alert('Validation', 'Passwords do not match');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', FullName);
+    formData.append('user_id', UserID);
+    formData.append('phone_number', phone);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('password_confirmation', confirmPassword);
+
+    setLoading(true);
+
+    try {
+      const res = await postRequest('public/api/signup/complete', formData, true);
+      setLoading(false);
+
+      if (res.success) {
+        Alert.alert('Success', 'Account created successfully, please login!');
+        navigation.goBack();
+      } else {
+        if (res.errors) {
+          const errorMessages = Object.values(res.errors)
+            .flat()
+            .join('\n');
+          showToast(errorMessages, 'error');
+        } else {
+          // Alert.alert('Error', res.error || 'Registration failed');
+        }
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error('Registration error:', error);
+      showToast('Something went wrong. Please try again later.', 'error');
+    }
+  };
 
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <Header title={'Create New Account'} showBack onBackPress={() => navigation.goBack()} />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView style={{flex: 1, backgroundColor: COLOR.white}}>
-          <Header title={'Create New Account'} showBack onBackPress={() => navigation.goBack()} />
+        <ScrollView style={{ flex: 1, backgroundColor: COLOR.white }}>
           {/* <LottieView
             ref={animationRef}
             source={require('../../assets/Lottie/SignUp.json')}
@@ -175,11 +175,11 @@ const registerUser = async () => {
           /> */}
 
 
-          <View style={{paddingTop: 15}}>
+          <View style={{ paddingTop: 15 }}>
             {/* <Text style={styles.heading}>Create New Account</Text> */}
 
 
-             <Input
+            <Input
               mainStyle={{}}
               label="Full name"
               placeholder="Enter your full name"
@@ -229,36 +229,36 @@ const registerUser = async () => {
               secureTextEntry
             />
 
-             <View style={{marginVertical: 15, marginHorizontal:16}}>
+            <View style={{ marginVertical: 15, marginHorizontal: 16 }}>
               <View
                 style={styles.checkRow}
-                >
+              >
                 <Text style={[styles.checkbox, acceptTerms && styles.checkedBox]} onPress={() => setAcceptTerms(!acceptTerms)} />
                 <Text style={styles.checkLabel}>
                   I accept the  <Text style={styles.linkText} onPress={() => {
                     navigation.navigate('Cms',
                       {
-        title: `Terms & Conditions`,
-        slug: 'terms-conditions',
-      },
-                      
+                        title: `Terms & Conditions`,
+                        slug: 'terms-conditions',
+                      },
+
                     );
                   }}>Terms & Conditions</Text>
 
                   {' '} and {' '}
 
-                  <Text style={styles.linkText}onPress={() => {
+                  <Text style={styles.linkText} onPress={() => {
                     navigation.navigate('Cms',
                       {
-        title: `Privacy Policy`,
-        slug: 'privacy-policy',
-      },
-                      
+                        title: `Privacy Policy`,
+                        slug: 'privacy-policy',
+                      },
+
                     );
                   }}  >Privacy Policy</Text>
                 </Text>
 
-                
+
               </View>
 
             </View>
@@ -267,7 +267,7 @@ const registerUser = async () => {
               title="Create Account"
               loading={loading}
               onPress={registerUser}
-              style={{marginTop: 15}}
+              style={{ marginTop: 15 }}
             />
 
             <Text style={styles.footerText}>
@@ -281,7 +281,8 @@ const registerUser = async () => {
           </View>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate('SupportList')} 
+            style={{ marginBottom: 40 }}
+            onPress={() => navigation.navigate('CreateTicket')}
           >
             <Text
               style={{
@@ -299,7 +300,7 @@ const registerUser = async () => {
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <Text
-                  style={{fontWeight: 'bold', fontSize: 16, marginBottom: 10}}>
+                  style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 10 }}>
                   Enter OTP for {otpTarget}
                 </Text>
                 <TextInput
@@ -411,7 +412,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
-    height:40
+    height: 40
   },
   cancel: {
     color: 'red',
@@ -421,7 +422,7 @@ const styles = StyleSheet.create({
     color: 'green',
     fontWeight: 'bold',
   },
-   checkRow: {
+  checkRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 6,

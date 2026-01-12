@@ -112,8 +112,8 @@ const PostHostel = ({ navigation }) => {
   });
 
   const [showPicker, setShowPicker] = useState(false);
-  const [currentKey, setCurrentKey] = useState(null); 
-  const [pickerMode, setPickerMode] = useState('time'); 
+  const [currentKey, setCurrentKey] = useState(null);
+  const [pickerMode, setPickerMode] = useState('time');
   const [smokingAllowed, setSmokingAllowed] = useState(false);
   const [alcoholAllowed, setAlcoholAllowed] = useState(false);
   const [visitersAllowed, setvisitersAllowed] = useState(false);
@@ -162,7 +162,7 @@ const PostHostel = ({ navigation }) => {
       const res = await ImagePicker.openPicker({
         multiple: true,
         mediaType: 'photo',
-      compressImageQuality: 0.8,
+        compressImageQuality: 0.8,
 
       });
       setImages(res.map(img => ({ uri: img.path })));
@@ -173,10 +173,11 @@ const PostHostel = ({ navigation }) => {
 
   const pickMenuImage = async () => {
     try {
-      const res = await ImagePicker.openPicker({ mediaType: 'photo', 
-            compressImageQuality: 0.8,
+      const res = await ImagePicker.openPicker({
+        mediaType: 'photo',
+        compressImageQuality: 0.8,
 
-       });
+      });
       setMenuImage({ uri: res.path });
     } catch (err) {
       console.log(err);
@@ -277,7 +278,7 @@ const PostHostel = ({ navigation }) => {
     if (roomSizeMax) formData.append('room_size_max', roomSizeMax);
 
     if (selectedTypes) formData.append('hostel_type', selectedTypes);
-  
+
     if (Array.isArray(selectedTypes) && selectedTypes.length > 0) {
       selectedTypes.forEach((item, index) => {
         formData.append(`hostel_type[${index}]`, item);
@@ -288,7 +289,7 @@ const PostHostel = ({ navigation }) => {
     }
 
 
-     if (Array.isArray(furnishingOptions) && furnishingOptions.length > 0) {
+    if (Array.isArray(furnishingOptions) && furnishingOptions.length > 0) {
       furnishingOptions.forEach((item, index) => {
         formData.append(`furnishing[${index}]`, item);
       });
@@ -298,7 +299,7 @@ const PostHostel = ({ navigation }) => {
     }
 
 
-     if (Array.isArray(bathroomType) && bathroomType.length > 0) {
+    if (Array.isArray(bathroomType) && bathroomType.length > 0) {
       bathroomType.forEach((item, index) => {
         formData.append(`bathroom_type[${index}]`, item);
       });
@@ -515,42 +516,47 @@ const PostHostel = ({ navigation }) => {
               onChange={onChange}
             />
           )} */}
+          {
+            showPicker &&
+            <Modal
+              visible={showPicker}
+              transparent
+              animationType="slide"
+              onRequestClose={() => setShowPicker(false)}>
+              <View style={styles.modalBackdrop}>
+                <View style={styles.modalContent}>
+                  <DateTimePicker
+                    value={tempDate}
+                    mode={pickerMode}
+                    display="spinner"
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setTempDate(selectedDate);
+                      onChange(null, selectedDate);
+                      setShowPicker(false);
 
-             <Modal
-      visible={showPicker}
-      transparent
-      animationType="slide"
-      onRequestClose={() => setShowPicker(false)}>
-      <View style={styles.modalBackdrop}>
-        <View style={styles.modalContent}>
-          <DateTimePicker
-            value={tempDate}
-            mode={pickerMode}
-            display="spinner"
-            onChange={(event, selectedDate) => {
-              if (selectedDate) setTempDate(selectedDate);
-            }}
-          />
+                    }}
+                  />
 
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.btn, styles.cancelBtn]}
-              onPress={() => setShowPicker(false)}>
-              <Text style={styles.btnText}>Cancel</Text>
-            </TouchableOpacity>
+                  {/* <View style={styles.buttonRow}>
+                    <TouchableOpacity
+                      style={[styles.btn, styles.cancelBtn]}
+                      onPress={() => setShowPicker(false)}>
+                      <Text style={styles.btnText}>Cancel</Text>
+                    </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.btn, styles.okBtn]}
-              onPress={() => {
-                onChange(null, tempDate);
-                setShowPicker(false);
-              }}>
-              <Text style={styles.btnText}>OK</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
+                    <TouchableOpacity
+                      style={[styles.btn, styles.okBtn]}
+                      onPress={() => {
+                        onChange(null, tempDate);
+                        setShowPicker(false);
+                      }}>
+                      <Text style={styles.btnText}>OK</Text>
+                    </TouchableOpacity>
+                  </View> */}
+                </View>
+              </View>
+            </Modal>
+          }
 
 
           {/* Documents */}
@@ -571,7 +577,7 @@ const PostHostel = ({ navigation }) => {
           {renderTimingInput('Gate Closing Time', 'closing')}
           {renderToggle('Pets Allowed', PetsAllowed, setPetsAllowed)}
 
-          
+
 
           {renderToggle('Smoking Allowed', smokingAllowed, setSmokingAllowed)}
 
@@ -682,17 +688,17 @@ const styles = StyleSheet.create({
     padding: 16,
     width: '90%',
   },
-   modalBackdrop: {
+  modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    width: '85%',
+    // width: '85%',
   },
   buttonRow: {
     flexDirection: 'row',
