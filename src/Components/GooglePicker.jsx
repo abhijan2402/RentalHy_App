@@ -62,9 +62,13 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
 
   const handleDragEnd = async e => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
+    console.log(latitude, longitude, "KKOKKKK");
+
     setRegion(r => ({ ...r, latitude, longitude }));
 
     const address = await reverseGeocode(latitude, longitude);
+    console.log(address, "ADDRESS");
+
     onPlaceSelected?.({
       name: address || 'Dropped Pin',
       lat: latitude,
@@ -101,8 +105,8 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
         const newRegion = {
           latitude,
           longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
         };
         setRegion(newRegion);
 
@@ -116,7 +120,7 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
         });
       },
       error => console.warn('Location error:', error),
-      { enableHighAccuracy: true, timeout: 30000, maximumAge: 10000 },
+      // { enableHighAccuracy: true, timeout: 30000, maximumAge: 10000 },
     );
   };
 

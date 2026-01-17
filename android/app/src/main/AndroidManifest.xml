@@ -17,7 +17,21 @@
 
       <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk" />
+      android:value="AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk"/>
+
+
+<!-- this one -->
+        <!-- AIzaSyDFUGq3Bcq9B_RdgPdrnC66aUaqrXco9C8 -->
+
+
+<!-- QMS one
+AIzaSyDsRXO8vkZFS6TnnNs6i0MD_d_De7d5xqo -->
+
+
+<!-- live tolet -->
+          <!-- android:value="AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk" /> -->
+
+
       <!-- AIzaSyDsRXO8vkZFS6TnnNs6i0MD_d_De7d5xqo -->
 
 <!-- tolet - AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk -->
