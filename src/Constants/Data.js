@@ -177,9 +177,9 @@ export const propertiesFake = [
 
 export const HOSTEL_FILTERS = {
     priceRange: {
-        min: 100,
-        max: 25000,
-        step: 100,
+        min: 0,
+        max: 100000,
+        step: 1000,
         label: 'Price (per month)',
     },
 

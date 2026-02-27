@@ -34,11 +34,11 @@ const ConventionMainFilter = ({ route, navigation }) => {
         min:
           modalFilters.min_price ??
           existingFilters.min_price ??
-          1000,
+          0,
         max:
           modalFilters.max_price ??
           existingFilters.max_price ??
-          1000000,
+          500000,
       },
       seatingCapacity: {
         min:
@@ -196,8 +196,8 @@ const ConventionMainFilter = ({ route, navigation }) => {
               filters.priceRange?.min ?? 1000,
               filters.priceRange?.max ?? 1000000,
             ]}
-            min={1000}
-            max={1000000}
+            min={0}
+            max={500000}
             step={1000}
             onValuesChange={values => handleSliderChange('priceRange', values)}
             selectedStyle={{ backgroundColor: COLOR.primary }}
@@ -205,8 +205,8 @@ const ConventionMainFilter = ({ route, navigation }) => {
             trackStyle={{ height: 4 }}
           />
           <Text style={styles.valueText}>
-            ₹{formatIndianCurrency(filters.priceRange?.min ?? 1000)} - ₹
-            {formatIndianCurrency(filters.priceRange?.max ?? 1000000)}
+            ₹{formatIndianCurrency(filters.priceRange?.min ?? 0)} - ₹
+            {formatIndianCurrency(filters.priceRange?.max ?? 500000)}
           </Text>
         </View>
 

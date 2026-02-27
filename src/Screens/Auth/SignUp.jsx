@@ -281,7 +281,7 @@ const SignUp = ({ navigation }) => {
           </View>
 
           <TouchableOpacity
-            style={{ marginBottom: 40 }}
+            style={{ marginBottom: 50 }}
             onPress={() => navigation.navigate('CreateTicket')}
           >
             <Text

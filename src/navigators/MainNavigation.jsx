@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
   ActivityIndicator,
@@ -6,22 +6,23 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import {AuthContext} from '../Backend/AuthContent';
+import { AuthContext } from '../Backend/AuthContent';
 import RootNavigation from './RootNavigation';
 import AuthStack from './AuthNavigation';
-import {ToastProvider} from '../Constants/ToastContext';
+import { ToastProvider } from '../Constants/ToastContext';
 import Geolocation from '@react-native-community/geolocation';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MainNavigation = () => {
   const auth = useContext(AuthContext);
-  const {currentStatus} = useContext(AuthContext);
+  const { currentStatus } = useContext(AuthContext);
 
   if (!auth) {
     console.error('AuthContext not found');
     return null;
   }
 
-  const {user, loading} = auth;
+  const { user, loading } = auth;
   const [locationStatus, setLocationStatus] = useState('Checking location...');
 
   const requestPermission = async () => {
@@ -101,18 +102,18 @@ const MainNavigation = () => {
 
   if (loading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <ToastProvider>
         {user || currentStatus === -1 ? <RootNavigation /> : <AuthStack />}
       </ToastProvider>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -16,7 +16,7 @@ export const formatIndianCurrency = (amount) => {
   if (amount === null || amount === undefined || isNaN(amount)) return '0';
 
   const num = Number(amount);
-  
+
   // Use toLocaleString with Indian locale
   return num.toLocaleString('en-IN');
 };
@@ -25,7 +25,7 @@ const Filter = ({ navigation, route }) => {
   const onApplyFilter = route?.params?.onApplyFilter;
   const existingFilters = route?.params?.existingFilters || {};
   const modalFilters = route?.params?.modalFilters || {};
-  const setAppliedModalFilter = route?.params?.setAppliedModalFilter || (() => {});
+  const setAppliedModalFilter = route?.params?.setAppliedModalFilter || (() => { });
 
   const avaialbleFilter = [
     { id: 'priceRange', type: 'price', name: 'Price Range', data: [] },
@@ -49,7 +49,7 @@ const Filter = ({ navigation, route }) => {
       if (filter.type === 'price') {
         acc.price = {
           min: modalFilters.min_price || 5000,
-          max: modalFilters.max_price || 1000000,
+          max: modalFilters.max_price || 100000,
         };
       } else {
         acc[filter.type] = modalFilters[filter.type] || [];
@@ -104,7 +104,7 @@ const Filter = ({ navigation, route }) => {
   const handleReset = () => {
     const resetState = avaialbleFilter.reduce((acc, filter) => {
       if (filter.type === 'price') {
-        acc.price = { min: 5000, max: 1000000 };
+        acc.price = { min: 5000, max: 100000 };
       } else {
         acc[filter.type] = [];
       }
@@ -138,7 +138,7 @@ const Filter = ({ navigation, route }) => {
               onValuesChange={handlePriceChange}
               onValuesChangeFinish={handlePriceFinish}
               min={1000}
-              max={1000000}
+              max={100000}
               step={1000}
               selectedStyle={{ backgroundColor: COLOR.primary }}
               markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
@@ -146,7 +146,7 @@ const Filter = ({ navigation, route }) => {
             />
             <View style={styles.priceLabelRow}>
               <Text style={styles.priceLabel}>₹{min?.toLocaleString()}</Text>
-              <Text style={styles.priceLabel}>₹{max?.toLocaleString()}</Text>
+              <Text style={styles.priceLabel}>₹{max?.toLocaleString()}+</Text>
             </View>
           </View>
         </View>
@@ -183,8 +183,8 @@ const Filter = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.form}>
         {avaialbleFilter.map(item => renderOptions(item.name, item.type, item.data))}
         <View style={styles.buttonRow}>
-          <CustomButton title="Apply" onPress={handleApply} style={{width:'48%'}} />
-          <CustomButton title="Reset" onPress={handleReset} style={{ backgroundColor: COLOR.grey, width:'48%' }} />
+          <CustomButton title="Apply" onPress={handleApply} style={{ width: '48%' }} />
+          <CustomButton title="Reset" onPress={handleReset} style={{ backgroundColor: COLOR.grey, width: '48%' }} />
         </View>
       </ScrollView>
     </View>
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   optionSelected: { backgroundColor: COLOR.primary, borderColor: COLOR.primary },
   optionText: { color: COLOR.black },
   optionTextSelected: { color: COLOR.white },
-  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 13, marginHorizontal:10  },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 13, marginHorizontal: 10 },
   priceLabelRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
   priceLabel: { fontSize: 14, fontWeight: '500', color: COLOR.black },
 });

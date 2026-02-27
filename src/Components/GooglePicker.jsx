@@ -286,6 +286,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 14,
     backgroundColor: '#FAFAFA',
+    color: "black"
   },
   suggestionItem: {
     paddingVertical: 12,

@@ -19,9 +19,10 @@ const MultiModal = ({
   onSelectSort,
   filterValueData,
   initialSelected = {},
+  maxPriceVal
 }) => {
   const [selectedFilters, setSelectedFilters] = useState(initialSelected);
-  const [priceRange, setPriceRange] = useState([0, 1000000]);
+  const [priceRange, setPriceRange] = useState([0, maxPriceVal || 100000]);
   const [seatingRange, setSeatingRange] = useState([10, 5000]);
   const [occupancyRange, setOccupancyRange] = useState([1, 1000]);
 
@@ -32,7 +33,7 @@ const MultiModal = ({
 
     if (filterValueData?.type === 'price') {
       const min = initialSelected?.min_price ?? 0;
-      const max = initialSelected?.max_price ?? 1000000;
+      const max = initialSelected?.max_price ?? maxPriceVal ?? 100000;
       setPriceRange([min, max]);
     }
 
@@ -106,8 +107,8 @@ const MultiModal = ({
                 values={priceRange}
                 onValuesChange={setPriceRange}
                 min={0}
-                max={1000000}
-                step={100}
+                max={maxPriceVal || 100000}
+                step={1000}
                 allowOverlap={false}
                 snapped
                 selectedStyle={{ backgroundColor: COLOR.primary }}

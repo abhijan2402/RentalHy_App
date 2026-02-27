@@ -138,25 +138,32 @@ const ConventionAmed = ({ AllData }) => {
             </View>
 
             {/* Rows */}
-            {fields.map(
-              ({ key, label }, index) =>
-                AllData?.[key] &&
-                String(AllData[key]).trim() !== '' && (
-                  <View
-                    key={key}
-                    style={[
-                      styles.tableRow,
-                      { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
-                    ]}>
-                    <Text style={[styles.tableCell, { flex: 1.5 }]}>{label}</Text>
-                    <Text style={[styles.tableCell, { flex: 0 }]}>
-                      {isNaN(AllData[key])
-                        ? AllData[key]
-                        : `₹${parseFloat(AllData[key]).toFixed(2)}`}
-                    </Text>
-                  </View>
-                )
-            )}
+            {fields.map(({ key, label }, index) => {
+              const value = AllData?.[key];
+
+              if (!value || String(value)?.trim() === '') return null;
+
+              const isPrice = key?.toLowerCase()?.includes('price');
+
+              return (
+                <View
+                  key={key}
+                  style={[
+                    styles.tableRow,
+                    { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
+                  ]}
+                >
+                  <Text style={[styles.tableCell, { flex: 1.5 }]}>
+                    {label}
+                  </Text>
+
+                  <Text style={[styles.tableCell, { flex: 0 }]}>
+                    {isPrice ? `₹${value}` : value}
+                  </Text>
+                </View>
+              );
+            })}
+
           </View>
         </ScrollView>
       </View>

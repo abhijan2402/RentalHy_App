@@ -54,10 +54,12 @@ const HallCard = ({
   onBook,
   onPress,
 }) => {
+  console.log(image?.room[0], "ALLLLL");
+
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
       <Image
-        source={{ uri: image?.hall && image?.hall[0]?.image_path }}
+        source={{ uri: image?.room?.length > 0 ? image?.room[0]?.image_path : image?.hall && image?.room[0]?.image_path }}
         style={styles.cardImage}
       />
       <View style={styles.cardBody}>
@@ -832,6 +834,8 @@ const Convention = ({ navigation, route }) => {
       activeTab == 'convention'
         ? 'public/api/hall_listing'
         : 'public/api/farm_listing';
+    console.log(url, "URLLLL");
+
     const response = await postRequest(url, formData, true);
     const resData = response?.data?.data;
     console.log(resData, "RESSSSSSS");
@@ -884,7 +888,7 @@ const Convention = ({ navigation, route }) => {
       style={{
         flex: 1,
         backgroundColor: '#fff',
-        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+        // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
       }}>
       <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
       <HomeHeader
@@ -1077,6 +1081,7 @@ const Convention = ({ navigation, route }) => {
       />
 
       <MultiModal
+        maxPriceVal={500000}
         filterValueData={attendedFilter}
         visible={multiFilter}
         initialSelected={AppliedModalFilter}
@@ -1152,6 +1157,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: '100%',
+    width: windowWidth,
     height: 160,
   },
   cardBody: {

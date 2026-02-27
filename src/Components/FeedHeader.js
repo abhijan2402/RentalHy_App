@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -8,25 +8,27 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  useColorScheme,
 } from 'react-native';
 import LanguageSelector from './LanguageSelector';
-import {LanguageContext} from '../localization/LanguageContext';
+import { LanguageContext } from '../localization/LanguageContext';
 
-const Header = ({title, onBackPress, showBack = false}) => {
+const Header = ({ title, onBackPress, showBack = false }) => {
   const langShow = ['Vendor Dashboard', 'विक्रेता डैशबोर्ड'];
-
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   return (
-    <SafeAreaView style={styles.safeHeader}>
+    <SafeAreaView style={[styles.safeHeader]}>
       <StatusBar
         translucent
         backgroundColor="transparent"
-        barStyle="dark-content"
+        barStyle={isDark ? 'light-content' : 'dark-content'}
       />
       <View style={styles.container}>
         {showBack && (
           <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
             <Image
-              style={{width: 20, height: 20}}
+              style={{ width: 20, height: 20 }}
               source={{
                 uri: 'https://cdn-icons-png.flaticon.com/128/130/130882.png',
               }}
@@ -49,7 +51,7 @@ export default Header;
 const styles = StyleSheet.create({
   safeHeader: {
     backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === 'android' ? 0 : 0,
   },
   container: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,27 +13,27 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import {COLOR} from '../../Constants/Colors';
+import { COLOR } from '../../Constants/Colors';
 import CustomButton from '../../Components/CustomButton';
 import LottieView from 'lottie-react-native';
 import Input from '../../Components/Input';
-import {AuthContext} from '../../Backend/AuthContent';
-import {useApi} from '../../Backend/Api';
-import {useToast} from '../../Constants/ToastContext';
+import { AuthContext } from '../../Backend/AuthContent';
+import { useApi } from '../../Backend/Api';
+import { useToast } from '../../Constants/ToastContext';
 import Header from '../../Components/FeedHeader';
-import {windowHeight, windowWidth} from '../../Constants/Dimensions';
+import { windowHeight, windowWidth } from '../../Constants/Dimensions';
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-const Login = ({navigation}) => {
-  const {postRequest} = useApi();
+const Login = ({ navigation }) => {
+  const { postRequest } = useApi();
   const animationRef = useRef(null);
-  const {showToast} = useToast();
+  const { showToast } = useToast();
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const {setUser, setToken, setCurrentStatus} = useContext(AuthContext);
+  const { setUser, setToken, setCurrentStatus } = useContext(AuthContext);
 
   useEffect(() => {
     animationRef.current?.play(30, 120);
@@ -98,11 +98,11 @@ const Login = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1, backgroundColor: COLOR.white}}
+      style={{ flex: 1, backgroundColor: COLOR.white }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
       {/* <Header title={'Sign In'} /> */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           {/* <LottieView
             ref={animationRef}
             source={require('../../assets/Lottie/Login.json')}
@@ -116,7 +116,7 @@ const Login = ({navigation}) => {
               marginBottom: windowHeight * 0.05,
               marginTop: windowHeight * 0.08,
             }}
-            source={{uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg'}}
+            source={{ uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg' }}
           />
           <Text
             style={{
@@ -129,7 +129,7 @@ const Login = ({navigation}) => {
             }}>
             Sign In
           </Text>
-          <View style={{paddingTop: 15}}>
+          <View style={{ paddingTop: 15 }}>
             <Input
               label="Email"
               placeholder="Enter your email"
@@ -152,7 +152,7 @@ const Login = ({navigation}) => {
               }}>
               <TouchableOpacity
                 onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text style={{color: COLOR.primary, fontWeight: '500'}}>
+                <Text style={{ color: COLOR.primary, fontWeight: '500' }}>
                   Forgot Password?
                 </Text>
               </TouchableOpacity>
@@ -161,7 +161,7 @@ const Login = ({navigation}) => {
               loading={loading}
               title="Login"
               onPress={loginUser}
-              style={{marginTop: 15}}
+              style={{ marginTop: 15 }}
             />
             <View
               style={{
@@ -169,10 +169,11 @@ const Login = ({navigation}) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginTop: 20,
+                marginBottom: 50
               }}>
               <Text style={styles.footerText}>Not having an account? </Text>
               <TouchableOpacity
-                style={{alignItems: 'center'}}
+                style={{ alignItems: 'center' }}
                 onPress={() => navigation.navigate('SignUp')}>
                 <Text style={styles.linkText}>Create One</Text>
               </TouchableOpacity>

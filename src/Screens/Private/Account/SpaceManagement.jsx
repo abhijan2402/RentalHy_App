@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   leftContent: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   image: { width: 84, height: 84, borderRadius: 8, marginRight: 12, backgroundColor: '#f0f0f0' },
   info: { flex: 1 },
-  title: { fontSize: 16, fontWeight: '700' },
+  title: { fontSize: 16, fontWeight: '700', color: COLOR.black },
   location: { color: '#666', marginTop: 4 },
   priceSmall: { color: COLOR.primary, fontWeight: '700', marginTop: 6 },
   rightCol: { width: 90, alignItems: 'center', justifyContent: 'center' },

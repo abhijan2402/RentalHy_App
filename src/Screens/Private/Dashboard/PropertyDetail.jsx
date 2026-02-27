@@ -22,6 +22,7 @@ import ConventionAmed from '../../../Components/ConventionAmed';
 import HostelAmed from '../../../Components/HostelAmed';
 import { AuthContext } from '../../../Backend/AuthContent';
 import PropertyAmed from '../../../Components/PropertyAmed';
+import HotelAmed from '../../../Components/HotelAmed';
 
 const PropertyDetail = ({ navigation, route }) => {
   const { currentStatus } = useContext(AuthContext);
@@ -80,21 +81,36 @@ const PropertyDetail = ({ navigation, route }) => {
         ? `public/api/hall_deatils/${id}`
         : type === 'hostel'
           ? `public/api/hostels/${id}`
-          : `public/api/properties/${id}`;
+          :
+          type === 'hotel'
+            ? `public/api/hotels/${id}` :
+            `public/api/properties/${id}`;
 
     console.log(type, 'TYPPEPEPEPE', url);
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
       console.log(response?.data, 'Property Details');
 
-      setImages(
-        type === 'convention'
-          ? response?.data?.data?.images?.hall?.map(e => e?.image_path)
-          : response?.data?.data?.images?.map(e => e?.image_url),
-      );
+      setImages(() => {
+        if (type === 'convention') {
+          const hall = response?.data?.data?.images?.hall || [];
+          const room = response?.data?.data?.images?.room || [];
+
+          if (hall.length > 0) {
+            return hall.map(e => e?.image_path);
+          }
+
+          if (room.length > 0) {
+            return room.map(e => e?.image_path);
+          }
+
+          return [];
+        }
+
+        return response?.data?.data?.images?.map(e => e?.image_url) || [];
+      });
       setAllData(response?.data?.data);
       // if (response?.data?.user_reviewed) {
-      console.log(response?.data?.review_stats, 'HUGUYGYU0');
       setuser_reviewed(response?.data?.user_reviewed);
       setReviewsCount({
         food: response?.data?.review_stats?.food_thumbs_up,
@@ -292,7 +308,7 @@ const PropertyDetail = ({ navigation, route }) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Text style={styles.title}>{AllData?.title}</Text>
+              <Text style={styles.title}>{AllData?.title || AllData?.hotel_name}</Text>
               {type != 'convention' && currentStatus != -1 && (
                 <TouchableOpacity
                   style={styles.wishlistIcon}
@@ -350,7 +366,7 @@ const PropertyDetail = ({ navigation, route }) => {
                 style={styles.locationRow}
                 onPress={() =>
                   handleCall(
-                    AllData?.user?.phone_number || AllData?.contact_number,
+                    AllData?.phone_number || AllData?.user?.phone_number || AllData?.contact_number,
                   )
                 }>
                 <Image
@@ -360,7 +376,7 @@ const PropertyDetail = ({ navigation, route }) => {
                   style={styles.iconLarge}
                 />
                 <Text style={styles.phoneHighlighted}>
-                  {AllData?.user?.phone_number || AllData?.contact_number}
+                  {AllData?.phone_number || AllData?.user?.phone_number || AllData?.contact_number}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -440,6 +456,7 @@ const PropertyDetail = ({ navigation, route }) => {
               </>
             )}
             {type === 'hostel' && <HostelAmed AllData={AllData} />}
+            {type === 'hotel' && <HotelAmed AllData={AllData} />}
           </View>
 
           <View style={{ marginHorizontal: 15, marginBottom: 20 }}>
@@ -502,7 +519,8 @@ const PropertyDetail = ({ navigation, route }) => {
             )}
           </View>
           <CustomButton
-            title={'Contact Landlord in Chat'}
+            style={{ marginBottom: 10 }}
+            title={type === 'hotel' ? "Contact Team" : 'Contact Landlord in Chat'}
             onPress={() => {
               navigation.navigate('Chat', {
                 receiver_id: AllData?.user_id,

@@ -357,8 +357,8 @@ import { formatIndianCurrency } from './Filter';
 /** 🔹 Define Filter Configuration */
 const FARMHOUSE_FILTERS = {
   priceRange: {
-    min: 1000,
-    max: 1000000,
+    min: 0,
+    max: 500000,
     step: 1000,
     label: 'Price Range (₹)',
   },

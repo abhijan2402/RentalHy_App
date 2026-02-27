@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   PermissionsAndroid,
+  useColorScheme,
 } from 'react-native';
 import { COLOR } from '../../../Constants/Colors';
 import PropertyCard from '../../../Components/PropertyCard';
@@ -50,7 +51,9 @@ const Home = ({ navigation }) => {
     currentAddress,
     setCurrentAddress,
   } = useContext(AuthContext);
+  const colorScheme = useColorScheme();
 
+  const isDark = colorScheme === 'dark';
 
   const { currentStatus } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
@@ -443,7 +446,7 @@ const Home = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
+      <StatusBar backgroundColor={COLOR.white} barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       <HomeHeader
         setLocationModalVisible={setLocationModalVisible}
@@ -868,7 +871,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLOR.white,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',

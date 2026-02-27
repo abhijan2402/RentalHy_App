@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,21 +12,21 @@ import {
 } from 'react-native';
 import Header from '../../../Components/FeedHeader';
 import ImagePicker from 'react-native-image-crop-picker';
-import {COLOR} from '../../../Constants/Colors';
+import { COLOR } from '../../../Constants/Colors';
 import CustomButton from '../../../Components/CustomButton';
-import {useApi} from '../../../Backend/Api';
-import {useToast} from '../../../Constants/ToastContext';
+import { useApi } from '../../../Backend/Api';
+import { useToast } from '../../../Constants/ToastContext';
 import KeyValueInput from '../../../Components/KeyValueComponent';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 
-const PostProperty = ({navigation}) => {
-  const {postRequest} = useApi();
-  const {showToast} = useToast();
+const PostProperty = ({ navigation }) => {
+  const { postRequest } = useApi();
+  const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [addressDescription, setAddressDescription] = useState('');
 
-  
+
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
   const [area, setArea] = useState('');
@@ -48,11 +48,11 @@ const PostProperty = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
   const [commercialOptions, setCommercialOptions] = useState([
-  'Shop',
-  'Office',
-  'Showroom',
-  'Hotel',
-  'Restaurant',
+    'Shop',
+    'Office',
+    'Showroom',
+    'Hotel',
+    'Restaurant',
   ]);
 
 
@@ -203,11 +203,11 @@ const PostProperty = ({navigation}) => {
       formData.append('long', address.lng);
     }
 
-    if(phoneNumber){
+    if (phoneNumber) {
       formData.append('phone_number', phoneNumber);
     }
 
-    if(addressDescription){
+    if (addressDescription) {
       formData.append('address_description', addressDescription);
     }
 
@@ -278,6 +278,8 @@ const PostProperty = ({navigation}) => {
           formData.append(`amenities[${item.key}]`, item.value);
         });
     }
+    console.log(formData, "FOMMDMDMDM");
+
 
     const response = await postRequest(
       'public/api/properties/add',
@@ -297,358 +299,358 @@ const PostProperty = ({navigation}) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex:1}}
+      style={{ flex: 1 }}
     >
       <View style={styles.container}>
-      <Header
-        title={'Post Property'}
-        showBack
-        onBackPress={() => navigation.goBack()}
-      />
-
-      <ScrollView
-        contentContainerStyle={styles.content}
-        nestedScrollEnabled={true}>
-        <Text style={styles.label}>Property Title *</Text>
-        <TextInput
-          style={styles.input}
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Enter property title"
-          placeholderTextColor={COLOR.grey}
-        />
-
-        <Text style={styles.label}>Description *</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Enter property description"
-          placeholderTextColor={COLOR.grey}
-          multiline
-        />
-
-        <Text style={styles.label}>Phone Number*</Text>
-        <TextInput
-          style={styles.input}
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          placeholder="Enter phone number"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="numeric"
-        />
-
-
-
-        <Text style={styles.label}>Price *</Text>
-        <TextInput
-          style={styles.input}
-          value={price}
-          onChangeText={setPrice}
-          placeholder="Enter price"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="numeric"
-        />
-
-        <Text style={styles.label}>location *</Text>
-        <GooglePlacePicker
-          placeholder="Search location..."
-          onPlaceSelected={place => {
-            setAddress(place);
-            setLocation(place.address);
-          }}
-        />
-
-        <Text style={[styles.label,{ marginTop:20}]}>Address Description</Text>
-        <TextInput
-          style={[styles.input, styles.textArea] }
-          value={addressDescription}
-          onChangeText={setAddressDescription}
-          placeholder="Enter address description"
-          placeholderTextColor={COLOR.grey}
-          multiline
-        />
-
-        <Text style={styles.label}>Area (sq ft) </Text>
-        <TextInput
-          style={styles.input}
-          value={area}
-          onChangeText={setArea}
-          placeholder="Enter area size"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="numeric"
-        />
-
-        <Text style={styles.label}>landmark</Text>
-        <TextInput
-          style={styles.input}
-          value={landmark}
-          onChangeText={setLandmark}
-          placeholder="Enter landmark"
-          placeholderTextColor={COLOR.grey}
-        />
-
-       <View style={styles.section}>
-  <Text style={styles.label}>Commercial Space (Suitable For)</Text>
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    style={styles.toggleRow}
-  >
-    {commercialOptions.map(option => (
-      <TouchableOpacity
-        key={option}
-        style={[
-          styles.optionButton,
-          commercialSpace.includes(option) && styles.selectedBtn,
-        ]}
-        onPress={() => {
-          if (commercialSpace.includes(option)) {
-            setCommercialSpace(prev => prev.filter(item => item !== option));
-            if (
-              !['Shop', 'Office', 'Showroom', 'Hotel', 'Restaurant'].includes(option)
-            ) {
-              setCommercialOptions(prev => prev.filter(item => item !== option));
-            }
-          } else {
-            setCommercialSpace(prev => [...prev, option]);
-          }
-        }}
-      >
-        <Text
-          style={[
-            styles.toggleText,
-            commercialSpace.includes(option) && styles.selectedText,
-          ]}
-        >
-          {option}
-        </Text>
-      </TouchableOpacity>
-    ))}
-
-    <TouchableOpacity
-      key="add-custom"
-      style={[styles.optionButton, styles.addButton]}
-      onPress={() => setShowCustomInput(true)}
-    >
-      <Text style={styles.toggleText}>＋</Text>
-    </TouchableOpacity>
-  </ScrollView>
-
-  {showCustomInput && (
-    <View style={styles.customRow}>
-      <TextInput
-        style={[styles.input, {flex: 1, marginRight: 8}]}
-        value={customCommercial}
-        onChangeText={setCustomCommercial}
-        placeholder="Enter custom space type"
-        placeholderTextColor={COLOR.grey}
-        onSubmitEditing={() => {
-          const trimmed = customCommercial.trim();
-          if (!trimmed) return;
-          setCommercialOptions(prev => [...prev, trimmed]);
-          setCommercialSpace(prev => [...prev, trimmed]);
-          setCustomCommercial('');
-          setShowCustomInput(false);
-        }}
-      />
-      <TouchableOpacity
-        style={styles.addConfirm}
-        onPress={() => {
-          const trimmed = customCommercial.trim();
-          if (!trimmed) return;
-          setCommercialOptions(prev => [...prev, trimmed]);
-          setCommercialSpace(prev => [...prev, trimmed]);
-          setCustomCommercial('');
-          setShowCustomInput(false);
-        }}
-      >
-        <Text style={{color: '#fff'}}>Add</Text>
-      </TouchableOpacity>
-    </View>
-  )}
-</View>
-
-        {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK, true)}
-        {renderOptions(
-          'Property Type',
-          propertyTypes,
-          propertyType,
-          setPropertyType,
-        )}
-        {renderOptions(
-          'Floor Options',
-          floorOptions,
-          selectedFloor,
-          setSelectedFloor,
-          true,
-        )}
-        {renderOptions(
-          'Furnishing Status',
-          furnishingOptions,
-          furnishing,
-          setFurnishing,
-          true,
-        )}
-        {renderOptions(
-          'Availability',
-          availabilityOptions,
-          availability,
-          setAvailability,
-        )}
-        {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms)}
-        {renderOptions(
-          'Parking Available',
-          parkingOptions,
-          parking,
-          setParking,
-        )}
-        {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
-        {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
-        {renderOptions(
-          'Preferred Tenant Type',
-          familyType,
-          familyTypeValue,
-          setFamilyTypeValue,
-          true,
-        )}
-
-        <View style={styles.section}>
-          <Text style={styles.label}>Security Available</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.toggleRow}>
-            {['Yes', 'No'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  securityAvailable === (option === 'Yes') &&
-                    styles.selectedBtn,
-                ]}
-                onPress={() => {
-                  setSecurityAvailable(option === 'Yes' ? true : false);
-                }}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    securityAvailable === (option === 'Yes') &&
-                      styles.selectedText,
-                  ]}>
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>Water Filter</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.toggleRow}>
-            {['Yes', 'No'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  waterFilter === (option === 'Yes') && styles.selectedBtn,
-                ]}
-                onPress={() => {
-                  setWaterFilter(option == 'Yes' ? true : false);
-                }}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    waterFilter === (option === 'Yes') && styles.selectedText,
-                  ]}>
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>Maintainance Fees</Text>
-          <View
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.toggleRow}>
-            {['Yes', 'No'].map(option => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.toggleBtn,
-                  maintainance === (option === 'Yes') && styles.selectedBtn,
-                ]}
-                onPress={() => {
-                  setMaintainance(option == 'Yes' ? true : false);
-                  if (option === 'No') setMaintainanceValue('');
-                }}>
-                <Text
-                  style={[
-                    styles.toggleText,
-                    maintainance === (option === 'Yes') && styles.selectedText,
-                  ]}>
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {maintainance && (
-            <TextInput
-              style={[styles.input, {marginTop: 10}]}
-              value={maintainanceValue}
-              onChangeText={setMaintainanceValue}
-              placeholder="Enter Monthly Maintainance Amount"
-              placeholderTextColor={COLOR.grey}
-              keyboardType="numeric"
-            />
-          )}
-        </View>
-
-        {/* Upload Images */}
-        <Text style={styles.label}>Property Images*</Text>
-        <TouchableOpacity style={styles.uploadBtn} onPress={pickImages}>
-          <Text style={styles.uploadText}>+ Add Images</Text>
-        </TouchableOpacity>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {images.map((img, index) => (
-            <View key={index} style={styles.imageWrapper}>
-              <Image source={{uri: img.uri}} style={styles.image} />
-              <TouchableOpacity
-                style={styles.crossContainer}
-                onPress={() => removeImage(index)}>
-                <Image
-                  source={{
-                    uri: 'https://cdn-icons-png.flaticon.com/512/1828/1828778.png',
-                  }}
-                  style={styles.crossIcon}
-                />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </ScrollView>
-
-        <ScrollView showsHorizontalScrollIndicator={false}>
-          <Text style={[styles.label, {top: 10}]}>Add if any</Text>
-
-          <KeyValueInput onChange={setMapData} />
-        </ScrollView>
-
-        {/* Post Button */}
-        <CustomButton
-          loading={loading}
+        <Header
           title={'Post Property'}
-          style={{marginTop: 20}}
-          onPress={handlePostProperty}
+          showBack
+          onBackPress={() => navigation.goBack()}
         />
-      </ScrollView>
-    </View>
+
+        <ScrollView
+          contentContainerStyle={styles.content}
+          nestedScrollEnabled={true}>
+          <Text style={styles.label}>Property Title *</Text>
+          <TextInput
+            style={styles.input}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Enter property title"
+            placeholderTextColor={COLOR.grey}
+          />
+
+          <Text style={styles.label}>Description *</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Enter property description"
+            placeholderTextColor={COLOR.grey}
+            multiline
+          />
+
+          <Text style={styles.label}>Phone Number*</Text>
+          <TextInput
+            style={styles.input}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            placeholder="Enter phone number"
+            placeholderTextColor={COLOR.grey}
+            keyboardType="numeric"
+          />
+
+
+
+          <Text style={styles.label}>Price *</Text>
+          <TextInput
+            style={styles.input}
+            value={price}
+            onChangeText={setPrice}
+            placeholder="Enter price"
+            placeholderTextColor={COLOR.grey}
+            keyboardType="numeric"
+          />
+
+          <Text style={styles.label}>location *</Text>
+          <GooglePlacePicker
+            placeholder="Search location..."
+            onPlaceSelected={place => {
+              setAddress(place);
+              setLocation(place.address);
+            }}
+          />
+
+          <Text style={[styles.label, { marginTop: 20 }]}>Address Description</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            value={addressDescription}
+            onChangeText={setAddressDescription}
+            placeholder="Enter address description"
+            placeholderTextColor={COLOR.grey}
+            multiline
+          />
+
+          <Text style={styles.label}>Area (sq ft) </Text>
+          <TextInput
+            style={styles.input}
+            value={area}
+            onChangeText={setArea}
+            placeholder="Enter area size"
+            placeholderTextColor={COLOR.grey}
+            keyboardType="numeric"
+          />
+
+          <Text style={styles.label}>landmark</Text>
+          <TextInput
+            style={styles.input}
+            value={landmark}
+            onChangeText={setLandmark}
+            placeholder="Enter landmark"
+            placeholderTextColor={COLOR.grey}
+          />
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Commercial Space (Suitable For)</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.toggleRow}
+            >
+              {commercialOptions.map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.optionButton,
+                    commercialSpace.includes(option) && styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                    if (commercialSpace.includes(option)) {
+                      setCommercialSpace(prev => prev.filter(item => item !== option));
+                      if (
+                        !['Shop', 'Office', 'Showroom', 'Hotel', 'Restaurant'].includes(option)
+                      ) {
+                        setCommercialOptions(prev => prev.filter(item => item !== option));
+                      }
+                    } else {
+                      setCommercialSpace(prev => [...prev, option]);
+                    }
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      commercialSpace.includes(option) && styles.selectedText,
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              <TouchableOpacity
+                key="add-custom"
+                style={[styles.optionButton, styles.addButton]}
+                onPress={() => setShowCustomInput(true)}
+              >
+                <Text style={styles.toggleText}>＋</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            {showCustomInput && (
+              <View style={styles.customRow}>
+                <TextInput
+                  style={[styles.input, { flex: 1, marginRight: 8 }]}
+                  value={customCommercial}
+                  onChangeText={setCustomCommercial}
+                  placeholder="Enter custom space type"
+                  placeholderTextColor={COLOR.grey}
+                  onSubmitEditing={() => {
+                    const trimmed = customCommercial.trim();
+                    if (!trimmed) return;
+                    setCommercialOptions(prev => [...prev, trimmed]);
+                    setCommercialSpace(prev => [...prev, trimmed]);
+                    setCustomCommercial('');
+                    setShowCustomInput(false);
+                  }}
+                />
+                <TouchableOpacity
+                  style={styles.addConfirm}
+                  onPress={() => {
+                    const trimmed = customCommercial.trim();
+                    if (!trimmed) return;
+                    setCommercialOptions(prev => [...prev, trimmed]);
+                    setCommercialSpace(prev => [...prev, trimmed]);
+                    setCustomCommercial('');
+                    setShowCustomInput(false);
+                  }}
+                >
+                  <Text style={{ color: '#fff' }}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {renderOptions('BHK', bhkOptions, selectedBHK, setSelectedBHK, true)}
+          {renderOptions(
+            'Property Type',
+            propertyTypes,
+            propertyType,
+            setPropertyType,
+          )}
+          {renderOptions(
+            'Floor Options',
+            floorOptions,
+            selectedFloor,
+            setSelectedFloor,
+            true,
+          )}
+          {renderOptions(
+            'Furnishing Status',
+            furnishingOptions,
+            furnishing,
+            setFurnishing,
+            true,
+          )}
+          {renderOptions(
+            'Availability',
+            availabilityOptions,
+            availability,
+            setAvailability,
+          )}
+          {renderOptions('Bathrooms', bathroomOptions, bathrooms, setBathrooms)}
+          {renderOptions(
+            'Parking Available',
+            parkingOptions,
+            parking,
+            setParking,
+          )}
+          {renderOptions('Facing Direction', facingOptions, facing, setFacing)}
+          {renderOptions('Advance', advance, advanceValue, setAdvanceValue)}
+          {renderOptions(
+            'Preferred Tenant Type',
+            familyType,
+            familyTypeValue,
+            setFamilyTypeValue,
+            true,
+          )}
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Security Available</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.toggleRow}>
+              {['Yes', 'No'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.toggleBtn,
+                    securityAvailable === (option === 'Yes') &&
+                    styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                    setSecurityAvailable(option === 'Yes' ? true : false);
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      securityAvailable === (option === 'Yes') &&
+                      styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Water Filter</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.toggleRow}>
+              {['Yes', 'No'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.toggleBtn,
+                    waterFilter === (option === 'Yes') && styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                    setWaterFilter(option == 'Yes' ? true : false);
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      waterFilter === (option === 'Yes') && styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.label}>Maintainance Fees</Text>
+            <View
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.toggleRow}>
+              {['Yes', 'No'].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.toggleBtn,
+                    maintainance === (option === 'Yes') && styles.selectedBtn,
+                  ]}
+                  onPress={() => {
+                    setMaintainance(option == 'Yes' ? true : false);
+                    if (option === 'No') setMaintainanceValue('');
+                  }}>
+                  <Text
+                    style={[
+                      styles.toggleText,
+                      maintainance === (option === 'Yes') && styles.selectedText,
+                    ]}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {maintainance && (
+              <TextInput
+                style={[styles.input, { marginTop: 10 }]}
+                value={maintainanceValue}
+                onChangeText={setMaintainanceValue}
+                placeholder="Enter Monthly Maintainance Amount"
+                placeholderTextColor={COLOR.grey}
+                keyboardType="numeric"
+              />
+            )}
+          </View>
+
+          {/* Upload Images */}
+          <Text style={styles.label}>Property Images*</Text>
+          <TouchableOpacity style={styles.uploadBtn} onPress={pickImages}>
+            <Text style={styles.uploadText}>+ Add Images</Text>
+          </TouchableOpacity>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {images.map((img, index) => (
+              <View key={index} style={styles.imageWrapper}>
+                <Image source={{ uri: img.uri }} style={styles.image} />
+                <TouchableOpacity
+                  style={styles.crossContainer}
+                  onPress={() => removeImage(index)}>
+                  <Image
+                    source={{
+                      uri: 'https://cdn-icons-png.flaticon.com/512/1828/1828778.png',
+                    }}
+                    style={styles.crossIcon}
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+
+          <ScrollView showsHorizontalScrollIndicator={false}>
+            <Text style={[styles.label, { top: 10 }]}>Add if any</Text>
+
+            <KeyValueInput onChange={setMapData} />
+          </ScrollView>
+
+          {/* Post Button */}
+          <CustomButton
+            loading={loading}
+            title={'Post Property'}
+            style={{ marginTop: 20 }}
+            onPress={handlePostProperty}
+          />
+        </ScrollView>
+      </View>
 
     </KeyboardAvoidingView>
   );
@@ -744,8 +746,8 @@ const styles = StyleSheet.create({
     tintColor: COLOR.black,
   },
 
-  section: {marginVertical: 10},
-  label: {fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333'},
+  section: { marginVertical: 10 },
+  label: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333' },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -753,6 +755,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 14,
     backgroundColor: '#fafafa',
+    color: COLOR.black
   },
   dateBox: {
     paddingVertical: 10,
@@ -763,13 +766,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: '#f9f9f9',
   },
-  dateText: {fontSize: 14, color: '#333'},
+  dateText: { fontSize: 14, color: '#333' },
   selectedBox: {
     backgroundColor: COLOR.primary || '#007AFF',
     borderColor: COLOR.primary || '#007AFF',
   },
-  selectedText: {color: '#fff', fontWeight: '600'},
-  toggleRow: {flexDirection: 'row', marginTop: 10},
+  selectedText: { color: '#fff', fontWeight: '600' },
+  toggleRow: { flexDirection: 'row', marginTop: 10 },
   toggleBtn: {
     paddingVertical: 8,
     paddingHorizontal: 10,
@@ -783,22 +786,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.primary || '#007AFF',
     borderColor: COLOR.primary || '#007AFF',
   },
-  toggleText: {fontSize: 14, color: '#333'},
-addButton: {
-  borderStyle: 'dashed',
-  borderWidth: 1,
-  borderColor: COLOR.primary,
-  backgroundColor: 'transparent',
-},
-customRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginTop: 10,
-},
-addConfirm: {
-  backgroundColor: COLOR.primary,
-  paddingHorizontal: 12,
-  paddingVertical: 10,
-  borderRadius: 8,
-},
+  toggleText: { fontSize: 14, color: '#333' },
+  addButton: {
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: COLOR.primary,
+    backgroundColor: 'transparent',
+  },
+  customRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  addConfirm: {
+    backgroundColor: COLOR.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
 });

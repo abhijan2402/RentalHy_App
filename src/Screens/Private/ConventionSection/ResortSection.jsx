@@ -1167,6 +1167,7 @@ const ResortSection = ({ navigation, route }) => {
             />
 
             <MultiModal
+                maxPriceVal={500000}
                 filterValueData={attendedFilter}
                 visible={multiFilter}
                 initialSelected={AppliedModalFilter}

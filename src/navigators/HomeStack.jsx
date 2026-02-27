@@ -29,18 +29,18 @@ import SpaceManagement from '../Screens/Private/Account/SpaceManagement';
 import ChatList from '../Screens/Private/Account/ChatList';
 import HostelReviewManagement from '../Screens/Private/Account/HostelReviewManagement';
 import PostHotel from '../Screens/Private/Hotel/PostHotel';
-import HotelFilter from '../Screens/Private/Dashboard/HotelFilter';
 const Stack = createNativeStackNavigator();
 
-const RootNavigation = () => {
+const HomeStack = () => {
     return (
         <>
             <Stack.Navigator
-                initialRouteName="BottomNavigation"
+                initialRouteName="Home"
                 screenOptions={{
                     headerShown: false,
                 }}>
-                <Stack.Screen name="BottomNavigation" component={BottomNavigation} />
+                <Stack.Screen name="Home" component={Home} />
+
                 <Stack.Screen name="Cms" component={Cms} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />
                 <Stack.Screen name="PostProperty" component={PostProperty} />
@@ -66,18 +66,16 @@ const RootNavigation = () => {
                 <Stack.Screen name="BankAccount" component={BankAccountList} />
                 <Stack.Screen name="SpaceManagement" component={SpaceManagement} />
                 <Stack.Screen name="ChatList" component={ChatList} />
-                <Stack.Screen name="HotelFilter" component={HotelFilter} />
 
-                <Stack.Screen name="Home" component={Home} />
                 <Stack.Screen name="HostelReviewManagement" component={HostelReviewManagement} />
                 <Stack.Screen name="PostHotel" component={PostHotel} />
 
 
             </Stack.Navigator>
-            <View style={{ marginBottom: 50 }}>
+            <View style={{}}>
             </View>
         </>
     );
 };
 
-export default RootNavigation;
+export default HomeStack;

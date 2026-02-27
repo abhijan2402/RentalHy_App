@@ -248,7 +248,7 @@ const CreateConvention = ({ navigation, route }) => {
                 selected && styles.optionButtonSelected,
               ]}
               onPress={() => toggleTimeBlock(date, opt)}>
-              <Text style={selected && styles.optionTextSelected}>{opt}</Text>
+              <Text style={[selected && styles.optionTextSelected, { color: "black" }]}>{opt}</Text>
             </TouchableOpacity>
           );
         })}
@@ -568,6 +568,7 @@ const CreateConvention = ({ navigation, route }) => {
           <Text style={styles.label}>Title *</Text>
           <TextInput
             style={styles.input}
+            placeholderTextColor={COLOR.grey}
             value={title}
             onChangeText={setTitle}
             placeholder="Enter title"
@@ -582,6 +583,7 @@ const CreateConvention = ({ navigation, route }) => {
             onChangeText={setDescription}
             multiline
             placeholder="Enter description"
+            placeholderTextColor={COLOR.grey}
           />
         </View>
         <View style={styles.section}>
@@ -592,6 +594,7 @@ const CreateConvention = ({ navigation, route }) => {
             keyboardType='numeric'
             onChangeText={setContact}
             placeholder="Enter Contact Number"
+            placeholderTextColor={COLOR.grey}
           />
         </View>
         <View style={styles.section}>
@@ -618,11 +621,12 @@ const CreateConvention = ({ navigation, route }) => {
                     alignItems: 'center',
                     marginBottom: 8,
                   }}>
-                  <Text style={{ flex: 1 }}>{opt}</Text>
+                  <Text style={{ flex: 1, color: COLOR.black }}>{opt}</Text>
                   <TextInput
                     style={[styles.input, { flex: 1 }]}
                     placeholder="Enter Price"
                     keyboardType="numeric"
+                    placeholderTextColor={COLOR.grey}
                     value={prices[opt] || ''}
                     onChangeText={val => setPrices({ ...prices, [opt]: val })}
                   />
@@ -633,6 +637,7 @@ const CreateConvention = ({ navigation, route }) => {
                   {rows.map((row, index) => (
                     <View key={index} style={styles.row}>
                       <TextInput
+                        placeholderTextColor={COLOR.grey}
                         style={[styles.inputVal, { flex: 1 }]}
                         placeholder="Enter Field Name"
                         value={row.field}
@@ -641,6 +646,7 @@ const CreateConvention = ({ navigation, route }) => {
                         }
                       />
                       <TextInput
+                        placeholderTextColor={COLOR.grey}
                         style={[styles.inputVal, { flex: 1 }]}
                         placeholder="Enter Price"
                         value={row.value}
@@ -674,6 +680,7 @@ const CreateConvention = ({ navigation, route }) => {
                   }}>
                   <Text style={{ flex: 1 }}>{opt}</Text>
                   <TextInput
+                    placeholderTextColor={COLOR.grey}
                     style={[styles.input, { flex: 1 }]}
                     placeholder="Enter Price"
                     keyboardType="numeric"
@@ -687,6 +694,7 @@ const CreateConvention = ({ navigation, route }) => {
                   {rows.map((row, index) => (
                     <View key={index} style={styles.row}>
                       <TextInput
+                        placeholderTextColor={COLOR.grey}
                         style={[styles.inputVal, { flex: 1 }]}
                         placeholder="Enter Field Name"
                         value={row.field}
@@ -695,6 +703,7 @@ const CreateConvention = ({ navigation, route }) => {
                         }
                       />
                       <TextInput
+                        placeholderTextColor={COLOR.grey}
                         style={[styles.inputVal, { flex: 1 }]}
                         placeholder="Enter Price"
                         value={row.value}
@@ -722,19 +731,21 @@ const CreateConvention = ({ navigation, route }) => {
           <View style={styles.section}>
             <Text style={styles.label}>Room Available *</Text>
             <TextInput
+              placeholderTextColor={COLOR.grey}
               style={styles.input}
               value={capacity}
               keyboardType="numeric"
               onChangeText={setCapacity}
-              placeholder="Enter Capacity"
+              placeholder="Room Availability"
             />
           </View>
         )}
         {uploadType != 'Farm House' && (
           <>
             <View style={styles.section}>
-              <Text style={styles.label}>Rooms availability *</Text>
+              <Text style={styles.label}>Hall Capacity (No. of People) *</Text>
               <TextInput
+                placeholderTextColor={COLOR.grey}
                 style={styles.input}
                 value={capacity}
                 keyboardType="numeric"
@@ -903,6 +914,7 @@ const CreateConvention = ({ navigation, route }) => {
             <View style={styles.section}>
               <Text style={styles.label}>Other (if any)</Text>
               <TextInput
+                placeholderTextColor={COLOR.grey}
                 style={styles.input}
                 value={otherFacilities}
                 onChangeText={setOtherFacilities}
@@ -914,6 +926,7 @@ const CreateConvention = ({ navigation, route }) => {
             <View style={styles.section}>
               <Text style={styles.label}>Area </Text>
               <TextInput
+                placeholderTextColor={COLOR.grey}
                 style={styles.input}
                 value={area}
                 onChangeText={setArea}
@@ -973,7 +986,7 @@ const CreateConvention = ({ navigation, route }) => {
             markedDates={unavailableDates}
             markingType={'multi-dot'}
           />
-          <Text style={styles.note}>
+          <Text style={[styles.note, { color: "black" }]}>
             Note: Please select only those dates on which your hall is NOT
             available for booking. All other dates will be considered available.
           </Text>
@@ -1087,8 +1100,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
     height: 40,
+    color: "black"
   },
-  dateText: { fontSize: 16, width: 110 },
+  dateText: { fontSize: 16, width: 110, color: "black" },
   inputVal: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -1096,6 +1110,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 6,
     paddingVertical: 10,
+    color: COLOR.black
   },
   icon: {
     width: 24,

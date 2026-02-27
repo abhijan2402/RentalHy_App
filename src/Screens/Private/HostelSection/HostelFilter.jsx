@@ -126,38 +126,45 @@ const HostelFilterScreen = ({ route, navigation }) => {
 
         <View style={styles.filterBlock}>
           <Text style={styles.filterTitle}>{HOSTEL_FILTERS.priceRange.label}</Text>
-          <MultiSlider
-            values={[
-              filters.price?.min ?? HOSTEL_FILTERS.priceRange.min,
-              filters.price?.max ?? HOSTEL_FILTERS.priceRange.max,
-            ]}
-            min={HOSTEL_FILTERS.priceRange.min}
-            max={HOSTEL_FILTERS.priceRange.max}
-            step={HOSTEL_FILTERS.priceRange.step}
-            onValuesChange={values => handleSliderChange('price', values)}
-             selectedStyle={{ backgroundColor: COLOR.primary }}
-                          markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
-                          trackStyle={{ height: 4 }}
-          />
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <MultiSlider
+              values={[
+                filters.price?.min ?? HOSTEL_FILTERS.priceRange.min,
+                filters.price?.max ?? HOSTEL_FILTERS.priceRange.max,
+              ]}
+              min={HOSTEL_FILTERS.priceRange.min}
+              max={HOSTEL_FILTERS.priceRange.max}
+              step={HOSTEL_FILTERS.priceRange.step}
+              onValuesChange={values => handleSliderChange('price', values)}
+              style={{ justifyContent: "center", alignItems: "center", alignSelf: "center" }}
+              selectedStyle={{ backgroundColor: COLOR.primary, }}
+              markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20, }}
+              trackStyle={{ height: 4, }}
+            />
+
+
+          </View>
           <Text style={styles.valueText}>
             ₹{filters.price?.min ?? HOSTEL_FILTERS.priceRange.min} - ₹
-            {filters.price?.max ?? HOSTEL_FILTERS.priceRange.max}
+            {filters.price?.max ?? HOSTEL_FILTERS.priceRange.max}+
           </Text>
         </View>
 
         {/* Occupancy */}
         <View style={styles.filterBlock}>
           <Text style={styles.filterTitle}>Occupancy</Text>
-          <MultiSlider
-            values={[filters.occupancy?.min ?? 1, filters.occupancy?.max ?? 100]}
-            min={1}
-            max={100}
-            step={1}
-            onValuesChange={values => handleSliderChange('occupancy', values)}
-             selectedStyle={{ backgroundColor: COLOR.primary }}
-                          markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
-                          trackStyle={{ height: 4 }}
-          />
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <MultiSlider
+              values={[filters.occupancy?.min ?? 1, filters.occupancy?.max ?? 100]}
+              min={1}
+              max={100}
+              step={1}
+              onValuesChange={values => handleSliderChange('occupancy', values)}
+              selectedStyle={{ backgroundColor: COLOR.primary }}
+              markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
+              trackStyle={{ height: 4 }}
+            />
+          </View>
           <Text style={styles.valueText}>
             {filters.occupancy?.min ?? 1} - {filters.occupancy?.max ?? 100}%
           </Text>
@@ -196,7 +203,7 @@ export default HostelFilterScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  filterBlock: { marginVertical: 10, paddingHorizontal: 16 },
+  filterBlock: { marginVertical: 10, paddingHorizontal: 16, },
   filterTitle: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
   optionContainer: { flexDirection: 'row', flexWrap: 'wrap' },
   optionButton: {
@@ -238,6 +245,6 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 8,
-    width:'100%',
+    width: '100%',
   },
 });

@@ -12,6 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
   View,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
@@ -33,6 +34,9 @@ import RenderFilterOptions from '../../../Components/renderFilterOptions';
 const Hostel = ({ navigation }) => {
   const filterHeight = useRef(new Animated.Value(40)).current;
   let scrollOffset = 0;
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { postRequest } = useApi()
   const [propertiesFake, setpropertiesFake] = useState([]);
   const [tabLoader, settabLoader] = useState(false);
@@ -305,7 +309,7 @@ const Hostel = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
+      <StatusBar backgroundColor={COLOR.white} barStyle={isDark ? 'light-content' : 'dark-content'} />
       <HomeHeader navigation={navigation} setLocationModalVisible={setLocationModalVisible} />
       {tabLoader ? (
         <View style={{ height: 115 }}></View>
@@ -523,7 +527,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLOR.white,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   searchContainer: {
     flexDirection: 'row',

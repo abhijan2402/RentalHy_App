@@ -22,6 +22,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 const PostHostel = ({ navigation }) => {
+
   const { postRequest } = useApi();
   const { showToast } = useToast();
   const [images, setImages] = useState([]);
@@ -340,14 +341,18 @@ const PostHostel = ({ navigation }) => {
         name: img.name || `image_${index}.jpg`,
       });
     });
-    formData.append('menu_images[0]', {
-      type: 'image/jpeg',
-      uri: menuImage?.uri,
-      name: 'image',
-    });
+    if (menuImage?.uri) {
+      formData.append('menu_images[0]', {
+        type: 'image/jpeg',
+        uri: menuImage?.uri,
+        name: 'image',
+      });
+
+    }
     console.log(formData, 'FROMMMM');
 
     const response = await postRequest('public/api/hostels', formData, true);
+    console.log(response, "RESPPPPP");
 
     if (response?.data?.success) {
       setButtonLoading(false);
@@ -355,6 +360,8 @@ const PostHostel = ({ navigation }) => {
       showToast(response?.data?.message, 'success');
       navigation.goBack();
     } else {
+      console.log(response, "RESPPPPP");
+
       // navigation.goBack()
       setButtonLoading(false);
     }
@@ -617,6 +624,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 14,
     backgroundColor: '#fafafa',
+    color: "black"
   },
   sectionTitle: {
     fontSize: 16,

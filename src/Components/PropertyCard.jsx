@@ -34,8 +34,8 @@ const PropertyCard = ({
         source={{
           uri: item?.image
             ? item?.image
-            : item?.property?.images[0]?.image_url ||
-            item?.images[0]?.image_url,
+            : item?.primary_image ? item?.primary_image : item?.property?.images[0]?.image_url ||
+              item?.images && item?.images[0]?.image_url,
         }}
         style={styles.propertyImage}
       />
@@ -63,7 +63,7 @@ const PropertyCard = ({
       </TouchableOpacity>}
 
       <Text style={styles.propertyName}>
-        {item.title || item?.property?.title || item?.name}
+        {item.title || item?.property?.title || item?.name || item?.hotel_name}
       </Text>
       <Text style={styles.propertyLocation}>
         {item?.property?.location || item.location}
