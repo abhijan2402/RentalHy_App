@@ -12,6 +12,7 @@ const PropertyCard = ({
   type,
   removewishlist,
   showDelete = false,
+  onPressHotel
 }) => {
 
   const navigation = useNavigation();
@@ -95,9 +96,21 @@ const PropertyCard = ({
               ? '₹' + item.price
               : '₹' + item?.min_price + ' - ' + item?.max_price}
         </Text>
-        {(item?.status || item?.property?.status) == 1 && (
+        {(type != "hotel" && item?.status || item?.property?.status) == 1 && (
           <Text style={styles.TagStyle}>Featured</Text>
         )}
+        {
+          type == "hotel" &&
+          <TouchableOpacity onPress={onPressHotel} style={{
+            padding: 5,
+            backgroundColor: COLOR.primary,
+            borderRadius: 5,
+            paddingHorizontal: 6,
+            borderRadius: 6,
+          }}>
+            <Text style={{ fontSize: 10, color: COLOR.white, fontWeight: "600" }}>Book now</Text>
+          </TouchableOpacity>
+        }
       </View>
       <CreateAccountModal
         visible={modalVisible}

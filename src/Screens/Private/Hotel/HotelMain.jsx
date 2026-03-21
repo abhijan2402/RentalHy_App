@@ -38,6 +38,7 @@ const HotelMain = ({ navigation }) => {
     const [properties, setProperties] = useState([]);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+
     const [avaialbleFilter, setavaialbleFilter] = useState([
         {
             id: 'priceRange',
@@ -124,6 +125,22 @@ const HotelMain = ({ navigation }) => {
             data: ['Yes', 'No'],
         },
     ]);
+    const buildQueryParams = (params) => {
+        return Object.entries(params)
+            .filter(([_, value]) => {
+                if (Array.isArray(value)) return value.length > 0;
+                return value !== '' && value !== null && value !== undefined;
+            })
+            .map(([key, value]) => {
+                if (Array.isArray(value)) {
+                    return value
+                        .map(v => `${key}[]=${encodeURIComponent(v)}`)
+                        .join('&');
+                }
+                return `${key}=${encodeURIComponent(value)}`;
+            })
+            .join('&');
+    };
     useEffect(() => {
         if (Object.keys(appliedFilters).length > 0) {
             setAppliedModalFilter(appliedFilters);
@@ -135,7 +152,7 @@ const HotelMain = ({ navigation }) => {
     };;
     const sortOptions = [
         { label: 'Price: Low to High', value: 'asc' },
-        { label: 'Price: High to Low', value: 'des' },
+        { label: 'Price: High to Low', value: 'desc' },
     ];
 
     // =========================
@@ -149,22 +166,24 @@ const HotelMain = ({ navigation }) => {
                 setLoader(true);
             }
 
-            let url = `public/api/hotels?status=1&page=${pageNumber}`;
+            const params = {
+                status: 1,
+                page: pageNumber,
+                location: searchQuery,
+                sort_order: sortQuery,
+                ...AppliedModalFilter, // 🔥 ALL FILTERS HERE
+            };
 
-            if (searchQuery) {
-                url += `&location=${searchQuery}`;
-            }
+            const queryString = buildQueryParams(params);
 
-            if (sortQuery) {
-                url += `&sort_order=${sortQuery}`;
-            }
-            console.log(url, "URLLL");
+            const url = `public/api/hotels?${queryString}`;
 
+            console.log(url, "FINAL_URL");
 
             const response = await getRequest(url);
 
             const data = response?.data?.data || [];
-            console.log(data, "DATATATAT");
+            console.log(data, "DATTATATATA");
 
             if (loadMore) {
                 setProperties(prev => [...prev, ...data]);
@@ -174,6 +193,7 @@ const HotelMain = ({ navigation }) => {
 
             setHasMore(data.length > 0);
             setPage(pageNumber);
+
         } catch (error) {
             console.log('Hotel Fetch Error:', error);
         } finally {
@@ -187,10 +207,10 @@ const HotelMain = ({ navigation }) => {
     // =========================
     useEffect(() => {
         GetHotels(1);
-    }, [sortQuery]);
+    }, [])
     useEffect(() => {
         GetHotels(1);
-    }, [])
+    }, [searchQuery, sortQuery, AppliedModalFilter]);
 
     // =========================
     // LOAD MORE
@@ -212,7 +232,15 @@ const HotelMain = ({ navigation }) => {
         );
     }, [searchQuery, sortQuery]);
 
-
+    const resetAllFilters = () => {
+        setSortQuery('');
+        setSearchQuery('');
+        setAppliedModalFilter({});
+        setAppliedFilters({});
+        setAttendedFilter([]);
+        setPage(1);
+        setHasMore(true);
+    };
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar backgroundColor={COLOR.white} barStyle="dark-content" />
@@ -244,7 +272,14 @@ const HotelMain = ({ navigation }) => {
                         style={styles.filterIcon}
                     />
                 </TouchableOpacity>
-
+                <TouchableOpacity onPress={() => setSortVisible(true)}>
+                    <Image
+                        source={{
+                            uri: 'https://cdn-icons-png.flaticon.com/128/4662/4662255.png',
+                        }}
+                        style={styles.filterIcon}
+                    />
+                </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() =>
                         navigation.navigate('HotelFilter', {
@@ -299,6 +334,7 @@ const HotelMain = ({ navigation }) => {
                 data={properties}
                 renderItem={({ item }) => (
                     <PropertyCard
+                        onPressHotel={() => navigation.navigate("BookHotel", { data: item })}
                         item={item}
                         type={'hotel'}
                     />
@@ -316,8 +352,7 @@ const HotelMain = ({ navigation }) => {
                     <RefreshControl
                         refreshing={loader}
                         onRefresh={() => {
-                            setSortQuery(null)
-                            GetHotels(1)
+                            resetAllFilters();
                         }}
                         colors={[COLOR.primary]}
                         tintColor={COLOR.primary}

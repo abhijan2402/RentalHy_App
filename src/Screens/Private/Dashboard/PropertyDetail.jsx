@@ -138,11 +138,44 @@ const PropertyDetail = ({ navigation, route }) => {
       showToast(response?.error, 'error');
     }
   };
+  const getReviewsforHotel = async () => {
+    const response = await getRequest(
+      `public/api/hotels/${AllData?.id}/review-stats`,
+    );
 
+    console.log(response?.data?.data, "RESPONSEEEEEEEE");
+
+    if (response?.success) {
+      const reviewData = response?.data?.data;
+
+      // if API returns user_reviewed (optional safety)
+      setuser_reviewed(reviewData?.user_reviewed ?? false);
+
+      // Rating breakdown mapping
+      const breakdown = reviewData?.rating_breakdown || {};
+
+      setReviewsCount({
+        food: breakdown?.food_good?.count ?? 0,
+        cleanliness: breakdown?.room_clean?.count ?? 0,
+        staff: breakdown?.staff_good?.count ?? 0,
+        safety: breakdown?.safe_stay?.count ?? 0,
+      });
+
+      // Description / feedback (if exists)
+      setDescription(
+        reviewData?.additional_feedback ||
+        reviewData?.description ||
+        ''
+      );
+    } else {
+      // showToast(response?.error, 'error');
+    }
+  };
   useEffect(() => {
     if (propertyData?.id) {
       getPropertyDetails(propertyData?.id, false);
       propertyViewed(propertyData?.id);
+      getReviewsforHotel()
     }
   }, [propertyData?.id]);
 
@@ -182,7 +215,7 @@ const PropertyDetail = ({ navigation, route }) => {
       console.log(formData, 'FORMMMM____DARRRA');
 
       const response = await postRequest(
-        'public/api/hostels/submit-review',
+        type == "hostel" ? 'public/api/hostels/submit-review' : `public/api/hotels/${AllData?.id}/reviews`,
         formData,
         true,
       );
@@ -192,7 +225,7 @@ const PropertyDetail = ({ navigation, route }) => {
         showToast('Review Submitted Successfully', 'success');
       } else {
         setButtonLoader(false);
-        showToast('Error Submitting Review', 'error');
+        showToast(response?.error, 'error');
       }
     } catch (error) {
       showToast(error, 'error');
@@ -244,10 +277,6 @@ const PropertyDetail = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      {
-        console.log(type, "TYYY")
-
-      }
       <Header
         title={
           semiType ? "Resort/Farm Details" :
@@ -255,8 +284,10 @@ const PropertyDetail = ({ navigation, route }) => {
               ? 'Convention Detail'
               : type == 'farm' ? "Resort / Farm house Details" :
                 type == 'hostel'
-                  ? 'Hostel Details'
-                  : 'Property Detail'
+                  ? 'Hostel Details' :
+                  type === 'hotel' ?
+                    'Hotel Details'
+                    : 'Property Detail'
         }
         showBack
         onBackPress={() => navigation.goBack()}
@@ -460,7 +491,7 @@ const PropertyDetail = ({ navigation, route }) => {
           </View>
 
           <View style={{ marginHorizontal: 15, marginBottom: 20 }}>
-            {type === 'hostel' && (
+            {type === 'hostel' || type === 'hotel' ? (
               <>
                 <Text
                   style={{
@@ -516,15 +547,20 @@ const PropertyDetail = ({ navigation, route }) => {
                   />
                 )}
               </>
-            )}
+            ) : null}
           </View>
           <CustomButton
             style={{ marginBottom: 10 }}
-            title={type === 'hotel' ? "Contact Team" : 'Contact Landlord in Chat'}
+            title={type === 'hotel' ? "Book Now" : 'Contact Landlord in Chat'}
             onPress={() => {
-              navigation.navigate('Chat', {
-                receiver_id: AllData?.user_id,
-              });
+              if (type === 'hotel') {
+                navigation.navigate("BookHotel", { data: AllData })
+              } else {
+                navigation.navigate('Chat', {
+                  receiver_id: AllData?.user_id,
+                });
+
+              }
             }}
           />
           {type == 'convention' && (

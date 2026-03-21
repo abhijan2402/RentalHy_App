@@ -54,7 +54,6 @@ const HallCard = ({
   onBook,
   onPress,
 }) => {
-  console.log(image?.room[0], "ALLLLL");
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>

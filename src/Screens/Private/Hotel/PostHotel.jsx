@@ -36,8 +36,8 @@ const PostHotel = ({ navigation }) => {
     const [hotelType, setHotelType] = useState('4');
 
     // EXTRA STATES
-    const [roomType, setRoomType] = useState('');
-    const [bedType, setBedType] = useState('');
+    const [roomType, setRoomType] = useState([]);
+    const [bedType, setBedType] = useState([]);
     const [guestsPerRoom, setGuestsPerRoom] = useState('');
     const [roomSize, setRoomSize] = useState('');
 
@@ -56,6 +56,7 @@ const PostHotel = ({ navigation }) => {
     const [isLiftAvailable, setIsLiftAvailable] = useState('yes');
     const [isWater24x7, setIsWater24x7] = useState('yes');
     const [isGeyserAvailable, setIsGeyserAvailable] = useState('yes');
+    const [agreeTerms, setAgreeTerms] = useState(false);
 
     const boolToInt = val => (val === 'yes' ? 1 : 0);
 
@@ -69,14 +70,24 @@ const PostHotel = ({ navigation }) => {
         setShowCheckOutPicker(false);
         if (date) setCheckOutTime(moment(date).format('HH:mm'));
     };
+    const MAX_IMAGES = 10;
 
-    // IMAGE PICKER
     const pickImages = async () => {
         try {
+
+            // Remaining slots
+            const remaining = MAX_IMAGES - images.length;
+
+            if (remaining <= 0) {
+                alert("You can upload maximum 10 photos only");
+                return;
+            }
+
             const picked = await ImagePicker.openPicker({
                 multiple: true,
                 mediaType: 'photo',
                 compressImageQuality: 0.8,
+                maxFiles: remaining, // 🔥 restrict picker selection
             });
 
             const formatted = picked.map(img => ({
@@ -85,29 +96,62 @@ const PostHotel = ({ navigation }) => {
                 fileName: img.filename || `image_${Date.now()}.jpg`,
             }));
 
-            setImages(prev => [...prev, ...formatted]);
+            // Final safety check (important)
+            const totalImages = [...images, ...formatted];
+
+            if (totalImages.length > MAX_IMAGES) {
+                alert("Only 10 images are allowed");
+                setImages(totalImages.slice(0, MAX_IMAGES));
+            } else {
+                setImages(totalImages);
+            }
+
         } catch (e) {
             console.log(e);
         }
     };
     // UI HELPERS
-    const renderSelect = (label, options, value, setValue) => (
-        <View style={{ marginTop: 12 }}>
-            <Text style={styles.label}>{label}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {options.map(opt => (
-                    <TouchableOpacity
-                        key={opt}
-                        style={[styles.optionBtn, value === opt && styles.selectedBtn]}
-                        onPress={() => setValue(opt)}>
-                        <Text style={[styles.optionText, value === opt && styles.selectedText]}>
-                            {opt}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
-        </View>
-    );
+    const renderSelect = (label, options, value, setValue, multi = false) => {
+
+        const toggleSelect = (option) => {
+
+            if (multi) {
+                // MULTI SELECT
+                if (value.includes(option)) {
+                    setValue(value.filter(item => item !== option));
+                } else {
+                    setValue([...value, option]);
+                }
+            } else {
+                // SINGLE SELECT
+                setValue(option);
+            }
+        };
+
+        const isSelected = (option) => {
+            return multi ? value.includes(option) : value === option;
+        };
+
+        return (
+            <View style={{ marginTop: 12 }}>
+                <Text style={styles.label}>{label}</Text>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {options.map(opt => (
+                        <TouchableOpacity
+                            key={opt}
+                            style={[styles.optionBtn, isSelected(opt) && styles.selectedBtn]}
+                            onPress={() => toggleSelect(opt)}
+                        >
+                            <Text style={[styles.optionText, isSelected(opt) && styles.selectedText]}>
+                                {opt}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+        );
+    };
 
 
     const removeImage = index => {
@@ -147,6 +191,10 @@ const PostHotel = ({ navigation }) => {
         if (!title || !description || !phoneNumber || !price || !location) {
             Alert.alert('Validation', 'Please fill required fields');
             return;
+        }
+        if (!agreeTerms) {
+            Alert.alert('Validation', 'Please agree to the Terms and Conditions and Privacy Policy');
+            return
         }
 
         try {
@@ -222,20 +270,37 @@ const PostHotel = ({ navigation }) => {
             <Header title="Post Hotels" showBack onBackPress={() => navigation.goBack()} />
 
             <ScrollView contentContainerStyle={styles.content}>
+                <TouchableOpacity style={styles.uploadBtn} onPress={pickImages}>
+                    <Text style={styles.uploadText}>+ Add Hotel Images (upto 10 Images)</Text>
+                </TouchableOpacity>
+
+                <ScrollView horizontal>
+                    {images.map((img, i) => (
+                        <View key={i} style={styles.imageWrapper}>
+                            <Image source={{ uri: img.uri }} style={styles.image} />
+                            <TouchableOpacity style={styles.crossContainer} onPress={() => removeImage(i)}>
+                                <Text style={{ fontSize: 11, padding: 2 }}>X</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </ScrollView>
                 <Text style={styles.label}>Hotel Name *</Text>
-                <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+                <TextInput placeholder='Hotel Name' placeholderTextColor={COLOR.grey} style={styles.input} value={title} onChangeText={setTitle} />
 
                 <Text style={styles.label}>Description *</Text>
-                <TextInput textAlignVertical='top' style={[styles.input, styles.textArea]} multiline value={description} onChangeText={setDescription} />
+                <TextInput placeholder='Description' placeholderTextColor={COLOR.grey} textAlignVertical='top' style={[styles.input, styles.textArea]} multiline value={description} onChangeText={setDescription} />
 
                 <Text style={styles.label}>Phone *</Text>
-                <TextInput style={styles.input} value={phoneNumber} onChangeText={setPhoneNumber} />
+                <TextInput placeholder='Phone' placeholderTextColor={COLOR.grey} style={styles.input} value={phoneNumber} onChangeText={setPhoneNumber} />
 
                 <Text style={styles.label}>Price *</Text>
-                <TextInput style={styles.input} value={price} onChangeText={setPrice} />
+                <TextInput placeholder='Price' placeholderTextColor={COLOR.grey} style={styles.input} value={price} onChangeText={setPrice} />
                 {renderSelect('Hotel Type (Rating basis)', ['1', '2', '3', '4', '5'], hotelType, setHotelType)}
-                {renderSelect('Room Type', ['Single', 'Double', 'Triple', '4+'], roomType, setRoomType)}
-                {renderSelect('Bed Type', ['King Size Bed', 'Queen Size Bed', 'Double Bed / Full-Size Bed', 'Single Bed', 'Twin Beds'], bedType, setBedType)}
+                {/* {renderSelect('Room Type', ['Single', 'Double', 'Triple', '4+'], roomType, setRoomType)} */}
+                {renderSelect('Room Type', ['Single', 'Double', 'Triple', '4+'], roomType, setRoomType, true)}
+
+                {renderSelect('Bed Type', ['King Size Bed', 'Queen Size Bed', 'Double Bed / Full-Size Bed', 'Single Bed', 'Twin Beds'], bedType, setBedType, true)}
+                {/* {renderSelect('Bed Type', ['King Size Bed', 'Queen Size Bed', 'Double Bed / Full-Size Bed', 'Single Bed', 'Twin Beds'], bedType, setBedType)} */}
                 {renderSelect('Guests Per Room', ['1', '2', '3', '4', '5'], guestsPerRoom, setGuestsPerRoom)}
                 {/* <Text style={styles.label}>Room Type</Text>
                 <TextInput style={styles.input} value={roomType} onChangeText={setRoomType} />
@@ -249,7 +314,7 @@ const PostHotel = ({ navigation }) => {
                 {/* TIME PICKERS */}
                 <Text style={styles.label}>Check In Time</Text>
                 <TouchableOpacity style={styles.input} onPress={() => setShowCheckInPicker(true)}>
-                    <Text>{checkInTime || 'Select Check In Time'}</Text>
+                    <Text style={styles.optionText}>{checkInTime || 'Select Check In Time'}</Text>
                 </TouchableOpacity>
 
                 {showCheckInPicker && (
@@ -258,7 +323,7 @@ const PostHotel = ({ navigation }) => {
 
                 <Text style={styles.label}>Check Out Time</Text>
                 <TouchableOpacity style={styles.input} onPress={() => setShowCheckOutPicker(true)}>
-                    <Text>{checkOutTime || 'Select Check Out Time'}</Text>
+                    <Text style={styles.optionText}>{checkOutTime || 'Select Check Out Time'}</Text>
                 </TouchableOpacity>
 
                 {showCheckOutPicker && (
@@ -266,7 +331,7 @@ const PostHotel = ({ navigation }) => {
                 )}
 
                 <Text style={styles.label}>Room Size</Text>
-                <TextInput style={styles.input} value={roomSize} onChangeText={setRoomSize} />
+                <TextInput placeholder='Room Size' placeholderTextColor={COLOR.grey} style={styles.input} value={roomSize} onChangeText={setRoomSize} />
 
                 {/* TOGGLES */}
                 {renderToggle('AC Available', isAc, setIsAc)}
@@ -283,21 +348,36 @@ const PostHotel = ({ navigation }) => {
                     placeholder="Search location..."
                     onPlaceSelected={p => setLocation(p?.address || '')}
                 />
+                <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 5, marginTop: 20, marginBottom: 10 }}>
 
-                <TouchableOpacity style={styles.uploadBtn} onPress={pickImages}>
-                    <Text style={styles.uploadText}>+ Add Images</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setAgreeTerms(!agreeTerms)}
+                        style={{
+                            width: 20,
+                            height: 20,
+                            borderWidth: 1,
+                            borderColor: "#999",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginRight: 10
+                        }}
+                    >
+                        {agreeTerms && (
+                            <View style={{
+                                width: 12,
+                                height: 12,
+                                backgroundColor: COLOR.primary
+                            }} />
+                        )}
+                    </TouchableOpacity>
 
-                <ScrollView horizontal>
-                    {images.map((img, i) => (
-                        <View key={i} style={styles.imageWrapper}>
-                            <Image source={{ uri: img.uri }} style={styles.image} />
-                            <TouchableOpacity style={styles.crossContainer} onPress={() => removeImage(i)}>
-                                <Text>X</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </ScrollView>
+                    <Text style={{ flex: 1, color: COLOR.black }}>
+                        I agree to the Terms and Conditions and Privacy Policy.
+                    </Text>
+
+                </View>
+
+
 
                 <CustomButton
                     loading={loading}
@@ -332,8 +412,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginRight: 10,
     },
-    selectedBtn: { backgroundColor: COLOR.primary },
-    toggleText: { fontWeight: '600' },
+    selectedBtn: { backgroundColor: COLOR.primary, color: COLOR.black },
+    toggleText: { fontWeight: '600', color: COLOR.black },
     selectedText: { color: 'white' },
 
     uploadBtn: {
@@ -344,21 +424,25 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
     },
-    uploadText: { fontWeight: '600' },
+    uploadText: { fontWeight: '600', color: COLOR.black },
 
     imageWrapper: { marginRight: 10, marginTop: 10 },
     image: { width: 90, height: 90, borderRadius: 8 },
     crossContainer: {
         position: 'absolute',
-        top: -5,
-        right: -5,
-        backgroundColor: '#fff',
+        top: 0,
+        right: 5,
+        backgroundColor: COLOR.black,
         borderRadius: 10,
         paddingHorizontal: 5,
     },
     label: { marginTop: 12, fontWeight: '600', color: 'black' },
-    input: { borderWidth: 1, borderColor: COLOR.grey, borderRadius: 8, padding: 10 },
+    input: { borderWidth: 1, borderColor: COLOR.grey, borderRadius: 8, padding: 10, color: COLOR.black },
     textArea: { height: 100 },
     optionBtn: { borderWidth: 1, borderColor: COLOR.grey, paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, marginRight: 10, marginTop: 8 },
     selectedBtn: { backgroundColor: COLOR.primary },
+    optionText: { fontWeight: '600', color: COLOR.black },
+
+
+
 });

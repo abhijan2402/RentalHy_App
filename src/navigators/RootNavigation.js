@@ -30,6 +30,9 @@ import ChatList from '../Screens/Private/Account/ChatList';
 import HostelReviewManagement from '../Screens/Private/Account/HostelReviewManagement';
 import PostHotel from '../Screens/Private/Hotel/PostHotel';
 import HotelFilter from '../Screens/Private/Dashboard/HotelFilter';
+import HotelManagement from '../Screens/Private/Account/HotelManagement';
+import BookHotel from '../Screens/Private/Dashboard/BookHotel';
+import HotelBookings from '../Screens/Private/Account/HotelBookings';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -66,13 +69,14 @@ const RootNavigation = () => {
                 <Stack.Screen name="BankAccount" component={BankAccountList} />
                 <Stack.Screen name="SpaceManagement" component={SpaceManagement} />
                 <Stack.Screen name="ChatList" component={ChatList} />
+                <Stack.Screen name="HotelManagement" component={HotelManagement} />
                 <Stack.Screen name="HotelFilter" component={HotelFilter} />
-
                 <Stack.Screen name="Home" component={Home} />
                 <Stack.Screen name="HostelReviewManagement" component={HostelReviewManagement} />
                 <Stack.Screen name="PostHotel" component={PostHotel} />
+                <Stack.Screen name="BookHotel" component={BookHotel} />
 
-
+                <Stack.Screen name="HotelBookings" component={HotelBookings} />
             </Stack.Navigator>
             <View style={{ marginBottom: 50 }}>
             </View>

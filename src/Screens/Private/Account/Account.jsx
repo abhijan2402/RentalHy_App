@@ -51,7 +51,7 @@ const Account = ({ navigation }) => {
       navigate: 'PropertyAnalytics',
     },
     {
-      id: 8,
+      id: 18,
       title: 'Convention/Hall Orders',
       icon: 'https://cdn-icons-png.flaticon.com/128/9752/9752284.png',
       navigate: 'SpaceOrders',
@@ -62,7 +62,18 @@ const Account = ({ navigation }) => {
       icon: 'https://cdn-icons-png.flaticon.com/128/10607/10607354.png',
       navigate: 'HostelReviewManagement',
     },
-
+    {
+      id: 119,
+      title: 'Hotel Management',
+      icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
+      navigate: 'HotelManagement',
+    },
+    {
+      id: 190,
+      title: 'Hotel Booking Management',
+      icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
+      navigate: 'HotelBookings',
+    },
     {
       id: 9,
       title: 'My Bookings',
@@ -70,7 +81,7 @@ const Account = ({ navigation }) => {
       navigate: 'MyBooking',
     },
     {
-      id: 9,
+      id: 19,
       title: 'Space Management',
       icon: 'https://cdn-icons-png.flaticon.com/128/1067/1067566.png',
       navigate: 'SpaceManagement',
