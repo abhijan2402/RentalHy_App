@@ -22,7 +22,7 @@ const BottomNavigation = () => {
   const icons = {
     Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
     Convention: 'https://cdn-icons-png.flaticon.com/128/3211/3211487.png',
-    Hotels: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
+    Hostel: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
     Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
   };
 
@@ -77,9 +77,9 @@ const BottomNavigation = () => {
         },
       })}>
       <Tab.Screen name={'Home'} component={HomeStack} />
-      <Tab.Screen name={'Hotels'} component={HotelMain} />
-      {/* <Tab.Screen name={'Hostel'} component={Hostel} /> */}
-      {/* <Tab.Screen name={'Convention'} component={Convention} /> */}
+      {/* <Tab.Screen name={'Hotels'} component={HotelMain} /> */}
+      <Tab.Screen name={'Hostel'} component={Hostel} />
+      <Tab.Screen name={'Convention'} component={Convention} />
       {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}
       <Tab.Screen name={'Profile'} component={Account} />
     </Tab.Navigator>

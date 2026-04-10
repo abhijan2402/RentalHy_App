@@ -108,6 +108,7 @@ const Home = ({ navigation }) => {
   ) => {
     const formData = new FormData();
     formData.append('page', pageNum);
+    formData.append('per_page', 500);
 
     if (isDynamic) {
       Object.entries(filters).forEach(([key, value]) => {
@@ -216,6 +217,8 @@ const Home = ({ navigation }) => {
     else setLoadingMore(true);
 
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
+    console.log(formData, "JDIFHIFFHFI");
+
     const response = await postRequest('public/api/properties', formData, true);
     const resData = response?.data?.data;
 
@@ -247,6 +250,8 @@ const Home = ({ navigation }) => {
   }, [appliedFilters, searchQuery, sortQuery, currentAddress]);
 
   const handleLoadMore = () => {
+    console.log("LOAD___MORE_CALLED", page, lastPage);
+
     if (!loadingMore && page < lastPage) {
       GetProperties(
         page + 1,
@@ -614,8 +619,9 @@ const Home = ({ navigation }) => {
                 contentContainerStyle={{ paddingBottom: 20, marginHorizontal: 10 }}
                 showsVerticalScrollIndicator={false}
                 onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.5}
-                scrollEventThrottle={16}
+                onEndReachedThreshold={0.2}
+                scrollEventThrottle={20}
+
                 refreshControl={
                   <RefreshControl
                     refreshing={loader}
@@ -845,6 +851,8 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
           </View>
         </TouchableOpacity>
       </View>
+
+
       <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
         <Image
           source={{
@@ -852,6 +860,10 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
           }}
           style={styles.wishListIcon}
         />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Reward')}>
+        <Image style={[styles.giftIcon, {}]}
+          source={{ uri: "https://cdn-icons-png.flaticon.com/128/3179/3179668.png" }} />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
         <Image
@@ -911,6 +923,12 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     tintColor: COLOR?.primary
+  },
+  giftIcon: {
+    width: 30,
+    height: 30,
+    marginHorizontal: 10
+    // marginRight: 10
   },
   banner: {
     width: width - 60,

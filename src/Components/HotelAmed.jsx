@@ -10,16 +10,34 @@ const InfoRow = ({ label, value }) => (
     </View>
 );
 
-const Section = ({ title, data }) => (
-    <View style={styles.section}>
-        <Text style={styles.sectionHeader}>{title}</Text>
-        {data.map((item, index) => (
-            <InfoRow key={index} label={item.label} value={item.value} />
-        ))}
-    </View>
-);
+const Section = ({ title, data }) => {
+    // filter empty values
+    const filteredData = data.filter(item => {
+        if (item.value === null || item.value === undefined) return false;
+        if (item.value === '') return false;
+        if (item.value === 'N/A') return false;
+
+        if (Array.isArray(item.value) && item.value.length === 0) return false;
+
+        return true;
+    });
+
+    // if no data → don't show section
+    if (filteredData.length === 0) return null;
+
+    return (
+        <View style={styles.section}>
+            <Text style={styles.sectionHeader}>{title}</Text>
+            {filteredData.map((item, index) => (
+                <InfoRow key={index} label={item.label} value={item.value} />
+            ))}
+        </View>
+    );
+};
 
 const HotelAmed = ({ AllData }) => {
+    console.log(AllData, "ALLL___DDD");
+
     // ======================
     // BASIC INFO
     // ======================
@@ -27,7 +45,7 @@ const HotelAmed = ({ AllData }) => {
         { label: 'Hotel Name', value: AllData?.hotel_name },
         { label: 'Hotel Type', value: AllData?.hotel_type_text },
         { label: 'Room Type', value: AllData?.room_type },
-        { label: 'Bed Type', value: AllData?.bed_type },
+        { label: 'Bed Type', value: AllData?.bed_type?.join(', ') },
         { label: 'Guests Per Room', value: AllData?.guests_per_room },
         { label: 'Room Size', value: AllData?.room_size },
         { label: 'Booking Type', value: AllData?.booking_type_text },
@@ -39,27 +57,27 @@ const HotelAmed = ({ AllData }) => {
     const timingInfo = [
         { label: 'Check In Time', value: AllData?.check_in_time },
         { label: 'Check Out Time', value: AllData?.check_out_time },
-        { label: 'Any Time Check-In', value: yesNo(AllData?.is_any_time_checkin) },
-        { label: 'Hot Water Start', value: AllData?.hot_water_start_time || 'N/A' },
-        { label: 'Hot Water End', value: AllData?.hot_water_end_time || 'N/A' },
     ];
 
     // ======================
     // PRICE INFO
     // ======================
+    // const priceInfo = [
+    //     { label: 'Price', value: AllData?.formatted_price || AllData?.price },
+    //     { label: 'Min Price', value: AllData?.formatted_min_price || 'N/A' },
+    //     { label: 'Max Price', value: AllData?.formatted_max_price || 'N/A' },
+    // ];
+
     const priceInfo = [
         { label: 'Price', value: AllData?.formatted_price || AllData?.price },
-        { label: 'Min Price', value: AllData?.formatted_min_price || 'N/A' },
-        { label: 'Max Price', value: AllData?.formatted_max_price || 'N/A' },
+        { label: 'Min Price', value: AllData?.formatted_min_price },
+        { label: 'Max Price', value: AllData?.formatted_max_price },
     ];
-
     // ======================
     // LOCATION
     // ======================
     const locationInfo = [
         { label: 'Location', value: AllData?.location },
-        { label: 'Address Description', value: AllData?.address_description || 'N/A' },
-        { label: 'Landmark', value: AllData?.landmark || 'N/A' },
     ];
 
     // ======================
@@ -67,28 +85,17 @@ const HotelAmed = ({ AllData }) => {
     // ======================
     const roomFeatures = [
         { label: 'AC', value: yesNo(AllData?.is_ac) },
-        { label: 'TV Available', value: yesNo(AllData?.is_tv_available) },
-        { label: 'Landline Available', value: yesNo(AllData?.is_landline_available) },
         { label: 'Bathroom Attached', value: yesNo(AllData?.is_bathroom_attached) },
-        { label: 'Daily Cleaning', value: yesNo(AllData?.is_daily_cleaning) },
-        { label: 'Mattress Changed Daily', value: yesNo(AllData?.is_mattress_changed_daily) },
         { label: 'Water 24x7', value: yesNo(AllData?.is_water_24x7) },
         { label: 'Geyser Available', value: yesNo(AllData?.is_geyser_available) },
-        { label: 'Hot Water 24x7', value: yesNo(AllData?.is_hotwater_24x7) },
+        { label: 'Food Available', value: AllData?.food_available_text },
     ];
+
 
     // ======================
     // HOTEL SERVICES
     // ======================
-    const serviceInfo = [
-        { label: 'Cab Booking', value: yesNo(AllData?.is_cab_booking_available) },
-        { label: 'Friendly Staff', value: yesNo(AllData?.is_friendly_staff) },
-        { label: 'Extra Charges', value: yesNo(AllData?.is_extra_charges) },
-        { label: 'Lift Available', value: yesNo(AllData?.is_lift_available) },
-        { label: 'Towel & Soaps', value: yesNo(AllData?.is_towel_soaps_available) },
-        { label: 'Reception Contact', value: AllData?.receptionist_contact_type_text },
-        { label: 'Food Available', value: AllData?.food_available_text },
-    ];
+
 
     // ======================
     // STRUCTURE FEATURES
@@ -115,34 +122,17 @@ const HotelAmed = ({ AllData }) => {
     // FACILITIES
     // ======================
     const facilities = [
-        {
-            label: 'Basic Facilities',
-            value: AllData?.facilities?.basic_facilities?.join(', ') || 'N/A',
-        },
-        {
-            label: 'General Services',
-            value: AllData?.facilities?.general_services?.join(', ') || 'N/A',
-        },
-        {
-            label: 'Room Amenities',
-            value: AllData?.facilities?.room_amenities?.join(', ') || 'N/A',
-        },
-        {
-            label: 'Food & Drinks',
-            value: AllData?.facilities?.food_drinks?.join(', ') || 'N/A',
-        },
-        {
-            label: 'Safety & Security',
-            value: AllData?.facilities?.safety_security?.join(', ') || 'N/A',
-        },
-        {
-            label: 'Common Area',
-            value: AllData?.facilities?.common_area?.join(', ') || 'N/A',
-        },
-        {
-            label: 'Other Facilities',
-            value: AllData?.facilities?.other_facilities?.join(', ') || 'N/A',
-        },
+        { label: 'Basic Facilities', value: AllData?.facilities?.basic_facilities?.join(', ') },
+        { label: 'General Services', value: AllData?.facilities?.general_services?.join(', ') },
+        { label: 'Room Amenities', value: AllData?.facilities?.room_amenities?.join(', ') },
+        { label: 'Food & Drinks', value: AllData?.facilities?.food_drinks?.join(', ') },
+        { label: 'Safety & Security', value: AllData?.facilities?.safety_security?.join(', ') },
+        { label: 'Media Technology', value: AllData?.facilities?.media_technology?.join(', ') },
+        { label: 'Beauty & Spa', value: AllData?.facilities?.beauty_spa?.join(', ') },
+        { label: 'Common Area', value: AllData?.facilities?.common_area?.join(', ') },
+        { label: 'Shopping', value: AllData?.facilities?.shopping?.join(', ') },
+        { label: 'Business Center', value: AllData?.facilities?.business_center_conferences?.join(', ') },
+        { label: 'Other Facilities', value: AllData?.facilities?.other_facilities?.join(', ') },
     ];
 
     return (
@@ -154,9 +144,8 @@ const HotelAmed = ({ AllData }) => {
             <Section title="Timing Information" data={timingInfo} />
             <Section title="Location Details" data={locationInfo} />
             <Section title="Room Features" data={roomFeatures} />
-            <Section title="Hotel Services" data={serviceInfo} />
-            <Section title="Structure Features" data={structureInfo} />
-            <Section title="Policies & IDs" data={policyInfo} />
+            {/* <Section title="Structure Features" data={structureInfo} /> */}
+            {/* <Section title="Policies & IDs" data={policyInfo} /> */}
             <Section title="Facilities" data={facilities} />
         </View>
     );

@@ -14,6 +14,7 @@ const PropertyCard = ({
   showDelete = false,
   onPressHotel
 }) => {
+  console.log(item, "ITEMMMMMMMMMMM");
 
   const navigation = useNavigation();
   const { currentStatus } = useContext(AuthContext);
@@ -40,7 +41,11 @@ const PropertyCard = ({
         }}
         style={styles.propertyImage}
       />
-
+      {/* {
+        type == "home" &&
+        <Image style={[styles.wishlistIcon, { right: 40, width: 20, height: 20, top: 10, backgroundColor: "white", borderRadius: 5 }]}
+          source={{ uri: "https://cdn-icons-png.flaticon.com/128/8146/8146553.png" }} />
+      } */}
       {(type === 'wishlist' || type === 'home') && (currentStatus != -1) && <TouchableOpacity
         style={styles.wishlistIcon}
         onPress={() =>

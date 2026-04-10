@@ -33,11 +33,18 @@ const Account = ({ navigation }) => {
       navigate: 'EditProfile',
     },
     {
+      id: 377,
+      title: 'Reward Management',
+      icon: 'https://cdn-icons-png.flaticon.com/128/3179/3179668.png',
+      navigate: 'Reward',
+    },
+    {
       id: 2,
       title: 'Fav Properties',
       icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png',
       navigate: 'Wishlist',
     },
+
     {
       id: 15,
       title: 'Chat',
@@ -68,6 +75,7 @@ const Account = ({ navigation }) => {
       icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
       navigate: 'HotelManagement',
     },
+
     {
       id: 190,
       title: 'Hotel Booking Management',

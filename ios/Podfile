@@ -6,7 +6,7 @@ require Pod::Executable.execute_command('node', ['-p',
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
-use_modular_headers!
+# use_modular_headers!
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
@@ -15,6 +15,8 @@ end
 
 target 'PropertyApp' do
   config = use_native_modules!
+    pod 'lottie-react-native', :path => '../node_modules/lottie-react-native', :modular_headers => true
+
  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
 
 

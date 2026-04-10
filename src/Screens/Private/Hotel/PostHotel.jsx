@@ -57,7 +57,55 @@ const PostHotel = ({ navigation }) => {
     const [isWater24x7, setIsWater24x7] = useState('yes');
     const [isGeyserAvailable, setIsGeyserAvailable] = useState('yes');
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [hotelRules, setHotelRules] = useState([]);
+    const [ruleInput, setRuleInput] = useState('');
 
+    const [basicFacilities, setBasicFacilities] = useState([]);
+    const [generalServices, setGeneralServices] = useState([]);
+    const [healthWellness, setHealthWellness] = useState([]);
+    const [transfers, setTransfers] = useState([]);
+    const [roomAmenities, setRoomAmenities] = useState([]);
+    const [foodDrinks, setFoodDrinks] = useState([]);
+    const [safetySecurity, setSafetySecurity] = useState([]);
+    const [mediaTechnology, setMediaTechnology] = useState([]);
+    const [beautySpa, setBeautySpa] = useState([]);
+    const [commonArea, setCommonArea] = useState([]);
+    const [shopping, setShopping] = useState([]);
+    const [businessCenter, setBusinessCenter] = useState([]);
+    const [otherFacilities, setOtherFacilities] = useState([]);
+
+    // NEW SINGLE FIELDS
+    const [status, setStatus] = useState('1');
+    const [receptionistContactType, setReceptionistContactType] = useState('remote');
+    const [foodAvailable, setFoodAvailable] = useState('own_restaurant');
+    const [bookingType, setBookingType] = useState('traveller');
+
+    const [singleRoomPrice, setSingleRoomPrice] = useState('');
+    const [doubleRoomPrice, setDoubleRoomPrice] = useState('');
+    const [tripleRoomPrice, setTripleRoomPrice] = useState('');
+    const [fourPlusRoomPrice, setFourPlusRoomPrice] = useState('');
+
+    const [hotWaterStartTime, setHotWaterStartTime] = useState('');
+    const [hotWaterEndTime, setHotWaterEndTime] = useState('');
+
+    // NEW TOGGLES
+    const [isAnyTimeCheckin, setIsAnyTimeCheckin] = useState('no');
+    const [identityProofRequired, setIdentityProofRequired] = useState('yes');
+    const [foreignersPassportRequired, setForeignersPassportRequired] = useState('no');
+    const [allCustomersIdRequired, setAllCustomersIdRequired] = useState('yes');
+
+    const [isMattressChangedDaily, setIsMattressChangedDaily] = useState('yes');
+    const [isCabBookingAvailable, setIsCabBookingAvailable] = useState('no');
+    const [isFriendlyStaff, setIsFriendlyStaff] = useState('yes');
+    const [isExtraCharges, setIsExtraCharges] = useState('yes');
+    const [isTowelSoapsAvailable, setIsTowelSoapsAvailable] = useState('yes');
+    const [isHotWater24x7, setIsHotWater24x7] = useState('yes');
+
+    const [hasWindowMosquitoNet, setHasWindowMosquitoNet] = useState('yes');
+    const [hasBalcony, setHasBalcony] = useState('yes');
+    const [isBalconyViewBeautiful, setIsBalconyViewBeautiful] = useState('yes');
+    const [hasVentilation, setHasVentilation] = useState('yes');
+    const [hasEmergencyExit, setHasEmergencyExit] = useState('yes');
     const boolToInt = val => (val === 'yes' ? 1 : 0);
 
     // TIME HANDLERS
@@ -186,6 +234,7 @@ const PostHotel = ({ navigation }) => {
         </View>
     );
 
+
     // POST API
     const handlePostHotel = async () => {
         if (!title || !description || !phoneNumber || !price || !location) {
@@ -196,7 +245,10 @@ const PostHotel = ({ navigation }) => {
             Alert.alert('Validation', 'Please agree to the Terms and Conditions and Privacy Policy');
             return
         }
-
+        if (hotelRules.length === 0) {
+            Alert.alert('Validation', 'Please add at least one hotel rule');
+            return;
+        }
         try {
             setLoading(true);
 
@@ -209,11 +261,19 @@ const PostHotel = ({ navigation }) => {
             formData.append('location', location);
             formData.append('address_description', addressDescription);
             formData.append('landmark', landmark);
+            formData.append('hotel_rules', hotelRules.join(', '));
 
             formData.append('status', 1);
             formData.append('hotel_type', 4);
-            formData.append('room_type', roomType);
-            formData.append('bed_type', bedType);
+            // formData.append('room_type', roomType);
+            // formData.append('bed_type', bedType);
+            bedType.forEach((item, index) => {
+                formData.append(`bed_type[${index}]`, item);
+            });
+            formData.append(`room_type`, roomType);
+            // roomType.forEach((item, index) => {
+            //     formData.append(`room_type[${index}]`, item);
+            // });
             formData.append('guests_per_room', guestsPerRoom);
             formData.append('check_in_time', checkInTime);
             formData.append('check_out_time', checkOutTime);
@@ -232,7 +292,57 @@ const PostHotel = ({ navigation }) => {
             formData.append('receptionist_contact_type', 'remote');
             formData.append('food_available', 'own_restaurant');
             formData.append('booking_type', 'traveller');
+            const appendArray = (key, arr) => {
+                arr.forEach((item, index) => {
+                    formData.append(`${key}[${index}]`, item);
+                });
+            };
 
+            formData.append('status', status);
+            formData.append('hotel_type', hotelType);
+
+            formData.append('single_room_price', singleRoomPrice);
+            formData.append('double_room_price', doubleRoomPrice);
+            formData.append('triple_room_price', tripleRoomPrice);
+            formData.append('4_plus_room_price', fourPlusRoomPrice);
+
+            // formData.append('hot_water_start_time', hotWaterStartTime);
+            // formData.append('hot_water_end_time', hotWaterEndTime);
+
+            formData.append('is_any_time_checkin', boolToInt(isAnyTimeCheckin));
+            formData.append('identity_proof_required', boolToInt(identityProofRequired));
+            formData.append('foreigners_passport_required', boolToInt(foreignersPassportRequired));
+            formData.append('all_customers_id_required', boolToInt(allCustomersIdRequired));
+
+            formData.append('is_mattress_changed_daily', boolToInt(isMattressChangedDaily));
+            formData.append('is_cab_booking_available', boolToInt(isCabBookingAvailable));
+            formData.append('is_friendly_staff', boolToInt(isFriendlyStaff));
+            formData.append('is_extra_charges', boolToInt(isExtraCharges));
+            formData.append('is_towel_soaps_available', boolToInt(isTowelSoapsAvailable));
+            formData.append('is_hotwater_24x7', boolToInt(isHotWater24x7));
+
+            formData.append('has_window_mosquito_net', boolToInt(hasWindowMosquitoNet));
+            formData.append('has_balcony', boolToInt(hasBalcony));
+            formData.append('is_balcony_view_beautiful', boolToInt(isBalconyViewBeautiful));
+            formData.append('has_ventilation', boolToInt(hasVentilation));
+            formData.append('has_emergency_exit', boolToInt(hasEmergencyExit));
+
+            formData.append('receptionist_contact_type', receptionistContactType);
+            formData.append('food_available', foodAvailable);
+            formData.append('booking_type', bookingType);
+            appendArray('basic_facilities', basicFacilities);
+            appendArray('general_services', generalServices);
+            appendArray('health_wellness', healthWellness);
+            appendArray('transfers', transfers);
+            appendArray('room_amenities', roomAmenities);
+            appendArray('food_drinks', foodDrinks);
+            appendArray('safety_security', safetySecurity);
+            appendArray('media_technology', mediaTechnology);
+            appendArray('beauty_spa', beautySpa);
+            appendArray('common_area', commonArea);
+            appendArray('shopping', shopping);
+            appendArray('business_center_conferences', businessCenter);
+            appendArray('other_facilities', otherFacilities);
             // ARRAY SAMPLE
             ['Housekeeping', 'Mineral Water'].forEach((v, i) =>
                 formData.append(`basic_facilities[${i}]`, v),
@@ -263,6 +373,19 @@ const PostHotel = ({ navigation }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const addRule = () => {
+        if (!ruleInput.trim()) return;
+
+        setHotelRules(prev => [...prev, ruleInput.trim()]);
+        setRuleInput('');
+    };
+
+    const removeRule = (index) => {
+        const updated = [...hotelRules];
+        updated.splice(index, 1);
+        setHotelRules(updated);
     };
 
     return (
@@ -342,12 +465,91 @@ const PostHotel = ({ navigation }) => {
                 {renderToggle('Lift Available', isLiftAvailable, setIsLiftAvailable)}
                 {renderToggle('Water 24x7', isWater24x7, setIsWater24x7)}
                 {renderToggle('Geyser Available', isGeyserAvailable, setIsGeyserAvailable)}
+                {renderSelect('Basic Facilities', ['Housekeeping', 'Mineral Water'], basicFacilities, setBasicFacilities, true)}
+                {renderToggle('Anytime Check-in', isAnyTimeCheckin, setIsAnyTimeCheckin)}
+                {renderToggle('Identity Proof Required', identityProofRequired, setIdentityProofRequired)}
+                {renderToggle('Foreigners Passport Required', foreignersPassportRequired, setForeignersPassportRequired)}
+                {renderToggle('All Customers ID Required', allCustomersIdRequired, setAllCustomersIdRequired)}
 
+                {renderToggle('Mattress Changed Daily', isMattressChangedDaily, setIsMattressChangedDaily)}
+                {renderToggle('Cab Booking Available', isCabBookingAvailable, setIsCabBookingAvailable)}
+                {renderToggle('Friendly Staff', isFriendlyStaff, setIsFriendlyStaff)}
+                {renderToggle('Extra Charges', isExtraCharges, setIsExtraCharges)}
+                {renderToggle('Towel & Soap Available', isTowelSoapsAvailable, setIsTowelSoapsAvailable)}
+                {renderToggle('Hot Water 24x7', isHotWater24x7, setIsHotWater24x7)}
+
+                {renderToggle('Window Mosquito Net', hasWindowMosquitoNet, setHasWindowMosquitoNet)}
+                {renderToggle('Balcony', hasBalcony, setHasBalcony)}
+                {renderToggle('Beautiful Balcony View', isBalconyViewBeautiful, setIsBalconyViewBeautiful)}
+                {renderToggle('Ventilation', hasVentilation, setHasVentilation)}
+                {renderToggle('Emergency Exit', hasEmergencyExit, setHasEmergencyExit)}
+                {renderSelect('General Services', ['Ticket/Tour Assistance', 'Multilingual Staff'], generalServices, setGeneralServices, true)}
+
+                {renderSelect('Room Amenities', ['TV', 'Towel'], roomAmenities, setRoomAmenities, true)}
+
+                {renderSelect('Food & Drinks', ['Dining Area', 'No allow'], foodDrinks, setFoodDrinks, true)}
+
+                {renderSelect('Safety & Security', ['Exit', 'Enter'], safetySecurity, setSafetySecurity, true)}
+                {/* RULE LIST */}
+                <Text style={styles.label}>Single Room Price</Text>
+                <TextInput style={styles.input} value={singleRoomPrice} onChangeText={setSingleRoomPrice} />
+
+                <Text style={styles.label}>Double Room Price</Text>
+                <TextInput style={styles.input} value={doubleRoomPrice} onChangeText={setDoubleRoomPrice} />
+
+                <Text style={styles.label}>Triple Room Price</Text>
+                <TextInput style={styles.input} value={tripleRoomPrice} onChangeText={setTripleRoomPrice} />
+
+                <Text style={styles.label}>4+ Room Price</Text>
+                <TextInput style={styles.input} value={fourPlusRoomPrice} onChangeText={setFourPlusRoomPrice} />
+                <Text style={styles.label}>Hotel Rules and Policies *</Text>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                        placeholder="Enter rule"
+                        placeholderTextColor={COLOR.grey}
+                        style={[styles.input, { flex: 1 }]}
+                        value={ruleInput}
+                        onChangeText={setRuleInput}
+                    />
+
+                    <TouchableOpacity
+                        onPress={addRule}
+                        style={{
+                            marginLeft: 10,
+                            backgroundColor: COLOR.primary,
+                            paddingHorizontal: 12,
+                            paddingVertical: 10,
+                            borderRadius: 8
+                        }}
+                    >
+                        <Text style={{ color: '#fff' }}>Add</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {hotelRules.map((rule, index) => (
+                    <View key={index} style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginTop: 8,
+                        backgroundColor: '#f2f2f2',
+                        padding: 10,
+                        borderRadius: 6
+                    }}>
+                        <Text style={{ flex: 1 }}>{rule}</Text>
+
+                        <TouchableOpacity onPress={() => removeRule(index)}>
+                            <Text style={{ color: 'red' }}>Remove</Text>
+                        </TouchableOpacity>
+                    </View>
+                ))}
                 <Text style={styles.label}>Location *</Text>
                 <GooglePlacePicker
                     placeholder="Search location..."
                     onPlaceSelected={p => setLocation(p?.address || '')}
                 />
+
+
                 <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 5, marginTop: 20, marginBottom: 10 }}>
 
                     <TouchableOpacity

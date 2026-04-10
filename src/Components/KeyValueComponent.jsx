@@ -31,12 +31,15 @@ const KeyValueInput = ({ onChange }) => {
             placeholder="Key"
             value={pair.key}
             onChangeText={(text) => handleChange(index, "key", text)}
+            placeholderTextColor={COLOR.grey}
           />
           <TextInput
             style={styles.input}
             placeholder="Value"
             value={pair.value}
             onChangeText={(text) => handleChange(index, "value", text)}
+            placeholderTextColor={COLOR.grey}
+
           />
 
           <View style={styles.btnGroup}>
@@ -63,7 +66,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 10,
     width: '100%',
-    alignSelf:'center'
+    alignSelf: 'center'
   },
   row: {
     flexDirection: "row",
@@ -78,7 +81,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 6,
     backgroundColor: "#fff",
-    borderColor:COLOR?.primary
+    borderColor: COLOR?.primary,
+    color: COLOR.black
   },
   btnGroup: {
     flexDirection: "row",

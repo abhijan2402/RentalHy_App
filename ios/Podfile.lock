@@ -8,12 +8,12 @@ PODS:
   - hermes-engine (0.79.0):
     - hermes-engine/Pre-built (= 0.79.0)
   - hermes-engine/Pre-built (0.79.0)
-  - lottie-ios (4.5.0)
-  - lottie-react-native (7.3.4):
+  - lottie-ios (4.6.0)
+  - lottie-react-native (7.3.6):
     - DoubleConversion
     - glog
     - hermes-engine
-    - lottie-ios (= 4.5.0)
+    - lottie-ios (= 4.6.0)
     - RCT-Folly (= 2024.11.18.00)
     - RCTRequired
     - RCTTypeSafety
@@ -34,9 +34,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - razorpay-core-pod (1.0.3)
-  - razorpay-pod (1.5.2):
-    - razorpay-core-pod (= 1.0.3)
+  - razorpay-core-pod (1.0.6)
+  - razorpay-pod (1.5.0):
+    - razorpay-core-pod
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1387,8 +1387,8 @@ PODS:
     - Yoga
   - react-native-maps (1.15.6):
     - React-Core
-  - react-native-razorpay (2.3.0):
-    - razorpay-pod
+  - react-native-razorpay (2.3.1):
+    - razorpay-pod (= 1.5.0)
     - React
   - react-native-render-html (6.3.4):
     - React-Core
@@ -1791,6 +1791,8 @@ PODS:
     - React-utils (= 0.79.0)
   - ReactNativeLocalization (2.3.2):
     - React-Core
+  - rn-scratch-card (1.2.4):
+    - React-Core
   - RNCAsyncStorage (2.2.0):
     - DoubleConversion
     - glog
@@ -2054,6 +2056,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeLocalization (from `../node_modules/react-native-localization`)
+  - rn-scratch-card (from `../node_modules/rn-scratch-card`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
@@ -2225,6 +2228,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeLocalization:
     :path: "../node_modules/react-native-localization"
+  rn-scratch-card:
+    :path: "../node_modules/rn-scratch-card"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCMaskedView:
@@ -2250,10 +2255,10 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: cd4bd90f051e3658c83cc00e87c603dfe1b75947
-  lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: 2d23fe8ac918240e52f40b0f4a3582017160d34f
-  razorpay-core-pod: ef0309dbf8e3e5a1330f6cad89dcf9226d8ef758
-  razorpay-pod: a9cb6e158aee8754053b147008eff6b4897789c8
+  lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+  lottie-react-native: 0c59fe70d38c9f5e802d984d11884c564a57cc30
+  razorpay-core-pod: 6da5fb4ed280279d665507fdb50e213d793a5fe2
+  razorpay-pod: f634f1b8397eb54d547f25d35291f679545ddf17
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: c147f8912f768e5eedbc5f115b2b223d007d9fe3
   RCTRequired: a71a7e9efd6546704d5abc683e0b68fcaa759861
@@ -2287,7 +2292,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: a2d19a42269e02a7a86ab1c51fa3a4fa63be00ba
   react-native-geolocation: d43962eb0be1b0056ba5c1f95e94fb7907494268
   react-native-maps: 622489184d305713b2f576b0cad1375ac75e62a6
-  react-native-razorpay: ab51e7be3d906f49b26198d978fc6f163e846d30
+  react-native-razorpay: 376ba84b614ef8a22b5701df4ffee10f4c116d14
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
   react-native-safe-area-context: 0b8555c40461feb7198e999912a3446602e7c601
   React-NativeModulesApple: f8c91c74d5d223944c7b7fdeb0695d8ee73f899c
@@ -2322,6 +2327,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 16700ce5938fd79c1ff4c5b5735f10830f2e6bd3
   ReactCommon: 1257efa9d0b07517d8b79bb4055eaefac1204807
   ReactNativeLocalization: 79b100588f6d7a68852b982ccbe57e329e8bb5a7
+  rn-scratch-card: 3a3e738aa6831e96971c15c6048e5de4e52b2841
   RNCAsyncStorage: a1c8cc8a99c32de1244a9cf707bf9d83d0de0f71
   RNCMaskedView: ae521efb1c6c2b183ae0f8479487db03c826184c
   RNCPicker: cff8e244e59eff57d36ff118774f86168acb0656
@@ -2333,6 +2339,6 @@ SPEC CHECKSUMS:
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   Yoga: 9773f1327b258fa449988c2e42fbb7cbdf655d96
 
-PODFILE CHECKSUM: 42d6563ec7c5ebed306acebc937d6cf0b759f779
+PODFILE CHECKSUM: 5e21a92d2d439212064c3e5cc09de1c4f3dccdb2
 
 COCOAPODS: 1.16.2

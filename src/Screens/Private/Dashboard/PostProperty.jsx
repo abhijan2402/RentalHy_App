@@ -196,7 +196,11 @@ const PostProperty = ({ navigation }) => {
     formData.append('bathrooms', bathrooms);
     formData.append('parking_available', parking);
     formData.append('facing_direction', facing);
-    formData.append('advance', advanceValue);
+    if (advanceValue == "No Advance") {
+      // formData.append('advance', null);
+    } else {
+      formData.append('advance', advanceValue);
+    }
     formData.append('landmark', landmark);
     if (address?.lat && address?.lng) {
       formData.append('lat', address.lat);
@@ -291,6 +295,7 @@ const PostProperty = ({ navigation }) => {
       showToast(response?.data?.message, 'success');
       setLoading(false);
       navigation?.goBack();
+      navigation.navigate("Reward")
     }
     setLoading(false);
 

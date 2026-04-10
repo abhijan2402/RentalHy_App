@@ -23,6 +23,7 @@ import HostelAmed from '../../../Components/HostelAmed';
 import { AuthContext } from '../../../Backend/AuthContent';
 import PropertyAmed from '../../../Components/PropertyAmed';
 import HotelAmed from '../../../Components/HotelAmed';
+import { windowWidth } from '../../../Constants/Dimensions';
 
 const PropertyDetail = ({ navigation, route }) => {
   const { currentStatus } = useContext(AuthContext);
@@ -339,7 +340,7 @@ const PropertyDetail = ({ navigation, route }) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Text style={styles.title}>{AllData?.title || AllData?.hotel_name}</Text>
+              <Text style={styles.title} numberOfLines={4}>{AllData?.title || AllData?.hotel_name}</Text>
               {type != 'convention' && currentStatus != -1 && (
                 <TouchableOpacity
                   style={styles.wishlistIcon}
@@ -476,6 +477,35 @@ const PropertyDetail = ({ navigation, route }) => {
                   </View>
                 </>
               )} */}
+            {type === 'hotel' && AllData?.hotel_rules && (
+              <View style={{ marginTop: 10, marginHorizontal: 5, borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8 }}>
+                <Text style={{ fontWeight: '600', marginBottom: 6, color: COLOR.primary }}>
+                  Hotel Rules and Policies
+                </Text>
+
+                <View style={{ marginTop: 10 }}>
+                  {AllData?.hotel_rules
+                    ?.split(',')
+                    .map((rule, index) => (
+                      <View
+                        key={index}
+                        style={{
+                          flexDirection: 'row',
+                          marginBottom: 6,
+                        }}
+                      >
+                        <Text style={{ fontWeight: '600', marginRight: 6 }}>
+                          {index + 1}.
+                        </Text>
+
+                        <Text style={{ flex: 1 }}>
+                          {rule.trim()}
+                        </Text>
+                      </View>
+                    ))}
+                </View>
+              </View>
+            )}
             {type == 'home' && (
               <>
                 <PropertyAmed AllData={AllData} />
@@ -549,6 +579,7 @@ const PropertyDetail = ({ navigation, route }) => {
               </>
             ) : null}
           </View>
+
           <CustomButton
             style={{ marginBottom: 10 }}
             title={type === 'hotel' ? "Book Now" : 'Contact Landlord in Chat'}
@@ -589,7 +620,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   propertyImage: {
-    width: 400,
+    width: windowWidth / 1.015,
     height: 250,
     marginRight: 5,
   },
@@ -599,6 +630,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: COLOR.black,
+    width: windowWidth / 1.5
     // marginBottom: 8,
   },
   description: {
