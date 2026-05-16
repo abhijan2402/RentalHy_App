@@ -17,7 +17,11 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
       navigation.navigate('Hostel');
     } else if (index === 2) {
       navigation.navigate('Convention', {type: 'conv'});
-    } else {
+    } 
+     else if (index === 3) {
+      navigation.navigate('Convention', {type: 'resort'});
+    } 
+    else {
       navigation.navigate('Hostel');
       navigation.navigate('Convention', {type: 'farm'});
     }
@@ -39,7 +43,7 @@ const OptionSelector = ({data, onSelect, navigation, defaultIndex = 0}) => {
             key={index}
             onPress={() => handlePress(item, index)}
             style={{
-              width: Platform?.OS == 'android' ? windowWidth / 4.7 : windowWidth / 4.8 ,
+              width: Platform?.OS == 'android' ? windowWidth / 6 : windowWidth / 4.8 ,
               borderRadius: 8,
               alignItems: 'center',
               justifyContent: 'center',

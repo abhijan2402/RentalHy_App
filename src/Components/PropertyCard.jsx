@@ -14,7 +14,6 @@ const PropertyCard = ({
   showDelete = false,
   onPressHotel
 }) => {
-  console.log(item, "ITEMMMMMMMMMMM");
 
   const navigation = useNavigation();
   const { currentStatus } = useContext(AuthContext);

@@ -34,6 +34,7 @@ import HotelManagement from '../Screens/Private/Account/HotelManagement';
 import BookHotel from '../Screens/Private/Dashboard/BookHotel';
 import HotelBookings from '../Screens/Private/Account/HotelBookings';
 import Reward from '../Screens/Private/Account/Reward';
+import Management from '../Screens/Private/Account/Management';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -78,6 +79,8 @@ const RootNavigation = () => {
                 <Stack.Screen name="BookHotel" component={BookHotel} />
                 <Stack.Screen name="Reward" component={Reward} />
                 <Stack.Screen name="HotelBookings" component={HotelBookings} />
+                <Stack.Screen name="Management" component={Management} />
+
             </Stack.Navigator>
             <View style={{ marginBottom: 50 }}>
             </View>

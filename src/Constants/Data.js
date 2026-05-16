@@ -15,12 +15,17 @@ export const showPost = [
     {
         id: 2,
         image: 'https://cdn-icons-png.flaticon.com/128/3033/3033357.png',
-        title: 'Convention/Functional Hall',
+        title: 'Convention',
     },
     {
         id: 3,
         image: 'https://cdn-icons-png.flaticon.com/128/3033/3033239.png',
-        title: 'Resort/Farm House',
+        title: 'Resort',
+    },
+     {
+        id: 3,
+        image: 'https://cdn-icons-png.flaticon.com/128/3033/3033239.png',
+        title: 'Farm House',
     },
 ];
 

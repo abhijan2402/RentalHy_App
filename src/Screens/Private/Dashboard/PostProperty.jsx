@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -19,8 +19,10 @@ import { useToast } from '../../../Constants/ToastContext';
 import KeyValueInput from '../../../Components/KeyValueComponent';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 
-const PostProperty = ({ navigation }) => {
-  const { postRequest } = useApi();
+const PostProperty = ({ navigation, route }) => {
+  const editItem = route?.params?.item;
+  const isEdit = !!editItem;
+  const { postRequest, putRequest } = useApi();
   const { showToast } = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -178,6 +180,82 @@ const PostProperty = ({ navigation }) => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
+
+
+  const parseArray = value => {
+    try {
+      if (!value) return [];
+      if (Array.isArray(value)) return value;
+      return JSON.parse(value);
+    } catch {
+      return [];
+    }
+  };
+
+  const parseAmenities = value => {
+    try {
+      if (!value) return [];
+      const obj = typeof value === 'string' ? JSON.parse(value) : value;
+      return Object.entries(obj).map(([key, value]) => ({
+        key,
+        value: String(value),
+      }));
+    } catch {
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    if (!editItem) return;
+
+    setTitle(editItem?.title || '');
+    setDescription(editItem?.description || '');
+    setPrice(String(editItem?.price || ''));
+    setLocation(editItem?.location || '');
+    setArea(String(editItem?.area_sqft || ''));
+    setPhoneNumber(editItem?.phone_number || '');
+    setAddressDescription(editItem?.address_description || editItem?.address || '');
+    setLandmark(editItem?.landmark || '');
+
+    setSelectedBHK(parseArray(editItem?.bhk));
+    setFurnishing(parseArray(editItem?.furnishing_status));
+    setFamilyTypeValue(parseArray(editItem?.preferred_tenant_type));
+    setCommercialSpace(parseArray(editItem?.commercial_space));
+    setSelectedFloor(parseArray(editItem?.floor));
+
+    setPropertyType(editItem?.property_type || '');
+    setAvailability(editItem?.availability || '');
+    setBathrooms(String(editItem?.bathrooms || ''));
+    setParking(editItem?.parking_available || '');
+    setFacing(editItem?.facing_direction || '');
+    setAdvanceValue(editItem?.advance || '');
+
+    setSecurityAvailable(editItem?.security_avl == 1);
+    setMaintainance(editItem?.mentains_chargers == 1);
+    setMaintainanceValue(String(editItem?.mentains_amount || ''));
+
+    setAddress({
+      address: editItem?.location || '',
+      lat: editItem?.lat,
+      lng: editItem?.long,
+    });
+
+    setMapData(parseAmenities(editItem?.amenities));
+
+    const oldImages =
+      editItem?.images?.map(img => ({
+        uri: img?.image_path,
+        type: 'image/jpeg',
+        name: `property_${img?.id}.jpg`,
+        old: true,
+        id: img?.id,
+      })) || [];
+
+    setImages(oldImages);
+  }, [editItem]);
+
+
+
   const handlePostProperty = async () => {
     if (!title || !description || !price || !location) {
       Alert.alert('Error', 'Please fill all required fields.');
@@ -285,11 +363,22 @@ const PostProperty = ({ navigation }) => {
     console.log(formData, "FOMMDMDMDM");
 
 
-    const response = await postRequest(
-      'public/api/properties/add',
-      formData,
-      true,
-    );
+    let response;
+
+    if (isEdit) {
+      // 🔥 DIFFERENT API BASED ON TAB
+      response = await putRequest(
+        `public/api/properties/update/${editItem?.id}`,
+        formData,
+        true
+      );
+    } else {
+      response = await postRequest(
+        'public/api/properties/add',
+        formData,
+        true
+      );
+    }
 
     if (response?.data?.status == true) {
       showToast(response?.data?.message, 'success');

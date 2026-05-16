@@ -54,13 +54,19 @@ const HallCard = ({
   onBook,
   onPress,
 }) => {
+  console.log(image,
+    "IMAMMAMAM"
+  );
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Image
-        source={{ uri: image?.room?.length > 0 ? image?.room[0]?.image_path : image?.hall && image?.room[0]?.image_path }}
-        style={styles.cardImage}
-      />
+      {
+        image?.room &&
+        <Image
+          source={{ uri: image?.room?.length > 0 ? image?.room[0]?.image_path : image?.hall && image?.room[0]?.image_path }}
+          style={styles.cardImage}
+        />
+      }
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDesc} numberOfLines={2}>
@@ -703,8 +709,12 @@ const Convention = ({ navigation, route }) => {
 
     setTimeout(() => {
       if (type == 'farm') {
-        setdefaultIndex(3);
+        setdefaultIndex(4);
         setActiveTab("farmhouse")
+      }
+      if (type == 'resort') {
+        setdefaultIndex(3);
+        setActiveTab("resort")
       }
       if (type == 'conv') {
         setdefaultIndex(2);
@@ -1054,8 +1064,10 @@ const Convention = ({ navigation, route }) => {
       <AnimatedButton
         title={
           activeTab === 'convention'
-            ? 'Upload Convention Hall'
-            : 'Upload Farm House'
+            ? 'Upload Convention Hall' :
+            activeTab === 'resort' ?
+              'Upload Resort'
+              : 'Upload Farm House'
         }
         onPress={() =>
           navigation.navigate('CreateConvention', { activeTabKey: activeTab })

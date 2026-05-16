@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -21,8 +21,9 @@ import GooglePlacePicker from '../../../Components/GooglePicker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-const PostHostel = ({ navigation }) => {
-
+const PostHostel = ({ navigation, route }) => {
+  const editItem = route?.params?.item;
+  const isEdit = !!editItem;
   const { postRequest } = useApi();
   const { showToast } = useToast();
   const [images, setImages] = useState([]);
@@ -184,6 +185,104 @@ const PostHostel = ({ navigation }) => {
       console.log(err);
     }
   };
+
+const yesNo = value => {
+  return value === true || value === 1 || value === '1' || value === 'yes'
+    ? 'yes'
+    : 'no';
+};
+
+useEffect(() => {
+  if (!editItem) return;
+
+  setTitle(editItem?.title || '');
+  setContact(editItem?.contact_number || '');
+  setAltContact(editItem?.alternate_contact_number || '');
+  setDescription(editItem?.description || '');
+
+  setSingleRoom(editItem?.single_room_price || '');
+  setSingleRoomDay(editItem?.single_room_day_price || '');
+  setDoubleRoom(editItem?.double_sharing_price || '');
+  setTripleRoom(editItem?.triple_sharing_price || '');
+  setFourRoom(editItem?.four_sharing_price || '');
+  setRoomDeposit(editItem?.security_deposit || '');
+
+  setDormDay(editItem?.one_day_stay || '');
+  setDormWeek(editItem?.one_week_stay || '');
+  setDormMonth(editItem?.one_month_stay || '');
+
+  setLocation({
+    address: editItem?.location || '',
+    lat: editItem?.lat,
+    lng: editItem?.long,
+  });
+
+  setLandmark(editItem?.landmark || '');
+  setRoomSizeMin(editItem?.room_size_min || '');
+  setRoomSizeMax(editItem?.room_size_max || '');
+
+  setSelectedTypes(Array.isArray(editItem?.hostel_type) ? editItem.hostel_type : []);
+  setSelectedFurnishing(
+    Array.isArray(editItem?.furnishing_status) ? editItem.furnishing_status : [],
+  );
+  setBathroomType(
+    Array.isArray(editItem?.bathroom_type) ? editItem.bathroom_type : [],
+  );
+
+  setToggleStates({
+    kitchen: yesNo(editItem?.kitchen),
+    wifi: yesNo(editItem?.wifi),
+    'A/C': yesNo(editItem?.ac),
+    laundry_service: yesNo(editItem?.laundry_service),
+    housekeeping: yesNo(editItem?.housekeeping),
+    hot_water: yesNo(editItem?.hot_water),
+    power_backup: yesNo(editItem?.power_backup),
+    parking: yesNo(editItem?.parking),
+    gym: yesNo(editItem?.gym),
+    play_area: yesNo(editItem?.play_area),
+    tv: yesNo(editItem?.tv),
+    dining_table: yesNo(editItem?.dining_table),
+    security: yesNo(editItem?.security),
+    ro_water: yesNo(editItem?.ro_water),
+    study_area: yesNo(editItem?.study_area),
+  });
+
+  setMess(yesNo(editItem?.mess));
+  setBreakfast(yesNo(editItem?.breakfast));
+  setLunch(yesNo(editItem?.lunch));
+  setDinner(yesNo(editItem?.dinner));
+  setTea(yesNo(editItem?.tea_coffee));
+  setSnacks(yesNo(editItem?.snacks));
+
+  setFoodTimings({
+    breakfast: editItem?.breakfast_timing || '',
+    tea: editItem?.tea_coffee_timing || '',
+    lunch: editItem?.lunch_timing || '',
+    snacks: editItem?.snacks_timing || '',
+    dinner: editItem?.dinner_timing || '',
+    opening: editItem?.get_open_time || '',
+    closing: editItem?.gate_closing_time || '',
+  });
+
+  setDocuments(editItem?.documents_required || '');
+  setRules(editItem?.rules_policies || '');
+  setRulesPolicies(yesNo(editItem?.visitors_allowed));
+
+  setSmokingAllowed(editItem?.smoking_alcohol_policy || 'no');
+  setAlcoholAllowed(editItem?.alcohol || 'no');
+  setPetsAllowed(editItem?.pet_allowed || 'no');
+  setRefundPolicy(editItem?.deposit_refund_policy || '');
+
+  if (Array.isArray(editItem?.images)) {
+    setImages(
+      editItem.images.map(img => ({
+        uri: img?.image_url || img,
+        isOld: true,
+      })),
+    );
+  }
+}, [editItem]);
+
 
   const renderInput = (label, value, setValue, multiline = false) => (
     <View style={styles.section}>
@@ -351,8 +450,11 @@ const PostHostel = ({ navigation }) => {
     }
     console.log(formData, 'FROMMMM');
 
-    const response = await postRequest('public/api/hostels', formData, true);
-    console.log(response, "RESPPPPP");
+const apiUrl = isEdit
+  ? `public/api/hostel/${editItem?.id}/update`
+  : 'public/api/hostels';
+
+const response = await postRequest(apiUrl, formData, true);    console.log(response, "RESPPPPP");
 
     if (response?.data?.success) {
       setButtonLoading(false);

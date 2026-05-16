@@ -44,6 +44,12 @@ const Account = ({ navigation }) => {
       icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png',
       navigate: 'Wishlist',
     },
+     {
+      id: 222,
+      title: 'Manage Space',
+      icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
+      navigate: 'Management',
+    },
 
     {
       id: 15,
@@ -75,7 +81,8 @@ const Account = ({ navigation }) => {
       icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
       navigate: 'HotelManagement',
     },
-
+    
+  
     {
       id: 190,
       title: 'Hotel Booking Management',

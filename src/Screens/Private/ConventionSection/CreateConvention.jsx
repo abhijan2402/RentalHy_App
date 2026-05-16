@@ -7,7 +7,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../../../Components/FeedHeader';
 import { COLOR } from '../../../Constants/Colors';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -18,46 +18,102 @@ import { useApi } from '../../../Backend/Api';
 import GooglePlacePicker from '../../../Components/GooglePicker';
 import moment from 'moment';
 
-const getYears = () => {
-  const currentYear = new Date().getFullYear();
-  return [currentYear + 1, currentYear + 2];
-};
-
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
 const CreateConvention = ({ navigation, route }) => {
   const activeTab = route?.params?.activeTabKey || 'Function/Convention Hall';
+  const editItem = route?.params?.item;
+  const isEdit = !!editItem;
+
   const { postRequest } = useApi();
   const { showToast } = useToast();
+
   const [loading, setLoading] = useState(false);
-  // Images
+
+  const [uploadType, setUploadType] = useState(
+    activeTab === 'farmhouse'
+      ? 'Farm House'
+      : activeTab === 'resort'
+      ? 'resort'
+      : 'Function/Convention Hall',
+  );
+
+  const isFarm = uploadType === 'Farm House';
+  const isResort = uploadType === 'resort';
+  const isHall = uploadType === 'Function/Convention Hall';
+  const isStayType = isFarm || isResort;
+
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
   const [parkingImages, setParkingImages] = useState([]);
   const [BridGroomImages, setBridGroomImages] = useState([]);
-  const [uploadType, setUploadType] = useState(
-    activeTab == 'farmhouse' ? 'Farm House' : 'Function/Convention Hall',
-  );
+  const [roomImages, setRoomImages] = useState([]);
 
-  // General info
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [contact, setContact] = useState(null);
+  const [contact, setContact] = useState('');
 
-  // Price options
+  const [prices, setPrices] = useState({});
+  const [capacity, setCapacity] = useState('');
+
+  const [parkingAvailable, setParkingAvailable] = useState('no');
+  const [cars, setCars] = useState('');
+  const [bikes, setBikes] = useState('');
+  const [buses, setBuses] = useState('');
+  const [valet, setValet] = useState('yes');
+
+  const [royaltyDecoration, setRoyaltyDecoration] = useState('no');
+  const [decorationContact, setDecorationContact] = useState('');
+  const [royaltyKitchen, setRoyaltyKitchen] = useState('yes');
+  const [generator, setGenerator] = useState('yes');
+  const [normalWater, setNormalWater] = useState('yes');
+  const [drinkingWater, setDrinkingWater] = useState('yes');
+  const [catering, setCatering] = useState('yes');
+  const [acAvailable, setAcAvailable] = useState('yes');
+
+  const [swimmingPool, setSwimmingPool] = useState('no');
+  const [foodAvailable, setFoodAvailable] = useState('no');
+  const [foodDescription, setFoodDescription] = useState('');
+  const [cctv, setCctv] = useState('no');
+  const [soundSystem, setSoundSystem] = useState('no');
+  const [soundSystemAllowed, setSoundSystemAllowed] = useState('no');
+  const [childrenGames, setChildrenGames] = useState('no');
+  const [childrenGamesDesc, setChildrenGamesDesc] = useState('');
+  const [adultGames, setAdultGames] = useState('no');
+  const [adultGamesDesc, setAdultGamesDesc] = useState('');
+  const [kitchenSetup, setKitchenSetup] = useState('no');
+  const [area, setArea] = useState('');
+
+  const [unavailableDates, setUnavailableDates] = useState({});
+  const [timeBlocks, setTimeBlocks] = useState({});
+  const [rows, setRows] = useState([{ field: 'Any Other', value: '' }]);
+  const [address, setAddress] = useState({});
+
+  const [parkingGuard, setParkingGuard] = useState('no');
+  const [alcoholAllowed, setAlcoholAllowed] = useState('no');
+
+  const [freeCancellation, setFreeCancellation] = useState('no');
+  const [payLater, setPayLater] = useState('no');
+  const [adultPool, setAdultPool] = useState('no');
+  const [childPool, setChildPool] = useState('no');
+  const [securityGuard, setSecurityGuard] = useState('no');
+  const [petFriendly, setPetFriendly] = useState('no');
+  const [breakfastIncluded, setBreakfastIncluded] = useState('no');
+  const [restaurant, setRestaurant] = useState('no');
+  const [cafeteria, setCafeteria] = useState('no');
+  const [elevator, setElevator] = useState('no');
+  const [reception24, setReception24] = useState('no');
+  const [gym, setGym] = useState('no');
+  const [tvAvailable, setTvAvailable] = useState('no');
+  const [meetingRoom, setMeetingRoom] = useState('no');
+  const [wifi, setWifi] = useState('no');
+  const [playGround, setPlayGround] = useState('no');
+  const [kitchen, setKitchen] = useState('no');
+  const [refrigerator, setRefrigerator] = useState('no');
+  const [spa, setSpa] = useState('no');
+  const [wellnessCentre, setWellnessCentre] = useState('no');
+  const [wheelChair, setWheelChair] = useState('no');
+  const [otherFacilities, setOtherFacilities] = useState('');
+  const [royaltyDecPrice, setRoyaltiDecPrice] = useState('');
+
   const priceOptions = [
     'Wedding',
     'Wedding Anniversary',
@@ -130,82 +186,147 @@ const CreateConvention = ({ navigation, route }) => {
     'Banquet Hall Charges',
     'Occasion Charges',
   ];
-  const [prices, setPrices] = useState({});
 
-  // Seating Capacity
-  const [capacity, setCapacity] = useState(50);
+  const yesNo = value =>
+    value === true || value === 1 || value === '1' || value === 'yes'
+      ? 'yes'
+      : 'no';
 
-  // Parking
-  const [parkingAvailable, setParkingAvailable] = useState(false);
-  const [cars, setCars] = useState('');
-  const [bikes, setBikes] = useState('');
-  const [buses, setBuses] = useState('');
-  const [valet, setValet] = useState('yes');
+  const normalizeKey = str =>
+    str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_|_$/g, '');
 
-  const [adultPool, setAdultPool] = useState();
+  const mapGroupedImages = type => {
+    const arr = editItem?.images_grouped?.[type] || [];
+    return arr.map(img => ({
+      uri: img?.image_url,
+      id: img?.id,
+      isOld: true,
+    }));
+  };
 
-  // Facilities
-  const [royaltyDecoration, setRoyaltyDecoration] = useState('no');
-  const [decorationContact, setDecorationContact] = useState('');
-  const [royaltyKitchen, setRoyaltyKitchen] = useState('yes');
-  const [generator, setGenerator] = useState('yes');
-  const [normalWater, setNormalWater] = useState('yes');
-  const [drinkingWater, setDrinkingWater] = useState('yes');
-  const [catering, setCatering] = useState('yes');
-  const [PhotographersReq, setPhotographersReq] = useState('yes');
-  const [acAvailable, setAcAvailable] = useState('yes');
-  // Availability Slots
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [slots, setSlots] = useState([]);
+  useEffect(() => {
+    if (!editItem) return;
 
-  const [swimmingPool, setSwimmingPool] = useState(false);
-  const [foodAvailable, setFoodAvailable] = useState(false);
-  const [foodDescription, setFoodDescription] = useState('');
-  const [cctv, setCctv] = useState(false);
-  const [soundSystem, setSoundSystem] = useState(false);
-  const [soundSystemAllowed, setSoundSystemAllowed] = useState(false);
-  const [childrenGames, setChildrenGames] = useState(false);
-  const [childrenGamesDesc, setChildrenGamesDesc] = useState('');
-  const [adultGames, setAdultGames] = useState(false);
-  const [adultGamesDesc, setAdultGamesDesc] = useState('');
-  const [kitchenSetup, setKitchenSetup] = useState(false);
-  const [area, setArea] = useState(null);
-  const years = getYears();
-  const [unavailableDates, setUnavailableDates] = useState({});
-  const [rows, setRows] = useState([{ field: 'Any Other', value: '' }]);
-  const [address, setAddress] = useState({});
+    if (editItem?.hall_type === 'farm') {
+      setUploadType('Farm House');
+    } else if (editItem?.hall_type === 'resort' || editItem?.type === 'resort') {
+      setUploadType('resort');
+    } else {
+      setUploadType('Function/Convention Hall');
+    }
 
-  const [parkingGuard, setParkingGuard] = useState(false);
-  const [alcoholAllowed, setAlcoholAllowed] = useState(false);
-  const [roomImages, setRoomImages] = useState([]);
+    setTitle(editItem?.title || '');
+    setDescription(editItem?.description || '');
+    setContact(editItem?.contact_number ? String(editItem.contact_number) : '');
+    setCapacity(String(editItem?.seating_capacity || editItem?.room_details || ''));
 
-  //Farm houses
-  const [freeCancellation, setFreeCancellation] = useState(false);
-  const [payLater, setPayLater] = useState(false);
-  const [childPool, setChildPool] = useState(false);
-  const [securityGuard, setSecurityGuard] = useState(false);
-  const [petFriendly, setPetFriendly] = useState(false);
-  const [breakfastIncluded, setBreakfastIncluded] = useState(false);
-  const [restaurant, setRestaurant] = useState(false);
-  const [cafeteria, setCafeteria] = useState(false);
-  const [elevator, setElevator] = useState(false);
-  const [reception24, setReception24] = useState(false);
-  const [gym, setGym] = useState(false);
-  const [tvAvailable, setTvAvailable] = useState(false);
-  const [meetingRoom, setMeetingRoom] = useState(false);
-  const [wifi, setWifi] = useState(false);
-  const [playGround, setPlayGround] = useState(false);
-  const [kitchen, setKitchen] = useState(false);
-  const [refrigerator, setRefrigerator] = useState(false);
-  const [spa, setSpa] = useState(false);
-  const [wellnessCentre, setWellnessCentre] = useState(false);
-  const [wheelChair, setWheelChair] = useState(false);
-  const [otherFacilities, setOtherFacilities] = useState('');
-  const [timeBlocks, setTimeBlocks] = useState({});
+    setAddress({
+      address: editItem?.address || '',
+      lat: editItem?.lat,
+      lng: editItem?.long,
+    });
 
-  const [royaltyDecPrice, setRoyaltiDecPrice] = useState('');
+    setHallImages(
+      mapGroupedImages('hall')?.length
+        ? mapGroupedImages('hall')
+        : mapGroupedImages('main'),
+    );
+    setKitchenImages(mapGroupedImages('kitchen'));
+    setParkingImages(mapGroupedImages('parking'));
+    setBridGroomImages(mapGroupedImages('bride'));
+    setRoomImages(mapGroupedImages('room'));
+
+    setAcAvailable(yesNo(editItem?.ac_available));
+    setRoyaltyDecoration(yesNo(editItem?.royalty_decoration));
+    setDecorationContact(
+      editItem?.hall_decorator_name || editItem?.hall_decorator_number || '',
+    );
+    setRoyaltyKitchen(yesNo(editItem?.royalty_kitchen));
+    setGenerator(yesNo(editItem?.generator_available));
+    setNormalWater(yesNo(editItem?.water_for_cooking));
+    setDrinkingWater(yesNo(editItem?.drinking_water_available));
+    setCatering(yesNo(editItem?.provides_catering_persons));
+
+    setParkingAvailable(yesNo(editItem?.parking_available));
+    setParkingGuard(yesNo(editItem?.parking_guard));
+    setAlcoholAllowed(yesNo(editItem?.alcohol_allowed));
+
+    setSwimmingPool(yesNo(editItem?.swimming_pool));
+    setFoodAvailable(yesNo(editItem?.food_available));
+    setCctv(yesNo(editItem?.cctv_available));
+    setSoundSystem(yesNo(editItem?.sound_system_available));
+    setSoundSystemAllowed(yesNo(editItem?.sound_system_allowed));
+    setChildrenGames(yesNo(editItem?.children_games));
+    setAdultGames(yesNo(editItem?.adult_games));
+    setKitchenSetup(yesNo(editItem?.kitchen_setup));
+    setFreeCancellation(yesNo(editItem?.free_cancellation));
+    setPayLater(yesNo(editItem?.pay_later));
+    setAdultPool(yesNo(editItem?.adult_pool));
+    setChildPool(yesNo(editItem?.child_pool));
+    setSecurityGuard(yesNo(editItem?.security_guard));
+    setPetFriendly(yesNo(editItem?.pet_friendly));
+    setBreakfastIncluded(yesNo(editItem?.breakfast_included));
+    setRestaurant(yesNo(editItem?.restaurant));
+    setCafeteria(yesNo(editItem?.cafeteria));
+    setElevator(yesNo(editItem?.elevator));
+    setReception24(yesNo(editItem?.reception_24_hours));
+    setGym(yesNo(editItem?.gym_available));
+    setTvAvailable(yesNo(editItem?.tv_available));
+    setMeetingRoom(yesNo(editItem?.meeting_room));
+    setWifi(yesNo(editItem?.free_wifi));
+    setPlayGround(yesNo(editItem?.play_ground));
+    setKitchen(yesNo(editItem?.kitchen));
+    setRefrigerator(yesNo(editItem?.refrigerator));
+    setSpa(yesNo(editItem?.spa));
+    setWellnessCentre(yesNo(editItem?.wellness_centre));
+    setWheelChair(yesNo(editItem?.wheel_chair_access));
+
+    setArea(editItem?.area_sq_ft ? String(editItem.area_sq_ft) : '');
+    setOtherFacilities(editItem?.other || '');
+
+    const priceMap = {};
+    priceOptions.forEach(opt => {
+      const key = `${normalizeKey(opt)}_price`;
+      if (editItem?.[key] !== null && editItem?.[key] !== undefined) {
+        priceMap[opt] = String(editItem[key]);
+      }
+    });
+
+    priceOptionsFarm.forEach(opt => {
+      const key = normalizeKey(opt);
+      if (editItem?.[key] !== null && editItem?.[key] !== undefined) {
+        priceMap[opt] = String(editItem[key]);
+      }
+    });
+
+    setPrices(priceMap);
+
+    if (editItem?.dates) {
+      const markedDates = {};
+      const blocks = {};
+
+      Object.entries(editItem.dates).forEach(([date, value]) => {
+        const formattedDate = moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+        markedDates[formattedDate] = {
+          selected: true,
+          selectedColor: 'red',
+        };
+
+        blocks[formattedDate] = Array.isArray(value)
+          ? value
+          : String(value)
+              .split(',')
+              .map(v => v.trim());
+      });
+
+      setUnavailableDates(markedDates);
+      setTimeBlocks(blocks);
+    }
+  }, [editItem]);
 
   const toggleDate = day => {
     const date = day.dateString;
@@ -248,7 +369,13 @@ const CreateConvention = ({ navigation, route }) => {
                 selected && styles.optionButtonSelected,
               ]}
               onPress={() => toggleTimeBlock(date, opt)}>
-              <Text style={[selected && styles.optionTextSelected, { color: "black" }]}>{opt}</Text>
+              <Text
+                style={[
+                  selected && styles.optionTextSelected,
+                  { color: selected ? 'white' : 'black' },
+                ]}>
+                {opt}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -272,144 +399,176 @@ const CreateConvention = ({ navigation, route }) => {
     setter(prev => prev.filter((_, i) => i !== index));
   };
 
-  const addSlot = () => {
-    if (!selectedYear || !selectedMonth || !selectedDate) return;
-    const dateStr = `${selectedYear}-${String(
-      months.indexOf(selectedMonth) + 1,
-    ).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
-    if (!slots.includes(dateStr)) setSlots([...slots, dateStr]);
+  const appendImages = (formData, key, images, prefix) => {
+    images
+      .filter(img => !img.isOld)
+      .forEach((img, index) => {
+        formData.append(`${key}[${index}]`, {
+          uri: img.uri,
+          type: img.type || 'image/jpeg',
+          name: img.name || `${prefix}_${index}.jpg`,
+        });
+      });
   };
 
   const postSpace = async () => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('seating_capacity', capacity);
-    formData.append('ac_available', acAvailable === 'yes' ? 1 : 0);
-    formData.append('royalty_decoration', royaltyDecoration === 'yes' ? 1 : 0);
-    formData.append('hall_decorator_name', decorationContact);
-    formData.append('hall_decorator_number', decorationContact);
-    formData.append('royalty_kitchen', royaltyKitchen === 'yes' ? 1 : 0);
-    formData.append('generator_available', generator === 'yes' ? 1 : 0);
-    formData.append('water_for_cooking', normalWater === 'yes' ? 1 : 0);
-    formData.append('address', address?.address);
-    formData.append(
-      'drinking_water_available',
-      drinkingWater === 'yes' ? 1 : 0,
-    );
-    formData.append('provides_catering_persons', catering === 'yes' ? 1 : 0);
-    // formData.append(
-    //   'photographers_required',
-    //   PhotographersReq === 'yes' ? 1 : 0,
-    // );
-    formData.append('children_games', childrenGames === true ? 1 : 0);
-    formData.append('parking_available', parkingAvailable === true ? 1 : 0);
-    formData.append('parking_guard', parkingGuard === true ? 1 : 0);
-    formData.append('alcohol_allowed', alcoholAllowed === true ? 1 : 0);
+    try {
+      setLoading(true);
 
-    formData.append('hall_type', 'hall');
-    const normalizeKey = str =>
-      str
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_|_$/g, '');
+      const formData = new FormData();
 
-    const selectedOptions =
-      uploadType === 'Farm House' ? priceOptionsFarm : priceOptions;
-    if (uploadType === 'Farm House') {
-      selectedOptions.forEach(opt => {
-        if (prices[opt]) {
-          formData.append(`${normalizeKey(opt)}`, prices[opt]);
-        }
-      });
-    } else {
-      selectedOptions.forEach(opt => {
-        if (prices[opt]) {
-          formData.append(`${normalizeKey(opt)}_price`, prices[opt]);
-        }
-      });
-    }
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('seating_capacity', capacity);
+      formData.append('address', address?.address || '');
+      formData.append('lat', address?.lat || '');
+      formData.append('long', address?.lng || '');
 
-    rows.forEach(row => {
-      if (row.field && row.value) {
-        formData.append(`${normalizeKey(row.field)}_price`, row.value);
+      if (contact) {
+        formData.append('contact_number', contact);
       }
-    });
-    if (contact) {
-      formData.append('contact_number', contact);
-    }
 
-    formData.append('lat', address.lat);
-    formData.append('long', address.lng);
+      const hallType = isFarm ? 'farm' : isResort ? 'resort' : 'hall';
+      formData.append('hall_type', hallType);
 
-    hallImages.forEach((img, index) => {
-      formData.append(
-        uploadType == 'Farm House'
-          ? `main_images[${index}]`
-          : `hall_images[${index}]`,
-        {
-          uri: img.uri,
-          type: img.type || 'image/jpeg',
-          name: img.name || `hall_image_${index}.jpg`,
-        },
+      formData.append('parking_available', parkingAvailable === 'yes' ? 1 : 0);
+
+      if (isHall) {
+        formData.append('ac_available', acAvailable === 'yes' ? 1 : 0);
+        formData.append(
+          'royalty_decoration',
+          royaltyDecoration === 'yes' ? 1 : 0,
+        );
+        formData.append('hall_decorator_name', decorationContact);
+        formData.append('hall_decorator_number', decorationContact);
+        formData.append('royalty_kitchen', royaltyKitchen === 'yes' ? 1 : 0);
+        formData.append('generator_available', generator === 'yes' ? 1 : 0);
+        formData.append('water_for_cooking', normalWater === 'yes' ? 1 : 0);
+        formData.append(
+          'drinking_water_available',
+          drinkingWater === 'yes' ? 1 : 0,
+        );
+        formData.append(
+          'provides_catering_persons',
+          catering === 'yes' ? 1 : 0,
+        );
+        formData.append('parking_guard', parkingGuard === 'yes' ? 1 : 0);
+        formData.append('alcohol_allowed', alcoholAllowed === 'yes' ? 1 : 0);
+      }
+
+      if (isStayType) {
+        formData.append('swimming_pool', swimmingPool === 'yes' ? 1 : 0);
+        formData.append('food_available', foodAvailable === 'yes' ? 1 : 0);
+        formData.append('food_description', foodDescription || '');
+        formData.append('cctv_available', cctv === 'yes' ? 1 : 0);
+        formData.append(
+          'sound_system_available',
+          soundSystem === 'yes' ? 1 : 0,
+        );
+        formData.append(
+          'sound_system_allowed',
+          soundSystemAllowed === 'yes' ? 1 : 0,
+        );
+        formData.append('adult_games', adultGames === 'yes' ? 1 : 0);
+        formData.append('adult_games_desc', adultGamesDesc || '');
+        formData.append('children_games', childrenGames === 'yes' ? 1 : 0);
+        formData.append('children_games_desc', childrenGamesDesc || '');
+        formData.append('kitchen_setup', kitchenSetup === 'yes' ? 1 : 0);
+        formData.append('free_cancellation', freeCancellation === 'yes' ? 1 : 0);
+        formData.append('pay_later', payLater === 'yes' ? 1 : 0);
+        formData.append('adult_pool', adultPool === 'yes' ? 1 : 0);
+        formData.append('child_pool', childPool === 'yes' ? 1 : 0);
+        formData.append('security_guard', securityGuard === 'yes' ? 1 : 0);
+        formData.append('pet_friendly', petFriendly === 'yes' ? 1 : 0);
+        formData.append(
+          'breakfast_included',
+          breakfastIncluded === 'yes' ? 1 : 0,
+        );
+        formData.append('restaurant', restaurant === 'yes' ? 1 : 0);
+        formData.append('cafeteria', cafeteria === 'yes' ? 1 : 0);
+        formData.append('elevator', elevator === 'yes' ? 1 : 0);
+        formData.append('reception_24_hours', reception24 === 'yes' ? 1 : 0);
+        formData.append('gym_available', gym === 'yes' ? 1 : 0);
+        formData.append('ac_available', acAvailable === 'yes' ? 1 : 0);
+        formData.append('tv_available', tvAvailable === 'yes' ? 1 : 0);
+        formData.append('meeting_room', meetingRoom === 'yes' ? 1 : 0);
+        formData.append('free_wifi', wifi === 'yes' ? 1 : 0);
+        formData.append('play_ground', playGround === 'yes' ? 1 : 0);
+        formData.append('kitchen', kitchen === 'yes' ? 1 : 0);
+        formData.append('refrigerator', refrigerator === 'yes' ? 1 : 0);
+        formData.append('spa', spa === 'yes' ? 1 : 0);
+        formData.append('wellness_centre', wellnessCentre === 'yes' ? 1 : 0);
+        formData.append('wheel_chair_access', wheelChair === 'yes' ? 1 : 0);
+        formData.append('area_sq_ft', area || '');
+        formData.append('other', otherFacilities || '');
+      }
+
+      const selectedOptions = isStayType ? priceOptionsFarm : priceOptions;
+
+      if (isStayType) {
+        selectedOptions.forEach(opt => {
+          if (prices[opt]) {
+            formData.append(normalizeKey(opt), prices[opt]);
+          }
+        });
+      } else {
+        selectedOptions.forEach(opt => {
+          if (prices[opt]) {
+            formData.append(`${normalizeKey(opt)}_price`, prices[opt]);
+          }
+        });
+      }
+
+      rows.forEach(row => {
+        if (row.field && row.value) {
+          formData.append(`${normalizeKey(row.field)}_price`, row.value);
+        }
+      });
+
+      appendImages(
+        formData,
+        isStayType ? 'main_images' : 'hall_images',
+        hallImages,
+        'main_image',
       );
-    });
 
-    kitchenImages.forEach((img, index) => {
-      formData.append(`kitchen_images[${index}]`, {
-        uri: img.uri,
-        type: img.type || 'image/jpeg',
-        name: img.name || `kitchen_image_${index}.jpg`,
-      });
-    });
+      if (isHall) {
+        appendImages(formData, 'kitchen_images', kitchenImages, 'kitchen_image');
+        appendImages(formData, 'bride_image', BridGroomImages, 'bride_image');
+        appendImages(formData, 'praking_image', parkingImages, 'parking_image');
+      }
 
-    BridGroomImages.forEach((img, index) => {
-      formData.append(`bride_image[${index}]`, {
-        uri: img.uri,
-        type: img.type || 'image/jpeg',
-        name: img.name || `bride_image${index}.jpg`,
-      });
-    });
+      if (isStayType) {
+        appendImages(formData, 'room_images', roomImages, 'room_image');
+      }
 
-    parkingImages.forEach((img, index) => {
-      formData.append(`praking_image[${index}]`, {
-        uri: img.uri,
-        type: img.type || 'image/jpeg',
-        name: img.name || `praking_image${index}.jpg`,
-      });
-    });
-
-    roomImages.forEach((img, index) => {
-      formData.append(`room_images[${index}]`, {
-        uri: img.uri,
-        type: img.type || 'image/jpeg',
-        name: img.name || `room_image_${index}.jpg`,
-      });
-    });
-
-    if (timeBlocks) {
       Object.entries(timeBlocks).forEach(([date, value]) => {
-        formData.append(`dates[${moment(date)?.format('DD/MM/YYYY')}]`, value);
+        formData.append(
+          `dates[${moment(date).format('DD/MM/YYYY')}]`,
+          Array.isArray(value) ? value.join(',') : value,
+        );
       });
-    }
-    console.log(formData, "FFNIFN");
 
-    let url = uploadType === 'Farm House' ? 'farm' : 'hall';
+      const url = isFarm ? 'farm' : isResort ? 'resort' : 'hall';
 
-    console.log(formData, 'formdataformdata');
-    const response = await postRequest(
-      `public/api/hall_add/${url}`,
-      formData,
-      true,
-    );
+      const apiUrl = isEdit
+        ? `public/api/hall-update/${editItem?.id}`
+        : `public/api/hall_add/${url}`;
 
-    if (response?.data?.success == true) {
-      showToast(response?.data?.message, 'success');
+      const response = await postRequest(apiUrl, formData, true);
+
+      if (response?.data?.success === true) {
+        showToast(response?.data?.message, 'success');
+        navigation?.goBack();
+      } else {
+        showToast(response?.data?.message || 'Something went wrong', 'error');
+      }
+    } catch (error) {
+      console.log('POST_SPACE_ERROR', error);
+      showToast('Something went wrong', 'error');
+    } finally {
       setLoading(false);
-      navigation?.goBack();
     }
-    setLoading(false);
   };
 
   const renderImagePicker = (label, imagesArray, setter) => (
@@ -461,24 +620,29 @@ const CreateConvention = ({ navigation, route }) => {
           </TouchableOpacity>
         ))}
       </View>
+
       {descriptionInput && value === 'no' && (
         <TextInput
           style={[styles.input, { marginTop: 10 }]}
           value={descriptionVal}
           onChangeText={setDescriptionVal}
           placeholder="Enter Name and Number of hall decorator"
+          placeholderTextColor={COLOR.grey}
         />
       )}
+
       {field === 'Dex' && value === 'yes' && (
         <TextInput
           style={[styles.input, { marginTop: 10 }]}
           value={royaltyDecPrice}
           onChangeText={setRoyaltiDecPrice}
           placeholder="Enter royalty decorator price"
+          placeholderTextColor={COLOR.grey}
         />
       )}
     </View>
   );
+
   const handleChange = (text, index, key) => {
     const updatedRows = [...rows];
     updatedRows[index][key] = text;
@@ -488,62 +652,53 @@ const CreateConvention = ({ navigation, route }) => {
   const addRow = () => {
     setRows([...rows, { field: '', value: '' }]);
   };
+
+  const screenTitle = isEdit
+    ? isFarm
+      ? 'Update Farm House'
+      : isResort
+      ? 'Update Resort'
+      : 'Update Convention Hall'
+    : isFarm
+    ? 'Upload Farm House'
+    : isResort
+    ? 'Upload Resort'
+    : 'Upload Convention Hall';
+
+  const buttonTitle = isEdit
+    ? isFarm
+      ? 'Update Farm'
+      : isResort
+      ? 'Update Resort'
+      : 'Update Convention Hall'
+    : isFarm
+    ? 'Post Farm'
+    : isResort
+    ? 'Post Resort'
+    : 'Post Convention Hall';
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <Header
-        title={
-          uploadType !== 'Farm House'
-            ? 'Upload Convention Hall'
-            : 'Upload Resort/Farm House'
-        }
+        title={screenTitle}
         showBack
         onBackPress={() => navigation.goBack()}
       />
+
       <ScrollView
         contentContainerStyle={{ paddingBottom: 20 }}
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets={false}
         keyboardDismissMode="on-drag">
-        {/* <Text style={[styles.label, { paddingHorizontal: 20 }]}>
-          Choose Upload Type *
-        </Text> */}
-        {/* <View
-          style={{
-            flexDirection: 'row',
-            paddingHorizontal: 20,
-            marginVertical: 10,
-          }}>
-          {['Function/Convention Hall', 'Farm House'].map(type => (
-            <TouchableOpacity
-              key={type}
-              style={[
-                styles.toggleBtn,
-                uploadType === type && styles.selectedBtn,
-                {
-                  flex: 1,
-                  marginRight: type === 'Function/Convention Hall' ? 10 : 0,
-                },
-              ]}
-              onPress={() => setUploadType(type)}>
-              <Text
-                style={[
-                  styles.toggleText,
-                  uploadType === type && styles.selectedText,
-                ]}>
-                {type == 'Farm House' ? 'Resort/Farm House' : type}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View> */}
-        {/* Images */}
         {renderImagePicker(
-          `${uploadType == 'Farm House' ? 'Farm Images' : 'Hall Images'}`,
+          isFarm ? 'Farm Images' : isResort ? 'Resort Images' : 'Hall Images',
           hallImages,
           setHallImages,
         )}
-        {uploadType == 'Farm House' &&
-          renderImagePicker('Room Images', roomImages, setRoomImages)}
-        {uploadType !== 'Farm House' && (
+
+        {isStayType && renderImagePicker('Room Images', roomImages, setRoomImages)}
+
+        {isHall && (
           <>
             {renderImagePicker(
               'Kitchen Images',
@@ -563,7 +718,6 @@ const CreateConvention = ({ navigation, route }) => {
           </>
         )}
 
-        {/* Title & Description */}
         <View style={styles.section}>
           <Text style={styles.label}>Title *</Text>
           <TextInput
@@ -586,41 +740,39 @@ const CreateConvention = ({ navigation, route }) => {
             placeholderTextColor={COLOR.grey}
           />
         </View>
+
         <View style={styles.section}>
           <Text style={styles.label}>Contact Number *</Text>
           <TextInput
-            style={[styles.input, { textAlignVertical: 'top' }]}
+            style={styles.input}
             value={contact}
-            keyboardType='numeric'
+            keyboardType="numeric"
             onChangeText={setContact}
             placeholder="Enter Contact Number"
             placeholderTextColor={COLOR.grey}
           />
         </View>
+
         <View style={styles.section}>
-          <Text style={styles.label}>location *</Text>
+          <Text style={styles.label}>Location *</Text>
           <GooglePlacePicker
             placeholder="Search location..."
-            onPlaceSelected={place => {
-              setAddress(place);
-              // setLocation(place.address);
-            }}
+            onPlaceSelected={place => setAddress(place)}
           />
+          {!!address?.address && (
+            <Text style={{ marginTop: 8, color: COLOR.black }}>
+              {address.address}
+            </Text>
+          )}
         </View>
 
-        {/* Price Options */}
         <View style={styles.section}>
           <Text style={styles.label}>Price Options</Text>
-          {uploadType == 'Farm House' ? (
+
+          {isStayType ? (
             <>
               {priceOptionsFarm.map(opt => (
-                <View
-                  key={opt}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginBottom: 8,
-                  }}>
+                <View key={opt} style={styles.priceRow}>
                   <Text style={{ flex: 1, color: COLOR.black }}>{opt}</Text>
                   <TextInput
                     style={[styles.input, { flex: 1 }]}
@@ -632,53 +784,12 @@ const CreateConvention = ({ navigation, route }) => {
                   />
                 </View>
               ))}
-              {
-                <View style={{ marginTop: 10 }}>
-                  {rows.map((row, index) => (
-                    <View key={index} style={styles.row}>
-                      <TextInput
-                        placeholderTextColor={COLOR.grey}
-                        style={[styles.inputVal, { flex: 1 }]}
-                        placeholder="Enter Field Name"
-                        value={row.field}
-                        onChangeText={text =>
-                          handleChange(text, index, 'field')
-                        }
-                      />
-                      <TextInput
-                        placeholderTextColor={COLOR.grey}
-                        style={[styles.inputVal, { flex: 1 }]}
-                        placeholder="Enter Price"
-                        value={row.value}
-                        keyboardType="numeric"
-                        onChangeText={text =>
-                          handleChange(text, index, 'value')
-                        }
-                      />
-                      <TouchableOpacity onPress={addRow}>
-                        <Image
-                          source={{
-                            uri: 'https://cdn-icons-png.flaticon.com/512/992/992651.png', // + icon
-                          }}
-                          style={styles.icon}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              }
             </>
           ) : (
             <>
               {priceOptions.map(opt => (
-                <View
-                  key={opt}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginBottom: 8,
-                  }}>
-                  <Text style={{ flex: 1 }}>{opt}</Text>
+                <View key={opt} style={styles.priceRow}>
+                  <Text style={{ flex: 1, color: COLOR.black }}>{opt}</Text>
                   <TextInput
                     placeholderTextColor={COLOR.grey}
                     style={[styles.input, { flex: 1 }]}
@@ -689,45 +800,41 @@ const CreateConvention = ({ navigation, route }) => {
                   />
                 </View>
               ))}
-              {
-                <View style={{ marginTop: 10 }}>
-                  {rows.map((row, index) => (
-                    <View key={index} style={styles.row}>
-                      <TextInput
-                        placeholderTextColor={COLOR.grey}
-                        style={[styles.inputVal, { flex: 1 }]}
-                        placeholder="Enter Field Name"
-                        value={row.field}
-                        onChangeText={text =>
-                          handleChange(text, index, 'field')
-                        }
-                      />
-                      <TextInput
-                        placeholderTextColor={COLOR.grey}
-                        style={[styles.inputVal, { flex: 1 }]}
-                        placeholder="Enter Price"
-                        value={row.value}
-                        keyboardType="numeric"
-                        onChangeText={text =>
-                          handleChange(text, index, 'value')
-                        }
-                      />
-                      <TouchableOpacity onPress={addRow}>
-                        <Image
-                          source={{
-                            uri: 'https://cdn-icons-png.flaticon.com/512/992/992651.png', // + icon
-                          }}
-                          style={styles.icon}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              }
             </>
           )}
+
+          <View style={{ marginTop: 10 }}>
+            {rows.map((row, index) => (
+              <View key={index} style={styles.row}>
+                <TextInput
+                  placeholderTextColor={COLOR.grey}
+                  style={[styles.inputVal, { flex: 1 }]}
+                  placeholder="Enter Field Name"
+                  value={row.field}
+                  onChangeText={text => handleChange(text, index, 'field')}
+                />
+                <TextInput
+                  placeholderTextColor={COLOR.grey}
+                  style={[styles.inputVal, { flex: 1 }]}
+                  placeholder="Enter Price"
+                  value={row.value}
+                  keyboardType="numeric"
+                  onChangeText={text => handleChange(text, index, 'value')}
+                />
+                <TouchableOpacity onPress={addRow}>
+                  <Image
+                    source={{
+                      uri: 'https://cdn-icons-png.flaticon.com/512/992/992651.png',
+                    }}
+                    style={styles.icon}
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </View>
-        {uploadType == 'Farm House' && (
+
+        {isStayType && (
           <View style={styles.section}>
             <Text style={styles.label}>Room Available *</Text>
             <TextInput
@@ -740,7 +847,8 @@ const CreateConvention = ({ navigation, route }) => {
             />
           </View>
         )}
-        {uploadType != 'Farm House' && (
+
+        {isHall && (
           <>
             <View style={styles.section}>
               <Text style={styles.label}>Hall Capacity (No. of People) *</Text>
@@ -753,10 +861,8 @@ const CreateConvention = ({ navigation, route }) => {
                 placeholder="Enter Capacity"
               />
             </View>
-            {renderToggle('A/C Available', acAvailable, setAcAvailable)}
-            {/* Parking */}
 
-            {/* Facilities */}
+            {renderToggle('A/C Available', acAvailable, setAcAvailable)}
             {renderToggle(
               'Royalty for Decoration',
               royaltyDecoration,
@@ -779,21 +885,15 @@ const CreateConvention = ({ navigation, route }) => {
               setDrinkingWater,
             )}
             {renderToggle('Provides Catering Persons', catering, setCatering)}
-            {/* {renderToggle(
-              'Photographers Required',
-              PhotographersReq,
-              setPhotographersReq,
-            )} */}
           </>
         )}
 
-        {uploadType == 'Farm House' && (
+        {isStayType && (
           <>
-            {/* Existing ones */}
             {renderToggle('Swimming Pool', swimmingPool, setSwimmingPool)}
-
             {renderToggle('Food Available', foodAvailable, setFoodAvailable)}
-            {foodAvailable && (
+
+            {foodAvailable === 'yes' && (
               <View style={styles.section}>
                 <Text style={styles.label}>
                   Mention if any (Tiffins, Lunch, Snacks, Dinner)
@@ -803,20 +903,17 @@ const CreateConvention = ({ navigation, route }) => {
                   value={foodDescription}
                   onChangeText={setFoodDescription}
                   placeholder="Food Available"
+                  placeholderTextColor={COLOR.grey}
                 />
               </View>
             )}
 
-            {/* {renderToggle('Outside Food Allowed', outsideFood, setOutsideFood)} */}
-
             {renderToggle('CCTV Available', cctv, setCctv)}
-
             {renderToggle(
               'Sound System Available',
               soundSystem,
               setSoundSystem,
             )}
-
             {renderToggle(
               'Sound System Allowed',
               soundSystemAllowed,
@@ -824,7 +921,8 @@ const CreateConvention = ({ navigation, route }) => {
             )}
 
             {renderToggle('Adult Games', adultGames, setAdultGames)}
-            {adultGames && (
+
+            {adultGames === 'yes' && (
               <View style={styles.section}>
                 <Text style={styles.label}>Mention if any (Adult Games)</Text>
                 <TextInput
@@ -832,21 +930,22 @@ const CreateConvention = ({ navigation, route }) => {
                   value={adultGamesDesc}
                   onChangeText={setAdultGamesDesc}
                   placeholder="Adult Games"
+                  placeholderTextColor={COLOR.grey}
                 />
               </View>
             )}
 
             {renderToggle('Children Games', childrenGames, setChildrenGames)}
-            {childrenGames && (
+
+            {childrenGames === 'yes' && (
               <View style={styles.section}>
-                <Text style={styles.label}>
-                  Mention if any (Children Games)
-                </Text>
+                <Text style={styles.label}>Mention if any (Children Games)</Text>
                 <TextInput
                   style={styles.input}
                   value={childrenGamesDesc}
                   onChangeText={setChildrenGamesDesc}
                   placeholder="Children Games"
+                  placeholderTextColor={COLOR.grey}
                 />
               </View>
             )}
@@ -857,60 +956,37 @@ const CreateConvention = ({ navigation, route }) => {
               setKitchenSetup,
             )}
 
-            {/* New ones */}
             {renderToggle(
               'Free Cancellation',
               freeCancellation,
               setFreeCancellation,
             )}
-
             {renderToggle('Pay Later', payLater, setPayLater)}
-
             {renderToggle('Adult Pool', adultPool, setAdultPool)}
-
             {renderToggle('Child Pool', childPool, setChildPool)}
-
             {renderToggle('Security Guard', securityGuard, setSecurityGuard)}
-
             {renderToggle('Pet Friendly', petFriendly, setPetFriendly)}
-
             {renderToggle(
               'Breakfast Included',
               breakfastIncluded,
               setBreakfastIncluded,
             )}
-
             {renderToggle('Restaurant', restaurant, setRestaurant)}
-
             {renderToggle('Cafeteria', cafeteria, setCafeteria)}
-
             {renderToggle('Elevator', elevator, setElevator)}
-
             {renderToggle('24 Hours Reception', reception24, setReception24)}
-
             {renderToggle('Gym / Fitness Available', gym, setGym)}
-
             {renderToggle('A/C Available', acAvailable, setAcAvailable)}
-
             {renderToggle('TV Available', tvAvailable, setTvAvailable)}
-
             {renderToggle('Meeting Room', meetingRoom, setMeetingRoom)}
-
             {renderToggle('Free Wifi', wifi, setWifi)}
-
             {renderToggle('Play Ground', playGround, setPlayGround)}
-
             {renderToggle('Kitchen', kitchen, setKitchen)}
-
             {renderToggle('Refrigerator', refrigerator, setRefrigerator)}
-
             {renderToggle('Spa', spa, setSpa)}
-
             {renderToggle('Wellness Centre', wellnessCentre, setWellnessCentre)}
-
             {renderToggle('Wheel Chair Access', wheelChair, setWheelChair)}
 
-            {/* Add other if any */}
             <View style={styles.section}>
               <Text style={styles.label}>Other (if any)</Text>
               <TextInput
@@ -922,9 +998,8 @@ const CreateConvention = ({ navigation, route }) => {
               />
             </View>
 
-            {/* Area */}
             <View style={styles.section}>
-              <Text style={styles.label}>Area </Text>
+              <Text style={styles.label}>Area</Text>
               <TextInput
                 placeholderTextColor={COLOR.grey}
                 style={styles.input}
@@ -951,6 +1026,7 @@ const CreateConvention = ({ navigation, route }) => {
                 onChangeText={setCars}
                 keyboardType="numeric"
                 placeholder="Cars"
+                placeholderTextColor={COLOR.grey}
               />
               <TextInput
                 style={styles.input}
@@ -958,6 +1034,7 @@ const CreateConvention = ({ navigation, route }) => {
                 onChangeText={setBikes}
                 keyboardType="numeric"
                 placeholder="Bikes"
+                placeholderTextColor={COLOR.grey}
               />
               <TextInput
                 style={styles.input}
@@ -965,18 +1042,20 @@ const CreateConvention = ({ navigation, route }) => {
                 onChangeText={setBuses}
                 keyboardType="numeric"
                 placeholder="Buses"
+                placeholderTextColor={COLOR.grey}
               />
             </View>
             {renderToggle('Valet Parking Available', valet, setValet)}
           </>
         )}
-        {uploadType != 'Farm House' && (
+
+        {isHall && (
           <>
             {renderToggle('Parking Guard', parkingGuard, setParkingGuard)}
-
             {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
           </>
         )}
+
         <View style={styles.section}>
           <Text style={styles.label}>
             Unavailable : Day-time Night-time Full-day
@@ -984,10 +1063,10 @@ const CreateConvention = ({ navigation, route }) => {
           <Calendar
             onDayPress={toggleDate}
             markedDates={unavailableDates}
-            markingType={'multi-dot'}
+            markingType="multi-dot"
           />
-          <Text style={[styles.note, { color: "black" }]}>
-            Note: Please select only those dates on which your hall is NOT
+          <Text style={[styles.note, { color: 'black' }]}>
+            Note: Please select only those dates on which your place is NOT
             available for booking. All other dates will be considered available.
           </Text>
         </View>
@@ -1000,10 +1079,9 @@ const CreateConvention = ({ navigation, route }) => {
             </View>
           ))}
         </View>
+
         <CustomButton
-          title={
-            uploadType !== 'Farm House' ? 'Post Convention Hall' : 'Post Farm'
-          }
+          title={buttonTitle}
           loading={loading}
           onPress={postSpace}
         />
@@ -1017,15 +1095,6 @@ export default CreateConvention;
 const styles = StyleSheet.create({
   section: { marginVertical: 10, paddingHorizontal: 20 },
   label: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    backgroundColor: '#fafafa',
-    marginTop: 10,
-  },
   imageContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1055,7 +1124,6 @@ const styles = StyleSheet.create({
   },
   toggleRow: { flexDirection: 'row', marginTop: 10 },
   toggleBtn: {
-    // flex: 0.5,
     paddingVertical: 5,
     paddingHorizontal: 13,
     borderWidth: 1,
@@ -1071,18 +1139,12 @@ const styles = StyleSheet.create({
   },
   toggleText: { fontSize: 14, color: '#333' },
   selectedText: { color: '#fff', fontWeight: '600' },
-  dateBox: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginRight: 10,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 13,
-  },
-  dateText: { fontSize: 14, color: '#333' },
   row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
@@ -1100,9 +1162,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 8,
     height: 40,
-    color: "black"
+    color: 'black',
   },
-  dateText: { fontSize: 16, width: 110, color: "black" },
+  dateText: { fontSize: 16, width: 110, color: 'black' },
   inputVal: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -1110,7 +1172,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 6,
     paddingVertical: 10,
-    color: COLOR.black
+    color: COLOR.black,
   },
   icon: {
     width: 24,
@@ -1131,4 +1193,8 @@ const styles = StyleSheet.create({
   },
   optionTextSelected: { color: 'white' },
   optionRow: { flexDirection: 'row', gap: 8 },
+  note: {
+    marginTop: 8,
+    fontSize: 13,
+  },
 });
