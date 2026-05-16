@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "184445866178",
+    "project_id": "to-letindia1919",
+    "storage_bucket": "to-letindia1919.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184445866178:android:739a7324a741eda6b52b5b",
+        "android_client_info": {
+          "package_name": "com.toletindia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXV3h29dqGp_bN33H3kVjQBfZvCfQbdTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
