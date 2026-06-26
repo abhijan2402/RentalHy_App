@@ -53,6 +53,8 @@ const HallCard = ({
     onBook,
     onPress,
 }) => {
+    console.log(price,"PRICEEEEE");
+    
     return (
         <TouchableOpacity onPress={onPress} style={styles.card}>
             <Image
@@ -162,6 +164,7 @@ const ConventionHall = ({
                 navigation.navigate('Booking', {
                     type: 'convention',
                     propertyData: item?.id,
+                    bookingData: item,
                 })
             }
         />
@@ -383,7 +386,6 @@ const FarmHouse = ({
     scrollOffset,
 }) => {
     const renderHall = ({ item }) => {
-        // console.log(item, 'ITEMMMMM');
         return (
             <HallCard
                 key={item.id}
@@ -409,6 +411,7 @@ const FarmHouse = ({
                     navigation.navigate('Booking', {
                         type: 'convention',
                         propertyData: item?.id,
+                        bookingData: item,
                     })
                 }
             />

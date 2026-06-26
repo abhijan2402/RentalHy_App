@@ -4,44 +4,115 @@ import {
   View,
   TouchableOpacity,
   Image,
-  ScrollView,
   Modal,
   TextInput,
   ActivityIndicator,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
 import {COLOR} from '../../../Constants/Colors';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
+import moment from 'moment';
+
+const booleanFields = {
+  ac_available: 'AC Available',
+  royalty_decoration: 'Royalty Decoration',
+  royalty_kitchen: 'Royalty Kitchen',
+  generator_available: 'Generator Available',
+  water_for_cooking: 'Water For Cooking',
+  drinking_water_available: 'Drinking Water Available',
+  provides_catering_persons: 'Provides Catering Persons',
+  photographers_required: 'Photographers Required',
+  children_games: 'Children Games',
+  parking_available: 'Parking Available',
+  parking_guard: 'Parking Guard',
+  alcohol_allowed: 'Alcohol Allowed',
+  swimming_pool: 'Swimming Pool',
+  food_available: 'Food Available',
+  outside_food_allowed: 'Outside Food Allowed',
+  cctv_available: 'CCTV Available',
+  sound_system_available: 'Sound System Available',
+  sound_system_allowed: 'Sound System Allowed',
+  adult_games: 'Adult Games',
+  kitchen_setup: 'Kitchen Setup',
+  free_cancellation: 'Free Cancellation',
+  pay_later: 'Pay Later',
+  child_pool: 'Child Pool',
+  security_guard: 'Security Guard',
+  pet_friendly: 'Pet Friendly',
+  breakfast_included: 'Breakfast Included',
+  restaurant: 'Restaurant',
+  cafeteria: 'Cafeteria',
+  elevator: 'Elevator',
+  reception_24_hours: '24 Hours Reception',
+  gym_available: 'Gym Available',
+  tv_available: 'TV Available',
+  meeting_room: 'Meeting Room',
+  free_wifi: 'Free Wifi',
+  play_ground: 'Play Ground',
+  refrigerator: 'Refrigerator',
+  wellness_centre: 'Wellness Centre',
+  wheel_chair_access: 'Wheel Chair Access',
+};
+
+const formatLabel = key => {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase())
+    .replace('24 Hours', '24 Hours');
+};
+
+const InfoRow = ({label, value}) => {
+  if (value === null || value === undefined || value === '') return null;
+
+  return (
+    <Text style={styles.label}>
+      <Text style={styles.bold}>{label}: </Text>
+      {String(value)}
+    </Text>
+  );
+};
 
 const OrderCard = ({order, postRequest, showToast}) => {
-  const [status, setStatus] = useState(order.order_status);
+  const [status, setStatus] = useState(order.order_status || order.status);
+  const normalizedStatus = String(status || '').toLowerCase();
+  const canShowMobile =
+    normalizedStatus === 'success' || normalizedStatus === 'accepted';
   const [buttonLoader, setButtonLoader] = useState({
     type: 'accept',
     loading: false,
   });
+
   const [modalVisible, setModalVisible] = useState({
     visible: false,
     orderId: null,
   });
+
   const [rejectReason, setRejectReason] = useState('');
 
-  const handleAccept = async order => {
+  const hall = order?.convention_hall;
+
+  const handleAccept = async orderData => {
     setButtonLoader({type: 'accept', loading: true});
-    const res = await postRequest(`public/api/payments/${order.id}/accept`);
-    if (res.data.success || res.data.status) {
+
+    const res = await postRequest(`public/api/payments/${orderData.id}/accept`);
+console.log(res,"RESSLLLL");
+
+    if (res?.data?.success || res?.data?.status) {
       setStatus('accepted');
       showToast('Order accepted successfully', 'success');
     } else {
-      showToast(res.data.message || 'Failed to accept order', 'error');
+      showToast(res?.data?.message || 'Failed to accept order', 'error');
     }
+
     setButtonLoader({type: 'accept', loading: false});
   };
 
-  const handleReject = order => {
-    setModalVisible({visible: true, orderId: order.id});
+  const handleReject = orderData => {
+    setModalVisible({visible: true, orderId: orderData.id});
   };
 
   const submitReject = async () => {
@@ -49,49 +120,61 @@ const OrderCard = ({order, postRequest, showToast}) => {
       showToast('Please provide a reason for rejection', 'error');
       return;
     }
+
+    const orderId = modalVisible.orderId;
+
     setModalVisible({visible: false, orderId: null});
-    setRejectReason('');
     setButtonLoader({type: 'reject', loading: true});
+
     const formData = new FormData();
     formData.append('reason', rejectReason || 'No reason provided');
+
     const res = await postRequest(
-      `public/api/payments/${modalVisible.orderId}/reject`,
+      `public/api/payments/${orderId}/reject`,
       formData,
       true,
     );
-    console.log('Reject Response:', res);
-    if (res.data.success || res.data.status) {
+
+    if (res?.data?.success || res?.data?.status) {
       setStatus('cancelled');
       showToast('Order rejected successfully', 'success');
     } else {
-      showToast(res.data.message || 'Failed to reject order', 'error');
+      showToast(res?.data?.message || 'Failed to reject order', 'error');
     }
+
+    setRejectReason('');
     setButtonLoader({type: 'reject', loading: false});
   };
+
+  const priceFields = Object.entries(hall || {}).filter(([key, value]) => {
+    return key.includes('_price') && value !== null && value !== undefined && value !== '';
+  });
+
+  const dateFields = hall?.dates ? Object.entries(hall.dates) : [];
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Image
           source={{
-            uri: order?.convention_hall?.type_images[0]?.image_url || '',
+            uri: hall?.type_images?.[0]?.image_url || hall?.image_url || '',
           }}
           style={styles.image}
         />
+
         <View style={{flex: 1, marginLeft: 10}}>
-          <Text style={styles.propertyName}>
-            {order?.convention_hall?.title}
-          </Text>
-          <Text style={styles.price}>{order?.amount}</Text>
+          <Text style={styles.propertyName}>{hall?.title || 'N/A'}</Text>
+
+          <Text style={styles.price}>₹{order?.amount || '0.00'}</Text>
+
           <Text
             style={[
               styles.status,
-              status === 'accepted' || status === 'success'
+              normalizedStatus === 'accepted' || normalizedStatus === 'success'
                 ? {color: 'green'}
-                : status.includes('cancelled')
+                : normalizedStatus.includes('cancelled')
                 ? {color: 'red'}
                 : {color: '#e67e22'},
-              {textTransform: 'capitalize'},
             ]}>
             Status: {status}
           </Text>
@@ -99,20 +182,31 @@ const OrderCard = ({order, postRequest, showToast}) => {
       </View>
 
       <View style={styles.details}>
-        <Text style={styles.label}>Customer: {order.full_name}</Text>
-        <Text style={styles.label}>Phone: {order.mobail_number}</Text>
-        <Text style={styles.label}>
-          Address: {order?.address || order?.convention_hall?.address}
-        </Text>
-        {/* <Text style={styles.label}>Slots:</Text> */}
-        {/* {order.slots.map((slot, idx) => (
-          <Text key={idx} style={styles.slot}>
-            • {slot}
-          </Text>
-        ))} */}
+        <Text style={styles.sectionTitle}>Booking Information</Text>
+        <InfoRow label="Payment Mode" value={order?.payment_mode} />
+        <InfoRow label="Amount" value={`₹${order?.amount}`} />
+        <InfoRow label="Order Status" value={order?.order_status} />
+        <InfoRow label="Booking Date" value={order?.booking_date} />
+        <InfoRow label="Event Time" value={order?.event_time} />
+        <InfoRow label="Created At" value={moment(order?.created_at).format("DD-MM-YYYY")} />
+
+        <Text style={styles.sectionTitle}>Customer Information</Text>
+
+        <InfoRow label="Customer" value={order?.full_name} />
+        {canShowMobile ? (
+          <>
+            <InfoRow label="Phone" value={order?.mobail_number} />
+            <InfoRow label="Alt Number" value={order?.alt_number} />
+          </>
+        ) : null}
+        <InfoRow label="Address" value={order?.address} />
+        <InfoRow label="Pin Code" value={order?.pin_code} />
+        <InfoRow label="Attendees" value={order?.number_of_attendess} />
+        <InfoRow label="Comment" value={order?.comment} />
+
       </View>
 
-      {status === 'pending' && (
+      {normalizedStatus === 'pending' ? (
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={styles.acceptBtn}
@@ -124,23 +218,29 @@ const OrderCard = ({order, postRequest, showToast}) => {
               <Text style={styles.btnText}>Accept</Text>
             )}
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.rejectBtn}
             onPress={() => handleReject(order)}
             disabled={buttonLoader.loading && buttonLoader.type === 'reject'}>
-            <Text style={styles.btnText}>Reject</Text>
+            {buttonLoader.loading && buttonLoader.type === 'reject' ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Reject</Text>
+            )}
           </TouchableOpacity>
         </View>
-      )}
+      ) : null}
 
       <Modal
-        transparent={true}
-        visible={modalVisible?.visible ? true : false}
+        transparent
+        visible={modalVisible.visible}
         animationType="slide"
         onRequestClose={() => setModalVisible({visible: false, orderId: null})}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Reason for Rejection</Text>
+
             <TextInput
               style={styles.input}
               placeholder="Enter reason..."
@@ -148,12 +248,17 @@ const OrderCard = ({order, postRequest, showToast}) => {
               onChangeText={setRejectReason}
               multiline
             />
+
             <View style={styles.modalBtns}>
               <TouchableOpacity
                 style={styles.cancelBtn}
-                onPress={() => setModalVisible(false)}>
+                onPress={() => {
+                  setModalVisible({visible: false, orderId: null});
+                  setRejectReason('');
+                }}>
                 <Text style={styles.btnText}>Cancel</Text>
               </TouchableOpacity>
+
               <TouchableOpacity style={styles.rejectBtn} onPress={submitReject}>
                 <Text style={styles.btnText}>Submit</Text>
               </TouchableOpacity>
@@ -170,22 +275,28 @@ const SpaceOrders = ({navigation}) => {
   const isFocus = navigation.isFocused();
   const {getRequest, postRequest} = useApi();
   const {showToast} = useToast();
+
   const [loader, setLoader] = useState(true);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
   const getBooking = async (pageNum = 1, append = false) => {
-    if (pageNum > lastPage) return;
-    if (append) setLoadingMore(true);
-    else setLoader(true);
+    if (pageNum > lastPage && append) return;
+
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoader(true);
+    }
 
     await getRequest(`public/api/vendor/payment_list?page=${pageNum}`)
       .then(res => {
         console.log(res?.data, 'SPACE ORDERS RESPONSE');
 
-        if (res.data.success) {
+        if (res?.data?.success) {
           const apiData = res.data.data;
+
           setLastPage(apiData.last_page);
           setPage(apiData.current_page);
 
@@ -195,7 +306,7 @@ const SpaceOrders = ({navigation}) => {
             setDummyOrders(apiData.data);
           }
         } else {
-          alert(res.data.message || 'Failed to fetch bookings');
+          alert(res?.data?.message || 'Failed to fetch bookings');
         }
       })
       .catch(err => {
@@ -223,16 +334,16 @@ const SpaceOrders = ({navigation}) => {
 
   if (loader && !loadingMore) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={styles.centerView}>
         <Text>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
+    <View style={styles.container}>
       <Header
-        title={'Space Orders'}
+        title="Space Orders"
         showBack
         onBackPress={() => navigation.goBack()}
       />
@@ -242,7 +353,6 @@ const SpaceOrders = ({navigation}) => {
         keyExtractor={item => item.id?.toString()}
         renderItem={({item}) => (
           <OrderCard
-            key={item.id}
             order={item}
             postRequest={postRequest}
             showToast={showToast}
@@ -251,13 +361,7 @@ const SpaceOrders = ({navigation}) => {
         contentContainerStyle={{padding: 15}}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 50,
-            }}>
+          <View style={styles.emptyView}>
             <Text>No Order found.</Text>
           </View>
         )}
@@ -280,6 +384,21 @@ const SpaceOrders = ({navigation}) => {
 export default SpaceOrders;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  centerView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
   card: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -301,6 +420,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 10,
+    backgroundColor: '#eee',
   },
   propertyName: {
     fontSize: 16,
@@ -317,19 +437,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 4,
     fontWeight: '600',
+    textTransform: 'capitalize',
   },
   details: {
     padding: 12,
   },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 12,
+    marginBottom: 6,
+    color: '#000',
+  },
   label: {
     fontSize: 14,
-    marginBottom: 4,
+    marginBottom: 5,
     color: '#444',
+    lineHeight: 20,
   },
-  slot: {
-    marginLeft: 10,
-    fontSize: 13,
-    color: '#555',
+  bold: {
+    fontWeight: '700',
+    color: '#222',
   },
   actionRow: {
     flexDirection: 'row',
@@ -349,7 +477,7 @@ const styles = StyleSheet.create({
   rejectBtn: {
     flex: 1,
     marginLeft: 5,
-    backgroundColor: COLOR.primary,
+    backgroundColor: COLOR.primary || '#d9534f',
     padding: 10,
     borderRadius: 8,
     alignItems: 'center',
@@ -357,6 +485,23 @@ const styles = StyleSheet.create({
   btnText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  imageBox: {
+    marginRight: 10,
+    width: 100,
+  },
+  smallImage: {
+    width: 100,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+  },
+  imageType: {
+    fontSize: 12,
+    marginTop: 4,
+    textAlign: 'center',
+    color: '#555',
+    textTransform: 'capitalize',
   },
   modalOverlay: {
     flex: 1,

@@ -20,6 +20,7 @@ import Input from '../../Components/Input';
 import { useApi } from '../../Backend/Api';
 import Header from '../../Components/FeedHeader';
 import { useToast } from '../../Constants/ToastContext';
+import messaging from '@react-native-firebase/messaging';
 
 const { height, width } = Dimensions.get('window');
 
@@ -46,7 +47,11 @@ const SignUp = ({ navigation }) => {
   const [otpTarget, setOtpTarget] = useState('');
   const [otpInput, setOtpInput] = useState('');
   const [UserID, setUserID] = useState(null);
-
+const getFcmToken = async () => {
+    const token = await messaging().getToken();
+    console.log('FCM TOKEN:', token);
+    return token;
+  };
   useEffect(() => {
     animationRef.current?.play(30, 120);
   }, []);
@@ -125,6 +130,7 @@ const SignUp = ({ navigation }) => {
       Alert.alert('Validation', 'Passwords do not match');
       return;
     }
+const token =await getFcmToken()
 
     const formData = new FormData();
     formData.append('name', FullName);
@@ -133,7 +139,8 @@ const SignUp = ({ navigation }) => {
     formData.append('email', email);
     formData.append('password', password);
     formData.append('password_confirmation', confirmPassword);
-
+ formData.append('device_id', token||"i0909");
+    // formData.append('device_type', Platform.OS=="android"?"android":"ios");
     setLoading(true);
 
     try {

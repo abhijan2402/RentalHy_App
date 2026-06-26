@@ -29,7 +29,7 @@ const CreateConvention = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
 
   const [uploadType, setUploadType] = useState(
-    activeTab === 'farmhouse'
+    activeTab === 'farmhouse' || activeTab === 'farm'
       ? 'Farm House'
       : activeTab === 'resort'
       ? 'resort'
@@ -59,6 +59,9 @@ const CreateConvention = ({ navigation, route }) => {
   const [bikes, setBikes] = useState('');
   const [buses, setBuses] = useState('');
   const [valet, setValet] = useState('yes');
+  const [parkingCapacity, setParkingCapacity] = useState('');
+  const [parkingType, setParkingType] = useState('');
+  const [parkingCharges, setParkingCharges] = useState('');
 
   const [royaltyDecoration, setRoyaltyDecoration] = useState('no');
   const [decorationContact, setDecorationContact] = useState('');
@@ -81,6 +84,9 @@ const CreateConvention = ({ navigation, route }) => {
   const [adultGamesDesc, setAdultGamesDesc] = useState('');
   const [kitchenSetup, setKitchenSetup] = useState('no');
   const [area, setArea] = useState('');
+  const [plotArea, setPlotArea] = useState('');
+  const [builtUpArea, setBuiltUpArea] = useState('');
+  const [carpetArea, setCarpetArea] = useState('');
 
   const [unavailableDates, setUnavailableDates] = useState({});
   const [timeBlocks, setTimeBlocks] = useState({});
@@ -210,7 +216,7 @@ const CreateConvention = ({ navigation, route }) => {
   useEffect(() => {
     if (!editItem) return;
 
-    if (editItem?.hall_type === 'farm') {
+    if (editItem?.hall_type === 'farm' || editItem?.type === 'farm') {
       setUploadType('Farm House');
     } else if (editItem?.hall_type === 'resort' || editItem?.type === 'resort') {
       setUploadType('resort');
@@ -239,7 +245,11 @@ const CreateConvention = ({ navigation, route }) => {
     setBridGroomImages(mapGroupedImages('bride'));
     setRoomImages(mapGroupedImages('room'));
 
-    setAcAvailable(yesNo(editItem?.ac_available));
+    setAcAvailable(
+      editItem?.ac_available === undefined || editItem?.ac_available === null
+        ? 'yes'
+        : yesNo(editItem.ac_available),
+    );
     setRoyaltyDecoration(yesNo(editItem?.royalty_decoration));
     setDecorationContact(
       editItem?.hall_decorator_name || editItem?.hall_decorator_number || '',
@@ -251,6 +261,15 @@ const CreateConvention = ({ navigation, route }) => {
     setCatering(yesNo(editItem?.provides_catering_persons));
 
     setParkingAvailable(yesNo(editItem?.parking_available));
+    setCars(editItem?.cars ? String(editItem.cars) : '');
+    setBikes(editItem?.bikes ? String(editItem.bikes) : '');
+    setBuses(editItem?.buses ? String(editItem.buses) : '');
+    setValet(yesNo(editItem?.valet_parking));
+    setParkingCapacity(
+      editItem?.parking_capacity ? String(editItem.parking_capacity) : '',
+    );
+    setParkingType(editItem?.parking_type || '');
+    setParkingCharges(editItem?.parking_charges || '');
     setParkingGuard(yesNo(editItem?.parking_guard));
     setAlcoholAllowed(yesNo(editItem?.alcohol_allowed));
 
@@ -285,6 +304,9 @@ const CreateConvention = ({ navigation, route }) => {
     setWheelChair(yesNo(editItem?.wheel_chair_access));
 
     setArea(editItem?.area_sq_ft ? String(editItem.area_sq_ft) : '');
+    setPlotArea(editItem?.plot_area ? String(editItem.plot_area) : '');
+    setBuiltUpArea(editItem?.built_up_area ? String(editItem.built_up_area) : '');
+    setCarpetArea(editItem?.carpet_area ? String(editItem.carpet_area) : '');
     setOtherFacilities(editItem?.other || '');
 
     const priceMap = {};
@@ -419,7 +441,9 @@ const CreateConvention = ({ navigation, route }) => {
 
       formData.append('title', title);
       formData.append('description', description);
-      formData.append('seating_capacity', capacity);
+      if(capacity){
+        formData.append('seating_capacity', capacity?capacity:0);
+      }
       formData.append('address', address?.address || '');
       formData.append('lat', address?.lat || '');
       formData.append('long', address?.lng || '');
@@ -432,6 +456,16 @@ const CreateConvention = ({ navigation, route }) => {
       formData.append('hall_type', hallType);
 
       formData.append('parking_available', parkingAvailable === 'yes' ? 1 : 0);
+      if (parkingAvailable === 'yes') {
+        formData.append('cars', cars || '0');
+        formData.append('bikes', bikes || '0');
+        formData.append('buses', buses || '0');
+        formData.append('valet_parking', valet === 'yes' ? 1 : 0);
+        formData.append('parking_capacity', parkingCapacity || '');
+        formData.append('parking_type', parkingType || '');
+        formData.append('parking_guard', parkingGuard === 'yes' ? 1 : 0);
+        formData.append('parking_charges', parkingCharges || '');
+      }
 
       if (isHall) {
         formData.append('ac_available', acAvailable === 'yes' ? 1 : 0);
@@ -452,7 +486,6 @@ const CreateConvention = ({ navigation, route }) => {
           'provides_catering_persons',
           catering === 'yes' ? 1 : 0,
         );
-        formData.append('parking_guard', parkingGuard === 'yes' ? 1 : 0);
         formData.append('alcohol_allowed', alcoholAllowed === 'yes' ? 1 : 0);
       }
 
@@ -471,8 +504,14 @@ const CreateConvention = ({ navigation, route }) => {
         );
         formData.append('adult_games', adultGames === 'yes' ? 1 : 0);
         formData.append('adult_games_desc', adultGamesDesc || '');
+        if (adultGamesDesc) {
+          formData.append('adult_games_names[0]', adultGamesDesc);
+        }
         formData.append('children_games', childrenGames === 'yes' ? 1 : 0);
         formData.append('children_games_desc', childrenGamesDesc || '');
+        if (childrenGamesDesc) {
+          formData.append('children_games_names[0]', childrenGamesDesc);
+        }
         formData.append('kitchen_setup', kitchenSetup === 'yes' ? 1 : 0);
         formData.append('free_cancellation', freeCancellation === 'yes' ? 1 : 0);
         formData.append('pay_later', payLater === 'yes' ? 1 : 0);
@@ -500,6 +539,9 @@ const CreateConvention = ({ navigation, route }) => {
         formData.append('wellness_centre', wellnessCentre === 'yes' ? 1 : 0);
         formData.append('wheel_chair_access', wheelChair === 'yes' ? 1 : 0);
         formData.append('area_sq_ft', area || '');
+        formData.append('plot_area', plotArea || '');
+        formData.append('built_up_area', builtUpArea || '');
+        formData.append('carpet_area', carpetArea || '');
         formData.append('other', otherFacilities || '');
       }
 
@@ -541,6 +583,10 @@ const CreateConvention = ({ navigation, route }) => {
       if (isStayType) {
         appendImages(formData, 'room_images', roomImages, 'room_image');
       }
+        if (isStayType) {
+        appendImages(formData, 'farm_images', hallImages, 'farm_images');
+      }
+      
 
       Object.entries(timeBlocks).forEach(([date, value]) => {
         formData.append(
@@ -1008,6 +1054,39 @@ const CreateConvention = ({ navigation, route }) => {
                 placeholder="Enter Area"
               />
             </View>
+
+            <View style={styles.section}>
+              <Text style={styles.label}>Plot Area</Text>
+              <TextInput
+                placeholderTextColor={COLOR.grey}
+                style={styles.input}
+                value={plotArea}
+                onChangeText={setPlotArea}
+                placeholder="Enter Plot Area"
+              />
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.label}>Built Up Area</Text>
+              <TextInput
+                placeholderTextColor={COLOR.grey}
+                style={styles.input}
+                value={builtUpArea}
+                onChangeText={setBuiltUpArea}
+                placeholder="Enter Built Up Area"
+              />
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.label}>Carpet Area</Text>
+              <TextInput
+                placeholderTextColor={COLOR.grey}
+                style={styles.input}
+                value={carpetArea}
+                onChangeText={setCarpetArea}
+                placeholder="Enter Carpet Area"
+              />
+            </View>
           </>
         )}
 
@@ -1044,14 +1123,36 @@ const CreateConvention = ({ navigation, route }) => {
                 placeholder="Buses"
                 placeholderTextColor={COLOR.grey}
               />
+              <TextInput
+                style={styles.input}
+                value={parkingCapacity}
+                onChangeText={setParkingCapacity}
+                keyboardType="numeric"
+                placeholder="Parking Capacity"
+                placeholderTextColor={COLOR.grey}
+              />
+              <TextInput
+                style={styles.input}
+                value={parkingType}
+                onChangeText={setParkingType}
+                placeholder="Parking Type"
+                placeholderTextColor={COLOR.grey}
+              />
+              <TextInput
+                style={styles.input}
+                value={parkingCharges}
+                onChangeText={setParkingCharges}
+                placeholder="Parking Charges"
+                placeholderTextColor={COLOR.grey}
+              />
             </View>
             {renderToggle('Valet Parking Available', valet, setValet)}
+            {renderToggle('Parking Guard', parkingGuard, setParkingGuard)}
           </>
         )}
 
         {isHall && (
           <>
-            {renderToggle('Parking Guard', parkingGuard, setParkingGuard)}
             {renderToggle('Alcohol Allowed', alcoholAllowed, setAlcoholAllowed)}
           </>
         )}

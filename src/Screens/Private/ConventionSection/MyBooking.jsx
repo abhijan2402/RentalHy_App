@@ -16,6 +16,53 @@ import {COLOR} from '../../../Constants/Colors';
 import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 
+const ADVANCE_PAYMENT_MESSAGE =
+  '⚠️ Your booking is not confirmed until the advance payment is successfully made to the vendor. Please contact the number above to proceed with the payment and secure your booking';
+
+const getStartOfToday = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+const parseBookingDate = value => {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  const dateText = String(value).trim();
+  const dateOnly = dateText.split(' ')[0];
+  const isoMatch = dateOnly.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const localMatch = dateOnly.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
+
+  if (isoMatch) {
+    return new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3]));
+  }
+
+  if (localMatch) {
+    return new Date(Number(localMatch[3]), Number(localMatch[2]) - 1, Number(localMatch[1]));
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return null;
+
+  parsedDate.setHours(0, 0, 0, 0);
+  return parsedDate;
+};
+
+const isUpcomingBooking = booking => {
+  const bookingDate = parseBookingDate(booking?.booking_date);
+  if (!bookingDate) return true;
+
+  return bookingDate >= getStartOfToday();
+  //  return true
+
+};
+
 // Enable Layout Animation for Android
 if (
   Platform.OS === 'android' &&
@@ -26,6 +73,10 @@ if (
 
 export const BookingCard = ({booking, onUpdateService}) => {
   const [expanded, setExpanded] = useState(false);
+  const normalizedStatus = String(booking?.order_status || '').toLowerCase();
+  const isSuccessStatus =
+    normalizedStatus === 'success';
+  const isPendingStatus = normalizedStatus === 'pending';
 
   const getStatusColor = status => {
     switch (status) {
@@ -47,6 +98,24 @@ export const BookingCard = ({booking, onUpdateService}) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpanded(prev => !prev);
   };
+  const hall = booking?.convention_hall;
+  const venueName =
+    hall?.title ||
+    hall?.hotel_name ||
+    hall?.name ||
+    booking?.hotel?.name ||
+    booking?.hotel?.hotel_name ||
+    booking?.property?.title ||
+    booking?.property?.name;
+
+  const vendorMobile =
+    hall?.phone_number ||
+    hall?.contact_number ||
+    hall?.mobile_number ||
+    hall?.user?.phone_number ||
+    booking?.vendor?.phone_number ||
+    booking?.vendor_phone_number ||
+    booking?.vendor_mobile_number;
 
   return (
     <View style={styles.card}>
@@ -61,7 +130,14 @@ export const BookingCard = ({booking, onUpdateService}) => {
           style={styles.image}
         />
         <View style={{flex: 1, marginLeft: 10}}>
-          <Text style={styles.vendorName}>{booking.full_name}</Text>
+          {venueName ? (
+            <View style={styles.venueBox}>
+              <Text style={styles.venueLabel}>Venue</Text>
+              <Text style={styles.venueName}>{venueName}</Text>
+            </View>
+          ) : null}
+          <Text style={styles.customerName}>Customer: {booking.full_name}</Text>
+
           <Text style={styles.price}>₹{booking.amount}</Text>
         </View>
         <Text
@@ -83,10 +159,31 @@ export const BookingCard = ({booking, onUpdateService}) => {
           👥 Attendees: {booking.number_of_attendess}
         </Text>
         <Text style={styles.label}>📍 Address: {booking.address || 'N/A'}</Text>
-        <Text style={styles.label}>📞 Mobile: {booking.mobail_number}</Text>
-        <Text style={styles.label}>
-          📞 Alternate Mobile: {booking.alt_number}
-        </Text>
+        {isSuccessStatus ? (
+          <>
+            <Text style={styles.label}>📞 Mobile: {booking.mobail_number}</Text>
+            <Text style={styles.label}>
+              📞 Alternate Mobile: {booking.alt_number}
+            </Text>
+            {vendorMobile ? (
+              <View style={styles.vendorMobileBox}>
+                <Text style={styles.vendorMobileLabel}>Vendor Mobile</Text>
+                <Text style={styles.vendorMobileText}>{vendorMobile}</Text>
+              </View>
+            ) : null}
+          </>
+        ) : null}
+        {isPendingStatus && vendorMobile ? (
+          <>
+            <View style={styles.vendorMobileBox}>
+              <Text style={styles.vendorMobileLabel}>Vendor Mobile</Text>
+              <Text style={styles.vendorMobileText}>{vendorMobile}</Text>
+            </View>
+            <Text style={styles.advancePaymentMessage}>
+              {ADVANCE_PAYMENT_MESSAGE}
+            </Text>
+          </>
+        ) : null}
       </View>
 
       {/* Services Section - Expandable */}
@@ -175,14 +272,13 @@ const MyBooking = ({navigation}) => {
       .then(res => {
         if (res.data.success) {
           const apiData = res.data.data;
-          console.log(apiData, 'BHVVHY');
-
           setLastPage(apiData.last_page);
           setPage(apiData.current_page);
+          const upcomingBookings = (apiData.data || []).filter(isUpcomingBooking);
           if (append) {
-            setBookings(prev => [...prev, ...apiData.data]);
+            setBookings(prev => [...prev, ...upcomingBookings]);
           } else {
-            setBookings(apiData.data);
+            setBookings(upcomingBookings);
           }
         } else {
           alert(res.data.message || 'Failed to fetch bookings');
@@ -330,6 +426,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  venueBox: {
+    marginBottom: 4,
+  },
+  venueLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLOR.primary || '#007AFF',
+    textTransform: 'uppercase',
+  },
+  venueName: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#222',
+  },
+  customerName: {
+    fontSize: 13,
+    color: '#555',
+    marginBottom: 2,
+  },
   price: {
     fontSize: 14,
     color: COLOR.primary || '#007AFF',
@@ -348,6 +463,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 4,
     color: '#444',
+  },
+  vendorMobileBox: {
+    marginTop: 8,
+    marginBottom: 6,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLOR.primary || '#007AFF',
+    backgroundColor: '#eef6ff',
+  },
+  vendorMobileLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLOR.primary || '#007AFF',
+    marginBottom: 2,
+  },
+  vendorMobileText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#111',
+  },
+  advancePaymentMessage: {
+    marginTop: 4,
+    marginBottom: 4,
+    fontSize: 13,
+    lineHeight: 19,
+    color: '#8a5a00',
+    fontWeight: '600',
   },
   expandToggle: {
     flexDirection: 'row',

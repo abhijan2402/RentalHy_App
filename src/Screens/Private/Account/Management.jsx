@@ -30,7 +30,7 @@ const deleteUrls = {
     Hostel: id => `public/api/hostel/delete/${id}`,
     Convention: id => `public/api/hall-delete/${id}`,
     Resort: id => `/public/api/hall-delete/${id}`,
-    Farm: id => `public/api/farms/${id}`,
+    Farm: id => `public/api/hall-delete/${id}`,
     Hotels: id => `public/api/hotels/delete/${id}`, // ✅ FIXED
 };
 const editRoutes = {
@@ -93,9 +93,7 @@ const Management = ({ navigation }) => {
         return item?.id || item?.hotel_info?.id;
     };
 
-    const getImageUrl = item => {
-        console.log(item,"ITENNNN");
-        
+    const getImageUrl = item => {        
         return (
             item?.images?.[0]?.image_url ||
             item?.images?.[0]?.image_path ||
@@ -141,7 +139,6 @@ const Management = ({ navigation }) => {
 
     const handleEdit = item => {
         const routeName = editRoutes[activeTab];
-        console.log(item, "ITEMMMMMMM");
         if (activeTab == "Property") {
             navigation.navigate("PostProperty", {
                 item
@@ -151,6 +148,11 @@ const Management = ({ navigation }) => {
                 item
             });
         }else if(activeTab=="Resort"){
+              navigation.navigate("CreateConvention", {
+                item
+            });
+        }
+        else if(activeTab=="Farm"){
               navigation.navigate("CreateConvention", {
                 item
             });

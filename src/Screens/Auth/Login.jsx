@@ -22,6 +22,7 @@ import { useApi } from '../../Backend/Api';
 import { useToast } from '../../Constants/ToastContext';
 import Header from '../../Components/FeedHeader';
 import { windowHeight, windowWidth } from '../../Constants/Dimensions';
+import messaging from '@react-native-firebase/messaging';
 
 const { height, width } = Dimensions.get('window');
 
@@ -34,7 +35,11 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUser, setToken, setCurrentStatus } = useContext(AuthContext);
-
+const getFcmToken = async () => {
+    const token = await messaging().getToken();
+    console.log('FCM TOKEN:', token);
+    return token;
+  };
   useEffect(() => {
     animationRef.current?.play(30, 120);
   }, []);
@@ -43,7 +48,7 @@ const Login = ({ navigation }) => {
     setUser(null);
     const trimmedIdentifier = identifier?.trim();
     const trimmedPassword = password?.trim();
-
+const token =await getFcmToken()
     if (!trimmedIdentifier) {
       showToast('Email or Mobile number is required', 'error');
       return;
@@ -58,6 +63,10 @@ const Login = ({ navigation }) => {
     const formData = new FormData();
     formData.append('email', trimmedIdentifier);
     formData.append('password', trimmedPassword);
+    formData.append('device_id', token||"i0909");
+    // formData.append('device_type', Platform.OS=="android"?"android":"ios");
+console.log(formData,"FOMR____DDD");
+
 
     const response = await postRequest('public/api/login', formData, true);
 

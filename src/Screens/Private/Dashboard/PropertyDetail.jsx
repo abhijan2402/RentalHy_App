@@ -53,6 +53,8 @@ const PropertyDetail = ({ navigation, route }) => {
   });
   const [description, setDescription] = useState('');
   const [user_reviewed, setuser_reviewed] = useState(false);
+  const isConventionLike =
+    ['convention', 'farm', 'resort'].includes(type) || !!semiType;
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
@@ -90,25 +92,23 @@ const PropertyDetail = ({ navigation, route }) => {
     console.log(type, 'TYPPEPEPEPE', url);
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
-      console.log(response?.data, 'Property Details');
-
+      console.log(response?.data?.data, 'Property Details');
+      console.log(type,"TYTYTYTTY");
+      
       setImages(() => {
         if (type === 'convention') {
-          const hall = response?.data?.data?.images?.hall || [];
-          const room = response?.data?.data?.images?.room || [];
+          const imageGroups = response?.data?.data?.images_grouped || {};
+          const groupedImages = Object.values(imageGroups).flat();
+          const imageList = groupedImages.length
+            ? groupedImages
+            : response?.data?.data?.images || [];
 
-          if (hall.length > 0) {
-            return hall.map(e => e?.image_path);
-          }
-
-          if (room.length > 0) {
-            return room.map(e => e?.image_path);
-          }
-
-          return [];
+          return imageList
+            .map(item => item?.image_url || item?.image_path)
+            .filter(Boolean);
         }
 
-        return response?.data?.data?.images?.map(e => e?.image_url) || [];
+        return response?.data?.data?.images?.map(e => e?.image_url).filter(Boolean) || [];
       });
       setAllData(response?.data?.data);
       // if (response?.data?.user_reviewed) {
@@ -275,6 +275,10 @@ const PropertyDetail = ({ navigation, route }) => {
     const query = encodeURIComponent(location);
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`);
   };
+  const shouldHideVendorContact =
+    ['convention', 'hotel', 'farm', 'resort'].includes(type) || !!semiType;
+  const vendorPhoneNumber =
+    AllData?.phone_number || AllData?.user?.phone_number || AllData?.contact_number;
 
   return (
     <View style={styles.container}>
@@ -282,7 +286,7 @@ const PropertyDetail = ({ navigation, route }) => {
         title={
           semiType ? "Resort/Farm Details" :
             type == 'convention'
-              ? 'Convention Detail'
+              ? 'Convention Details'
               : type == 'farm' ? "Resort / Farm house Details" :
                 type == 'hostel'
                   ? 'Hostel Details' :
@@ -334,7 +338,6 @@ const PropertyDetail = ({ navigation, route }) => {
           <View style={styles.content}>
             <View
               style={{
-                justifyContent: 'center',
                 marginBottom: 8,
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -377,6 +380,7 @@ const PropertyDetail = ({ navigation, route }) => {
                 </Text>
               </TouchableOpacity>
             )}
+          
             <View style={styles.MainStyle}>
               <Text style={styles.price}>
                 {'₹' +
@@ -384,35 +388,31 @@ const PropertyDetail = ({ navigation, route }) => {
                     ? AllData?.price
                     : type == 'convention'
                       ? AllData?.min_amount + ' - ' + AllData?.max_amount
-                      : AllData?.min_price + ' - ' + AllData?.max_price)}
+                      : AllData?.min_amount + ' - ' + AllData?.max_amount)}
               </Text>
               {AllData?.status == 1 && (
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
             </View>
-            {/* {type != 'convention' && ( */}
-            <View style={styles.contactContainer}>
-              <Text style={styles.contactTitle}>Contact Options</Text>
+            {!shouldHideVendorContact && vendorPhoneNumber ? (
+              <View style={styles.contactContainer}>
+                <Text style={styles.contactTitle}>Contact Options</Text>
 
-              <TouchableOpacity
-                style={styles.locationRow}
-                onPress={() =>
-                  handleCall(
-                    AllData?.phone_number || AllData?.user?.phone_number || AllData?.contact_number,
-                  )
-                }>
-                <Image
-                  source={{
-                    uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
-                  }}
-                  style={styles.iconLarge}
-                />
-                <Text style={styles.phoneHighlighted}>
-                  {AllData?.phone_number || AllData?.user?.phone_number || AllData?.contact_number}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            {/* )} */}
+                <TouchableOpacity
+                  style={styles.locationRow}
+                  onPress={() => handleCall(vendorPhoneNumber)}>
+                  <Image
+                    source={{
+                      uri: 'https://cdn-icons-png.flaticon.com/128/455/455705.png',
+                    }}
+                    style={styles.iconLarge}
+                  />
+                  <Text style={styles.phoneHighlighted}>
+                    {vendorPhoneNumber}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
             <View style={styles.contactContainer}>
               <Text style={styles.contactTitle}>Address</Text>
               <TouchableOpacity style={styles.locationRow}>
@@ -506,12 +506,16 @@ const PropertyDetail = ({ navigation, route }) => {
                 </View>
               </View>
             )}
+            {
+              console.log(AllData,"ALLL___TTTT",type)
+              
+            }
             {type == 'home' && (
               <>
                 <PropertyAmed AllData={AllData} />
               </>
             )}
-            {type === 'convention' && (
+            {isConventionLike && (
               <>
                 <ConventionAmed AllData={AllData} />
               </>
@@ -601,7 +605,8 @@ const PropertyDetail = ({ navigation, route }) => {
               onPress={() => {
                 navigation.navigate('Booking', {
                   type: 'convention',
-                  propertyData: propertyData?.id,
+                  propertyData: propertyData?.id || AllData?.id,
+                  bookingData: AllData,
                 });
               }}
             />

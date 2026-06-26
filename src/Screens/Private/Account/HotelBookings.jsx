@@ -13,6 +13,13 @@ import Header from '../../../Components/FeedHeader'
 import moment from 'moment'
 import { windowWidth } from '../../../Constants/Dimensions'
 
+const isPresentOrFutureHotelBooking = booking => {
+    const checkOutDate = booking?.check_out?.datetime || booking?.check_out_datetime
+    if (!checkOutDate) return true
+
+    return moment(checkOutDate).endOf('day').isSameOrAfter(moment().startOf('day'))
+}
+
 const HotelBookings = () => {
 
     const { getRequest } = useApi()
@@ -28,7 +35,9 @@ const HotelBookings = () => {
 
             console.log(response)
 
-            setBookings(response?.data?.data || [])
+            const upcomingBookings = (response?.data?.data || []).filter(isPresentOrFutureHotelBooking)
+
+            setBookings(upcomingBookings)
 
         } catch (error) {
 
@@ -50,6 +59,14 @@ const HotelBookings = () => {
 
 
     const renderItem = ({ item }) => {
+        const vendorMobile =
+            item?.hotel?.phone_number ||
+            item?.hotel?.contact_number ||
+            item?.hotel?.mobile_number ||
+            item?.hotel?.user?.phone_number ||
+            item?.vendor?.phone_number ||
+            item?.vendor_phone_number ||
+            item?.vendor_mobile_number;
 
         return (
 
@@ -116,6 +133,15 @@ const HotelBookings = () => {
                             {item?.payment?.method_text}
                         </Text>
                     </View>
+
+                    {vendorMobile ? (
+                        <View style={styles.row}>
+                            <Text style={styles.label}>Vendor Mobile:</Text>
+                            <Text style={styles.value}>
+                                {vendorMobile}
+                            </Text>
+                        </View>
+                    ) : null}
 
                     {/* <View style={styles.row}>
                         <Text style={styles.label}>Total:</Text>

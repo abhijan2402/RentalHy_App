@@ -1,11 +1,81 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
+import { windowWidth } from '../Constants/Dimensions';
 
 const ConventionAmed = ({ AllData }) => {
-  // ✅ Map of boolean keys with labels
+  console.log(AllData,"ALLLLLLLDDDDDD");
+
+  const parseDates = dates => {
+    if (!dates) return {};
+
+    if (typeof dates === 'string') {
+      try {
+        return JSON.parse(dates);
+      } catch (error) {
+        return {};
+      }
+    }
+
+    return typeof dates === 'object' ? dates : {};
+  };
+
+  const isDateKey = date => {
+    return /^\d{2}\/\d{2}\/\d{4}$/.test(date) || /^\d{4}-\d{2}-\d{2}$/.test(date);
+  };
+
+  const addUnavailableValue = (dates, date, value) => {
+    if (!isDateKey(date) || !value) return;
+
+    const existingValues = dates[date]
+      ? String(dates[date]).split(',').map(item => item.trim()).filter(Boolean)
+      : [];
+    const nextValue = String(value).replace('_', ' ');
+
+    if (!existingValues.some(item => item.toLowerCase() === nextValue.toLowerCase())) {
+      dates[date] = [...existingValues, nextValue].join(', ');
+    }
+  };
+
+  const getBookedSlotsLabel = dateData => {
+    const slotTimes = dateData?.slots
+      ?.filter(slot => slot?.status === 'booked')
+      ?.map(slot => slot?.event_time)
+      ?.filter(Boolean);
+
+    const bookedSlots = slotTimes?.length ? slotTimes : [dateData?.event_time].filter(Boolean);
+
+    return bookedSlots.map(slot => `${String(slot).replace('_', ' ')} booked`);
+  };
+
+  const getUnavailableDateEntries = () => {
+    const dates = parseDates(AllData?.dates);
+    const unavailableDates = Object.entries(dates).reduce((acc, [date, value]) => {
+      if (isDateKey(date) && typeof value === 'string') {
+        acc[date] = value;
+      }
+
+      return acc;
+    }, {});
+
+    AllData?.dates_data?.forEach(dateData => {
+      getBookedSlotsLabel(dateData).forEach(value => {
+        addUnavailableValue(unavailableDates, dateData?.date, value);
+      });
+    });
+
+    AllData?.availability_summary?.booked_dates_list?.forEach(date => {
+      if (isDateKey(date) && !unavailableDates[date]) {
+        unavailableDates[date] = 'Booked';
+      }
+    });
+
+    return Object.entries(unavailableDates);
+  };
+  
   const booleanFields = {
     ac_available: 'AC Available',
     royalty_decoration: 'Royalty Decoration',
+    royalty_kitchen: 'Royalty Kitchen',
     generator_available: 'Generator Available',
     water_for_cooking: 'Water for Cooking',
     drinking_water_available: 'Drinking Water Available',
@@ -13,6 +83,7 @@ const ConventionAmed = ({ AllData }) => {
     photographers_required: 'Photographers Required',
     children_games: 'Children Games',
     parking_available: 'Parking Available',
+    valet_parking: 'Valet Parking',
     parking_guard: 'Parking Guard',
     alcohol_allowed: 'Alcohol Allowed',
     swimming_pool: 'Swimming Pool',
@@ -38,16 +109,35 @@ const ConventionAmed = ({ AllData }) => {
     meeting_room: 'Meeting Room',
     free_wifi: 'Free Wi-Fi',
     play_ground: 'Playground',
+    kitchen: 'Kitchen',
     refrigerator: 'Refrigerator',
+    adult_pool: 'Adult Pool',
     wellness_centre: 'Wellness Centre',
     wheel_chair_access: 'Wheelchair Access',
   };
 
+  const amenityFields = Object.entries(booleanFields).map(([key, label]) => ({
+    key,
+    label,
+  }));
+
   const priceFields = [
+    { key: 'day_visit_price', label: 'Day Visit Price' },
+    { key: 'day_visit', label: 'Day Visit Price' },
+    { key: 'night_visit_price', label: 'Night Visit Price' },
+    { key: 'night_visit', label: 'Night Visit Price' },
+    { key: '24_hours_visit_price', label: 'Full Day Price' },
+    { key: 'full_day_price', label: 'Full Day Price' },
+    { key: 'corporate_outing_price', label: 'Corporate Outing Price' },
+    { key: 'corporate_outing', label: 'Corporate Outing Price' },
+    { key: 'banquet_hall_charges', label: 'Banquet Hall Charges' },
+    { key: 'occasion_charges', label: 'Occasion Charges' },
+    { key: 'other_charges', label: 'Other Charges' },
     { key: 'wedding_price', label: 'Wedding' },
     { key: 'wedding_anniversary_price', label: 'Wedding Anniversary' },
     { key: 'wedding_reception_price', label: 'Wedding Reception' },
     { key: 'birthday_party_price', label: 'Birthday Party' },
+    { key: 'ring_ceremony_price', label: 'Ring Ceremony' },
     { key: 'engagement_price', label: 'Engagement' },
     { key: 'family_function_price', label: 'Family Function' },
     { key: 'naming_ceremony_price', label: 'Naming Ceremony' },
@@ -105,25 +195,79 @@ const ConventionAmed = ({ AllData }) => {
     { key: 'pool_party_price', label: 'Pool Party' },
   ];
 
-
   const durationFields = [
     { key: 'day_duration', label: 'Day Duration (hrs)' },
     { key: 'night_duration', label: 'Night Duration (hrs)' },
     { key: 'full_day_duration', label: 'Full Day Duration (hrs)' },
   ];
 
-
   const capacityFields = [
-    { key: 'seating_capacity', label: 'Rooms availability' },
+    { key: 'seating_capacity', label: 'Hall capacity (in Persons)' },
+    { key: 'room_details', label: 'Hall capacity (in Persons)' },
+    { key: 'area_sq_ft', label: 'Area Sq Ft' },
+    { key: 'area_sqft', label: 'Area Sq Ft' },
+    { key: 'plot_area', label: 'Plot Area' },
+    { key: 'built_up_area', label: 'Built Up Area' },
+    { key: 'carpet_area', label: 'Carpet Area' },
     { key: 'floating_capacity', label: 'Floating Capacity' },
     { key: 'dining_capacity', label: 'Dining Capacity' },
   ];
 
+  const parkingFields = [
+    { key: 'cars', label: 'Cars' },
+    { key: 'bikes', label: 'Bikes' },
+    { key: 'buses', label: 'Buses' },
+    { key: 'parking_capacity', label: 'Parking Capacity' },
+    { key: 'parking_type', label: 'Parking Type' },
+    { key: 'parking_charges', label: 'Parking Charges' },
+  ];
+
+  const formatValue = value => {
+    if (Array.isArray(value)) {
+      return value.filter(Boolean).join(', ');
+    }
+
+    return value;
+  };
+
+  const hasDisplayValue = value => {
+    return formatValue(value) !== undefined && formatValue(value) !== null && String(formatValue(value)).trim() !== '';
+  };
+
+  const gameFields = [
+    {
+      key: hasDisplayValue(AllData?.adult_games_names)
+        ? 'adult_games_names'
+        : 'adult_games_desc',
+      label: 'Adult Games Names',
+    },
+    {
+      key: hasDisplayValue(AllData?.children_games_names)
+        ? 'children_games_names'
+        : 'children_games_desc',
+      label: 'Children Games Names',
+    },
+  ];
+
   const renderTable = (title, fields) => {
-    const hasValidData = fields.some(
-      ({ key }) => AllData?.[key] && String(AllData[key]).trim() !== ''
-    );
-    if (!hasValidData) return null;
+    const isAmenityTable = title === 'Amenities';
+    const isYesValue = value =>
+      value === true || value === 1 || value === '1' || value === 'yes';
+    const validFields = fields.filter(({ key }) => {
+      const value = AllData?.[key];
+
+      if (value === undefined || value === null || String(value).trim() === '') {
+        return false;
+      }
+
+      if (isAmenityTable) {
+        return isYesValue(value);
+      }
+
+      return true;
+    });
+
+    if (validFields.length === 0) return null;
 
     return (
       <View style={{ marginVertical: 10 }}>
@@ -131,39 +275,70 @@ const ConventionAmed = ({ AllData }) => {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.tableContainer}>
-            {/* Header */}
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>Field</Text>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 0 }]}>Value</Text>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>
+                Field
+              </Text>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 1 ,textAlign:"right"}]}>
+                Value
+              </Text>
             </View>
 
-            {/* Rows */}
-            {fields.map(({ key, label }, index) => {
-              const value = AllData?.[key];
+            {validFields.map(({ key, label }, index) => {
+  const value = formatValue(AllData?.[key]);
+  const isPrice =
+    title === 'Prices' ||
+    key?.toLowerCase()?.includes('price') ||
+    key?.toLowerCase()?.includes('charges');
+  const isAmenity = title === 'Amenities';
 
-              if (!value || String(value)?.trim() === '') return null;
+  // ✅ Hide empty/null/undefined values
+  if (
+    value === null ||
+    value === undefined ||
+    value === ''
+  ) {
+    return null;
+  }
 
-              const isPrice = key?.toLowerCase()?.includes('price');
+  return (
+    <View
+      key={key}
+      style={[
+        styles.tableRow,
+        {
+          backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9',
+        },
+      ]}>
+      <Text
+        style={[
+          styles.tableCell,
+          {
+            flex: 1.5,
+            width: windowWidth / 2.5,
+          },
+        ]}>
+        {label}
+      </Text>
 
-              return (
-                <View
-                  key={key}
-                  style={[
-                    styles.tableRow,
-                    { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
-                  ]}
-                >
-                  <Text style={[styles.tableCell, { flex: 1.5 }]}>
-                    {label}
-                  </Text>
-
-                  <Text style={[styles.tableCell, { flex: 0 }]}>
-                    {isPrice ? `₹${value}` : value}
-                  </Text>
-                </View>
-              );
-            })}
-
+      <Text
+        style={[
+          styles.tableCell,
+          {
+            flex: 1,
+            width: windowWidth / 3,
+            textAlign: 'right',
+          },
+        ]}>
+        {isAmenity
+          ? 'Yes'
+          : isPrice
+          ? `₹${value}`
+          : value}
+      </Text>
+    </View>
+  );
+})}
           </View>
         </ScrollView>
       </View>
@@ -171,9 +346,9 @@ const ConventionAmed = ({ AllData }) => {
   };
 
   const renderDateTable = () => {
-    if (!AllData?.dates || Object.keys(AllData.dates).length === 0) return null;
+    const dateEntries = getUnavailableDateEntries();
 
-    const dateEntries = Object.entries(AllData.dates);
+    if (dateEntries.length === 0) return null;
 
     return (
       <View style={{ marginVertical: 10 }}>
@@ -181,22 +356,25 @@ const ConventionAmed = ({ AllData }) => {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.tableContainer}>
-            {/* Header */}
-            <View style={[styles.tableHeader]}>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.2 }]}>Date</Text>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 0 }]}>Unavailable For</Text>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.2 }]}>
+                Date
+              </Text>
+              <Text style={[styles.tableCell, styles.headerCell, { flex: 1,textAlign:"right" }]}>
+                Unavailable For
+              </Text>
             </View>
 
-            {/* Rows */}
             {dateEntries.map(([date, value], index) => (
               <View
                 key={date}
                 style={[
                   styles.tableRow,
                   { backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9' },
-                ]}>
-                <Text style={[styles.tableCell, { flex: 1.2 }]}>{date}</Text>
-                <Text style={[styles.tableCell, { flex: 0 }]}>{value}</Text>
+                ]}
+              >
+                <Text style={[styles.tableCell, { flex: 1.5 }]}>{date}</Text>
+                <Text style={[styles.tableCell, { flex: 1,textAlign:"right" }]}>{value}</Text>
               </View>
             ))}
           </View>
@@ -207,16 +385,12 @@ const ConventionAmed = ({ AllData }) => {
 
   return (
     <View>
-      {AllData?.seating_capacity ? (
-        <Text style={styles.specText}>
-          • Rooms availability : {AllData.seating_capacity}
-        </Text>
-      ) : null}
-      {renderTable('Fields', priceFields)}
+      {renderTable('Amenities', amenityFields)}
+      {renderTable('Prices', priceFields)}
       {renderTable('Durations', durationFields)}
-      {renderTable('Capacity Details', capacityFields)}
-
-
+      {renderTable('Availability', capacityFields)}
+      {renderTable('Parking Details', parkingFields)}
+      {renderTable('Game Details', gameFields)}
       {renderDateTable()}
     </View>
   );
@@ -236,12 +410,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: '#000',
-  },
-  dateRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
-    paddingVertical: 2,
   },
   tableContainer: {
     borderWidth: 1,

@@ -54,19 +54,19 @@ const HallCard = ({
   onBook,
   onPress,
 }) => {
-  console.log(image,
-    "IMAMMAMAM"
-  );
+  const imageUrl =
+    image?.room?.[0]?.image_path ||
+    image?.hall?.[0]?.image_path ||
+    image?.kitchen?.[0]?.image_path;
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      {
-        image?.room &&
+      {imageUrl ? (
         <Image
-          source={{ uri: image?.room?.length > 0 ? image?.room[0]?.image_path : image?.hall && image?.room[0]?.image_path }}
+          source={{ uri: imageUrl }}
           style={styles.cardImage}
         />
-      }
+      ) : null}
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDesc} numberOfLines={2}>
@@ -170,6 +170,7 @@ const ConventionHall = ({
         navigation.navigate('Booking', {
           type: 'convention',
           propertyData: item?.id,
+          bookingData: item,
         })
       }
     />
@@ -261,7 +262,7 @@ const ConventionHall = ({
                 false,
                 appliedFilters,
                 searchQuery,
-                sortQuery,
+                '',
                 false,
               );
             }}
@@ -343,7 +344,6 @@ const FarmHouse = ({
   scrollOffset,
 }) => {
   const renderHall = ({ item }) => {
-    // console.log(item, 'ITEMMMMM');
     return (
       <HallCard
         key={item.id}
@@ -370,6 +370,7 @@ const FarmHouse = ({
           navigation.navigate('Booking', {
             type: 'convention',
             propertyData: item?.id,
+            bookingData: item,
           })
         }
       />
@@ -466,7 +467,7 @@ const FarmHouse = ({
                 false,
                 appliedFilters,
                 searchQuery,
-                sortQuery,
+                '',
                 false,
               );
             }}
@@ -694,8 +695,8 @@ const Convention = ({ navigation, route }) => {
   const sortOptions = [
     { label: 'Price: Low to High', value: 'price_low_to_high' },
     { label: 'Price: High to Low', value: 'price_high_to_low' },
-    { label: 'Nearby', value: 'nearby' },
-    { label: 'Relavance', value: 'relevance' },
+    // { label: 'Nearby', value: 'nearby' },
+    // { label: 'Relavance', value: 'relevance' },
   ];
   const handleFilterChange = newFilters => {
     setAppliedFilters(newFilters);
@@ -705,7 +706,7 @@ const Convention = ({ navigation, route }) => {
 
   useEffect(() => {
     settabLoader(true);
-    console.log(type, 'TYPE');
+    console.log(type, 'TYPEEEEEE');
 
     setTimeout(() => {
       if (type == 'farm') {
@@ -744,8 +745,26 @@ const Convention = ({ navigation, route }) => {
   ) => {
     const formData = new FormData();
     formData.append('page', pageNum);
+
+    const minPrice = filters?.minPrice ?? filters?.min_price ?? filters?.price_min;
+    const maxPrice = filters?.maxPrice ?? filters?.max_price ?? filters?.price_max;
+
+    if (minPrice !== undefined && minPrice !== null && minPrice !== '') {
+      formData.append('price_min', minPrice);
+      formData.append('min_price', minPrice);
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== '') {
+      formData.append('price_max', maxPrice);
+      formData.append('max_price', maxPrice);
+    }
+
     if (isDynamic) {
       Object.entries(filters).forEach(([key, value]) => {
+        if (['minPrice', 'maxPrice', 'min_price', 'max_price', 'price_min', 'price_max'].includes(key)) {
+          return;
+        }
+
         if (Array.isArray(value)) {
           if (value.length === 1 && (value[0] === 'Yes' || value[0] === 'No')) {
             formData.append(key.toLowerCase(), value[0] === 'Yes' ? 1 : 0);
@@ -767,8 +786,6 @@ const Convention = ({ navigation, route }) => {
         formData.append('ac_available', filters.acAvailable == 'Yes' ? 1 : 0);
       if (filters.valetParking)
         formData.append('valet_parking', filters.valetParking == 'Yes' ? 1 : 0);
-      if (filters.minPrice) formData.append('price_min', filters.minPrice);
-      if (filters.maxPrice) formData.append('price_max', filters.maxPrice);
       if (filters.alcoholAllowed)
         formData.append(
           'alcohol_allowed',
@@ -826,6 +843,84 @@ const Convention = ({ navigation, route }) => {
     return formData;
   };
 
+  const getSortablePrice = item => {
+    const value =
+      item?.min_amount ??
+      item?.price ??
+      item?.day_visit_price ??
+      item?.night_visit_price ??
+      item?.['24_hours_visit_price'] ??
+      item?.corporate_outing_price ??
+      item?.banquet_hall_charges ??
+      item?.occasion_charges ??
+      item?.max_amount ??
+      0;
+
+    const numericValue = Number(String(value).replace(/[^0-9.]/g, ''));
+    return Number.isNaN(numericValue) ? 0 : numericValue;
+  };
+
+  const getNumericPrice = value => {
+    const numericValue = Number(String(value ?? '').replace(/[^0-9.]/g, ''));
+    return Number.isNaN(numericValue) ? null : numericValue;
+  };
+
+  const getPropertyPriceRange = item => {
+    const priceValues = [
+      item?.min_amount,
+      item?.max_amount,
+      item?.price,
+      item?.day_visit_price,
+      item?.night_visit_price,
+      item?.['24_hours_visit_price'],
+      item?.corporate_outing_price,
+      item?.banquet_hall_charges,
+      item?.occasion_charges,
+    ]
+      .map(getNumericPrice)
+      .filter(value => value !== null);
+
+    if (priceValues.length === 0) return null;
+
+    return {
+      min: Math.min(...priceValues),
+      max: Math.max(...priceValues),
+    };
+  };
+
+  const applyLocalPriceFilter = (items, filters) => {
+    const minPrice = filters?.minPrice ?? filters?.min_price ?? filters?.price_min;
+    const maxPrice = filters?.maxPrice ?? filters?.max_price ?? filters?.price_max;
+    const min = Number(minPrice);
+    const max = Number(maxPrice);
+    const hasMin = minPrice !== undefined && minPrice !== null && minPrice !== '' && !Number.isNaN(min);
+    const hasMax = maxPrice !== undefined && maxPrice !== null && maxPrice !== '' && !Number.isNaN(max);
+
+    if (!hasMin && !hasMax) return items;
+
+    return items.filter(item => {
+      const priceRange = getPropertyPriceRange(item);
+      if (!priceRange) return true;
+
+      return (!hasMin || priceRange.max >= min) && (!hasMax || priceRange.min <= max);
+    });
+  };
+
+  const applyLocalSort = (items, sort) => {
+    if (sort !== 'price_low_to_high' && sort !== 'price_high_to_low') {
+      return items;
+    }
+
+    return [...items].sort((a, b) => {
+      const firstPrice = getSortablePrice(a);
+      const secondPrice = getSortablePrice(b);
+
+      return sort === 'price_low_to_high'
+        ? firstPrice - secondPrice
+        : secondPrice - firstPrice;
+    });
+  };
+
   const GetProperties = async (
     pageNum = 1,
     append = false,
@@ -839,21 +934,30 @@ const Convention = ({ navigation, route }) => {
     else setLoadingMore(true);
     const formData = buildFormData(filters, pageNum, search, sort, isDynamic);
 
-    let url =
-      activeTab == 'convention'
-        ? 'public/api/hall_listing'
-        : 'public/api/farm_listing';
-    console.log(url, "URLLLL");
+    let url = '';
+
+    if (activeTab == 'convention') {
+      url = 'public/api/hall_listing';
+    } else if (activeTab == 'resort') {
+      url = 'public/api/resort_listing';
+    } else {
+      url = 'public/api/farm_listing';
+    }
+    console.log(activeTab, "ACTIVEVVE");
+
 
     const response = await postRequest(url, formData, true);
+    console.log(response,"DARARAR");
+    
     const resData = response?.data?.data;
     console.log(resData, "RESSSSSSS");
 
-    const newProperties = resData?.data || [];
+    const filteredProperties = applyLocalPriceFilter(resData?.data || [], filters);
+    const newProperties = applyLocalSort(filteredProperties, sort);
     setLastPage(resData?.last_page || 1);
 
     if (append) {
-      setHallData(prev => [...prev, ...newProperties]);
+      setHallData(prev => applyLocalSort([...prev, ...newProperties], sort));
     } else {
       setHallData(newProperties);
     }
@@ -912,9 +1016,13 @@ const Convention = ({ navigation, route }) => {
           defaultIndex={defaultIndex}
           data={showPost}
           onSelect={(item, index) => {
+            console.log(index, 'Indexxxx');
+
+            // Convention
             if (index == 2) {
               setActiveTab('convention');
               setdefaultIndex(2);
+
               GetProperties(
                 1,
                 false,
@@ -924,13 +1032,29 @@ const Convention = ({ navigation, route }) => {
                 false,
                 'convention',
               );
-              setAppliedFilters({});
-              setSearchQuery('');
-              setSearchQuery('');
-              setAppliedModalFilter({});
-            } else {
-              setActiveTab('farmhouse');
+            }
+
+            // Resort
+            else if (index == 3) {
+              setActiveTab('resort');
               setdefaultIndex(3);
+
+              GetProperties(
+                1,
+                false,
+                appliedFilters,
+                searchQuery,
+                sortQuery,
+                false,
+                'resort',
+              );
+            }
+
+            // Farmhouse
+            else {
+              setActiveTab('farmhouse');
+              setdefaultIndex(4);
+
               GetProperties(
                 1,
                 false,
@@ -940,11 +1064,11 @@ const Convention = ({ navigation, route }) => {
                 false,
                 'farmhouse',
               );
-              setAppliedFilters({});
-              setSearchQuery('');
-              setSearchQuery('');
-              setAppliedModalFilter({});
             }
+
+            setAppliedFilters({});
+            setSearchQuery('');
+            setAppliedModalFilter({});
           }}
         />
       )}
@@ -1081,6 +1205,15 @@ const Convention = ({ navigation, route }) => {
         onClose={() => setSortVisible(false)}
         onSelectSort={sortType => {
           setSortQuery(sortType);
+          GetProperties(
+            1,
+            false,
+            appliedFilters,
+            searchQuery,
+            sortType,
+            false,
+            activeTab,
+          );
         }}
       />
       <CreateAccountModal
