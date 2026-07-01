@@ -35,7 +35,7 @@ const parseBookingDate = value => {
   }
 
   const dateText = String(value).trim();
-  const dateOnly = dateText.split(' ')[0];
+  const dateOnly = dateText.split(/[T\s]/)[0];
   const isoMatch = dateOnly.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const localMatch = dateOnly.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
 
@@ -56,11 +56,10 @@ const parseBookingDate = value => {
 
 const isUpcomingBooking = booking => {
   const bookingDate = parseBookingDate(booking?.booking_date);
+  // Keep records with an unknown date instead of accidentally hiding them.
   if (!bookingDate) return true;
 
   return bookingDate >= getStartOfToday();
-  //  return true
-
 };
 
 // Enable Layout Animation for Android
@@ -313,15 +312,23 @@ const MyBooking = ({navigation}) => {
 
       if (!currentBooking) return;
 
+      const serviceFields = [
+        'groceries_needed',
+        'decore_needed',
+        'photograper_needed',
+        'chef_needed',
+        'catering_needed',
+      ];
       const formData = new FormData();
-      formData.append('groceries_needed', currentBooking.groceries_needed);
-      formData.append('decore_needed', currentBooking.decore_needed);
-      formData.append('photograper_needed', currentBooking.photograper_needed);
-      formData.append('chef_needed', currentBooking.chef_needed);
-      formData.append('catering_needed', currentBooking.catering_needed);
 
-      // Update only the changed field
-      formData.append(field, value);
+      // Append each field once. The selected field must replace its old value;
+      // appending it twice can make the API read the earlier null value.
+      serviceFields.forEach(serviceField => {
+        const serviceValue =
+          serviceField === field ? value : currentBooking[serviceField];
+
+        formData.append(serviceField, serviceValue ?? '');
+      });
 
       const response = await postRequest(
         `public/api/book-property/update-order/${bookingId}`,
@@ -339,8 +346,8 @@ const MyBooking = ({navigation}) => {
         getBooking(1, false);
       } else {
         showToast(
-          response?.data.message || 'Failed to update service',
-          'success',
+          response?.error || 'Failed to update service',
+          'error',
         );
       }
     } catch (err) {

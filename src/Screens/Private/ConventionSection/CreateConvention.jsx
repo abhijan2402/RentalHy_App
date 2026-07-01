@@ -55,9 +55,6 @@ const CreateConvention = ({ navigation, route }) => {
   const [capacity, setCapacity] = useState('');
 
   const [parkingAvailable, setParkingAvailable] = useState('no');
-  const [cars, setCars] = useState('');
-  const [bikes, setBikes] = useState('');
-  const [buses, setBuses] = useState('');
   const [valet, setValet] = useState('yes');
   const [parkingCapacity, setParkingCapacity] = useState('');
   const [parkingType, setParkingType] = useState('');
@@ -93,7 +90,6 @@ const CreateConvention = ({ navigation, route }) => {
   const [rows, setRows] = useState([{ field: 'Any Other', value: '' }]);
   const [address, setAddress] = useState({});
 
-  const [parkingGuard, setParkingGuard] = useState('no');
   const [alcoholAllowed, setAlcoholAllowed] = useState('no');
 
   const [freeCancellation, setFreeCancellation] = useState('no');
@@ -260,17 +256,15 @@ const CreateConvention = ({ navigation, route }) => {
     setDrinkingWater(yesNo(editItem?.drinking_water_available));
     setCatering(yesNo(editItem?.provides_catering_persons));
 
-    setParkingAvailable(yesNo(editItem?.parking_available));
-    setCars(editItem?.cars ? String(editItem.cars) : '');
-    setBikes(editItem?.bikes ? String(editItem.bikes) : '');
-    setBuses(editItem?.buses ? String(editItem.buses) : '');
+    setParkingAvailable(
+      yesNo(editItem?.parking ?? editItem?.parking_available),
+    );
     setValet(yesNo(editItem?.valet_parking));
     setParkingCapacity(
       editItem?.parking_capacity ? String(editItem.parking_capacity) : '',
     );
     setParkingType(editItem?.parking_type || '');
     setParkingCharges(editItem?.parking_charges || '');
-    setParkingGuard(yesNo(editItem?.parking_guard));
     setAlcoholAllowed(yesNo(editItem?.alcohol_allowed));
 
     setSwimmingPool(yesNo(editItem?.swimming_pool));
@@ -454,19 +448,21 @@ const CreateConvention = ({ navigation, route }) => {
 
       const hallType = isFarm ? 'farm' : isResort ? 'resort' : 'hall';
       formData.append('hall_type', hallType);
+      // The create/update API uses `type` to persist Farm-specific fields.
+      formData.append('type', hallType);
 
-      formData.append('parking_available', parkingAvailable === 'yes' ? 1 : 0);
-      if (parkingAvailable === 'yes') {
-        formData.append('cars', cars || '0');
-        formData.append('bikes', bikes || '0');
-        formData.append('buses', buses || '0');
-        formData.append('valet_parking', valet === 'yes' ? 1 : 0);
-        formData.append('parking_capacity', parkingCapacity || '');
-        formData.append('parking_type', parkingType || '');
-        formData.append('parking_guard', parkingGuard === 'yes' ? 1 : 0);
-        formData.append('parking_charges', parkingCharges || '');
-      }
-
+      formData.append('parking', parkingAvailable === 'yes' ? 1 : 0);
+      formData.append(
+        'parking_available',
+        parkingAvailable === 'yes' ? 1 : 0,
+      );
+      formData.append(
+        'valet_parking',
+        parkingAvailable === 'yes' && valet === 'yes' ? 1 : 0,
+      );
+      formData.append('parking_capacity', parkingCapacity || '0');
+      formData.append('parking_type', parkingType || '');
+      formData.append('parking_charges', parkingCharges || '0');
       if (isHall) {
         formData.append('ac_available', acAvailable === 'yes' ? 1 : 0);
         formData.append(
@@ -539,6 +535,7 @@ const CreateConvention = ({ navigation, route }) => {
         formData.append('wellness_centre', wellnessCentre === 'yes' ? 1 : 0);
         formData.append('wheel_chair_access', wheelChair === 'yes' ? 1 : 0);
         formData.append('area_sq_ft', area || '');
+        formData.append('area_sqft', area || '');
         formData.append('plot_area', plotArea || '');
         formData.append('built_up_area', builtUpArea || '');
         formData.append('carpet_area', carpetArea || '');
@@ -594,6 +591,7 @@ const CreateConvention = ({ navigation, route }) => {
           Array.isArray(value) ? value.join(',') : value,
         );
       });
+console.log(formData,"FARMMMMMMM");
 
       const url = isFarm ? 'farm' : isResort ? 'resort' : 'hall';
 
@@ -803,6 +801,8 @@ const CreateConvention = ({ navigation, route }) => {
           <Text style={styles.label}>Location *</Text>
           <GooglePlacePicker
             placeholder="Search location..."
+            initialLocation={address}
+            useCurrentLocation={!isEdit}
             onPlaceSelected={place => setAddress(place)}
           />
           {!!address?.address && (
@@ -1101,30 +1101,6 @@ const CreateConvention = ({ navigation, route }) => {
             <View style={{ marginHorizontal: 20 }}>
               <TextInput
                 style={styles.input}
-                value={cars}
-                onChangeText={setCars}
-                keyboardType="numeric"
-                placeholder="Cars"
-                placeholderTextColor={COLOR.grey}
-              />
-              <TextInput
-                style={styles.input}
-                value={bikes}
-                onChangeText={setBikes}
-                keyboardType="numeric"
-                placeholder="Bikes"
-                placeholderTextColor={COLOR.grey}
-              />
-              <TextInput
-                style={styles.input}
-                value={buses}
-                onChangeText={setBuses}
-                keyboardType="numeric"
-                placeholder="Buses"
-                placeholderTextColor={COLOR.grey}
-              />
-              <TextInput
-                style={styles.input}
                 value={parkingCapacity}
                 onChangeText={setParkingCapacity}
                 keyboardType="numeric"
@@ -1147,7 +1123,6 @@ const CreateConvention = ({ navigation, route }) => {
               />
             </View>
             {renderToggle('Valet Parking Available', valet, setValet)}
-            {renderToggle('Parking Guard', parkingGuard, setParkingGuard)}
           </>
         )}
 

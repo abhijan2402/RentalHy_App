@@ -9,11 +9,16 @@ import { AuthProvider } from './src/Backend/AuthContent';
 import { NavigationContainer } from '@react-navigation/native';
 import MainNavigation from './src/navigators/MainNavigation';
 import messaging from '@react-native-firebase/messaging';
+import {
+  flushPendingNavigation,
+  navigationRef,
+} from './src/navigators/navigationService';
 
 import {
   requestNotifeePermission,
   createDefaultChannel,
   displayLocalNotification,
+  handleBookingNotificationPress,
   setupNotifeeListeners,
 } from './src/service/notifeeService';
 
@@ -53,6 +58,11 @@ const App = () => {
     const unsubscribeOpenedApp = messaging().onNotificationOpenedApp(
       remoteMessage => {
         console.log('Opened from background:', remoteMessage);
+        handleBookingNotificationPress({
+          ...remoteMessage?.data,
+          title: remoteMessage?.notification?.title,
+          body: remoteMessage?.notification?.body,
+        });
       },
     );
 
@@ -61,6 +71,11 @@ const App = () => {
       .then(remoteMessage => {
         if (remoteMessage) {
           console.log('Opened from quit state:', remoteMessage);
+          handleBookingNotificationPress({
+            ...remoteMessage?.data,
+            title: remoteMessage?.notification?.title,
+            body: remoteMessage?.notification?.body,
+          });
         }
       });
 
@@ -93,7 +108,9 @@ const App = () => {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <NavigationContainer>
+        <NavigationContainer
+          ref={navigationRef}
+          onReady={flushPendingNavigation}>
           <MainNavigation />
         </NavigationContainer>
       </AuthProvider>

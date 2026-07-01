@@ -17,7 +17,11 @@ const isPresentOrFutureHotelBooking = booking => {
     const checkOutDate = booking?.check_out?.datetime || booking?.check_out_datetime
     if (!checkOutDate) return true
 
-    return moment(checkOutDate).endOf('day').isSameOrAfter(moment().startOf('day'))
+    const parsedCheckOutDate = moment(checkOutDate)
+    if (!parsedCheckOutDate.isValid()) return true
+
+    // A stay remains current through its checkout date.
+    return parsedCheckOutDate.endOf('day').isSameOrAfter(moment().startOf('day'))
 }
 
 const HotelBookings = () => {

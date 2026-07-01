@@ -92,7 +92,7 @@ const PropertyDetail = ({ navigation, route }) => {
     console.log(type, 'TYPPEPEPEPE', url);
     const response = await getRequest(url);
     if (response?.data?.status || response?.data?.success) {
-      console.log(response?.data?.data, 'Property Details');
+      console.log(response, 'Property Details');
       console.log(type,"TYTYTYTTY");
       
       setImages(() => {
@@ -284,11 +284,13 @@ const PropertyDetail = ({ navigation, route }) => {
     <View style={styles.container}>
       <Header
         title={
-          semiType ? "Resort/Farm Details" :
-            type == 'convention'
+          semiType === 'farm' || type === 'farm'
+            ? 'Farm House Details'
+            : semiType === 'resort' || type === 'resort'
+              ? 'Resort Details'
+              : type == 'convention'
               ? 'Convention Details'
-              : type == 'farm' ? "Resort / Farm house Details" :
-                type == 'hostel'
+              : type == 'hostel'
                   ? 'Hostel Details' :
                   type === 'hotel' ?
                     'Hotel Details'
@@ -384,10 +386,10 @@ const PropertyDetail = ({ navigation, route }) => {
             <View style={styles.MainStyle}>
               <Text style={styles.price}>
                 {'₹' +
-                  (AllData?.price
-                    ? AllData?.price
-                    : type == 'convention'
-                      ? AllData?.min_amount + ' - ' + AllData?.max_amount
+                  (type === 'hostel'
+                    ? AllData?.min_price + ' - ' + AllData?.max_price
+                    : AllData?.price
+                      ? AllData?.price
                       : AllData?.min_amount + ' - ' + AllData?.max_amount)}
               </Text>
               {AllData?.status == 1 && (

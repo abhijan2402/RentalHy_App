@@ -316,6 +316,7 @@ const ConventionHall = ({
 
 const FarmHouse = ({
   navigation,
+  activeTab,
   onPressSort,
   onPressFilter,
   currentStatus,
@@ -362,7 +363,7 @@ const FarmHouse = ({
             navigation.navigate('PropertyDetail', {
               type: 'convention',
               propertyData: item,
-              semiType: "farm"
+              semiType: activeTab === 'resort' ? 'resort' : 'farm',
             });
           }
         }}
@@ -1141,6 +1142,7 @@ const Convention = ({ navigation, route }) => {
           />
         ) : (
           <FarmHouse
+            activeTab={activeTab}
             currentStatus={currentStatus}
             loader={tabLoader}
             data={hallData}

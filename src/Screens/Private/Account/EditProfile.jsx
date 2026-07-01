@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ScrollView,
 } from 'react-native';
 import Header from '../../../Components/FeedHeader';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -31,13 +32,18 @@ const EditProfile = ({navigation}) => {
 
 
   useEffect(() => {
-    if(user){
-      setName(user?.name)
-      setPhone(user?.phone_number)
-      setEmail(user?.email)
-      setProfilePic(user?.image)
+    const profileUser = user?.user || user?.data?.user || user;
+
+    if (profileUser) {
+      setName(profileUser?.first_name || '');
+      setPhone(String(profileUser?.phone_number || profileUser?.phone || ''));
+      setEmail(profileUser?.email || '');
+      setProfilePic(
+        profileUser?.image ||
+          'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+      );
     }
-  },[user])
+  }, [user]);
 
   const uploadImage = async (image) => {
     const formData = new FormData();
@@ -94,16 +100,28 @@ const EditProfile = ({navigation}) => {
 
     const formData = new FormData();
       formData?.append('email',trimmedEmail);
-      formData.append('phone_number',phone);
-      formData.append('name',trimmedName);
+      formData.append('phone_number',trimmedNumber);
+      formData.append('first_name',trimmedName);
 
       const response = await postRequest('public/api/profile' , formData , true);
 
-      if(response?.data?.status){
-        setUser(response?.data?.user)
+      if(response?.success && (response?.data?.status || response?.data?.success)){
+        const currentUser = user?.user || user?.data?.user || user || {};
+        const apiUser =
+          response?.data?.user || response?.data?.data?.user || {};
+        const updatedUser = {
+          ...currentUser,
+          ...apiUser,
+          first_name: trimmedName,
+          phone_number: trimmedNumber,
+          email: trimmedEmail,
+        };
+
+        setUser(updatedUser)
         showToast(response?.data?.message,"success")
          setLoading(false)
       }else{
+         showToast(response?.error || response?.data?.message || 'Unable to update profile', 'error');
          setLoading(false)
       }
   };
@@ -116,12 +134,17 @@ const EditProfile = ({navigation}) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <View style={styles.content}>
-        {/* Profile Picture */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.content}>
+        <View style={styles.introSection}>
         <TouchableOpacity
           style={styles.profilePicContainer}
           onPress={pickImage}>
-          <Image source={{uri: profilePic}} style={styles.profilePic} />
+          <View style={styles.profilePicRing}>
+            <Image source={{uri: profilePic}} style={styles.profilePic} />
+          </View>
           <View style={styles.editIcon}>
             <Image
               source={{
@@ -131,42 +154,61 @@ const EditProfile = ({navigation}) => {
             />
           </View>
         </TouchableOpacity>
+          <Text style={styles.heading}>Personal information</Text>
+          <Text style={styles.subheading}>
+            Keep your contact details accurate and up to date.
+          </Text>
+        </View>
 
-        {/* Name Input */}
-        <Text style={styles.label}>Full Name</Text>
-        <TextInput
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Enter your name"
-          placeholderTextColor={COLOR.grey}
-        />
+        <View style={styles.formCard}>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="Enter your name"
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
 
-        {/* Phone Input */}
-        <Text style={styles.label}>Phone Number</Text>
-        <TextInput
-          style={styles.input}
-          value={phone}
-          onChangeText={setPhone}
-          placeholder="Enter your phone number"
-          placeholderTextColor={COLOR.grey}
-          keyboardType="phone-pad"
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Enter your phone number"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Email Address</Text>
+              <View style={styles.readOnlyBadge}>
+                <Text style={styles.readOnlyText}>Read only</Text>
+              </View>
+            </View>
+            <TextInput
+              style={[styles.input, styles.disabledInput]}
+              value={email}
+              placeholder="Enter your email id"
+              placeholderTextColor="#9CA3AF"
+              editable={false}
+            />
+            <Text style={styles.helperText}>Email cannot be changed here.</Text>
+          </View>
+        </View>
+
+        <CustomButton
+          title={'Save Changes'}
+          style={styles.saveBtn}
+          loading={loading}
+          onPress={handleSave}
         />
-        <Text style={styles.label}>Email Id</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Enter your email id"
-          placeholderTextColor={COLOR.grey}
-          editable={false}
-        />
-        {/* Save Button */}
-        {/* <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-          <Text style={styles.saveBtnText}>Save Changes</Text>
-        </TouchableOpacity> */}
-        <CustomButton title={'Save Changes'} style={styles.saveBtn} loading={loading} onPress={handleSave} />
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -176,65 +218,132 @@ export default EditProfile;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLOR.white,
+    backgroundColor: '#F6F7FB',
   },
   content: {
+    padding: 18,
+    paddingBottom: 36,
+  },
+  introSection: {
     alignItems: 'center',
-    padding: 20,
+    paddingTop: 8,
+    paddingBottom: 22,
   },
   profilePicContainer: {
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  profilePicRing: {
+    padding: 4,
+    borderRadius: 66,
+    backgroundColor: COLOR.white,
+    shadowColor: '#111827',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4,
   },
   profilePic: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: COLOR.lightGrey,
+    width: 112,
+    height: 112,
+    borderRadius: 56,
   },
   editIcon: {
     position: 'absolute',
-    bottom: 5,
-    right: 5,
+    bottom: 3,
+    right: 3,
     backgroundColor: COLOR.primary,
-    borderRadius: 12,
-    padding: 4,
+    borderRadius: 18,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: COLOR.white,
   },
   editIconImage: {
-    width: 14,
-    height: 14,
+    width: 15,
+    height: 15,
     tintColor: COLOR.white,
   },
+  heading: {
+    fontSize: 21,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  subheading: {
+    maxWidth: 290,
+    marginTop: 6,
+    fontSize: 13,
+    lineHeight: 19,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  formCard: {
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: COLOR.white,
+    shadowColor: '#111827',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  fieldGroup: {
+    marginBottom: 18,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   label: {
-    alignSelf: 'flex-start',
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 5,
-    marginTop: 10,
-    color: COLOR.black,
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#374151',
   },
   input: {
     width: '100%',
     borderWidth: 1,
-    borderColor: COLOR.grey,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    backgroundColor: COLOR.lightGrey + '20',
-    color: COLOR.black,
+    borderColor: '#DDE1E7',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    fontSize: 15,
+    backgroundColor: '#FAFAFB',
+    color: '#111827',
+  },
+  disabledInput: {
+    color: '#6B7280',
+    backgroundColor: '#F1F3F5',
+  },
+  readOnlyBadge: {
+    marginBottom: 7,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    backgroundColor: '#EAF8EF',
+  },
+  readOnlyText: {
+    color: '#248A4B',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  helperText: {
+    marginTop: 6,
+    fontSize: 11,
+    color: '#9CA3AF',
   },
   saveBtn: {
-    marginTop: 20,
+    marginTop: 24,
+    width: '100%',
     backgroundColor: COLOR.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 8,
-  },
-  saveBtnText: {
-    color: COLOR.white,
-    fontSize: 16,
-    fontWeight: '600',
+    borderRadius: 15,
+    shadowColor: COLOR.primary,
+    shadowOffset: {width: 0, height: 5},
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
   },
 });

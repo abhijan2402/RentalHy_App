@@ -82,9 +82,9 @@ const ConventionAmed = ({ AllData }) => {
     provides_catering_persons: 'Provides Catering Persons',
     photographers_required: 'Photographers Required',
     children_games: 'Children Games',
+    parking: 'Parking Available',
     parking_available: 'Parking Available',
     valet_parking: 'Valet Parking',
-    parking_guard: 'Parking Guard',
     alcohol_allowed: 'Alcohol Allowed',
     swimming_pool: 'Swimming Pool',
     food_available: 'Food Available',
@@ -116,10 +116,15 @@ const ConventionAmed = ({ AllData }) => {
     wheel_chair_access: 'Wheelchair Access',
   };
 
-  const amenityFields = Object.entries(booleanFields).map(([key, label]) => ({
-    key,
-    label,
-  }));
+  const amenityFields = Object.entries(booleanFields)
+    .filter(
+      ([key]) =>
+        !['parking', 'parking_available', 'valet_parking'].includes(key),
+    )
+    .map(([key, label]) => ({
+      key,
+      label,
+    }));
 
   const priceFields = [
     { key: 'day_visit_price', label: 'Day Visit Price' },
@@ -201,27 +206,6 @@ const ConventionAmed = ({ AllData }) => {
     { key: 'full_day_duration', label: 'Full Day Duration (hrs)' },
   ];
 
-  const capacityFields = [
-    { key: 'seating_capacity', label: 'Hall capacity (in Persons)' },
-    { key: 'room_details', label: 'Hall capacity (in Persons)' },
-    { key: 'area_sq_ft', label: 'Area Sq Ft' },
-    { key: 'area_sqft', label: 'Area Sq Ft' },
-    { key: 'plot_area', label: 'Plot Area' },
-    { key: 'built_up_area', label: 'Built Up Area' },
-    { key: 'carpet_area', label: 'Carpet Area' },
-    { key: 'floating_capacity', label: 'Floating Capacity' },
-    { key: 'dining_capacity', label: 'Dining Capacity' },
-  ];
-
-  const parkingFields = [
-    { key: 'cars', label: 'Cars' },
-    { key: 'bikes', label: 'Bikes' },
-    { key: 'buses', label: 'Buses' },
-    { key: 'parking_capacity', label: 'Parking Capacity' },
-    { key: 'parking_type', label: 'Parking Type' },
-    { key: 'parking_charges', label: 'Parking Charges' },
-  ];
-
   const formatValue = value => {
     if (Array.isArray(value)) {
       return value.filter(Boolean).join(', ');
@@ -230,9 +214,36 @@ const ConventionAmed = ({ AllData }) => {
     return value;
   };
 
-  const hasDisplayValue = value => {
-    return formatValue(value) !== undefined && formatValue(value) !== null && String(formatValue(value)).trim() !== '';
-  };
+  const hasDisplayValue = value =>
+    formatValue(value) !== undefined &&
+    formatValue(value) !== null &&
+    String(formatValue(value)).trim() !== '';
+
+  const areaKey = hasDisplayValue(AllData?.area_sq_ft)
+    ? 'area_sq_ft'
+    : 'area_sqft';
+  const parkingKey = hasDisplayValue(AllData?.parking)
+    ? 'parking'
+    : 'parking_available';
+
+  const capacityFields = [
+    { key: 'seating_capacity', label: 'Hall capacity (in Persons)' },
+    { key: 'room_details', label: 'Hall capacity (in Persons)' },
+    { key: areaKey, label: 'Area Sq Ft' },
+    { key: 'plot_area', label: 'Plot Area' },
+    { key: 'built_up_area', label: 'Built Up Area' },
+    { key: 'carpet_area', label: 'Carpet Area' },
+    { key: 'floating_capacity', label: 'Floating Capacity' },
+    { key: 'dining_capacity', label: 'Dining Capacity' },
+  ];
+
+  const parkingFields = [
+    { key: parkingKey, label: 'Parking Available' },
+    { key: 'valet_parking', label: 'Valet Parking' },
+    { key: 'parking_capacity', label: 'Parking Capacity' },
+    { key: 'parking_type', label: 'Parking Type' },
+    { key: 'parking_charges', label: 'Parking Charges' },
+  ];
 
   const gameFields = [
     {
@@ -291,6 +302,7 @@ const ConventionAmed = ({ AllData }) => {
     key?.toLowerCase()?.includes('price') ||
     key?.toLowerCase()?.includes('charges');
   const isAmenity = title === 'Amenities';
+  const isBoolean = Object.prototype.hasOwnProperty.call(booleanFields, key);
 
   // ✅ Hide empty/null/undefined values
   if (
@@ -330,8 +342,10 @@ const ConventionAmed = ({ AllData }) => {
             textAlign: 'right',
           },
         ]}>
-        {isAmenity
-          ? 'Yes'
+        {isAmenity || isBoolean
+          ? isYesValue(value)
+            ? 'Yes'
+            : 'No'
           : isPrice
           ? `₹${value}`
           : value}

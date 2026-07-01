@@ -19,7 +19,12 @@ import { COLOR } from '../Constants/Colors';
 const { height } = Dimensions.get('window');
 const GOOGLE_API_KEY = 'AIzaSyDzX3Hm6mNG2It5znswq-2waUHj8gVUCVk';
 
-const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected }) => {
+const GooglePlacePicker = ({
+  placeholder = 'Search place...',
+  onPlaceSelected,
+  initialLocation,
+  useCurrentLocation = true,
+}) => {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -125,10 +130,30 @@ const GooglePlacePicker = ({ placeholder = 'Search place...', onPlaceSelected })
   };
 
   useEffect(() => {
+    if (!useCurrentLocation) return;
+
     requestLocationPermission().then(granted => {
       if (granted) getCurrentLocation();
     });
-  }, []);
+  }, [useCurrentLocation]);
+
+  useEffect(() => {
+    const latitude = Number(initialLocation?.lat);
+    const longitude = Number(initialLocation?.lng ?? initialLocation?.long);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+    const savedRegion = {
+      latitude,
+      longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    };
+
+    setRegion(savedRegion);
+    setQuery(initialLocation?.address || initialLocation?.name || '');
+    mapRef.current?.animateToRegion(savedRegion, 1000);
+  }, [initialLocation]);
 
   const fetchSuggestions = async text => {
     setQuery(text);

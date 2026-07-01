@@ -20,6 +20,7 @@ const Account = ({ navigation }) => {
   const { currentStatus } = useContext(AuthContext);
   const isFocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
+  const profileUser = user?.user || user?.data?.user || user;
   const profileImage =
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'; // default profile icon
 
@@ -141,7 +142,7 @@ const Account = ({ navigation }) => {
         setModalVisible(true);
       }
     }
-  }, [isFocus]);
+  }, [isFocus, currentStatus]);
 
   return (
     <View style={styles.container}>
@@ -151,27 +152,47 @@ const Account = ({ navigation }) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {/* Profile Section */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileSection}>
-          <Image
-            source={{ uri: user?.image || profileImage }}
-            style={styles.profileImage}
-          />
-          <Text style={styles.profileName}>{user?.name}</Text>
-          <Text style={styles.profileEmail}>{user?.email}</Text>
+          <View style={styles.profileImageRing}>
+            <Image
+              source={{ uri: profileUser?.image || profileImage }}
+              style={styles.profileImage}
+            />
+          </View>
+          <View style={styles.profileCopy}>
+            <Text style={styles.welcomeText}>Welcome back</Text>
+            <Text style={styles.profileName} numberOfLines={1}>
+              {profileUser?.first_name || 'Your Account'}
+            </Text>
+            <Text style={styles.profileEmail} numberOfLines={1}>
+              {profileUser?.email}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.quickEditButton}
+            onPress={() => navigation.navigate('EditProfile')}>
+            <Text style={styles.quickEditText}>Edit</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Tabs */}
+        <Text style={styles.sectionTitle}>Account & management</Text>
         <View style={styles.tabContainer}>
-          {tabs.map(item => (
+          {tabs.map((item, index) => (
             <TouchableOpacity
               key={item.id}
-              style={styles.tabItem}
+              style={[
+                styles.tabItem,
+                index < tabs.length - 1 && styles.tabItemBorder,
+              ]}
               activeOpacity={0.7}
               onPress={() => navigation.navigate(item.navigate, item.params)}>
               <View style={styles.tabLeft}>
-                <Image source={{ uri: item.icon }} style={styles.leftIcon} />
+                <View style={styles.iconContainer}>
+                  <Image source={{ uri: item.icon }} style={styles.leftIcon} />
+                </View>
                 <Text style={styles.tabText}>{item.title}</Text>
               </View>
               <Image source={{ uri: arrowIcon }} style={styles.arrowIcon} />
@@ -180,7 +201,8 @@ const Account = ({ navigation }) => {
         </View>
         <CustomButton
           title={'Log Out'}
-          style={{ marginTop: '10%' }}
+          style={styles.logoutButton}
+          textStyle={styles.logoutText}
           onPress={() => {
             setUser('');
           }}
@@ -206,58 +228,114 @@ export default Account;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLOR.white,
+    backgroundColor: '#F6F7FB',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
   },
   profileSection: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: COLOR.white || '#f9f9f9',
+    padding: 18,
+    borderRadius: 20,
+    backgroundColor: COLOR.primary,
+    shadowColor: '#590205',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  profileImageRing: {
+    padding: 3,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   profileImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 10,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    borderWidth: 2,
+    borderColor: COLOR.white,
+  },
+  profileCopy: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  welcomeText: {
+    color: 'rgba(255,255,255,0.75)',
+    fontSize: 12,
+    marginBottom: 2,
   },
   profileName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLOR.black,
+    fontSize: 21,
+    fontWeight: '700',
+    color: COLOR.white,
   },
   profileEmail: {
-    fontSize: 14,
-    color: COLOR.GRAY,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.82)',
     marginTop: 4,
   },
+  quickEditButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+  },
+  quickEditText: {
+    color: COLOR.white,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  sectionTitle: {
+    marginTop: 26,
+    marginBottom: 10,
+    marginLeft: 4,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
   tabContainer: {
-    marginTop: 20,
     backgroundColor: COLOR.white,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#111827',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
   },
   tabItem: {
-    backgroundColor: COLOR.white,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginHorizontal: 25,
-    marginVertical: 6,
-    borderRadius: 10,
-    borderWidth: 0.8,
-    borderColor: COLOR.primary,
+    minHeight: 62,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: COLOR.primary,
+  },
+  tabItemBorder: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E5E7EB',
   },
   tabLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  leftIcon: {
-    width: 22,
-    height: 22,
-    resizeMode: 'contain',
+  iconContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF1F1',
     marginRight: 12,
+  },
+  leftIcon: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
   },
   arrowIcon: {
     width: 16,
@@ -266,7 +344,20 @@ const styles = StyleSheet.create({
     tintColor: '#999',
   },
   tabText: {
-    fontSize: 16,
-    color: COLOR.black,
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#1F2937',
+  },
+  logoutButton: {
+    marginTop: 22,
+    width: '100%',
+    backgroundColor: COLOR.white,
+    borderWidth: 1,
+    borderColor: '#F1C7C9',
+    borderRadius: 15,
+  },
+  logoutText: {
+    color: COLOR.primary,
+    fontWeight: '700',
   },
 });
