@@ -1,12 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   ScrollView,
   KeyboardAvoidingView,
-  Alert,
   TouchableWithoutFeedback,
   Platform,
   Keyboard,
@@ -15,20 +13,14 @@ import {
 } from 'react-native';
 import { COLOR } from '../../Constants/Colors';
 import CustomButton from '../../Components/CustomButton';
-import LottieView from 'lottie-react-native';
 import Input from '../../Components/Input';
 import { AuthContext } from '../../Backend/AuthContent';
 import { useApi } from '../../Backend/Api';
 import { useToast } from '../../Constants/ToastContext';
-import Header from '../../Components/FeedHeader';
-import { windowHeight, windowWidth } from '../../Constants/Dimensions';
 import messaging from '@react-native-firebase/messaging';
-
-const { height, width } = Dimensions.get('window');
 
 const Login = ({ navigation }) => {
   const { postRequest } = useApi();
-  const animationRef = useRef(null);
   const { showToast } = useToast();
 
   const [identifier, setIdentifier] = useState('');
@@ -40,9 +32,6 @@ const getFcmToken = async () => {
     console.log('FCM TOKEN:', token);
     return token;
   };
-  useEffect(() => {
-    animationRef.current?.play(30, 120);
-  }, []);
 
   const loginUser = async () => {
     setUser(null);
@@ -107,61 +96,48 @@ console.log(formData,"FOMR____DDD");
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: COLOR.white }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
-      {/* <Header title={'Sign In'} /> */}
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          {/* <LottieView
-            ref={animationRef}
-            source={require('../../assets/Lottie/Login.json')}
-            style={styles.image}
-          /> */}
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}>
+          <View style={styles.brandSection}>
           <Image
-            style={{
-              width: windowWidth,
-              height: 225,
-              alignSelf: 'center',
-              marginBottom: windowHeight * 0.05,
-              marginTop: windowHeight * 0.08,
-            }}
-            source={{ uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg' }}
+              style={styles.logo}
+              source={{ uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg' }}
+              resizeMode="contain"
           />
-          <Text
-            style={{
-              fontSize: 30,
-              color: COLOR.primary,
-              fontWeight: '600',
-              paddingHorizontal: 30,
-              borderTopWidth: 1,
-              paddingTop: 20,
-            }}>
-            Sign In
-          </Text>
-          <View style={{ paddingTop: 15 }}>
+            <Text style={styles.welcomeTitle}>Welcome back</Text>
+            <Text style={styles.welcomeSubtitle}>
+              Sign in to continue exploring spaces and managing bookings.
+            </Text>
+          </View>
+
+          <View style={styles.formCard}>
             <Input
-              label="Email"
-              placeholder="Enter your email"
+              fullWidth
+              label="Email or mobile number"
+              placeholder="Enter your email or mobile number"
               value={identifier}
               onChangeText={setIdentifier}
-              keyboardType="default"
+              autoCapitalize="none"
+              autoCorrect={false}
             />
             <Input
+              fullWidth
               label="Password"
               placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              autoCapitalize="none"
             />
-            <View
-              style={{
-                alignItems: 'flex-end',
-                marginTop: 10,
-                paddingHorizontal: 30,
-              }}>
+            <View style={styles.forgotRow}>
               <TouchableOpacity
                 onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text style={{ color: COLOR.primary, fontWeight: '500' }}>
+                <Text style={styles.forgotText}>
                   Forgot Password?
                 </Text>
               </TouchableOpacity>
@@ -170,21 +146,13 @@ console.log(formData,"FOMR____DDD");
               loading={loading}
               title="Login"
               onPress={loginUser}
-              style={{ marginTop: 15 }}
+              style={styles.loginButton}
             />
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 20,
-                marginBottom: 50
-              }}>
-              <Text style={styles.footerText}>Not having an account? </Text>
+            <View style={styles.footerRow}>
+              <Text style={styles.footerText}>New to RentalHy? </Text>
               <TouchableOpacity
-                style={{ alignItems: 'center' }}
                 onPress={() => navigation.navigate('SignUp')}>
-                <Text style={styles.linkText}>Create One</Text>
+                <Text style={styles.linkText}>Create account</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -197,24 +165,77 @@ console.log(formData,"FOMR____DDD");
 export default Login;
 
 const styles = StyleSheet.create({
-  heading: {
-    fontSize: 22,
-    color: COLOR.royalBlue,
+  container: {
+    flex: 1,
+    backgroundColor: '#f6f7fb',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20,
+    paddingVertical: 32,
+  },
+  brandSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  logo: {
+    width: 150,
+    height: 92,
+    marginBottom: 10,
+  },
+  welcomeTitle: {
+    fontSize: 27,
+    fontWeight: '700',
+    color: '#20242a',
+    textAlign: 'center',
+  },
+  welcomeSubtitle: {
+    maxWidth: 330,
+    marginTop: 7,
+    fontSize: 13,
+    lineHeight: 19,
+    color: '#777e89',
+    textAlign: 'center',
+  },
+  formCard: {
+    backgroundColor: COLOR.white,
+    borderRadius: 22,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e9ebef',
+    shadowColor: '#111827',
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  forgotRow: {
+    alignItems: 'flex-end',
+    marginTop: -4,
+  },
+  forgotText: {
+    color: COLOR.primary,
+    fontSize: 12,
     fontWeight: '700',
   },
-  image: {
-    width: width,
-    height: height * 0.5,
+  loginButton: {
+    marginTop: 20,
+    marginHorizontal: 0,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
   },
   footerText: {
-    // marginTop: 20,
-    fontSize: 14,
-    color: '#333',
-    alignSelf: 'center',
+    fontSize: 13,
+    color: '#6f7681',
   },
   linkText: {
-    color: COLOR.royalBlue,
-    fontWeight: 'bold',
-    // marginTop: 15,
+    color: COLOR.primary,
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

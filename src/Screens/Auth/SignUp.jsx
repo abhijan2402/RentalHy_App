@@ -121,7 +121,7 @@ const getFcmToken = async () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       showToast(`Password must be at least 8 characters`, 'error');
       return;
     }
@@ -170,11 +170,14 @@ const token =await getFcmToken()
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <Header title={'Create New Account'} showBack onBackPress={() => navigation.goBack()} />
+      <Header title="Create Account" showBack onBackPress={() => navigation.goBack()} />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView style={{ flex: 1, backgroundColor: COLOR.white }}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}>
           {/* <LottieView
             ref={animationRef}
             source={require('../../assets/Lottie/SignUp.json')}
@@ -182,12 +185,16 @@ const token =await getFcmToken()
           /> */}
 
 
-          <View style={{ paddingTop: 15 }}>
-            {/* <Text style={styles.heading}>Create New Account</Text> */}
+          <View style={styles.introSection}>
+            <Text style={styles.heading}>Let’s get you started</Text>
+            <Text style={styles.subtitle}>
+              Create your RentalHy account to find, book and manage spaces.
+            </Text>
+          </View>
 
-
+          <View style={styles.formCard}>
             <Input
-              mainStyle={{}}
+              fullWidth
               label="Full name"
               placeholder="Enter your full name"
               value={FullName}
@@ -195,7 +202,7 @@ const token =await getFcmToken()
             />
 
             <Input
-              mainStyle={{}}
+              fullWidth
               label="Email"
               placeholder="Enter your email"
               value={email}
@@ -208,7 +215,7 @@ const token =await getFcmToken()
             </TouchableOpacity>
 
             <Input
-              mainStyle={{}}
+              fullWidth
               label="Phone Number"
               placeholder="Enter phone number"
               value={phone}
@@ -222,6 +229,7 @@ const token =await getFcmToken()
             </TouchableOpacity> */}
 
             <Input
+              fullWidth
               label="Password"
               placeholder="Enter password"
               value={password}
@@ -229,6 +237,7 @@ const token =await getFcmToken()
               secureTextEntry
             />
             <Input
+              fullWidth
               label="Confirm Password"
               placeholder="Confirm password"
               value={confirmPassword}
@@ -236,7 +245,7 @@ const token =await getFcmToken()
               secureTextEntry
             />
 
-            <View style={{ marginVertical: 15, marginHorizontal: 16 }}>
+            <View style={styles.termsContainer}>
               <View
                 style={styles.checkRow}
               >
@@ -342,6 +351,40 @@ const token =await getFcmToken()
 export default SignUp;
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#f6f7fb',
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 36,
+  },
+  introSection: {
+    paddingHorizontal: 4,
+    paddingTop: 8,
+    paddingBottom: 18,
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 13,
+    lineHeight: 19,
+    color: '#777e89',
+  },
+  formCard: {
+    backgroundColor: COLOR.white,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#e9ebef',
+    shadowColor: '#111827',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  termsContainer: {
+    marginVertical: 8,
+  },
   container: {
     height: height,
     backgroundColor: COLOR.white,
@@ -367,37 +410,22 @@ const styles = StyleSheet.create({
   },
   footerText: {
     marginTop: 20,
-    fontSize: 14,
-    color: '#333',
-    alignSelf: 'center',
-  },
-  linkText: {
-    color: '#007AFF',
-    fontWeight: 'bold',
-  },
-  footerText: {
-    marginTop: 20,
-    fontSize: 14,
-    color: '#333',
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  linkText: {
-    color: COLOR.royalBlue,
-    fontWeight: 'bold',
+    fontSize: 13,
+    color: '#6f7681',
+    textAlign: 'center',
+    marginBottom: 4,
   },
   heading: {
-    fontSize: 22,
-    color: COLOR.royalBlue,
+    fontSize: 25,
+    color: '#20242a',
     fontWeight: '700',
-    marginBottom: 10,
-    paddingHorizontal: 15,
   },
   verifyText: {
-    color: COLOR.royalBlue,
-    fontWeight: 'bold',
+    color: COLOR.primary,
+    fontWeight: '700',
     textAlign: 'right',
-    marginRight: 30,
+    marginTop: -9,
+    marginBottom: 13,
     fontSize: 12,
   },
   modalContainer: {
@@ -431,9 +459,8 @@ const styles = StyleSheet.create({
   },
   checkRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginVertical: 6,
-    marginHorizontal: 20,
   },
   checkbox: {
     width: 20,
@@ -447,12 +474,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.royalBlue,
   },
   checkLabel: {
+    flex: 1,
     fontSize: 13,
-    color: '#333',
+    lineHeight: 19,
+    color: '#4f5661',
   },
   linkText: {
-    color: COLOR.royalBlue,
-    fontWeight: 'bold',
+    color: COLOR.primary,
+    fontWeight: '700',
   },
   supportLink: {
     color: COLOR.royalBlue,

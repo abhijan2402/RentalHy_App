@@ -13,6 +13,7 @@ import CustomButton from '../../../Components/CustomButton';
 import { AuthContext } from '../../../Backend/AuthContent';
 import CreateAccountModal from '../../../Modals/CreateAccountModal';
 import { useIsFocused } from '@react-navigation/native';
+import ConfirmationModal from '../../../Components/ConfirmationModal';
 
 const Account = ({ navigation }) => {
   const { setUser } = useContext(AuthContext);
@@ -20,6 +21,7 @@ const Account = ({ navigation }) => {
   const { currentStatus } = useContext(AuthContext);
   const isFocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const profileUser = user?.user || user?.data?.user || user;
   const profileImage =
     'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'; // default profile icon
@@ -45,11 +47,11 @@ const Account = ({ navigation }) => {
       icon: 'https://cdn-icons-png.flaticon.com/512/833/833472.png',
       navigate: 'Wishlist',
     },
-     {
+    {
       id: 222,
-      title: 'Manage Space',
-      icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
-      navigate: 'Management',
+      title: 'Vendor Management',
+      icon: 'https://cdn-icons-png.flaticon.com/128/2942/2942813.png',
+      navigate: 'VendorManagement',
     },
 
     {
@@ -59,54 +61,10 @@ const Account = ({ navigation }) => {
       navigate: 'ChatList',
     },
     {
-      id: 7,
-      title: 'Property Analytics',
-      icon: 'https://cdn-icons-png.flaticon.com/128/602/602175.png',
-      navigate: 'PropertyAnalytics',
-    },
-    {
-      id: 18,
-      title: 'Convention/Hall Orders',
-      icon: 'https://cdn-icons-png.flaticon.com/128/9752/9752284.png',
-      navigate: 'SpaceOrders',
-    },
-    {
-      id: 8,
-      title: 'Hostel Management',
-      icon: 'https://cdn-icons-png.flaticon.com/128/10607/10607354.png',
-      navigate: 'HostelReviewManagement',
-    },
-    {
-      id: 119,
-      title: 'Hotel Management',
-      icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
-      navigate: 'HotelManagement',
-    },
-    
-  
-    {
-      id: 190,
-      title: 'Hotel Booking Management',
-      icon: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
-      navigate: 'HotelBookings',
-    },
-    {
       id: 9,
       title: 'My Bookings',
       icon: 'https://cdn-icons-png.flaticon.com/128/2460/2460875.png',
       navigate: 'MyBooking',
-    },
-    {
-      id: 19,
-      title: 'Space Management',
-      icon: 'https://cdn-icons-png.flaticon.com/128/1067/1067566.png',
-      navigate: 'SpaceManagement',
-    },
-    {
-      id: 10,
-      title: 'Bank Account Details',
-      icon: 'https://cdn-icons-png.flaticon.com/128/2830/2830289.png',
-      navigate: 'BankAccount',
     },
     {
       id: 3,
@@ -203,9 +161,7 @@ const Account = ({ navigation }) => {
           title={'Log Out'}
           style={styles.logoutButton}
           textStyle={styles.logoutText}
-          onPress={() => {
-            setUser('');
-          }}
+          onPress={() => setLogoutModalVisible(true)}
         />
         <CreateAccountModal
           visible={modalVisible}
@@ -219,6 +175,20 @@ const Account = ({ navigation }) => {
           }}
         />
       </ScrollView>
+      <ConfirmationModal
+        visible={logoutModalVisible}
+        destructive
+        icon="→"
+        title="Log out of your account?"
+        message="You’ll need to sign in again to access your bookings, chats and vendor tools."
+        confirmText="Yes, log out"
+        cancelText="Stay signed in"
+        onCancel={() => setLogoutModalVisible(false)}
+        onConfirm={() => {
+          setLogoutModalVisible(false);
+          setUser('');
+        }}
+      />
     </View>
   );
 };

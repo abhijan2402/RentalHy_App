@@ -306,7 +306,9 @@ const PropertyDetail = ({ navigation, route }) => {
           style={{ top: '30%' }}
         />
       ) : (
-        <ScrollView>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}>
           {/* Horizontal Image Carousel */}
           <View>
             <FlatList
@@ -338,13 +340,7 @@ const PropertyDetail = ({ navigation, route }) => {
           </View>
 
           <View style={styles.content}>
-            <View
-              style={{
-                marginBottom: 8,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
+            <View style={styles.titleRow}>
               <Text style={styles.title} numberOfLines={4}>{AllData?.title || AllData?.hotel_name}</Text>
               {type != 'convention' && currentStatus != -1 && (
                 <TouchableOpacity
@@ -371,9 +367,9 @@ const PropertyDetail = ({ navigation, route }) => {
               )}
             </View>
             <Text style={styles.description}>
-              {showFullDesc
+              {showFullDesc || AllData?.description?.length <= 120
                 ? AllData?.description
-                : AllData?.description?.slice(0, 120) + '...'}
+                : `${AllData?.description?.slice(0, 120)}...`}
             </Text>
             {AllData?.description?.length > 100 && (
               <TouchableOpacity onPress={() => setShowFullDesc(!showFullDesc)}>
@@ -464,21 +460,6 @@ const PropertyDetail = ({ navigation, route }) => {
               </TouchableOpacity>
             </View>
 
-            {/* {type !== 'convention' &&
-              type !== 'hostel' &&
-              AllData?.amenities &&
-              Object.keys(AllData.amenities).length > 0 && (
-                <>
-                  <Text style={styles.sectionTitle}>Amenities</Text>
-                  <View style={styles.amenitiesContainer}>
-                    {Object.entries(AllData.amenities).map(([key, value]) => (
-                      <Text key={key} style={styles.specText}>
-                        • {key.charAt(0).toUpperCase() + key.slice(1)}: {value}
-                      </Text>
-                    ))}
-                  </View>
-                </>
-              )} */}
             {type === 'hotel' && AllData?.hotel_rules && (
               <View style={{ marginTop: 10, marginHorizontal: 5, borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8 }}>
                 <Text style={{ fontWeight: '600', marginBottom: 6, color: COLOR.primary }}>
@@ -512,10 +493,8 @@ const PropertyDetail = ({ navigation, route }) => {
               console.log(AllData,"ALLL___TTTT",type)
               
             }
-            {type == 'home' && (
-              <>
-                <PropertyAmed AllData={AllData} />
-              </>
+            {!isConventionLike && type !== 'hostel' && type !== 'hotel' && (
+              <PropertyAmed AllData={AllData} />
             )}
             {isConventionLike && (
               <>
@@ -624,26 +603,37 @@ export default PropertyDetail;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f6f7fa',
+  },
+  scrollContent: {
+    paddingBottom: 16,
   },
   propertyImage: {
-    width: windowWidth / 1.015,
-    height: 250,
-    marginRight: 5,
+    width: windowWidth,
+    height: 270,
   },
   content: {
     padding: 15,
+    paddingTop: 18,
+  },
+  titleRow: {
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLOR.black,
-    width: windowWidth / 1.5
-    // marginBottom: 8,
+    flex: 1,
+    fontSize: 23,
+    lineHeight: 30,
+    fontWeight: '700',
+    color: '#1f2329',
+    marginRight: 12,
   },
   description: {
-    fontSize: 15,
-    color: '#555',
+    fontSize: 14,
+    lineHeight: 21,
+    color: '#626975',
   },
   readMore: {
     color: COLOR.primary,
@@ -652,11 +642,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   price: {
-    fontSize: 18,
+    fontSize: 22,
     color: COLOR.primary,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    marginVertical: 5,
+    fontWeight: '700',
+    marginVertical: 10,
   },
   contactContainer: {
     backgroundColor: '#f1f8ff',
@@ -716,23 +705,6 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     color: '#333',
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  amenitiesContainer: {
-    backgroundColor: '#f7f7f7',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 15,
-    marginHorizontal: 5,
-  },
-  amenity: {
-    fontSize: 14,
-    marginVertical: 2,
-    color: '#333',
-  },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -759,10 +731,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   wishlistIcon: {
-    top: 10,
-    right: -10,
-    height: 40,
-    width: 40,
+    height: 42,
+    width: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e9ebef',
+    elevation: 1,
   },
   MainStyle: {
     flexDirection: 'row',
@@ -770,12 +747,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   TagStyle: {
-    backgroundColor: COLOR.primary,
-    width: '20%',
-    color: 'white',
-    fontWeight: 500,
+    backgroundColor: '#fff2e8',
+    color: COLOR.primary,
+    fontWeight: '700',
     textAlign: 'center',
-    borderRadius: 2,
+    borderRadius: 12,
+    overflow: 'hidden',
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+    fontSize: 11,
   },
 
   questionContainer: {

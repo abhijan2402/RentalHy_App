@@ -1,89 +1,175 @@
-import React, { useContext } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image, Platform, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { LanguageContext } from '../localization/LanguageContext';
-import Home from '../Screens/Private/Dashboard/Home';
 import Account from '../Screens/Private/Account/Account';
 import { COLOR } from '../Constants/Colors';
-import Wishlist from '../Screens/Private/Wishlist';
-import Convention from '../Screens/Private/ConventionSection/Convention';
-import Hostel from '../Screens/Private/HostelSection/Hostel';
 import HotelMain from '../Screens/Private/Hotel/HotelMain';
 import HomeStack from './HomeStack';
 
 const Tab = createBottomTabNavigator();
 
-const BottomNavigation = () => {
-  // const {strings} = useContext(LanguageContext);
-  const insets = useSafeAreaInsets();
+const icons = {
+  Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
+  Hotels: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
+  Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
+};
 
-  const icons = {
-    Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
-    // Convention: 'https://cdn-icons-png.flaticon.com/128/3211/3211487.png',
-    Hotels: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
-    Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
+const AnimatedTabIcon = ({ focused, routeName }) => {
+  const animation = useRef(new Animated.Value(focused ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(animation, {
+      toValue: focused ? 1 : 0,
+      friction: 6,
+      tension: 90,
+      useNativeDriver: true,
+    }).start();
+  }, [animation, focused]);
+
+  const animatedStyle = {
+    transform: [
+      {
+        translateY: animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, -3],
+        }),
+      },
+      {
+        scale: animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 1.1],
+        }),
+      },
+    ],
   };
+
+  return (
+    <View style={styles.iconArea}>
+      <Animated.View
+        style={[
+          styles.iconCapsule,
+          focused && styles.activeIconCapsule,
+          animatedStyle,
+        ]}>
+        <Image
+          source={{ uri: icons[routeName] }}
+          style={[
+            styles.icon,
+            { tintColor: focused ? COLOR.primary : '#8a9099' },
+          ]}
+          resizeMode="contain"
+        />
+      </Animated.View>
+      <Animated.View
+        style={[
+          styles.activeDot,
+          {
+            opacity: animation,
+            transform: [{ scale: animation }],
+          },
+        ]}
+      />
+    </View>
+  );
+};
+
+const BottomNavigation = () => {
+  const insets = useSafeAreaInsets();
+  const safeBottom = insets.bottom;
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: COLOR.primary,
-        tabBarInactiveTintColor: 'gray',
-        tabBarLabelStyle: {
-          fontSize: 12,
-          marginTop: 4,
-        },
-        tabBarStyle: {
-          paddingVertical: 8,
-          height: 65 + insets.bottom,
-          paddingBottom: 0 + insets.bottom,
-          height:
-            Platform.OS === 'android' && Platform.Version < 35
-              ? 60
-              : 55 + insets.bottom,
-          paddingBottom:
-            Platform.OS === 'android' && Platform.Version < 35
-              ? 10
-              : insets.bottom,
-        },
-        tabBarIcon: ({ focused }) => {
-          const iconUri = icons[route.name];
-
-          return (
-            <Image
-              source={{ uri: iconUri }}
-              style={{
-                width: 24,
-                height: 24,
-                tintColor: focused ? COLOR.primary : 'gray',
-              }}
-              resizeMode="contain"
-            />
-          );
-        },
-        tabBarLabel: ({ color }) => {
-          let label = route.name;
-          if (route.name === 'MyBids') label = 'My Bids';
-
-          return (
-            <Text
-              style={{ color, fontSize: 12, marginTop: 4, textAlign: 'center' }}>
-              {label}
-            </Text>
-          );
-        },
+        tabBarInactiveTintColor: '#8a9099',
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: 62 + safeBottom,
+            paddingBottom: Math.max(5, safeBottom),
+          },
+        ],
+        tabBarItemStyle: styles.tabItem,
+        tabBarLabelStyle: styles.label,
+        tabBarIconStyle: styles.tabBarIcon,
+        tabBarIcon: ({ focused }) => (
+          <AnimatedTabIcon focused={focused} routeName={route.name} />
+        ),
+        tabBarLabel: ({ focused }) => (
+          <Text style={[styles.label, focused && styles.activeLabel]}>
+            {route.name}
+          </Text>
+        ),
       })}>
-      <Tab.Screen name={'Home'} component={HomeStack} />
-      <Tab.Screen name={'Hotels'} component={HotelMain} />
-      {/* <Tab.Screen name={'Hostel'} component={Hostel} /> */}
-      {/* <Tab.Screen name={'Convention'} component={Convention} /> */}
-      {/* <Tab.Screen name={strings.analytics} component={Analytics} /> */}
-      <Tab.Screen name={'Profile'} component={Account} />
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Hotels" component={HotelMain} />
+      <Tab.Screen name="Profile" component={Account} />
     </Tab.Navigator>
   );
 };
 
 export default BottomNavigation;
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eceef2',
+    paddingTop: 5,
+    paddingBottom: 5,
+    shadowColor: '#111827',
+    shadowOpacity: 0.09,
+    shadowOffset: { width: 0, height: -4 },
+    shadowRadius: 12,
+    elevation: 12,
+  },
+  tabItem: {
+    paddingVertical: 1,
+  },
+  tabBarIcon: {
+    marginTop: 1,
+  },
+  iconArea: {
+    width: 52,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconCapsule: {
+    width: 43,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 15,
+  },
+  activeIconCapsule: {
+    backgroundColor: '#fff1e8',
+  },
+  icon: {
+    width: 21,
+    height: 21,
+  },
+  activeDot: {
+    position: 'absolute',
+    bottom: -1,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLOR.primary,
+  },
+  label: {
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '600',
+    color: '#8a9099',
+    textAlign: 'center',
+  },
+  activeLabel: {
+    color: COLOR.primary,
+    fontWeight: '700',
+  },
+});

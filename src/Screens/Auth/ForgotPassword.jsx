@@ -145,22 +145,48 @@ const ForgotPassword = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1, backgroundColor: COLOR.white}}
+      style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.title}>Forgot Password</Text>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}>
+          <View style={styles.iconContainer}>
+            <Text style={styles.lockIcon}>{step === 3 ? '✓' : '✱'}</Text>
+          </View>
+          <Text style={styles.title}>
+            {step === 1
+              ? 'Forgot password?'
+              : step === 2
+                ? 'Check your email'
+                : 'Create new password'}
+          </Text>
           <Text style={styles.subtitle}>
             {step === 1
-              ? 'Enter your registered email to receive an OTP.'
+              ? 'Enter your registered email and we’ll send you a verification code.'
               : step === 2
-              ? 'Enter the OTP sent to your registered email.'
-              : 'Enter a new password to reset your account.'}
+                ? 'Enter the verification code sent to your registered email.'
+                : 'Choose a strong password you haven’t used before.'}
           </Text>
 
+          <View style={styles.progressRow}>
+            {[1, 2, 3].map(progressStep => (
+              <View
+                key={progressStep}
+                style={[
+                  styles.progressBar,
+                  progressStep <= step && styles.activeProgressBar,
+                ]}
+              />
+            ))}
+          </View>
+
+          <View style={styles.formCard}>
           {/* Step 1: Email */}
           {step === 1 && (
             <Input
+              fullWidth
               label="Email"
               placeholder="Enter your email"
               value={identifier}
@@ -172,6 +198,7 @@ const ForgotPassword = ({navigation}) => {
           {/* Step 2: OTP */}
           {step === 2 && (
             <Input
+              fullWidth
               label="OTP"
               placeholder="Enter OTP"
               value={otp}
@@ -183,6 +210,7 @@ const ForgotPassword = ({navigation}) => {
           {/* Step 3: New Password */}
           {step === 3 && (
             <Input
+              fullWidth
               label="New Password"
               placeholder="Enter new password"
               value={newPassword}
@@ -208,17 +236,18 @@ const ForgotPassword = ({navigation}) => {
                 ? handleVerifyOtp
                 : handleResetPassword
             }
-            style={{marginTop: 20}}
+            style={styles.mainButton}
           />
 
           {/* Back Button */}
           <TouchableOpacity
-            style={{alignItems: 'center', marginTop: 20}}
+            style={styles.backButton}
             onPress={handleBack}>
             <Text style={styles.backToLogin}>
               {step === 1 ? 'Back to Login' : 'Back'}
             </Text>
           </TouchableOpacity>
+          </View>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -228,26 +257,85 @@ const ForgotPassword = ({navigation}) => {
 export default ForgotPassword;
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#f6f7fb',
+  },
   container: {
     flexGrow: 1,
     justifyContent: 'center',
-    // paddingHorizontal: 15,
+    alignItems: 'center',
+    padding: 20,
+    paddingVertical: 36,
+  },
+  iconContainer: {
+    width: 66,
+    height: 66,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22,
+    backgroundColor: '#fff1e8',
+    marginBottom: 18,
+  },
+  lockIcon: {
+    fontSize: 29,
+    fontWeight: '700',
+    color: COLOR.primary,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '600',
-    color: COLOR.primary,
-    marginBottom: 10,
-    paddingHorizontal: 15,
+    fontSize: 25,
+    fontWeight: '700',
+    color: '#20242a',
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 30,
-    paddingHorizontal: 15,
+    maxWidth: 340,
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#747b86',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  progressRow: {
+    width: '64%',
+    flexDirection: 'row',
+    marginVertical: 22,
+  },
+  progressBar: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#dfe2e7',
+    marginHorizontal: 3,
+  },
+  activeProgressBar: {
+    backgroundColor: COLOR.primary,
+  },
+  formCard: {
+    width: '100%',
+    maxWidth: 390,
+    backgroundColor: COLOR.white,
+    borderRadius: 22,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e9ebef',
+    shadowColor: '#111827',
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  mainButton: {
+    marginTop: 10,
+    marginHorizontal: 0,
+  },
+  backButton: {
+    alignItems: 'center',
+    marginTop: 18,
   },
   backToLogin: {
     color: COLOR.primary,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

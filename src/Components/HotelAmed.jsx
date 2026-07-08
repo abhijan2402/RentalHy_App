@@ -1,62 +1,29 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
+import AmedSection from './AmedSection';
 
 const yesNo = val => (val ? 'Yes' : 'No');
 
-const InfoRow = ({ label, value }) => (
-    <View style={styles.row}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.value}>{value ?? 'N/A'}</Text>
-    </View>
-);
-
-const Section = ({ title, data }) => {
-    // filter empty values
-    const filteredData = data.filter(item => {
-        if (item.value === null || item.value === undefined) return false;
-        if (item.value === '') return false;
-        if (item.value === 'N/A') return false;
-
-        if (Array.isArray(item.value) && item.value.length === 0) return false;
-
-        return true;
-    });
-
-    // if no data → don't show section
-    if (filteredData.length === 0) return null;
-
-    return (
-        <View style={styles.section}>
-            <Text style={styles.sectionHeader}>{title}</Text>
-            {filteredData.map((item, index) => (
-                <InfoRow key={index} label={item.label} value={item.value} />
-            ))}
-        </View>
-    );
-};
-
 const HotelAmed = ({ AllData }) => {
-    console.log(AllData, "ALLL___DDD");
-
     // ======================
     // BASIC INFO
     // ======================
     const generalInfo = [
-        { label: 'Hotel Name', value: AllData?.hotel_name },
-        { label: 'Hotel Type', value: AllData?.hotel_type_text },
-        { label: 'Room Type', value: AllData?.room_type },
-        { label: 'Bed Type', value: AllData?.bed_type?.join(', ') },
-        { label: 'Guests Per Room', value: AllData?.guests_per_room },
-        { label: 'Room Size', value: AllData?.room_size },
-        { label: 'Booking Type', value: AllData?.booking_type_text },
+        { icon: '🏨', label: 'Hotel Name', value: AllData?.hotel_name },
+        { icon: '⭐', label: 'Hotel Type', value: AllData?.hotel_type_text },
+        { icon: '🚪', label: 'Room Type', value: AllData?.room_type },
+        { icon: '🛏️', label: 'Bed Type', value: AllData?.bed_type?.join(', ') },
+        { icon: '👥', label: 'Guests Per Room', value: AllData?.guests_per_room },
+        { icon: '📐', label: 'Room Size', value: AllData?.room_size },
+        { icon: '🗓️', label: 'Booking Type', value: AllData?.booking_type_text },
     ];
 
     // ======================
     // TIMING
     // ======================
     const timingInfo = [
-        { label: 'Check In Time', value: AllData?.check_in_time },
-        { label: 'Check Out Time', value: AllData?.check_out_time },
+        { icon: '↘️', label: 'Check In Time', value: AllData?.check_in_time },
+        { icon: '↗️', label: 'Check Out Time', value: AllData?.check_out_time },
     ];
 
     // ======================
@@ -69,26 +36,26 @@ const HotelAmed = ({ AllData }) => {
     // ];
 
     const priceInfo = [
-        { label: 'Price', value: AllData?.formatted_price || AllData?.price },
-        { label: 'Min Price', value: AllData?.formatted_min_price },
-        { label: 'Max Price', value: AllData?.formatted_max_price },
+        { icon: '💳', label: 'Price', value: AllData?.formatted_price || AllData?.price },
+        { icon: '📉', label: 'Minimum Price', value: AllData?.formatted_min_price },
+        { icon: '📈', label: 'Maximum Price', value: AllData?.formatted_max_price },
     ];
     // ======================
     // LOCATION
     // ======================
     const locationInfo = [
-        { label: 'Location', value: AllData?.location },
+        { icon: '📍', label: 'Location', value: AllData?.location },
     ];
 
     // ======================
     // ROOM FEATURES
     // ======================
     const roomFeatures = [
-        { label: 'AC', value: yesNo(AllData?.is_ac) },
-        { label: 'Bathroom Attached', value: yesNo(AllData?.is_bathroom_attached) },
-        { label: 'Water 24x7', value: yesNo(AllData?.is_water_24x7) },
-        { label: 'Geyser Available', value: yesNo(AllData?.is_geyser_available) },
-        { label: 'Food Available', value: AllData?.food_available_text },
+        { icon: '❄️', label: 'Air Conditioning', value: yesNo(AllData?.is_ac) },
+        { icon: '🚿', label: 'Attached Bathroom', value: yesNo(AllData?.is_bathroom_attached) },
+        { icon: '💧', label: 'Water 24x7', value: yesNo(AllData?.is_water_24x7) },
+        { icon: '♨️', label: 'Geyser Available', value: yesNo(AllData?.is_geyser_available) },
+        { icon: '🍽️', label: 'Food Available', value: AllData?.food_available_text },
     ];
 
 
@@ -139,14 +106,14 @@ const HotelAmed = ({ AllData }) => {
         <View style={styles.container}>
             <Text style={styles.heading}>Hotel Details</Text>
 
-            <Section title="General Information" data={generalInfo} />
-            <Section title="Price Information" data={priceInfo} />
-            <Section title="Timing Information" data={timingInfo} />
-            <Section title="Location Details" data={locationInfo} />
-            <Section title="Room Features" data={roomFeatures} />
-            {/* <Section title="Structure Features" data={structureInfo} /> */}
-            {/* <Section title="Policies & IDs" data={policyInfo} /> */}
-            <Section title="Facilities" data={facilities} />
+            <AmedSection title="General Information" icon="🏨" data={generalInfo} />
+            <AmedSection title="Price Information" icon="💳" data={priceInfo} />
+            <AmedSection title="Check-in & Check-out" icon="🕐" data={timingInfo} />
+            <AmedSection title="Location Details" icon="📍" data={locationInfo} />
+            <AmedSection title="Room Features" icon="🛏️" data={roomFeatures} />
+            <AmedSection title="Structure Features" icon="🏢" data={structureInfo} />
+            <AmedSection title="Policies & IDs" icon="🛡️" data={policyInfo} />
+            <AmedSection title="Facilities" icon="✨" data={facilities} />
         </View>
     );
 };
@@ -155,44 +122,12 @@ export default HotelAmed;
 
 const styles = StyleSheet.create({
     container: {
-        padding: 15,
-        backgroundColor: '#fff',
+        paddingTop: 8,
     },
     heading: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 12,
         color: '#333',
-    },
-    section: {
-        marginBottom: 18,
-    },
-    sectionHeader: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#555',
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-        marginBottom: 6,
-        paddingBottom: 3,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 6,
-        borderBottomWidth: 0.5,
-        borderBottomColor: '#eee',
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        width: '60%',
-    },
-    value: {
-        fontSize: 14,
-        color: '#555',
-        width: '40%',
-        textAlign: 'right',
     },
 });

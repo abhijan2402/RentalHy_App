@@ -1,10 +1,26 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { View } from 'react-native';
 import React from 'react';
-import { windowWidth } from '../Constants/Dimensions';
+import AmedSection from './AmedSection';
+
+const getFieldIcon = label => {
+  const name = label.toLowerCase();
+  if (name.includes('price') || name.includes('charge')) return '💳';
+  if (name.includes('parking')) return '🅿️';
+  if (name.includes('water')) return '💧';
+  if (name.includes('food') || name.includes('catering')) return '🍽️';
+  if (name.includes('pool')) return '🏊';
+  if (name.includes('security') || name.includes('cctv')) return '🛡️';
+  if (name.includes('wifi')) return '📶';
+  if (name.includes('capacity') || name.includes('person')) return '👥';
+  if (name.includes('area')) return '📐';
+  if (name.includes('duration')) return '🕐';
+  if (name.includes('game')) return '🎮';
+  if (name.includes('kitchen')) return '🍳';
+  if (name.includes('music') || name.includes('sound')) return '🎵';
+  return '✨';
+};
 
 const ConventionAmed = ({ AllData }) => {
-  console.log(AllData,"ALLLLLLLDDDDDD");
-
   const parseDates = dates => {
     if (!dates) return {};
 
@@ -280,83 +296,37 @@ const ConventionAmed = ({ AllData }) => {
 
     if (validFields.length === 0) return null;
 
-    return (
-      <View style={{ marginVertical: 10 }}>
-        <Text style={styles.sectionHeader}>{title}</Text>
+    const data = validFields.map(({ key, label }) => {
+      const value = formatValue(AllData?.[key]);
+      const isPrice =
+        title === 'Prices' ||
+        key.toLowerCase().includes('price') ||
+        key.toLowerCase().includes('charges');
+      const isBoolean = Object.prototype.hasOwnProperty.call(booleanFields, key);
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.tableContainer}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 1.5 }]}>
-                Field
-              </Text>
-              <Text style={[styles.tableCell, styles.headerCell, { flex: 1 ,textAlign:"right"}]}>
-                Value
-              </Text>
-            </View>
-
-            {validFields.map(({ key, label }, index) => {
-  const value = formatValue(AllData?.[key]);
-  const isPrice =
-    title === 'Prices' ||
-    key?.toLowerCase()?.includes('price') ||
-    key?.toLowerCase()?.includes('charges');
-  const isAmenity = title === 'Amenities';
-  const isBoolean = Object.prototype.hasOwnProperty.call(booleanFields, key);
-
-  // ✅ Hide empty/null/undefined values
-  if (
-    value === null ||
-    value === undefined ||
-    value === ''
-  ) {
-    return null;
-  }
-
-  return (
-    <View
-      key={key}
-      style={[
-        styles.tableRow,
-        {
-          backgroundColor: index % 2 === 0 ? '#fff' : '#f9f9f9',
-        },
-      ]}>
-      <Text
-        style={[
-          styles.tableCell,
-          {
-            flex: 1.5,
-            width: windowWidth / 2.5,
-          },
-        ]}>
-        {label}
-      </Text>
-
-      <Text
-        style={[
-          styles.tableCell,
-          {
-            flex: 1,
-            width: windowWidth / 3,
-            textAlign: 'right',
-          },
-        ]}>
-        {isAmenity || isBoolean
+      return {
+        icon: getFieldIcon(label),
+        label,
+        value: isBoolean
           ? isYesValue(value)
             ? 'Yes'
             : 'No'
           : isPrice
-          ? `₹${value}`
-          : value}
-      </Text>
-    </View>
-  );
-})}
-          </View>
-        </ScrollView>
-      </View>
-    );
+            ? `₹${value}`
+            : value,
+      };
+    });
+
+    const sectionIcons = {
+      Amenities: '✨',
+      Prices: '💳',
+      Durations: '🕐',
+      Availability: '👥',
+      'Parking Details': '🅿️',
+      'Game Details': '🎮',
+    };
+
+    return <AmedSection title={title} icon={sectionIcons[title]} data={data} />;
   };
 
   const renderDateTable = () => {
@@ -364,6 +334,41 @@ const ConventionAmed = ({ AllData }) => {
 
     if (dateEntries.length === 0) return null;
 
+    const unavailableDates = dateEntries
+      .map(([date, value]) => {
+        const normalized = date.includes('/')
+          ? date.split('/').reverse().join('-')
+          : date;
+        const parsedDate = new Date(`${normalized}T00:00:00`);
+        const formattedDate = Number.isNaN(parsedDate.getTime())
+          ? date
+          : parsedDate.toLocaleDateString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            });
+
+        return {
+          icon: '📅',
+          label: formattedDate,
+          value: String(value)
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, letter => letter.toUpperCase()),
+          badge: 'danger',
+          sortDate: normalized,
+        };
+      })
+      .sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+
+    return (
+      <AmedSection
+        title="Unavailable Dates"
+        icon="📆"
+        data={unavailableDates}
+      />
+    );
+
+    /* Legacy table kept temporarily for reference.
     return (
       <View style={{ marginVertical: 10 }}>
         <Text style={styles.sectionHeader}>Unavailability Dates</Text>
@@ -395,6 +400,7 @@ const ConventionAmed = ({ AllData }) => {
         </ScrollView>
       </View>
     );
+    */
   };
 
   return (
@@ -411,44 +417,3 @@ const ConventionAmed = ({ AllData }) => {
 };
 
 export default ConventionAmed;
-
-const styles = StyleSheet.create({
-  specText: {
-    fontSize: 15,
-    marginVertical: 2,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  sectionHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000',
-  },
-  tableContainer: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    overflow: 'hidden',
-    minWidth: '100%',
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f3f3f3',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderColor: '#ddd',
-  },
-  tableCell: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    fontSize: 15,
-    color: '#333',
-  },
-  headerCell: {
-    fontWeight: 'bold',
-    color: '#000',
-  },
-});

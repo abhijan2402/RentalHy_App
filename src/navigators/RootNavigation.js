@@ -1,6 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomNavigation from './BottomNavigation';
-import { View } from 'react-native';
 import PropertyDetail from '../Screens/Private/Dashboard/PropertyDetail';
 import Cms from '../Components/Cms';
 import EditProfile from '../Screens/Private/Account/EditProfile';
@@ -35,6 +34,7 @@ import BookHotel from '../Screens/Private/Dashboard/BookHotel';
 import HotelBookings from '../Screens/Private/Account/HotelBookings';
 import Reward from '../Screens/Private/Account/Reward';
 import Management from '../Screens/Private/Account/Management';
+import VendorManagement from '../Screens/Private/Account/VendorManagement';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -80,10 +80,9 @@ const RootNavigation = () => {
                 <Stack.Screen name="Reward" component={Reward} />
                 <Stack.Screen name="HotelBookings" component={HotelBookings} />
                 <Stack.Screen name="Management" component={Management} />
+                <Stack.Screen name="VendorManagement" component={VendorManagement} />
 
             </Stack.Navigator>
-            <View style={{ marginBottom: 50 }}>
-            </View>
         </>
     );
 };

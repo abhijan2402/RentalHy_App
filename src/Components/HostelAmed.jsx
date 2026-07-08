@@ -1,62 +1,47 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-
-const InfoRow = ({ label, value }) => (
-  <View style={styles.row}>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.value}>{value}</Text>
-  </View>
-);
-
-const Section = ({ title, data }) => (
-  <View style={styles.section}>
-    <Text style={styles.sectionHeader}>{title}</Text>
-    {data.map((item, index) => (
-      <InfoRow key={index} label={item.label} value={item.value} />
-    ))}
-  </View>
-);
+import AmedSection from './AmedSection';
 
 const HostelAmed = ({ AllData }) => {
   const generalInfo = [
-    { label: 'Room Size Min', value: AllData?.room_size_min || 'N/A' },
-    { label: 'Room Size Max', value: AllData?.room_size_max || 'N/A' },
-    { label: 'Hostel Type', value: AllData?.hostel_type || 'N/A' },
-    { label: 'Furnishing Status', value: AllData?.furnishing_status || 'N/A' },
+    { icon: '📏', label: 'Minimum Room Size', value: AllData?.room_size_min },
+    { icon: '📐', label: 'Maximum Room Size', value: AllData?.room_size_max },
+    { icon: '🏠', label: 'Hostel Type', value: AllData?.hostel_type },
+    { icon: '🛋️', label: 'Furnishing Status', value: AllData?.furnishing_status },
   ];
 
   const priceInfo = [
-    { label: 'Single Room Price', value: AllData?.single_room_price || 'N/A' },
-    { label: 'Double Sharing Price', value: AllData?.double_sharing_price || 'N/A' },
-    { label: 'Triple Sharing Price', value: AllData?.triple_sharing_price || 'N/A' },
-    { label: 'Four Sharing Price', value: AllData?.four_sharing_price || 'N/A' },
-    { label: 'Security Deposit', value: AllData?.security_deposit || 'N/A' },
+    { icon: '🛏️', label: 'Single Room', value: AllData?.single_room_price },
+    { icon: '🛏️', label: 'Double Sharing', value: AllData?.double_sharing_price },
+    { icon: '🛏️', label: 'Triple Sharing', value: AllData?.triple_sharing_price },
+    { icon: '🛏️', label: 'Four Sharing', value: AllData?.four_sharing_price },
+    { icon: '🔐', label: 'Security Deposit', value: AllData?.security_deposit },
   ];
 
   const stayInfo = [
-    { label: 'One Day Stay', value: AllData?.one_day_stay || 'N/A' },
-    { label: 'One Week Stay', value: AllData?.one_week_stay || 'N/A' },
-    { label: 'One Month Stay', value: AllData?.one_month_stay || 'N/A' },
+    { icon: '☀️', label: 'One Day Stay', value: AllData?.one_day_stay },
+    { icon: '🗓️', label: 'One Week Stay', value: AllData?.one_week_stay },
+    { icon: '📅', label: 'One Month Stay', value: AllData?.one_month_stay },
   ];
 
   const facilityInfo = [
-    { label: 'Bathroom Type', value: AllData?.bathroom_type || 'N/A' },
-    { label: 'Kitchen', value: AllData?.kitchen ? 'Yes' : 'No' },
-    { label: 'Wifi', value: AllData?.wifi ? 'Yes' : 'No' },
-    { label: 'AC', value: AllData?.ac ? 'Yes' : 'No' },
-    { label: 'Laundry Service', value: AllData?.laundry_service ? 'Yes' : 'No' },
-    { label: 'Housekeeping', value: AllData?.housekeeping ? 'Yes' : 'No' },
-    { label: 'Hot Water', value: AllData?.hot_water ? 'Yes' : 'No' },
-    { label: 'Power Backup', value: AllData?.power_backup ? 'Yes' : 'No' },
-    { label: 'Parking', value: AllData?.parking ? 'Yes' : 'No' },
-    { label: 'Gym', value: AllData?.gym ? 'Yes' : 'No' },
-    { label: 'Play Area', value: AllData?.play_area ? 'Yes' : 'No' },
-    { label: 'TV', value: AllData?.tv ? 'Yes' : 'No' },
-    { label: 'Dining Table', value: AllData?.dining_table ? 'Yes' : 'No' },
-    { label: 'Security', value: AllData?.security ? 'Yes' : 'No' },
-    { label: 'RO Water', value: AllData?.ro_water ? 'Yes' : 'No' },
-    { label: 'Study Area', value: AllData?.study_area ? 'Yes' : 'No' },
-    { label: 'Mess', value: AllData?.mess ? 'Yes' : 'No' },
+    { icon: '🚿', label: 'Bathroom Type', value: AllData?.bathroom_type },
+    { icon: '🍳', label: 'Kitchen', value: AllData?.kitchen ? 'Yes' : 'No' },
+    { icon: '📶', label: 'Wi-Fi', value: AllData?.wifi ? 'Yes' : 'No' },
+    { icon: '❄️', label: 'Air Conditioning', value: AllData?.ac ? 'Yes' : 'No' },
+    { icon: '🧺', label: 'Laundry Service', value: AllData?.laundry_service ? 'Yes' : 'No' },
+    { icon: '🧹', label: 'Housekeeping', value: AllData?.housekeeping ? 'Yes' : 'No' },
+    { icon: '♨️', label: 'Hot Water', value: AllData?.hot_water ? 'Yes' : 'No' },
+    { icon: '⚡', label: 'Power Backup', value: AllData?.power_backup ? 'Yes' : 'No' },
+    { icon: '🅿️', label: 'Parking', value: AllData?.parking ? 'Yes' : 'No' },
+    { icon: '🏋️', label: 'Gym', value: AllData?.gym ? 'Yes' : 'No' },
+    { icon: '🎮', label: 'Play Area', value: AllData?.play_area ? 'Yes' : 'No' },
+    { icon: '📺', label: 'Television', value: AllData?.tv ? 'Yes' : 'No' },
+    { icon: '🍽️', label: 'Dining Table', value: AllData?.dining_table ? 'Yes' : 'No' },
+    { icon: '🛡️', label: 'Security', value: AllData?.security ? 'Yes' : 'No' },
+    { icon: '💧', label: 'RO Water', value: AllData?.ro_water ? 'Yes' : 'No' },
+    { icon: '📚', label: 'Study Area', value: AllData?.study_area ? 'Yes' : 'No' },
+    { icon: '🍲', label: 'Mess', value: AllData?.mess ? 'Yes' : 'No' },
   ];
 
   const mealInfo = [
@@ -96,14 +81,14 @@ const HostelAmed = ({ AllData }) => {
     <View style={styles.container}>
       <Text style={styles.heading}>Hostel Details</Text>
 
-      <Section title="General Information" data={generalInfo} />
-      <Section title="Room Prices" data={priceInfo} />
-      <Section title="Dormantory Price" data={stayInfo} />
-      <Section title="Facilities" data={facilityInfo} />
-      <Section title="Meals Available" data={mealInfo} />
-      <Section title="Meal Timings" data={mealTiming} />
-      <Section title="Documents & Policies" data={policyInfo} />
-      <Section title="Additional Information" data={extraInfo} />
+      <AmedSection title="General Information" icon="🏠" data={generalInfo} />
+      <AmedSection title="Room Prices" icon="💳" data={priceInfo} />
+      <AmedSection title="Stay Packages" icon="🗓️" data={stayInfo} />
+      <AmedSection title="Facilities" icon="✨" data={facilityInfo} />
+      <AmedSection title="Meals Available" icon="🍽️" data={mealInfo} />
+      <AmedSection title="Meal Timings" icon="🕐" data={mealTiming} />
+      <AmedSection title="Documents & Policies" icon="📜" data={policyInfo} />
+      <AmedSection title="Additional Information" icon="ℹ️" data={extraInfo} />
     </View>
   );
 };
@@ -112,44 +97,12 @@ export default HostelAmed;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
-    backgroundColor: '#fff',
+    paddingTop: 8,
   },
   heading: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 12,
     color: '#333',
-  },
-  section: {
-    marginBottom: 18,
-  },
-  sectionHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#555',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    marginBottom: 6,
-    paddingBottom: 3,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#eee',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    width: '60%',
-  },
-  value: {
-    fontSize: 14,
-    color: '#555',
-    width: '40%',
-    textAlign: 'right',
   },
 });

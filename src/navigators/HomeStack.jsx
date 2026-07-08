@@ -29,6 +29,7 @@ import SpaceManagement from '../Screens/Private/Account/SpaceManagement';
 import ChatList from '../Screens/Private/Account/ChatList';
 import HostelReviewManagement from '../Screens/Private/Account/HostelReviewManagement';
 import PostHotel from '../Screens/Private/Hotel/PostHotel';
+import VendorManagement from '../Screens/Private/Account/VendorManagement';
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => {
@@ -69,6 +70,7 @@ const HomeStack = () => {
 
                 <Stack.Screen name="HostelReviewManagement" component={HostelReviewManagement} />
                 <Stack.Screen name="PostHotel" component={PostHotel} />
+                <Stack.Screen name="VendorManagement" component={VendorManagement} />
 
 
             </Stack.Navigator>

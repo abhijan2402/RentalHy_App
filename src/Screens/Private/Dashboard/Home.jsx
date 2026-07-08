@@ -826,34 +826,48 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
 
   return (
     <View style={styles.header}>
-      <View style={styles.locationContainer}>
+      <Image
+        source={{
+          uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
+        }}
+        style={styles.brandLogo}
+      />
+
+      <TouchableOpacity
+        activeOpacity={0.75}
+        accessibilityRole="button"
+        accessibilityLabel="Change location"
+        disabled={!setLocationModalVisible}
+        style={styles.locationContainer}
+        onPress={() => setLocationModalVisible?.(true)}>
         <Image
           source={{
-            uri: 'https://i.postimg.cc/59BKnJZJ/second-page-1.jpg',
+            uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
           }}
           style={styles.locationIcon}
         />
-        <TouchableOpacity
-          style={{ flexDirection: 'row', alignItems: 'center', width: '50%' }}
-          onPress={() => setLocationModalVisible(true)}>
-          <Image
-            source={{
-              uri: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
-            }}
-            style={[styles.locationIcon, { width: 25, height: 25 }]}
-          />
-
-          <View>
-            <Text style={styles.locationCity}>{CityName || 'Not Found'}</Text>
-            <Text style={styles.locationAddress} numberOfLines={1}>
-              {currentAddress?.address || 'Not Found'}
+        <View style={styles.locationTextContainer}>
+          <View style={styles.locationTitleRow}>
+            <Text style={styles.locationCity} numberOfLines={1}>
+              {CityName || 'Select location'}
             </Text>
+            {!!setLocationModalVisible && (
+              <Text style={styles.locationChevron}>⌄</Text>
+            )}
           </View>
-        </TouchableOpacity>
-      </View>
+          <Text style={styles.locationAddress} numberOfLines={1}>
+            {currentAddress?.address || 'Tap to choose your area'}
+          </Text>
+        </View>
+      </TouchableOpacity>
 
-
-      <TouchableOpacity onPress={() => navigation.navigate('Wishlist')}>
+      <View style={styles.headerActions}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Open wishlist"
+        style={styles.headerActionButton}
+        onPress={() => navigation.navigate('Wishlist')}>
         <Image
           source={{
             uri: 'https://cdn-icons-png.flaticon.com/128/4240/4240564.png',
@@ -861,11 +875,25 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
           style={styles.wishListIcon}
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Reward')}>
-        <Image style={[styles.giftIcon, {}]}
-          source={{ uri: "https://cdn-icons-png.flaticon.com/128/3179/3179668.png" }} />
+      <TouchableOpacity
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Open rewards"
+        style={styles.headerActionButton}
+        onPress={() => navigation.navigate('Reward')}>
+        <Image
+          style={styles.giftIcon}
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/128/3179/3179668.png',
+          }}
+        />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Open profile"
+        style={styles.profileButton}
+        onPress={() => navigation.navigate('Profile')}>
         <Image
           source={{
             uri: user?.image
@@ -875,6 +903,7 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
           style={styles.profileIcon}
         />
       </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -887,48 +916,103 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     backgroundColor: COLOR.white,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLOR.lightGrey,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f1f3',
+    shadowColor: '#172033',
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  brandLogo: {
+    width: 45,
+    height: 30,
+    borderRadius: 11,
+    resizeMode: 'cover',
+    marginRight: 9,
   },
   locationContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 0,
+    marginRight: 8,
+  },
+  locationIcon: {
+    width: 18,
+    height: 18,
+    marginRight: 6,
+    tintColor: COLOR.primary,
+  },
+  locationTextContainer: {
+    flex: 1,
+    minWidth: 0,
+  },
+  locationTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  locationIcon: {
-    width: 45,
-    height: 30,
-    marginRight: 5,
-  },
   locationCity: {
-    fontSize: 16,
+    maxWidth: '85%',
+    fontSize: 14,
     fontWeight: '700',
-    color: COLOR.black,
+    color: '#22262c',
+  },
+  locationChevron: {
+    color: COLOR.primary,
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 3,
+    marginTop: -3,
   },
   locationAddress: {
-    fontSize: 12,
-    color: COLOR.grey,
+    fontSize: 10,
+    lineHeight: 14,
+    color: '#858b95',
+    marginTop: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerActionButton: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 11,
+    backgroundColor: '#f7f8fa',
+    marginLeft: 5,
+  },
+  profileButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e6e9ee',
+    marginLeft: 6,
+    overflow: 'hidden',
   },
   profileIcon: {
-    width: 35,
-    height: 35,
-    borderRadius: 20,
+    width: 33,
+    height: 33,
+    borderRadius: 10,
   },
 
   wishListIcon: {
-    width: 25,
-    height: 25,
-    tintColor: COLOR?.primary
+    width: 18,
+    height: 18,
+    tintColor: COLOR.primary,
   },
   giftIcon: {
-    width: 30,
-    height: 30,
-    marginHorizontal: 10
-    // marginRight: 10
+    width: 19,
+    height: 19,
   },
   banner: {
     width: width - 60,

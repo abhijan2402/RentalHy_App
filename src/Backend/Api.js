@@ -14,10 +14,8 @@ export const useApi = () => {
   const { token } = useContext(AuthContext);
   const { showToast } = useToast();
   const postRequest = async (endpoint, data = {}, isMultipart = false) => {
-    console.log(data, 'DATA');
-    console.log(token, 'TOKEN');
-    console.log(`${BASE_URL}${endpoint}`, "URLLLLL");
     const headers = {
+      Accept: 'application/json',
       ...(isMultipart ? {} : { 'Content-Type': 'application/json' }),
       Authorization: `Bearer ${token}`,
     };
@@ -28,17 +26,38 @@ export const useApi = () => {
         body: isMultipart ? data : JSON.stringify(data),
       });
 
-      const json = await response.json();
+      const responseText = await response.text();
+      let json;
+
+      try {
+        json = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        console.log('NON_JSON_API_RESPONSE', {
+          endpoint,
+          status: response.status,
+          contentType: response.headers.get('content-type'),
+          response: responseText.slice(0, 300),
+        });
+
+        return {
+          success: false,
+          error: `Server returned an invalid response (${response.status}).`,
+          status: response.status,
+        };
+      }
 
       if (!response.ok) {
-        let errorMessages = 'An unknown error occurred.';
+        let errorMessages =
+          json.message || json.msg || json?.error || 'Something went wrong';
 
-        if (json.errors && typeof json.errors === 'object' && !Array.isArray(json.errors)) {
+        if (
+          json.errors &&
+          typeof json.errors === 'object' &&
+          !Array.isArray(json.errors)
+        ) {
           errorMessages = Object.values(json.errors)
             .flat()
             .join('\n');
-        } else if (json.msg) {
-          errorMessages = json.msg;
         }
 
         showToast(errorMessages, 'error');
@@ -46,7 +65,7 @@ export const useApi = () => {
 
         return {
           success: false,
-          error: json.message || json.msg || json?.error || 'Something went wrong',
+          error: errorMessages,
           status: response.status,
         };
       }

@@ -8,7 +8,6 @@ import {
   TextInput,
   ActivityIndicator,
   FlatList,
-  ScrollView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../Components/FeedHeader';
@@ -17,68 +16,33 @@ import {useApi} from '../../../Backend/Api';
 import {useToast} from '../../../Constants/ToastContext';
 import moment from 'moment';
 
-const booleanFields = {
-  ac_available: 'AC Available',
-  royalty_decoration: 'Royalty Decoration',
-  royalty_kitchen: 'Royalty Kitchen',
-  generator_available: 'Generator Available',
-  water_for_cooking: 'Water For Cooking',
-  drinking_water_available: 'Drinking Water Available',
-  provides_catering_persons: 'Provides Catering Persons',
-  photographers_required: 'Photographers Required',
-  children_games: 'Children Games',
-  parking_available: 'Parking Available',
-  parking_guard: 'Parking Guard',
-  alcohol_allowed: 'Alcohol Allowed',
-  swimming_pool: 'Swimming Pool',
-  food_available: 'Food Available',
-  outside_food_allowed: 'Outside Food Allowed',
-  cctv_available: 'CCTV Available',
-  sound_system_available: 'Sound System Available',
-  sound_system_allowed: 'Sound System Allowed',
-  adult_games: 'Adult Games',
-  kitchen_setup: 'Kitchen Setup',
-  free_cancellation: 'Free Cancellation',
-  pay_later: 'Pay Later',
-  child_pool: 'Child Pool',
-  security_guard: 'Security Guard',
-  pet_friendly: 'Pet Friendly',
-  breakfast_included: 'Breakfast Included',
-  restaurant: 'Restaurant',
-  cafeteria: 'Cafeteria',
-  elevator: 'Elevator',
-  reception_24_hours: '24 Hours Reception',
-  gym_available: 'Gym Available',
-  tv_available: 'TV Available',
-  meeting_room: 'Meeting Room',
-  free_wifi: 'Free Wifi',
-  play_ground: 'Play Ground',
-  refrigerator: 'Refrigerator',
-  wellness_centre: 'Wellness Centre',
-  wheel_chair_access: 'Wheel Chair Access',
-};
-
-const formatLabel = key => {
-  return key
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, char => char.toUpperCase())
-    .replace('24 Hours', '24 Hours');
-};
-
 const InfoRow = ({label, value}) => {
-  if (value === null || value === undefined || value === '') return null;
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
 
   return (
-    <Text style={styles.label}>
-      <Text style={styles.bold}>{label}: </Text>
-      {String(value)}
-    </Text>
+    <View style={styles.infoRow}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={styles.infoValue}>{String(value)}</Text>
+    </View>
   );
+};
+
+const getStatusStyle = status => {
+  if (status === 'accepted' || status === 'success') {
+    return {backgroundColor: '#E8F7EE', color: '#167A3E'};
+  }
+  if (status.includes('cancelled') || status === 'rejected') {
+    return {backgroundColor: '#FDECEC', color: '#B42318'};
+  }
+  return {backgroundColor: '#FFF4E5', color: '#B54708'};
 };
 
 const OrderCard = ({order, postRequest, showToast}) => {
   const [status, setStatus] = useState(order.order_status || order.status);
   const normalizedStatus = String(status || '').toLowerCase();
+  const statusStyle = getStatusStyle(normalizedStatus);
   const canShowMobile =
     normalizedStatus === 'success' || normalizedStatus === 'accepted';
   const [buttonLoader, setButtonLoader] = useState({
@@ -99,7 +63,6 @@ const OrderCard = ({order, postRequest, showToast}) => {
     setButtonLoader({type: 'accept', loading: true});
 
     const res = await postRequest(`public/api/payments/${orderData.id}/accept`);
-console.log(res,"RESSLLLL");
 
     if (res?.data?.success || res?.data?.status) {
       setStatus('accepted');
@@ -146,12 +109,6 @@ console.log(res,"RESSLLLL");
     setButtonLoader({type: 'reject', loading: false});
   };
 
-  const priceFields = Object.entries(hall || {}).filter(([key, value]) => {
-    return key.includes('_price') && value !== null && value !== undefined && value !== '';
-  });
-
-  const dateFields = hall?.dates ? Object.entries(hall.dates) : [];
-
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -162,35 +119,32 @@ console.log(res,"RESSLLLL");
           style={styles.image}
         />
 
-        <View style={{flex: 1, marginLeft: 10}}>
+        <View style={styles.headerContent}>
           <Text style={styles.propertyName}>{hall?.title || 'N/A'}</Text>
-
-          <Text style={styles.price}>₹{order?.amount || '0.00'}</Text>
-
-          <Text
-            style={[
-              styles.status,
-              normalizedStatus === 'accepted' || normalizedStatus === 'success'
-                ? {color: 'green'}
-                : normalizedStatus.includes('cancelled')
-                ? {color: 'red'}
-                : {color: '#e67e22'},
-            ]}>
-            Status: {status}
-          </Text>
+          <Text style={styles.orderId}>Order #{order?.id || '—'}</Text>
+          <View style={styles.headerMeta}>
+            <Text style={styles.price}>₹{order?.amount || '0.00'}</Text>
+            <View style={[styles.statusBadge, {backgroundColor: statusStyle.backgroundColor}]}>
+              <Text style={[styles.status, {color: statusStyle.color}]}>
+                {status || 'Pending'}
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
 
       <View style={styles.details}>
-        <Text style={styles.sectionTitle}>Booking Information</Text>
+        <Text style={[styles.sectionTitle, styles.firstSectionTitle]}>Booking details</Text>
         <InfoRow label="Payment Mode" value={order?.payment_mode} />
-        <InfoRow label="Amount" value={`₹${order?.amount}`} />
-        <InfoRow label="Order Status" value={order?.order_status} />
         <InfoRow label="Booking Date" value={order?.booking_date} />
         <InfoRow label="Event Time" value={order?.event_time} />
-        <InfoRow label="Created At" value={moment(order?.created_at).format("DD-MM-YYYY")} />
+        <InfoRow
+          label="Ordered On"
+          value={order?.created_at ? moment(order.created_at).format('DD MMM YYYY') : null}
+        />
 
-        <Text style={styles.sectionTitle}>Customer Information</Text>
+        <View style={styles.divider} />
+        <Text style={styles.sectionTitle}>Customer details</Text>
 
         <InfoRow label="Customer" value={order?.full_name} />
         {canShowMobile ? (
@@ -201,15 +155,14 @@ console.log(res,"RESSLLLL");
         ) : null}
         <InfoRow label="Address" value={order?.address} />
         <InfoRow label="Pin Code" value={order?.pin_code} />
-        <InfoRow label="Attendees" value={order?.number_of_attendess} />
+        <InfoRow label="Guests" value={order?.number_of_attendess} />
         <InfoRow label="Comment" value={order?.comment} />
-
       </View>
 
       {normalizedStatus === 'pending' ? (
         <View style={styles.actionRow}>
           <TouchableOpacity
-            style={styles.acceptBtn}
+            style={[styles.actionButton, styles.acceptBtn]}
             onPress={() => handleAccept(order)}
             disabled={buttonLoader.loading && buttonLoader.type === 'accept'}>
             {buttonLoader.loading && buttonLoader.type === 'accept' ? (
@@ -220,7 +173,7 @@ console.log(res,"RESSLLLL");
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.rejectBtn}
+            style={[styles.actionButton, styles.rejectBtn]}
             onPress={() => handleReject(order)}
             disabled={buttonLoader.loading && buttonLoader.type === 'reject'}>
             {buttonLoader.loading && buttonLoader.type === 'reject' ? (
@@ -282,7 +235,9 @@ const SpaceOrders = ({navigation}) => {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const getBooking = async (pageNum = 1, append = false) => {
-    if (pageNum > lastPage && append) return;
+    if (pageNum > lastPage && append) {
+      return;
+    }
 
     if (append) {
       setLoadingMore(true);
@@ -306,12 +261,12 @@ const SpaceOrders = ({navigation}) => {
             setDummyOrders(apiData.data);
           }
         } else {
-          alert(res?.data?.message || 'Failed to fetch bookings');
+          showToast(res?.data?.message || 'Failed to fetch bookings', 'error');
         }
       })
       .catch(err => {
         console.error('Booking Error:', err);
-        alert('An error occurred while fetching bookings');
+        showToast('An error occurred while fetching bookings', 'error');
       })
       .finally(() => {
         setLoader(false);
@@ -324,6 +279,9 @@ const SpaceOrders = ({navigation}) => {
       setPage(1);
       getBooking(1, false);
     }
+    // getRequest is supplied by the API context and is not referentially stable.
+    // Re-running for its identity would repeatedly refetch while this screen is open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocus]);
 
   const loadMore = () => {
@@ -331,14 +289,6 @@ const SpaceOrders = ({navigation}) => {
       getBooking(page + 1, true);
     }
   };
-
-  if (loader && !loadingMore) {
-    return (
-      <View style={styles.centerView}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -358,21 +308,35 @@ const SpaceOrders = ({navigation}) => {
             showToast={showToast}
           />
         )}
-        contentContainerStyle={{padding: 15}}
+        contentContainerStyle={[
+          styles.listContent,
+          !loader && dummyOrders.length === 0 && styles.emptyListContent,
+        ]}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyView}>
-            <Text>No Order found.</Text>
-          </View>
-        )}
+        ListEmptyComponent={
+          loader ? (
+            <View style={styles.loadingView}>
+              <ActivityIndicator size="large" color={COLOR.primary} />
+              <Text style={styles.loadingText}>Loading your orders…</Text>
+            </View>
+          ) : (
+            <View style={styles.emptyView}>
+              <View style={styles.emptyIcon}>
+                <Text style={styles.emptyIconText}>⌑</Text>
+              </View>
+              <Text style={styles.emptyTitle}>No orders yet</Text>
+              <Text style={styles.emptyText}>New space bookings will appear here.</Text>
+            </View>
+          )
+        }
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={() =>
+        ListFooterComponent={
           loadingMore ? (
             <ActivityIndicator
               size="small"
               color={COLOR.primary || '#007AFF'}
-              style={{marginVertical: 15}}
+              style={styles.footerLoader}
             />
           ) : null
         }
@@ -386,100 +350,185 @@ export default SpaceOrders;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F6F7F9',
   },
-  centerView: {
+  listContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  emptyListContent: {
     flex: 1,
+  },
+  loadingView: {
+    paddingTop: 90,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: '#667085',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  footerLoader: {
+    marginVertical: 15,
   },
   emptyView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 50,
+    paddingHorizontal: 32,
+  },
+  emptyIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FCEBEC',
+    marginBottom: 14,
+  },
+  emptyIconText: {
+    color: COLOR.primary,
+    fontSize: 30,
+    fontWeight: '700',
+  },
+  emptyTitle: {
+    color: '#101828',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  emptyText: {
+    color: '#667085',
+    fontSize: 14,
+    marginTop: 6,
+    textAlign: 'center',
   },
   card: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    marginBottom: 15,
+    borderColor: '#EAECF0',
+    borderRadius: 16,
+    marginBottom: 16,
     backgroundColor: '#fff',
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 3,
+    shadowColor: '#101828',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    backgroundColor: '#f9f9f9',
+    padding: 14,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#F2F4F7',
   },
   image: {
-    width: 70,
-    height: 70,
-    borderRadius: 10,
-    backgroundColor: '#eee',
+    width: 76,
+    height: 76,
+    borderRadius: 12,
+    backgroundColor: '#F2F4F7',
+  },
+  headerContent: {
+    flex: 1,
+    marginLeft: 12,
   },
   propertyName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#101828',
+  },
+  orderId: {
+    fontSize: 12,
+    color: '#98A2B3',
+    marginTop: 3,
+  },
+  headerMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
   },
   price: {
-    fontSize: 14,
-    color: COLOR.primary || '#007AFF',
-    marginTop: 2,
-    fontWeight: '600',
+    fontSize: 16,
+    color: COLOR.primary,
+    fontWeight: '700',
+  },
+  statusBadge: {
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   status: {
-    fontSize: 13,
-    marginTop: 4,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     textTransform: 'capitalize',
   },
   details: {
-    padding: 12,
+    paddingHorizontal: 14,
+    paddingBottom: 14,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 12,
-    marginBottom: 6,
-    color: '#000',
-  },
-  label: {
     fontSize: 14,
-    marginBottom: 5,
-    color: '#444',
-    lineHeight: 20,
-  },
-  bold: {
     fontWeight: '700',
-    color: '#222',
+    marginBottom: 8,
+    color: '#344054',
+  },
+  firstSectionTitle: {
+    marginTop: 14,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingVertical: 5,
+  },
+  infoLabel: {
+    flex: 0.45,
+    fontSize: 14,
+    color: '#667085',
+  },
+  infoValue: {
+    flex: 0.55,
+    fontSize: 14,
+    color: '#101828',
+    fontWeight: '500',
+    textAlign: 'right',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F2F4F7',
+    marginVertical: 12,
   },
   actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 12,
+    padding: 14,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#F2F4F7',
+  },
+  actionButton: {
+    minHeight: 44,
+    justifyContent: 'center',
+    borderRadius: 10,
+    alignItems: 'center',
   },
   acceptBtn: {
     flex: 1,
-    marginRight: 5,
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 8,
+    marginRight: 6,
+    backgroundColor: '#198754',
+    padding: 11,
+    borderRadius: 10,
     alignItems: 'center',
   },
   rejectBtn: {
     flex: 1,
-    marginLeft: 5,
-    backgroundColor: COLOR.primary || '#d9534f',
-    padding: 10,
-    borderRadius: 8,
+    marginLeft: 6,
+    backgroundColor: COLOR.primary,
+    padding: 11,
+    borderRadius: 10,
     alignItems: 'center',
   },
   btnText: {
