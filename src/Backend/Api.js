@@ -83,6 +83,8 @@ export const useApi = () => {
 
   const getRequest = async endpoint => {
     try {
+      console.log(token,"TOKENNNNN");
+      
       const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: 'GET',
         headers: {

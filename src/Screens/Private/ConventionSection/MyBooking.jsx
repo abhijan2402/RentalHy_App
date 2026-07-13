@@ -228,11 +228,30 @@ export const BookingCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const normalizedStatus = String(booking?.order_status || '').toLowerCase();
+  const normalizedRawStatus = String(
+    booking?.order_status_raw || booking?.status || '',
+  ).toLowerCase();
   const isSuccessStatus = normalizedStatus === 'success';
   const isPendingStatus = normalizedStatus === 'pending';
   const isClosedStatus = ['cancelled', 'rejected', 'failed'].includes(
     normalizedStatus,
   );
+  const cancellationStatus = String(
+    booking?.cancel_request_status ||
+      booking?.cancellation_status ||
+      booking?.cancel_status ||
+      '',
+  ).toLowerCase();
+  const hasPendingCancellation =
+    normalizedStatus === 'offline_pending' ||
+    normalizedRawStatus === 'offline_pending' ||
+    ['pending', 'requested', 'pending_approval'].includes(cancellationStatus) ||
+    booking?.is_cancel_requested === true ||
+    booking?.is_cancel_requested === 1 ||
+    booking?.is_cancel_requested === '1' ||
+    booking?.cancel_requested === true ||
+    booking?.cancel_requested === 1 ||
+    booking?.cancel_requested === '1';
   const statusTheme = getStatusTheme(normalizedStatus);
 
   const toggleExpand = () => {
@@ -290,7 +309,9 @@ export const BookingCard = ({
             {backgroundColor: statusTheme.backgroundColor},
           ]}>
           <Text style={[styles.status, {color: statusTheme.color}]}>
-            {booking.order_status || 'Pending'}
+            {hasPendingCancellation
+              ? 'Cancellation Requested'
+              : booking.order_status || 'Pending'}
           </Text>
         </View>
       </View>
@@ -433,7 +454,15 @@ export const BookingCard = ({
         </View>
       )}
 
-      {!isClosedStatus ? (
+      {hasPendingCancellation ? (
+        <View style={styles.cancellationPendingBox}>
+          <Text style={styles.cancellationPendingText}>
+            Cancellation requested. Waiting for vendor approval.
+          </Text>
+        </View>
+      ) : null}
+
+      {!isClosedStatus && !hasPendingCancellation ? (
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={[styles.actionButton, styles.editButton]}
@@ -504,6 +533,8 @@ const MyBooking = ({navigation}) => {
             setBookings(upcomingBookings);
           }
         } else {
+          console.log(res,"EEEEEEEEEE");
+          
           showToast(res?.error || 'Failed to fetch bookings', 'error');
         }
       })
@@ -726,27 +757,36 @@ const MyBooking = ({navigation}) => {
     }
 
     setActionLoading(`reject-${bookingId}`);
-    const formData = new FormData();
-    formData.append('reason', rejectReason.trim());
     const response = await postRequest(
-      `public/api/payments/${bookingId}/reject`,
-      formData,
-      true,
+      `public/api/booking/request-cancel/${bookingId}`,
+      {cancellation_reason: rejectReason.trim()},
     );
 
     if (response.success) {
       showToast(
-        response?.data?.message || 'Booking cancelled successfully',
+        response?.data?.message ||
+          'Cancellation request submitted. Waiting for vendor approval.',
         'success',
       );
       setRejectModal({visible: false, booking: null});
       setBookings(current =>
         current.map(item =>
-          item.id === bookingId ? {...item, order_status: 'cancelled'} : item,
+          item.id === bookingId
+            ? {
+                ...item,
+                ...(response?.data?.data || {}),
+                cancellation_status: 'pending',
+                cancellation_reason: rejectReason.trim(),
+              }
+            : item,
         ),
       );
+      await getBooking(1, false);
     } else {
-      showToast(response?.error || 'Failed to cancel booking', 'error');
+      showToast(
+        response?.error || 'Failed to submit cancellation request',
+        'error',
+      );
     }
     setActionLoading('');
   };
@@ -1243,6 +1283,19 @@ const styles = StyleSheet.create({
   rejectButton: {marginLeft: 6, backgroundColor: COLOR.primary},
   editButtonText: {color: COLOR.primary, fontSize: 14, fontWeight: '700'},
   rejectButtonText: {color: '#fff', fontSize: 14, fontWeight: '700'},
+  cancellationPendingBox: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#FFF4E5',
+  },
+  cancellationPendingText: {
+    color: '#B54708',
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(16, 24, 40, 0.55)',

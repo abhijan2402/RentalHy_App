@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Calendar } from 'react-native-calendars';
 import Header from '../../../Components/FeedHeader';
 import { COLOR } from '../../../Constants/Colors';
@@ -17,6 +17,21 @@ import RazorpayCheckout from 'react-native-razorpay';
 
 const ADVANCE_PAYMENT_MESSAGE =
   '⚠️ Your booking is not confirmed until the advance payment is successfully made to the vendor. Please contact the number above to proceed with the payment and secure your booking';
+
+const FARM_AMOUNT_FIELDS = {
+  day: ['day_visit_price'],
+  night: ['night_visit_price'],
+  full_day: ['full_day_price', '24_hours_visit_price'],
+};
+
+const normalizeAmount = value => {
+  if (value === null || value === undefined || value === '') {
+    return '';
+  }
+
+  const numericValue = String(value).replace(/[^0-9.]/g, '');
+  return numericValue && !Number.isNaN(Number(numericValue)) ? numericValue : '';
+};
 
 const Booking = ({ navigation, route }) => {
   const { postRequest, getRequest } = useApi();
@@ -40,9 +55,77 @@ const Booking = ({ navigation, route }) => {
   const [comments, setComments] = useState('');
   const [disabledSlots, setDisabledSlots] = useState([]);
   const [allDates, setAllDates] = useState({});
+  const [selectedPackageIndex, setSelectedPackageIndex] = useState(null);
 
   const today = new Date().toISOString().split('T')[0];
   const [additionalAmount, setadditionalAmount] = useState(0);
+
+  const isFarmBooking = useMemo(() => {
+    const bookingType = String(
+      bookingData?.hall_type || bookingData?.type || route?.params?.semiType || '',
+    ).toLowerCase();
+
+    return (
+      bookingType === 'farm' ||
+      bookingType === 'farmhouse' ||
+      bookingType === 'farm_house' ||
+      !!bookingData?.day_visit_price ||
+      !!bookingData?.night_visit_price ||
+      !!bookingData?.full_day_price ||
+      !!bookingData?.['24_hours_visit_price']
+    );
+  }, [bookingData, route?.params?.semiType]);
+
+  const autoAmount = useMemo(() => {
+    if (!isFarmBooking) {
+      return '';
+    }
+
+    const fields = FARM_AMOUNT_FIELDS[dayTime] || [];
+    return (
+      fields
+        .map(field => normalizeAmount(bookingData?.[field]))
+        .find(Boolean) || ''
+    );
+  }, [bookingData, dayTime, isFarmBooking]);
+
+  const availablePackages = useMemo(() => {
+    let packages = bookingData?.packages;
+
+    if (typeof packages === 'string') {
+      try {
+        packages = JSON.parse(packages);
+      } catch (error) {
+        packages = [];
+      }
+    }
+
+    return Array.isArray(packages)
+      ? packages.filter(
+          item =>
+            item?.is_active !== false &&
+            item?.is_active !== 0 &&
+            item?.is_active !== '0',
+        )
+      : [];
+  }, [bookingData?.packages]);
+
+  const selectedPackage =
+    selectedPackageIndex === null
+      ? null
+      : availablePackages[selectedPackageIndex];
+
+  const getPackageAmount = item =>
+    normalizeAmount(item?.final_price ?? item?.price);
+
+  const handlePackageSelect = (item, index) => {
+    setSelectedPackageIndex(index);
+
+    const packageAmount = getPackageAmount(item);
+    if (packageAmount) {
+      setAmount(packageAmount);
+    }
+  };
 
   const parseDates = dates => {
     if (!dates) return {};
@@ -165,6 +248,12 @@ const Booking = ({ navigation, route }) => {
       showToast('Please fill all required fields.', 'error');
       return;
     }
+console.log("HIIII");
+
+    if (availablePackages.length && !selectedPackage) {
+      showToast('Please select a package.', 'error');
+      return;
+    }
 
     const restrictedSlots = getRestrictedSlotsForSelectedDate(selectedDate);
     if (isSlotRestricted(dayTime, restrictedSlots)) {
@@ -195,6 +284,13 @@ const Booking = ({ navigation, route }) => {
     if (address?.lat) formData.append('lat', address?.lat);
     if (address?.lng) formData.append('lng', address?.lng);
     formData.append('payment_method', "offline");
+    if (selectedPackage) {
+      formData.append(
+        'package_data[name]',
+        selectedPackage?.package_name || selectedPackage?.name || '',
+      );
+    }
+console.log(formData,"FORMMMM");
 
 
     try {
@@ -218,6 +314,8 @@ const Booking = ({ navigation, route }) => {
         showToast('Booking failed. Please try again.', 'error');
       }
     } catch (err) {
+      console.log(err,"EERRR");
+      
       setButtonLoader(false);
       console.error('Booking API error:', err);
       showToast('An error occurred. Please try again.', 'error');
@@ -306,6 +404,12 @@ const Booking = ({ navigation, route }) => {
     fetchHallTimings(propertyData);
   }, [propertyData]);
 
+  useEffect(() => {
+    if (isFarmBooking) {
+      setAmount(autoAmount);
+    }
+  }, [autoAmount, isFarmBooking]);
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <Header
@@ -358,13 +462,73 @@ const Booking = ({ navigation, route }) => {
         <View style={styles.section}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
-            style={styles.input}
-            placeholder="Enter amount"
+            style={[
+              styles.input,
+              autoAmount || selectedPackage ? styles.readOnlyInput : null,
+            ]}
+            placeholder={
+              autoAmount || selectedPackage
+                ? 'Amount auto filled'
+                : 'Enter amount'
+            }
             value={amount}
             onChangeText={setAmount}
             keyboardType="numeric"
+            editable={!autoAmount && !selectedPackage}
           />
         </View>
+
+        {!!availablePackages.length && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Select Package</Text>
+            {availablePackages.map((item, index) => {
+              const isSelected = selectedPackageIndex === index;
+              const packageAmount = getPackageAmount(item);
+              const services = Array.isArray(item?.services)
+                ? item.services.filter(Boolean)
+                : [];
+
+              return (
+                <TouchableOpacity
+                  key={item?.id ? String(item.id) : `package-${index}`}
+                  style={[
+                    styles.packageOption,
+                    isSelected && styles.selectedPackageOption,
+                  ]}
+                  onPress={() => handlePackageSelect(item, index)}>
+                  <View style={styles.packageTitleRow}>
+                    <Text style={styles.packageTitle}>
+                      {item?.package_name || item?.name || `Package ${index + 1}`}
+                    </Text>
+                    <View
+                      style={[
+                        styles.radioOuter,
+                        isSelected && styles.selectedRadioOuter,
+                      ]}>
+                      {isSelected && <View style={styles.radioInner} />}
+                    </View>
+                  </View>
+                  {!!packageAmount && (
+                    <Text style={styles.packagePrice}>₹{packageAmount}</Text>
+                  )}
+                  {!!item?.max_people && (
+                    <Text style={styles.packageDetail}>
+                      Up to {item.max_people} people
+                    </Text>
+                  )}
+                  {!!item?.description && (
+                    <Text style={styles.packageDetail}>{item.description}</Text>
+                  )}
+                  {!!services.length && (
+                    <Text style={styles.packageDetail}>
+                      Includes: {services.join(', ')}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         {/* Address */}
         <View style={styles.section}>
@@ -522,6 +686,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     backgroundColor: '#fafafa',
   },
+  readOnlyInput: {
+    backgroundColor: '#f1f5f9',
+    color: '#111827',
+  },
   dateBox: {
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -552,4 +720,46 @@ const styles = StyleSheet.create({
     borderColor: COLOR.primary || '#007AFF',
   },
   toggleText: { fontSize: 14, color: '#333' },
+  packageOption: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+    backgroundColor: '#fafafa',
+  },
+  selectedPackageOption: {
+    borderColor: COLOR.primary || '#007AFF',
+    backgroundColor: '#f0f7ff',
+  },
+  packageTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  packageTitle: { flex: 1, fontSize: 16, fontWeight: '700', color: '#222' },
+  packagePrice: {
+    marginTop: 6,
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLOR.primary || '#007AFF',
+  },
+  packageDetail: { marginTop: 5, fontSize: 13, color: '#666' },
+  radioOuter: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#aaa',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+  selectedRadioOuter: { borderColor: COLOR.primary || '#007AFF' },
+  radioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: COLOR.primary || '#007AFF',
+  },
 });

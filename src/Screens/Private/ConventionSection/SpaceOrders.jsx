@@ -39,10 +39,43 @@ const getStatusStyle = status => {
   return {backgroundColor: '#FFF4E5', color: '#B54708'};
 };
 
-const OrderCard = ({order, postRequest, showToast}) => {
+const hasPendingCancellationRequest = (order, normalizedStatus) => {
+  const normalizedRawStatus = String(order?.order_status_raw || '').toLowerCase();
+  const cancellationStatus = String(
+    order?.cancel_request_status ||
+      order?.cancellation_status ||
+      order?.cancel_status ||
+      '',
+  ).toLowerCase();
+
+  const requestFlag =
+    order?.is_cancel_requested ??
+    order?.cancel_requested ??
+    order?.cancellation_requested;
+
+  return (
+    normalizedStatus === 'offline_pending' ||
+    normalizedRawStatus === 'offline_pending' ||
+    requestFlag === true ||
+    requestFlag === 1 ||
+    requestFlag === '1' ||
+    ['pending', 'requested', 'pending_approval'].includes(cancellationStatus) ||
+    (normalizedStatus.includes('cancel') &&
+      (normalizedStatus.includes('request') ||
+        normalizedStatus.includes('pending'))) ||
+    (['accepted', 'success'].includes(normalizedStatus) &&
+      Boolean(order?.reject_reason || order?.cancellation_reason))
+  );
+};
+
+const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
   const [status, setStatus] = useState(order.order_status || order.status);
   const normalizedStatus = String(status || '').toLowerCase();
   const statusStyle = getStatusStyle(normalizedStatus);
+  const hasCancellationRequest = hasPendingCancellationRequest(
+    order,
+    normalizedStatus,
+  );
   const canShowMobile =
     normalizedStatus === 'success' || normalizedStatus === 'accepted';
   const [buttonLoader, setButtonLoader] = useState({
@@ -58,6 +91,36 @@ const OrderCard = ({order, postRequest, showToast}) => {
   const [rejectReason, setRejectReason] = useState('');
 
   const hall = order?.convention_hall;
+
+  useEffect(() => {
+    setStatus(order.order_status || order.status);
+  }, [order.order_status, order.status]);
+
+  const handleCancellationRequest = async action => {
+    setButtonLoader({type: `cancel-${action}`, loading: true});
+
+    const res = await postRequest(
+      `public/api/booking/${action}-cancel/${order.id}`,
+    );
+
+    if (res?.success && res?.data?.success !== false) {
+      showToast(
+        res?.data?.message ||
+          `Cancellation ${action === 'approve' ? 'approved' : 'rejected'} successfully`,
+        'success',
+      );
+      await onOrderUpdated?.();
+    } else {
+      showToast(
+        res?.error ||
+          res?.data?.message ||
+          `Failed to ${action} cancellation`,
+        'error',
+      );
+    }
+
+    setButtonLoader({type: `cancel-${action}`, loading: false});
+  };
 
   const handleAccept = async orderData => {
     setButtonLoader({type: 'accept', loading: true});
@@ -157,9 +220,46 @@ const OrderCard = ({order, postRequest, showToast}) => {
         <InfoRow label="Pin Code" value={order?.pin_code} />
         <InfoRow label="Guests" value={order?.number_of_attendess} />
         <InfoRow label="Comment" value={order?.comment} />
+        <InfoRow
+          label="Cancellation reason"
+          value={order?.cancellation_reason || order?.reject_reason}
+        />
       </View>
 
-      {normalizedStatus === 'pending' ? (
+      {hasCancellationRequest ? (
+        <View style={styles.cancellationRequestBox}>
+          <Text style={styles.cancellationRequestTitle}>
+            Cancellation requested
+          </Text>
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.acceptBtn]}
+              onPress={() => handleCancellationRequest('approve')}
+              disabled={buttonLoader.loading}>
+              {buttonLoader.loading &&
+              buttonLoader.type === 'cancel-approve' ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.btnText}>Approve cancellation</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.actionButton, styles.rejectBtn]}
+              onPress={() => handleCancellationRequest('reject')}
+              disabled={buttonLoader.loading}>
+              {buttonLoader.loading &&
+              buttonLoader.type === 'cancel-reject' ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.btnText}>Reject cancellation</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
+
+      {normalizedStatus === 'pending' && !hasCancellationRequest ? (
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={[styles.actionButton, styles.acceptBtn]}
@@ -306,6 +406,7 @@ const SpaceOrders = ({navigation}) => {
             order={item}
             postRequest={postRequest}
             showToast={showToast}
+            onOrderUpdated={() => getBooking(1, false)}
           />
         )}
         contentContainerStyle={[
@@ -372,6 +473,18 @@ const styles = StyleSheet.create({
   },
   footerLoader: {
     marginVertical: 15,
+  },
+  cancellationRequestBox: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#E4E7EC',
+    paddingTop: 14,
+  },
+  cancellationRequestTitle: {
+    marginHorizontal: 16,
+    marginBottom: 10,
+    color: '#B54708',
+    fontSize: 14,
+    fontWeight: '700',
   },
   emptyView: {
     flex: 1,

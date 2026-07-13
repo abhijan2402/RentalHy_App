@@ -2,27 +2,54 @@ import { View } from 'react-native';
 import React from 'react';
 import AmedSection from './AmedSection';
 
+const amenityIconRules = [
+  {words: ['ac', 'air conditioning'], icon: '❄️'},
+  {words: ['alcohol', 'bar'], icon: '🍸'},
+  {words: ['area', 'sq ft'], icon: '📐'},
+  {words: ['banquet'], icon: '🏛️'},
+  {words: ['breakfast'], icon: '🥣'},
+  {words: ['cafeteria', 'cafe'], icon: '☕'},
+  {words: ['camera', 'photo', 'video'], icon: '📷'},
+  {words: ['capacity', 'person', 'guest'], icon: '👥'},
+  {words: ['catering', 'food', 'restaurant'], icon: '🍽️'},
+  {words: ['cctv', 'security', 'guard'], icon: '🛡️'},
+  {words: ['charge', 'pay', 'price'], icon: '💳'},
+  {words: ['child', 'kid'], icon: '🧒'},
+  {words: ['corporate', 'meeting', 'conference'], icon: '💼'},
+  {words: ['decoration', 'decorator'], icon: '🎀'},
+  {words: ['duration', '24-hour', '24 hours', 'reception'], icon: '🕐'},
+  {words: ['elevator', 'lift'], icon: '🛗'},
+  {words: ['free cancellation'], icon: '↩️'},
+  {words: ['game', 'playground', 'play ground'], icon: '🎮'},
+  {words: ['generator'], icon: '⚡'},
+  {words: ['gym', 'fitness'], icon: '🏋️'},
+  {words: ['kitchen'], icon: '🍳'},
+  {words: ['music', 'sound', 'dj'], icon: '🎵'},
+  {words: ['parking', 'valet'], icon: '🅿️'},
+  {words: ['pet'], icon: '🐾'},
+  {words: ['pool', 'swimming'], icon: '🏊'},
+  {words: ['refrigerator', 'fridge'], icon: '🧊'},
+  {words: ['spa', 'wellness'], icon: '💆'},
+  {words: ['tv', 'television'], icon: '📺'},
+  {words: ['water'], icon: '💧'},
+  {words: ['wheelchair', 'wheel chair'], icon: '♿'},
+  {words: ['wifi'], icon: '📶'},
+];
+
 const getFieldIcon = label => {
   const name = label.toLowerCase();
-  if (name.includes('price') || name.includes('charge')) return '💳';
-  if (name.includes('parking')) return '🅿️';
-  if (name.includes('water')) return '💧';
-  if (name.includes('food') || name.includes('catering')) return '🍽️';
-  if (name.includes('pool')) return '🏊';
-  if (name.includes('security') || name.includes('cctv')) return '🛡️';
-  if (name.includes('wifi')) return '📶';
-  if (name.includes('capacity') || name.includes('person')) return '👥';
-  if (name.includes('area')) return '📐';
-  if (name.includes('duration')) return '🕐';
-  if (name.includes('game')) return '🎮';
-  if (name.includes('kitchen')) return '🍳';
-  if (name.includes('music') || name.includes('sound')) return '🎵';
-  return '✨';
+  return (
+    amenityIconRules.find(({words}) =>
+      words.some(word => name.includes(word)),
+    )?.icon || '✨'
+  );
 };
 
 const ConventionAmed = ({ AllData }) => {
   const parseDates = dates => {
-    if (!dates) return {};
+    if (!dates) {
+      return {};
+    }
 
     if (typeof dates === 'string') {
       try {
@@ -40,7 +67,9 @@ const ConventionAmed = ({ AllData }) => {
   };
 
   const addUnavailableValue = (dates, date, value) => {
-    if (!isDateKey(date) || !value) return;
+    if (!isDateKey(date) || !value) {
+      return;
+    }
 
     const existingValues = dates[date]
       ? String(dates[date]).split(',').map(item => item.trim()).filter(Boolean)
@@ -87,7 +116,7 @@ const ConventionAmed = ({ AllData }) => {
 
     return Object.entries(unavailableDates);
   };
-  
+
   const booleanFields = {
     ac_available: 'AC Available',
     royalty_decoration: 'Royalty Decoration',
@@ -230,6 +259,30 @@ const ConventionAmed = ({ AllData }) => {
     return value;
   };
 
+  const normalizeList = value => {
+    if (!value) {
+      return [];
+    }
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      try {
+        const parsedValue = JSON.parse(value);
+        return Array.isArray(parsedValue) ? parsedValue : [value];
+      } catch (error) {
+        return value
+          .split(',')
+          .map(item => item.trim())
+          .filter(Boolean);
+      }
+    }
+
+    return [];
+  };
+
   const hasDisplayValue = value =>
     formatValue(value) !== undefined &&
     formatValue(value) !== null &&
@@ -294,7 +347,9 @@ const ConventionAmed = ({ AllData }) => {
       return true;
     });
 
-    if (validFields.length === 0) return null;
+    if (validFields.length === 0) {
+      return null;
+    }
 
     const data = validFields.map(({ key, label }) => {
       const value = formatValue(AllData?.[key]);
@@ -329,10 +384,65 @@ const ConventionAmed = ({ AllData }) => {
     return <AmedSection title={title} icon={sectionIcons[title]} data={data} />;
   };
 
+  const renderOtherAmenities = () => {
+    const customAmenities = normalizeList(AllData?.other_amenities)
+      .map(item => (typeof item === 'string' ? item : item?.name))
+      .filter(Boolean);
+
+    if (!customAmenities.length) {
+      return null;
+    }
+
+    return (
+      <AmedSection
+        title="Other Amenities"
+        icon="🧩"
+        data={customAmenities.map(item => ({
+          icon: getFieldIcon(item),
+          label: item,
+          value: 'Yes',
+        }))}
+      />
+    );
+  };
+
+  const renderAddOnServices = () => {
+    const addOns = normalizeList(AllData?.add_on_services)
+      .map(item => {
+        if (typeof item === 'string') {
+          return {name: item, price: ''};
+        }
+
+        return {
+          name: item?.name || item?.service_name,
+          price: item?.price || item?.amount,
+        };
+      })
+      .filter(item => item.name);
+
+    if (!addOns.length) {
+      return null;
+    }
+
+    return (
+      <AmedSection
+        title="Add-On Services"
+        icon="🧾"
+        data={addOns.map(item => ({
+          icon: getFieldIcon(item.name),
+          label: item.name,
+          value: item.price ? `₹${item.price}` : 'Available',
+        }))}
+      />
+    );
+  };
+
   const renderDateTable = () => {
     const dateEntries = getUnavailableDateEntries();
 
-    if (dateEntries.length === 0) return null;
+    if (dateEntries.length === 0) {
+      return null;
+    }
 
     const unavailableDates = dateEntries
       .map(([date, value]) => {
@@ -406,6 +516,8 @@ const ConventionAmed = ({ AllData }) => {
   return (
     <View>
       {renderTable('Amenities', amenityFields)}
+      {renderOtherAmenities()}
+      {renderAddOnServices()}
       {renderTable('Prices', priceFields)}
       {renderTable('Durations', durationFields)}
       {renderTable('Availability', capacityFields)}

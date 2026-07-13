@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {
-  StyleSheet,
   PermissionsAndroid,
   Platform,
 } from 'react-native';
@@ -13,6 +12,7 @@ import {
   flushPendingNavigation,
   navigationRef,
 } from './src/navigators/navigationService';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
   requestNotifeePermission,
@@ -106,28 +106,18 @@ const App = () => {
   }, []);
 
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={flushPendingNavigation}>
-          <MainNavigation />
-        </NavigationContainer>
-      </AuthProvider>
-    </LanguageProvider>
+    <SafeAreaProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <NavigationContainer
+            ref={navigationRef}
+            onReady={flushPendingNavigation}>
+            <MainNavigation />
+          </NavigationContainer>
+        </AuthProvider>
+      </LanguageProvider>
+    </SafeAreaProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: 'red',
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 export default App;

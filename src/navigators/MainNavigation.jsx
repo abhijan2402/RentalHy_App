@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   View,
   ActivityIndicator,
   PermissionsAndroid,
   Platform,
-  Alert,
 } from 'react-native';
 import { AuthContext } from '../Backend/AuthContent';
 import RootNavigation from './RootNavigation';
@@ -15,17 +14,33 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MainNavigation = () => {
   const auth = useContext(AuthContext);
-  const { currentStatus } = useContext(AuthContext);
+  const currentStatus = auth?.currentStatus;
 
-  if (!auth) {
-    console.error('AuthContext not found');
-    return null;
-  }
+  const { user, loading } = auth || {};
+  const [, setLocationStatus] = useState('Checking location...');
 
-  const { user, loading } = auth;
-  const [locationStatus, setLocationStatus] = useState('Checking location...');
+  const getCurrentLocation = useCallback(() => {
+    Geolocation.getCurrentPosition(
+      position => {
+        console.log('POS:', position);
+        // Alert.alert(JSON.stringify(position));
+        setLocationStatus(
+          `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
+        );
+      },
+      error => {
+        console.log('Location error:', error);
+        setLocationStatus('Failed to fetch location.');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000,
+      },
+    );
+  }, []);
 
-  const requestPermission = async () => {
+  const requestPermission = useCallback(async () => {
     if (Platform.OS === 'android') {
       try {
         const granted = await PermissionsAndroid.request(
@@ -53,7 +68,7 @@ const MainNavigation = () => {
     } else {
       setLocationStatus('Unsupported platform.');
     }
-  };
+  }, [getCurrentLocation]);
 
   // const getCurrentLocation = () => {
   //   navigator.geolocation.getCurrentPosition(
@@ -75,30 +90,14 @@ const MainNavigation = () => {
   //   );
   // };
 
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        console.log('POS:', position);
-        // Alert.alert(JSON.stringify(position));
-        setLocationStatus(
-          `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
-        );
-      },
-      error => {
-        console.log('Location error:', error);
-        setLocationStatus('Failed to fetch location.');
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000,
-      },
-    );
-  };
-
   useEffect(() => {
     requestPermission();
-  }, []);
+  }, [requestPermission]);
+
+  if (!auth) {
+    console.error('AuthContext not found');
+    return null;
+  }
 
   if (loading) {
     return (

@@ -279,6 +279,81 @@ const PropertyDetail = ({ navigation, route }) => {
     ['convention', 'hotel', 'farm', 'resort'].includes(type) || !!semiType;
   const vendorPhoneNumber =
     AllData?.phone_number || AllData?.user?.phone_number || AllData?.contact_number;
+  const isResortDetail = semiType === 'resort' || type === 'resort';
+  const resortPackages =
+    isResortDetail && Array.isArray(AllData?.packages)
+      ? AllData.packages.filter(
+        item =>
+          item?.is_active !== false &&
+          item?.is_active !== 0 &&
+          item?.is_active !== '0',
+      )
+      : [];
+
+  const getPackageImage = item => {
+    const firstImage = Array.isArray(item?.images)
+      ? item.images.find(image => image?.image_url || image?.uri)
+      : null;
+
+    return item?.primary_image || firstImage?.image_url || firstImage?.uri;
+  };
+
+  const getPackagePrice = item =>
+    item?.formatted_final_price ||
+    item?.formatted_price ||
+    (item?.final_price ? `₹${item.final_price}` : item?.price ? `₹${item.price}` : '');
+
+  const renderResortPackage = ({item}) => {
+    const packageImage = getPackageImage(item);
+    const packagePrice = getPackagePrice(item);
+    const visibleServices = Array.isArray(item?.services)
+      ? item.services.filter(Boolean).slice(0, 3)
+      : [];
+
+    return (
+      <View style={styles.packageCard}>
+        {packageImage ? (
+          <Image source={{uri: packageImage}} style={styles.packageImage} />
+        ) : (
+          <View style={styles.packageImagePlaceholder}>
+            <Text style={styles.packageImagePlaceholderText}>No Image</Text>
+          </View>
+        )}
+        <View style={styles.packageContent}>
+          <Text style={styles.packageTitle} numberOfLines={1}>
+            {item?.package_name || item?.name || 'Resort Package'}
+          </Text>
+          {!!item?.description && (
+            <Text style={styles.packageDescription} numberOfLines={2}>
+              {item.description}
+            </Text>
+          )}
+          <View style={styles.packageMetaRow}>
+            {!!packagePrice && (
+              <Text style={styles.packagePrice}>{packagePrice}</Text>
+            )}
+            {!!item?.gst && (
+              <Text style={styles.packageGst}>{item.gst}% GST</Text>
+            )}
+          </View>
+          {!!item?.max_people && (
+            <Text style={styles.packageCapacity}>
+              Up to {item.max_people} people
+            </Text>
+          )}
+          {!!visibleServices.length && (
+            <View style={styles.packageChipRow}>
+              {visibleServices.map((service, index) => (
+                <Text key={`${service}-${index}`} style={styles.packageChip} numberOfLines={1}>
+                  {service}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -392,6 +467,26 @@ const PropertyDetail = ({ navigation, route }) => {
                 <Text style={styles.TagStyle}>Featured</Text>
               )}
             </View>
+            {!!resortPackages.length && (
+              <View style={styles.packageSection}>
+                <View style={styles.packageHeaderRow}>
+                  <Text style={styles.packageSectionTitle}>Packages</Text>
+                  <Text style={styles.packageCount}>
+                    {resortPackages.length} available
+                  </Text>
+                </View>
+                <FlatList
+                  data={resortPackages}
+                  horizontal
+                  keyExtractor={(item, index) =>
+                    item?.id ? String(item.id) : `package-${index}`
+                  }
+                  renderItem={renderResortPackage}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.packageListContent}
+                />
+              </View>
+            )}
             {!shouldHideVendorContact && vendorPhoneNumber ? (
               <View style={styles.contactContainer}>
                 <Text style={styles.contactTitle}>Contact Options</Text>
@@ -489,10 +584,7 @@ const PropertyDetail = ({ navigation, route }) => {
                 </View>
               </View>
             )}
-            {
-              console.log(AllData,"ALLL___TTTT",type)
-              
-            }
+           
             {!isConventionLike && type !== 'hostel' && type !== 'hotel' && (
               <PropertyAmed AllData={AllData} />
             )}
@@ -756,6 +848,125 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 5,
     fontSize: 11,
+  },
+  packageSection: {
+    marginTop: 4,
+    marginBottom: 18,
+  },
+  packageHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  packageSectionTitle: {
+    fontSize: 18,
+    color: '#1f2329',
+    fontWeight: '700',
+  },
+  packageCount: {
+    fontSize: 12,
+    color: '#626975',
+    fontWeight: '600',
+  },
+  packageListContent: {
+    paddingRight: 10,
+  },
+  packageCard: {
+    width: windowWidth * 0.76,
+    maxWidth: 310,
+    minHeight: 264,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginRight: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#eceff3',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: {width: 0, height: 3},
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  packageImage: {
+    width: '100%',
+    height: 126,
+    backgroundColor: '#eef1f5',
+  },
+  packageImagePlaceholder: {
+    width: '100%',
+    height: 126,
+    backgroundColor: '#eef1f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  packageImagePlaceholderText: {
+    fontSize: 13,
+    color: '#7b8491',
+    fontWeight: '600',
+  },
+  packageContent: {
+    padding: 12,
+  },
+  packageTitle: {
+    fontSize: 16,
+    color: '#1f2329',
+    fontWeight: '700',
+    marginBottom: 5,
+  },
+  packageDescription: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: '#626975',
+    marginBottom: 8,
+  },
+  packageMetaRow: {
+    minHeight: 26,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  packagePrice: {
+    flex: 1,
+    fontSize: 17,
+    color: COLOR.primary,
+    fontWeight: '800',
+    marginRight: 8,
+  },
+  packageGst: {
+    fontSize: 11,
+    color: '#526070',
+    fontWeight: '700',
+    backgroundColor: '#f4f6f8',
+    borderRadius: 10,
+    overflow: 'hidden',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  packageCapacity: {
+    fontSize: 12,
+    color: '#303641',
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  packageChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 1,
+  },
+  packageChip: {
+    maxWidth: '100%',
+    fontSize: 11,
+    color: COLOR.primary,
+    fontWeight: '700',
+    backgroundColor: '#fff2f2',
+    borderRadius: 10,
+    overflow: 'hidden',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginRight: 6,
+    marginBottom: 6,
   },
 
   questionContainer: {

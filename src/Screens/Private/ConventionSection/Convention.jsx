@@ -1313,6 +1313,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: COLOR.black,
   },
   cardDesc: {
     fontSize: 14,

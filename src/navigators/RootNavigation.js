@@ -1,4 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomNavigation from './BottomNavigation';
 import PropertyDetail from '../Screens/Private/Dashboard/PropertyDetail';
 import Cms from '../Components/Cms';
@@ -38,13 +40,23 @@ import VendorManagement from '../Screens/Private/Account/VendorManagement';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
+    const insets = useSafeAreaInsets();
+    const bottomInset = Math.max(
+        insets.bottom,
+        Platform.OS === 'android' ? 24 : 0,
+    );
+
     return (
         <>
             <Stack.Navigator
                 initialRouteName="BottomNavigation"
-                screenOptions={{
+                screenOptions={({ route }) => ({
                     headerShown: false,
-                }}>
+                    contentStyle:
+                        route.name === 'BottomNavigation'
+                            ? undefined
+                            : { paddingBottom: bottomInset },
+                })}>
                 <Stack.Screen name="BottomNavigation" component={BottomNavigation} />
                 <Stack.Screen name="Cms" component={Cms} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />

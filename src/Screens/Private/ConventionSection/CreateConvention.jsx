@@ -766,6 +766,7 @@ const CreateConvention = ({navigation, route}) => {
         : `public/api/hall_add/${url}`;
 
       const response = await postRequest(apiUrl, formData, true);
+console.log(response,"RESSSPPP");
 
       if (response?.data?.success === true) {
         showToast(response?.data?.message, 'success');
@@ -1520,7 +1521,11 @@ const CreateConvention = ({navigation, route}) => {
                                   : [...item.services, service],
                               )
                             }>
-                            <Text style={selected && styles.selectedText}>
+                            <Text
+                              style={[
+                                styles.chipText,
+                                selected && styles.selectedText,
+                              ]}>
                               {service}
                             </Text>
                           </TouchableOpacity>
@@ -1578,7 +1583,7 @@ const CreateConvention = ({navigation, route}) => {
               {addOns.map((item, index) => (
                 <View key={index} style={styles.dynamicRow}>
                   <TextInput
-                    style={[styles.input, {marginRight: 8}]}
+                    style={[styles.input, styles.addOnNameInput]}
                     value={item.name}
                     editable={index >= defaultAddOns.length}
                     onChangeText={value =>
@@ -1592,7 +1597,7 @@ const CreateConvention = ({navigation, route}) => {
                     placeholderTextColor={COLOR.grey}
                   />
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, styles.addOnPriceInput]}
                     value={item.price}
                     onChangeText={value =>
                       setAddOns(current =>
@@ -1974,6 +1979,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  addOnNameInput: {
+    flex: 2,
+    marginRight: 8,
+    fontSize: 12,
+  },
+  addOnPriceInput: {flex: 1},
   plusButton: {
     width: 40,
     height: 40,
@@ -2010,6 +2021,7 @@ const styles = StyleSheet.create({
     marginRight: 7,
     marginBottom: 7,
   },
+  chipText: {color: '#172033', fontWeight: '600'},
   selectedChip: {
     backgroundColor: COLOR.primary || '#007AFF',
     borderColor: COLOR.primary || '#007AFF',

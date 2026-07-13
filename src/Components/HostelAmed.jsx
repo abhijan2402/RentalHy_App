@@ -83,7 +83,7 @@ const HostelAmed = ({ AllData }) => {
 
       <AmedSection title="General Information" icon="🏠" data={generalInfo} />
       <AmedSection title="Room Prices" icon="💳" data={priceInfo} />
-      <AmedSection title="Stay Packages" icon="🗓️" data={stayInfo} />
+      <AmedSection title="Dormantory Package" icon="🗓️" data={stayInfo} />
       <AmedSection title="Facilities" icon="✨" data={facilityInfo} />
       <AmedSection title="Meals Available" icon="🍽️" data={mealInfo} />
       <AmedSection title="Meal Timings" icon="🕐" data={mealTiming} />
