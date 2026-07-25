@@ -27,8 +27,8 @@ const vendorOptions = [
   },
   {
     id: 18,
-    title: 'Convention/Hall Orders',
-    description: 'Review convention and hall orders',
+    title: 'Booking Orders',
+    description: 'Review booking orders',
     icon: 'https://cdn-icons-png.flaticon.com/128/9752/9752284.png',
     navigate: 'SpaceOrders',
   },

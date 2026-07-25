@@ -29,6 +29,42 @@ const InfoRow = ({label, value}) => {
   );
 };
 
+const getFirstValue = (...values) =>
+  values.find(value => value !== null && value !== undefined && value !== '');
+
+const formatBookingCreatedAt = value => {
+  if (!value) {
+    return null;
+  }
+
+  const date = moment(value, ['YYYY-MM-DD HH:mm:ss', moment.ISO_8601], true);
+  return date.isValid() ? date.format('DD MMM YYYY, hh:mm A') : value;
+};
+
+const formatBookingDate = value => {
+  if (!value) {
+    return null;
+  }
+
+  const date = moment(value, ['YYYY-MM-DD', 'DD/MM/YYYY'], true);
+  return date.isValid() ? date.format('DD MMM YYYY') : value;
+};
+
+const formatEventTime = value => {
+  if (!value) {
+    return null;
+  }
+
+  const normalizedValue = String(value);
+  if (/^\d{2}:\d{2}(:\d{2})?$/.test(normalizedValue)) {
+    return moment(normalizedValue, ['HH:mm', 'HH:mm:ss']).format('hh:mm A');
+  }
+
+  return normalizedValue
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, letter => letter.toUpperCase());
+};
+
 const getStatusStyle = status => {
   if (status === 'accepted' || status === 'success') {
     return {backgroundColor: '#E8F7EE', color: '#167A3E'};
@@ -40,7 +76,6 @@ const getStatusStyle = status => {
 };
 
 const hasPendingCancellationRequest = (order, normalizedStatus) => {
-  const normalizedRawStatus = String(order?.order_status_raw || '').toLowerCase();
   const cancellationStatus = String(
     order?.cancel_request_status ||
       order?.cancellation_status ||
@@ -54,8 +89,6 @@ const hasPendingCancellationRequest = (order, normalizedStatus) => {
     order?.cancellation_requested;
 
   return (
-    normalizedStatus === 'offline_pending' ||
-    normalizedRawStatus === 'offline_pending' ||
     requestFlag === true ||
     requestFlag === 1 ||
     requestFlag === '1' ||
@@ -76,8 +109,9 @@ const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
     order,
     normalizedStatus,
   );
-  const canShowMobile =
-    normalizedStatus === 'success' || normalizedStatus === 'accepted';
+  const isPendingStatus = ['pending', 'offline_pending'].includes(
+    normalizedStatus,
+  );
   const [buttonLoader, setButtonLoader] = useState({
     type: 'accept',
     loading: false,
@@ -90,7 +124,7 @@ const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
 
   const [rejectReason, setRejectReason] = useState('');
 
-  const hall = order?.convention_hall;
+  const hall = order?.property || order?.convention_hall;
 
   useEffect(() => {
     setStatus(order.order_status || order.status);
@@ -177,7 +211,11 @@ const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
       <View style={styles.cardHeader}>
         <Image
           source={{
-            uri: hall?.type_images?.[0]?.image_url || hall?.image_url || '',
+            uri:
+              hall?.type_images?.[0]?.image_url ||
+              hall?.images?.[0]?.image_url ||
+              hall?.image_url ||
+              '',
           }}
           style={styles.image}
         />
@@ -186,10 +224,12 @@ const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
           <Text style={styles.propertyName}>{hall?.title || 'N/A'}</Text>
           <Text style={styles.orderId}>Order #{order?.id || '—'}</Text>
           <View style={styles.headerMeta}>
-            <Text style={styles.price}>₹{order?.amount || '0.00'}</Text>
+            <Text style={styles.price}>
+              ₹{getFirstValue(order?.total_amount, order?.amount, '0.00')}
+            </Text>
             <View style={[styles.statusBadge, {backgroundColor: statusStyle.backgroundColor}]}>
               <Text style={[styles.status, {color: statusStyle.color}]}>
-                {status || 'Pending'}
+                {order?.order_status_text || status || 'Pending'}
               </Text>
             </View>
           </View>
@@ -198,27 +238,56 @@ const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
 
       <View style={styles.details}>
         <Text style={[styles.sectionTitle, styles.firstSectionTitle]}>Booking details</Text>
-        <InfoRow label="Payment Mode" value={order?.payment_mode} />
-        <InfoRow label="Booking Date" value={order?.booking_date} />
-        <InfoRow label="Event Time" value={order?.event_time} />
         <InfoRow
-          label="Ordered On"
-          value={order?.created_at ? moment(order.created_at).format('DD MMM YYYY') : null}
+          label="Amount"
+          value={`₹${getFirstValue(
+            order?.total_amount,
+            order?.amount,
+            '0.00',
+          )}`}
+        />
+        <InfoRow
+          label="Payment Mode"
+          value={order?.payment_mode || 'N/A'}
+        />
+        <InfoRow
+          label="Booking Created On"
+          value={formatBookingCreatedAt(order?.created_at) || 'N/A'}
+        />
+        <InfoRow
+          label="Booking For Date"
+          value={formatBookingDate(order?.booking_date) || 'N/A'}
+        />
+        <InfoRow
+          label="Booking For Time"
+          value={formatEventTime(order?.event_time) || 'N/A'}
         />
 
         <View style={styles.divider} />
         <Text style={styles.sectionTitle}>Customer details</Text>
 
-        <InfoRow label="Customer" value={order?.full_name} />
-        {canShowMobile ? (
-          <>
-            <InfoRow label="Phone" value={order?.mobail_number} />
-            <InfoRow label="Alt Number" value={order?.alt_number} />
-          </>
-        ) : null}
-        <InfoRow label="Address" value={order?.address} />
-        <InfoRow label="Pin Code" value={order?.pin_code} />
-        <InfoRow label="Guests" value={order?.number_of_attendess} />
+        <InfoRow label="Name" value={order?.full_name || 'N/A'} />
+        <InfoRow
+          label="Mobile Number"
+          value={getFirstValue(order?.mobile, order?.mobail_number, 'N/A')}
+        />
+        <InfoRow
+          label="Alternate Mobile Number"
+          value={getFirstValue(order?.alternate, order?.alt_number, 'N/A')}
+        />
+        <InfoRow label="Address" value={order?.address || 'N/A'} />
+        <InfoRow
+          label="Pincode"
+          value={getFirstValue(order?.pincode, order?.pin_code, 'N/A')}
+        />
+        <InfoRow
+          label="Number of Guests"
+          value={getFirstValue(
+            order?.number_of_attendees,
+            order?.number_of_attendess,
+            'N/A',
+          )}
+        />
         <InfoRow label="Comment" value={order?.comment} />
         <InfoRow
           label="Cancellation reason"
@@ -259,7 +328,7 @@ const OrderCard = ({order, postRequest, showToast, onOrderUpdated}) => {
         </View>
       ) : null}
 
-      {normalizedStatus === 'pending' && !hasCancellationRequest ? (
+      {isPendingStatus && !hasCancellationRequest ? (
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={[styles.actionButton, styles.acceptBtn]}
@@ -393,7 +462,7 @@ const SpaceOrders = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Header
-        title="Space Orders"
+        title="Booking Orders"
         showBack
         onBackPress={() => navigation.goBack()}
       />

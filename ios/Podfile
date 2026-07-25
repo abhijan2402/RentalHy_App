@@ -6,7 +6,6 @@ require Pod::Executable.execute_command('node', ['-p',
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
-# use_modular_headers!
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage
@@ -15,9 +14,14 @@ end
 
 target 'PropertyApp' do
   config = use_native_modules!
-    pod 'lottie-react-native', :path => '../node_modules/lottie-react-native', :modular_headers => true
 
- pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+  # FirebaseCoreInternal is written in Swift and requires a module map for
+  # GoogleUtilities when CocoaPods builds the dependencies as static libraries.
+  pod 'GoogleUtilities', :modular_headers => true
+
+  pod 'lottie-react-native', :path => '../node_modules/lottie-react-native', :modular_headers => true
+
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
 
 
   use_react_native!(
@@ -32,5 +36,19 @@ target 'PropertyApp' do
       config[:reactNativePath],         
       :mac_catalyst_enabled => false
     )
+
+    # React Native 0.79 pins fmt 11.0.2, whose consteval format-string path
+    # does not compile with Apple Clang shipped in Xcode 26.x.
+    fmt_base = File.join(installer.sandbox.pod_dir('fmt'), 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base)
+      content = File.read(fmt_base)
+      consteval_enabled = "#elif defined(__cpp_consteval)\n#  define FMT_USE_CONSTEVAL 1"
+      consteval_disabled = "#elif defined(__cpp_consteval)\n#  define FMT_USE_CONSTEVAL 0"
+
+      if content.include?(consteval_enabled)
+        File.chmod(0644, fmt_base)
+        File.write(fmt_base, content.sub(consteval_enabled, consteval_disabled))
+      end
+    end
   end
 end

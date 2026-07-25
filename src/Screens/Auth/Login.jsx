@@ -149,10 +149,10 @@ console.log(formData,"FOMR____DDD");
               style={styles.loginButton}
             />
             <View style={styles.footerRow}>
-              <Text style={styles.footerText}>New to RentalHy? </Text>
+              <Text style={styles.footerText}>New to To-let india? </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('SignUp')}>
-                <Text style={styles.linkText}>Create account</Text>
+                <Text style={styles.linkText}>Create account.</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -228,11 +228,10 @@ export const BookingCard = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const normalizedStatus = String(booking?.order_status || '').toLowerCase();
-  const normalizedRawStatus = String(
-    booking?.order_status_raw || booking?.status || '',
-  ).toLowerCase();
   const isSuccessStatus = normalizedStatus === 'success';
-  const isPendingStatus = normalizedStatus === 'pending';
+  const isPendingStatus = ['pending', 'offline_pending'].includes(
+    normalizedStatus,
+  );
   const isClosedStatus = ['cancelled', 'rejected', 'failed'].includes(
     normalizedStatus,
   );
@@ -243,8 +242,6 @@ export const BookingCard = ({
       '',
   ).toLowerCase();
   const hasPendingCancellation =
-    normalizedStatus === 'offline_pending' ||
-    normalizedRawStatus === 'offline_pending' ||
     ['pending', 'requested', 'pending_approval'].includes(cancellationStatus) ||
     booking?.is_cancel_requested === true ||
     booking?.is_cancel_requested === 1 ||
@@ -311,7 +308,9 @@ export const BookingCard = ({
           <Text style={[styles.status, {color: statusTheme.color}]}>
             {hasPendingCancellation
               ? 'Cancellation Requested'
-              : booking.order_status || 'Pending'}
+              : booking.order_status_text ||
+                booking.order_status ||
+                'Pending'}
           </Text>
         </View>
       </View>

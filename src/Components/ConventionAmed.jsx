@@ -45,7 +45,7 @@ const getFieldIcon = label => {
   );
 };
 
-const ConventionAmed = ({ AllData }) => {
+const ConventionAmed = ({ AllData, propertyType }) => {
   const parseDates = dates => {
     if (!dates) {
       return {};
@@ -295,9 +295,21 @@ const ConventionAmed = ({ AllData }) => {
     ? 'parking'
     : 'parking_available';
 
+  const isFarm = ['farm', 'farmhouse', 'farm_house', 'farm house'].includes(
+    String(propertyType || '').toLowerCase(),
+  );
+  const isResort =
+    String(propertyType || '').toLowerCase() === 'resort';
+  const capacityLabel =
+    isFarm
+      ? 'Farm max Capacity in Persons'
+      : isResort
+      ? 'Rooms Available'
+      : 'Hall capacity (in Persons)';
+
   const capacityFields = [
-    { key: 'seating_capacity', label: 'Hall capacity (in Persons)' },
-    { key: 'room_details', label: 'Hall capacity (in Persons)' },
+    { key: 'seating_capacity', label: capacityLabel },
+    { key: 'room_details', label: capacityLabel },
     { key: areaKey, label: 'Area Sq Ft' },
     { key: 'plot_area', label: 'Plot Area' },
     { key: 'built_up_area', label: 'Built Up Area' },
@@ -515,15 +527,16 @@ const ConventionAmed = ({ AllData }) => {
 
   return (
     <View>
+      {isFarm && renderTable('Prices', priceFields)}
       {renderTable('Amenities', amenityFields)}
       {renderOtherAmenities()}
       {renderAddOnServices()}
-      {renderTable('Prices', priceFields)}
+      {!isFarm && renderTable('Prices', priceFields)}
       {renderTable('Durations', durationFields)}
       {renderTable('Availability', capacityFields)}
       {renderTable('Parking Details', parkingFields)}
       {renderTable('Game Details', gameFields)}
-      {renderDateTable()}
+      {!isResort && renderDateTable()}
     </View>
   );
 };

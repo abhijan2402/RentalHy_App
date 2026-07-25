@@ -18,12 +18,6 @@ import RazorpayCheckout from 'react-native-razorpay';
 const ADVANCE_PAYMENT_MESSAGE =
   '⚠️ Your booking is not confirmed until the advance payment is successfully made to the vendor. Please contact the number above to proceed with the payment and secure your booking';
 
-const FARM_AMOUNT_FIELDS = {
-  day: ['day_visit_price'],
-  night: ['night_visit_price'],
-  full_day: ['full_day_price', '24_hours_visit_price'],
-};
-
 const normalizeAmount = value => {
   if (value === null || value === undefined || value === '') {
     return '';
@@ -59,35 +53,6 @@ const Booking = ({ navigation, route }) => {
 
   const today = new Date().toISOString().split('T')[0];
   const [additionalAmount, setadditionalAmount] = useState(0);
-
-  const isFarmBooking = useMemo(() => {
-    const bookingType = String(
-      bookingData?.hall_type || bookingData?.type || route?.params?.semiType || '',
-    ).toLowerCase();
-
-    return (
-      bookingType === 'farm' ||
-      bookingType === 'farmhouse' ||
-      bookingType === 'farm_house' ||
-      !!bookingData?.day_visit_price ||
-      !!bookingData?.night_visit_price ||
-      !!bookingData?.full_day_price ||
-      !!bookingData?.['24_hours_visit_price']
-    );
-  }, [bookingData, route?.params?.semiType]);
-
-  const autoAmount = useMemo(() => {
-    if (!isFarmBooking) {
-      return '';
-    }
-
-    const fields = FARM_AMOUNT_FIELDS[dayTime] || [];
-    return (
-      fields
-        .map(field => normalizeAmount(bookingData?.[field]))
-        .find(Boolean) || ''
-    );
-  }, [bookingData, dayTime, isFarmBooking]);
 
   const availablePackages = useMemo(() => {
     let packages = bookingData?.packages;
@@ -404,12 +369,6 @@ console.log(formData,"FORMMMM");
     fetchHallTimings(propertyData);
   }, [propertyData]);
 
-  useEffect(() => {
-    if (isFarmBooking) {
-      setAmount(autoAmount);
-    }
-  }, [autoAmount, isFarmBooking]);
-
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <Header
@@ -424,6 +383,7 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={styles.input}
             placeholder="Enter full name"
+            placeholderTextColor={COLOR.black}
             value={name}
             onChangeText={setName}
           />
@@ -435,6 +395,7 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={styles.input}
             placeholder="Enter mobile number"
+            placeholderTextColor={COLOR.black}
             value={mobile}
             onChangeText={setMobile}
             keyboardType="phone-pad"
@@ -450,6 +411,7 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={styles.input}
             placeholder="Enter alternate mobile"
+            placeholderTextColor={COLOR.black}
             value={altMobile}
             onChangeText={setAltMobile}
             keyboardType="phone-pad"
@@ -464,17 +426,17 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={[
               styles.input,
-              autoAmount || selectedPackage ? styles.readOnlyInput : null,
+              selectedPackage ? styles.readOnlyInput : null,
             ]}
-            placeholder={
-              autoAmount || selectedPackage
-                ? 'Amount auto filled'
-                : 'Enter amount'
-            }
+            placeholder={selectedPackage ? 'Package amount' : 'Enter amount'}
+            placeholderTextColor={COLOR.black}
             value={amount}
-            onChangeText={setAmount}
+            onChangeText={value => setAmount(normalizeAmount(value))}
             keyboardType="numeric"
-            editable={!autoAmount && !selectedPackage}
+            editable={!selectedPackage}
+            autoComplete="off"
+            textContentType="none"
+            importantForAutofill="no"
           />
         </View>
 
@@ -536,6 +498,7 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={styles.input}
             placeholder="Enter Address"
+            placeholderTextColor={COLOR.black}
             value={address}
             onChangeText={setAddress}
             multiline
@@ -549,10 +512,14 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={styles.input}
             placeholder="Enter pincode"
+            placeholderTextColor={COLOR.black}
             value={pincode}
             onChangeText={setPincode}
             keyboardType="numeric"
             maxLength={6}
+            autoComplete="off"
+            textContentType="none"
+            importantForAutofill="no"
           />
         </View>
 
@@ -562,6 +529,7 @@ console.log(formData,"FORMMMM");
           <TextInput
             style={styles.input}
             placeholder="Enter Number"
+            placeholderTextColor={COLOR.black}
             value={attendees}
             onChangeText={setAttendees}
             keyboardType="numeric"
@@ -685,6 +653,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 14,
     backgroundColor: '#fafafa',
+    color: COLOR.black,
   },
   readOnlyInput: {
     backgroundColor: '#f1f5f9',

@@ -30,6 +30,25 @@ const createEmptyPackage = () => ({
   customServices: [''],
 });
 
+const normalizeDescription = value => {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean).join(', ');
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsedValue = JSON.parse(value);
+      return Array.isArray(parsedValue)
+        ? parsedValue.filter(Boolean).join(', ')
+        : value;
+    } catch (error) {
+      return value;
+    }
+  }
+
+  return value ? String(value) : '';
+};
+
 const CreateConvention = ({navigation, route}) => {
   const activeTab = route?.params?.activeTabKey || 'Function/Convention Hall';
   const editItem = route?.params?.item;
@@ -52,6 +71,11 @@ const CreateConvention = ({navigation, route}) => {
   const isResort = uploadType === 'resort';
   const isHall = uploadType === 'Function/Convention Hall';
   const isStayType = isFarm || isResort;
+  const nonContactNumericInputProps = {
+    autoComplete: 'off',
+    importantForAutofill: 'no',
+    textContentType: 'none',
+  };
 
   const [hallImages, setHallImages] = useState([]);
   const [kitchenImages, setKitchenImages] = useState([]);
@@ -318,11 +342,22 @@ const CreateConvention = ({navigation, route}) => {
 
     setSwimmingPool(yesNo(editItem?.swimming_pool));
     setFoodAvailable(yesNo(editItem?.food_available));
+    setFoodDescription(normalizeDescription(editItem?.food_description));
     setCctv(yesNo(editItem?.cctv_available));
     setSoundSystem(yesNo(editItem?.sound_system_available));
     setSoundSystemAllowed(yesNo(editItem?.sound_system_allowed));
     setChildrenGames(yesNo(editItem?.children_games));
     setAdultGames(yesNo(editItem?.adult_games));
+    setAdultGamesDesc(
+      normalizeDescription(
+        editItem?.adult_games_desc || editItem?.adult_games_names,
+      ),
+    );
+    setChildrenGamesDesc(
+      normalizeDescription(
+        editItem?.children_games_desc || editItem?.children_games_names,
+      ),
+    );
     setKitchenSetup(yesNo(editItem?.kitchen_setup));
     setFreeCancellation(yesNo(editItem?.free_cancellation));
     setPayLater(yesNo(editItem?.pay_later));
@@ -590,8 +625,21 @@ const CreateConvention = ({navigation, route}) => {
       }
 
       if (isStayType) {
+        const foodAvailableValue = isFarm
+          ? Boolean(foodDescription.trim())
+          : foodAvailable === 'yes';
+        const adultGamesValue = isFarm
+          ? Boolean(adultGamesDesc.trim())
+          : adultGames === 'yes';
+        const childrenGamesValue = isFarm
+          ? Boolean(childrenGamesDesc.trim())
+          : childrenGames === 'yes';
+
         formData.append('swimming_pool', swimmingPool === 'yes' ? 1 : 0);
-        formData.append('food_available', foodAvailable === 'yes' ? 1 : 0);
+        formData.append(
+          'food_available',
+          foodAvailableValue ? 1 : 0,
+        );
         formData.append('food_description', foodDescription || '');
         formData.append('cctv_available', cctv === 'yes' ? 1 : 0);
         formData.append(
@@ -602,12 +650,18 @@ const CreateConvention = ({navigation, route}) => {
           'sound_system_allowed',
           soundSystemAllowed === 'yes' ? 1 : 0,
         );
-        formData.append('adult_games', adultGames === 'yes' ? 1 : 0);
+        formData.append(
+          'adult_games',
+          adultGamesValue ? 1 : 0,
+        );
         formData.append('adult_games_desc', adultGamesDesc || '');
         if (adultGamesDesc) {
           formData.append('adult_games_names[0]', adultGamesDesc);
         }
-        formData.append('children_games', childrenGames === 'yes' ? 1 : 0);
+        formData.append(
+          'children_games',
+          childrenGamesValue ? 1 : 0,
+        );
         formData.append('children_games_desc', childrenGamesDesc || '');
         if (childrenGamesDesc) {
           formData.append('children_games_names[0]', childrenGamesDesc);
@@ -647,6 +701,7 @@ const CreateConvention = ({navigation, route}) => {
         formData.append('built_up_area', builtUpArea || '');
         formData.append('carpet_area', carpetArea || '');
         formData.append('other', otherFacilities || '');
+        formData.append('rules_and_regulations', rulesAndRegulations);
       }
 
       if (isResort) {
@@ -704,7 +759,6 @@ const CreateConvention = ({navigation, route}) => {
           }
         });
         formData.append('id_proofs_required', idProofsRequired);
-        formData.append('rules_and_regulations', rulesAndRegulations);
         formData.append('check_in_time', checkInTime);
         formData.append('check_out_time', checkOutTime);
       }
@@ -1060,7 +1114,9 @@ console.log(response,"RESSSPPP");
           <TextInput
             style={styles.input}
             value={contact}
-            keyboardType="numeric"
+            autoComplete="tel"
+            importantForAutofill="yes"
+            keyboardType="phone-pad"
             onChangeText={setContact}
             placeholder={
               isResort
@@ -1068,6 +1124,7 @@ console.log(response,"RESSSPPP");
                 : 'Enter Contact Number'
             }
             placeholderTextColor={COLOR.grey}
+            textContentType="telephoneNumber"
           />
         </View>
 
@@ -1081,10 +1138,13 @@ console.log(response,"RESSSPPP");
             <TextInput
               style={styles.input}
               value={managerContact}
-              keyboardType="numeric"
+              autoComplete="tel"
+              importantForAutofill="yes"
+              keyboardType="phone-pad"
               onChangeText={setManagerContact}
               placeholder="Enter Manager / Owner Contact Number"
               placeholderTextColor={COLOR.grey}
+              textContentType="telephoneNumber"
             />
           </View>
         )}
@@ -1116,6 +1176,7 @@ console.log(response,"RESSSPPP");
                 <View key={opt} style={styles.priceRow}>
                   <Text style={{flex: 1, color: COLOR.black}}>{opt}</Text>
                   <TextInput
+                    {...nonContactNumericInputProps}
                     style={[styles.input, {flex: 1}]}
                     placeholder="Enter Price"
                     keyboardType="numeric"
@@ -1132,6 +1193,7 @@ console.log(response,"RESSSPPP");
                 <View key={opt} style={styles.priceRow}>
                   <Text style={{flex: 1, color: COLOR.black}}>{opt}</Text>
                   <TextInput
+                    {...nonContactNumericInputProps}
                     placeholderTextColor={COLOR.grey}
                     style={[styles.input, {flex: 1}]}
                     placeholder="Enter Price"
@@ -1155,6 +1217,7 @@ console.log(response,"RESSSPPP");
                   onChangeText={text => handleChange(text, index, 'field')}
                 />
                 <TextInput
+                  {...nonContactNumericInputProps}
                   placeholderTextColor={COLOR.grey}
                   style={[styles.inputVal, {flex: 1}]}
                   placeholder="Enter Price"
@@ -1172,14 +1235,21 @@ console.log(response,"RESSSPPP");
 
         {isStayType && (
           <View style={styles.section}>
-            <Text style={styles.label}>Room Available *</Text>
+            <Text style={styles.label}>
+              {isResort ? 'Rooms Available *' : 'Room Available *'}
+            </Text>
             <TextInput
+              {...nonContactNumericInputProps}
               placeholderTextColor={COLOR.grey}
               style={styles.input}
               value={capacity}
               keyboardType="numeric"
               onChangeText={setCapacity}
-              placeholder="Room Availability"
+              placeholder={
+                isResort
+                  ? 'Enter number of available rooms'
+                  : 'Room Availability'
+              }
             />
           </View>
         )}
@@ -1189,6 +1259,7 @@ console.log(response,"RESSSPPP");
             <View style={styles.section}>
               <Text style={styles.label}>Hall Capacity (No. of People) *</Text>
               <TextInput
+                {...nonContactNumericInputProps}
                 placeholderTextColor={COLOR.grey}
                 style={styles.input}
                 value={capacity}
@@ -1227,18 +1298,25 @@ console.log(response,"RESSSPPP");
         {isStayType && (
           <>
             {renderToggle('Swimming Pool', swimmingPool, setSwimmingPool)}
-            {renderToggle('Food Available', foodAvailable, setFoodAvailable)}
+            {!isFarm &&
+              renderToggle('Food Available', foodAvailable, setFoodAvailable)}
 
-            {foodAvailable === 'yes' && (
+            {(isFarm || foodAvailable === 'yes') && (
               <View style={styles.section}>
                 <Text style={styles.label}>
-                  Mention if any (Tiffins, Lunch, Snacks, Dinner)
+                  {isFarm
+                    ? 'Food Available Description'
+                    : 'Mention if any (Tiffins, Lunch, Snacks, Dinner)'}
                 </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    isFarm ? styles.multilineInput : null,
+                  ]}
                   value={foodDescription}
                   onChangeText={setFoodDescription}
-                  placeholder="Food Available"
+                  multiline={isFarm}
+                  placeholder="Describe the available food options"
                   placeholderTextColor={COLOR.grey}
                 />
               </View>
@@ -1256,33 +1334,53 @@ console.log(response,"RESSSPPP");
               setSoundSystemAllowed,
             )}
 
-            {renderToggle('Adult Games', adultGames, setAdultGames)}
+            {!isFarm &&
+              renderToggle('Adult Games', adultGames, setAdultGames)}
 
-            {adultGames === 'yes' && (
+            {(isFarm || adultGames === 'yes') && (
               <View style={styles.section}>
-                <Text style={styles.label}>Mention if any (Adult Games)</Text>
+                <Text style={styles.label}>
+                  {isFarm
+                    ? 'Adult Games Description'
+                    : 'Mention if any (Adult Games)'}
+                </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    isFarm ? styles.multilineInput : null,
+                  ]}
                   value={adultGamesDesc}
                   onChangeText={setAdultGamesDesc}
-                  placeholder="Adult Games"
+                  multiline={isFarm}
+                  placeholder="Describe the available adult games"
                   placeholderTextColor={COLOR.grey}
                 />
               </View>
             )}
 
-            {renderToggle('Children Games', childrenGames, setChildrenGames)}
+            {!isFarm &&
+              renderToggle(
+                'Children Games',
+                childrenGames,
+                setChildrenGames,
+              )}
 
-            {childrenGames === 'yes' && (
+            {(isFarm || childrenGames === 'yes') && (
               <View style={styles.section}>
                 <Text style={styles.label}>
-                  Mention if any (Children Games)
+                  {isFarm
+                    ? 'Children Games Description'
+                    : 'Mention if any (Children Games)'}
                 </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    isFarm ? styles.multilineInput : null,
+                  ]}
                   value={childrenGamesDesc}
                   onChangeText={setChildrenGamesDesc}
-                  placeholder="Children Games"
+                  multiline={isFarm}
+                  placeholder="Describe the available children games"
                   placeholderTextColor={COLOR.grey}
                 />
               </View>
@@ -1414,6 +1512,20 @@ console.log(response,"RESSSPPP");
           </>
         )}
 
+        {isFarm && (
+          <View style={styles.section}>
+            <Text style={styles.label}>Rules and Regulations</Text>
+            <TextInput
+              style={[styles.input, styles.multilineInput]}
+              value={rulesAndRegulations}
+              onChangeText={setRulesAndRegulations}
+              multiline
+              placeholder="Describe the rules and regulations"
+              placeholderTextColor={COLOR.grey}
+            />
+          </View>
+        )}
+
         {isResort && (
           <>
             <View style={styles.section}>
@@ -1458,6 +1570,7 @@ console.log(response,"RESSSPPP");
                   </View>
                   <View style={styles.dynamicRow}>
                     <TextInput
+                      {...nonContactNumericInputProps}
                       style={[styles.input, {marginRight: 8}]}
                       value={item.price}
                       onChangeText={value =>
@@ -1468,6 +1581,7 @@ console.log(response,"RESSSPPP");
                       placeholderTextColor={COLOR.grey}
                     />
                     <TextInput
+                      {...nonContactNumericInputProps}
                       style={styles.input}
                       value={item.gst}
                       onChangeText={value =>
@@ -1479,6 +1593,7 @@ console.log(response,"RESSSPPP");
                     />
                   </View>
                   <TextInput
+                    {...nonContactNumericInputProps}
                     style={styles.input}
                     value={item.maxPeople}
                     onChangeText={value =>
@@ -1597,6 +1712,7 @@ console.log(response,"RESSSPPP");
                     placeholderTextColor={COLOR.grey}
                   />
                   <TextInput
+                    {...nonContactNumericInputProps}
                     style={[styles.input, styles.addOnPriceInput]}
                     value={item.price}
                     onChangeText={value =>
@@ -1714,6 +1830,7 @@ console.log(response,"RESSSPPP");
           <>
             <View style={{marginHorizontal: 20}}>
               <TextInput
+                {...nonContactNumericInputProps}
                 style={styles.input}
                 value={parkingCapacity}
                 onChangeText={setParkingCapacity}

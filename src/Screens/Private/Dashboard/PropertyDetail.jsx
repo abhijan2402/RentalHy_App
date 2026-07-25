@@ -590,7 +590,10 @@ const PropertyDetail = ({ navigation, route }) => {
             )}
             {isConventionLike && (
               <>
-                <ConventionAmed AllData={AllData} />
+                <ConventionAmed
+                  AllData={AllData}
+                  propertyType={semiType || type}
+                />
               </>
             )}
             {type === 'hostel' && <HostelAmed AllData={AllData} />}
