@@ -19,7 +19,7 @@ export const showPost = [
     },
     {
         id: 3,
-        image: 'https://cdn-icons-png.flaticon.com/128/3033/3033239.png',
+        image: require('../assets/options/resort.png'),
         title: 'Resort',
     },
      {

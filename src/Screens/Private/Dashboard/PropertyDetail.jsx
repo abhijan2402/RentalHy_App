@@ -97,15 +97,53 @@ const PropertyDetail = ({ navigation, route }) => {
       
       setImages(() => {
         if (type === 'convention') {
-          const imageGroups = response?.data?.data?.images_grouped || {};
-          const groupedImages = Object.values(imageGroups).flat();
-          const imageList = groupedImages.length
-            ? groupedImages
-            : response?.data?.data?.images || [];
+          const detailData = response?.data?.data || {};
+          const imageSources = [
+            detailData?.images_grouped,
+            detailData?.images,
+            detailData?.hall_images,
+            detailData?.kitchen_images,
+            detailData?.bride_images,
+            detailData?.bride_image,
+            detailData?.parking_images,
+            detailData?.parking_image,
+            detailData?.praking_image,
+          ];
+          const imageUrls = [];
 
-          return imageList
-            .map(item => item?.image_url || item?.image_path)
-            .filter(Boolean);
+          const collectImageUrls = value => {
+            if (!value) {
+              return;
+            }
+
+            if (typeof value === 'string') {
+              imageUrls.push(value);
+              return;
+            }
+
+            if (Array.isArray(value)) {
+              value.forEach(collectImageUrls);
+              return;
+            }
+
+            if (typeof value === 'object') {
+              const directUrl =
+                value?.image_url ||
+                value?.image_path ||
+                value?.url ||
+                value?.uri;
+
+              if (directUrl) {
+                imageUrls.push(directUrl);
+                return;
+              }
+
+              Object.values(value).forEach(collectImageUrls);
+            }
+          };
+
+          imageSources.forEach(collectImageUrls);
+          return [...new Set(imageUrls)];
         }
 
         return response?.data?.data?.images?.map(e => e?.image_url).filter(Boolean) || [];

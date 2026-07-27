@@ -56,7 +56,11 @@ const OptionSelector = ({ data = [], onSelect, navigation, defaultIndex = 0 }) =
                   isSelected && styles.selectedIconContainer,
                 ]}>
                 <Image
-                  source={{ uri: item?.image }}
+                  source={
+                    typeof item?.image === 'string'
+                      ? { uri: item.image }
+                      : item?.image
+                  }
                   style={styles.icon}
                   resizeMode="contain"
                 />

@@ -323,6 +323,11 @@ const CreateConvention = ({navigation, route}) => {
     setDecorationContact(
       editItem?.hall_decorator_name || editItem?.hall_decorator_number || '',
     );
+    setRoyaltiDecPrice(
+      editItem?.royalty_decoration_price ||
+        editItem?.royalty_decoration_charges ||
+        '',
+    );
     setRoyaltyKitchen(yesNo(editItem?.royalty_kitchen));
     setGenerator(yesNo(editItem?.generator_available));
     setNormalWater(yesNo(editItem?.water_for_cooking));
@@ -610,6 +615,7 @@ const CreateConvention = ({navigation, route}) => {
         );
         formData.append('hall_decorator_name', decorationContact);
         formData.append('hall_decorator_number', decorationContact);
+        formData.append('royalty_decoration_price', royaltyDecPrice || '');
         formData.append('royalty_kitchen', royaltyKitchen === 'yes' ? 1 : 0);
         formData.append('generator_available', generator === 'yes' ? 1 : 0);
         formData.append('water_for_cooking', normalWater === 'yes' ? 1 : 0);
@@ -701,8 +707,9 @@ const CreateConvention = ({navigation, route}) => {
         formData.append('built_up_area', builtUpArea || '');
         formData.append('carpet_area', carpetArea || '');
         formData.append('other', otherFacilities || '');
-        formData.append('rules_and_regulations', rulesAndRegulations);
       }
+
+      formData.append('rules_and_regulations', rulesAndRegulations || '');
 
       if (isResort) {
         customAmenities.forEach((amenity, index) => {
@@ -781,7 +788,13 @@ const CreateConvention = ({navigation, route}) => {
 
       rows.forEach(row => {
         if (row.field && row.value) {
-          formData.append(`${normalizeKey(row.field)}_price`, row.value);
+          const normalizedField = normalizeKey(row.field);
+          const priceKey =
+            isStayType && normalizedField === 'any_other'
+              ? 'other_charges'
+              : `${normalizedField}_price`;
+
+          formData.append(priceKey, row.value);
         }
       });
 
@@ -794,7 +807,9 @@ const CreateConvention = ({navigation, route}) => {
 
       // if (isHall) {
       appendImages(formData, 'kitchen_images', kitchenImages, 'kitchen_image');
+      appendImages(formData, 'bride_images', BridGroomImages, 'bride_image');
       appendImages(formData, 'bride_image', BridGroomImages, 'bride_image');
+      appendImages(formData, 'parking_images', parkingImages, 'parking_image');
       appendImages(formData, 'praking_image', parkingImages, 'parking_image');
       // }
 
@@ -1305,7 +1320,7 @@ console.log(response,"RESSSPPP");
               <View style={styles.section}>
                 <Text style={styles.label}>
                   {isFarm
-                    ? 'Food Available Description'
+                    ? 'Food Description'
                     : 'Mention if any (Tiffins, Lunch, Snacks, Dinner)'}
                 </Text>
                 <TextInput
@@ -1512,7 +1527,7 @@ console.log(response,"RESSSPPP");
           </>
         )}
 
-        {isFarm && (
+        {(isFarm || isHall) && (
           <View style={styles.section}>
             <Text style={styles.label}>Rules and Regulations</Text>
             <TextInput

@@ -746,6 +746,29 @@ const Convention = ({ navigation, route }) => {
   ) => {
     const formData = new FormData();
     formData.append('page', pageNum);
+    const getSelectedFilterValue = value =>
+      Array.isArray(value) ? value[0] : value;
+    const getBooleanFilterValue = value => {
+      const selectedValue = getSelectedFilterValue(value);
+
+      if (
+        selectedValue === true ||
+        selectedValue === 1 ||
+        String(selectedValue).toLowerCase() === 'yes'
+      ) {
+        return 1;
+      }
+
+      if (
+        selectedValue === false ||
+        selectedValue === 0 ||
+        String(selectedValue).toLowerCase() === 'no'
+      ) {
+        return 0;
+      }
+
+      return null;
+    };
 
     const minPrice = filters?.minPrice ?? filters?.min_price ?? filters?.price_min;
     const maxPrice = filters?.maxPrice ?? filters?.max_price ?? filters?.price_max;
@@ -783,8 +806,12 @@ const Convention = ({ navigation, route }) => {
         formData.append('seating_capacity_min', filters.minCapacity);
       if (filters?.maxCapacity)
         formData.append('seating_capacity_max', filters.maxCapacity);
-      if (filters.acAvailable)
-        formData.append('ac_available', filters.acAvailable == 'Yes' ? 1 : 0);
+      const acAvailable = getBooleanFilterValue(
+        filters?.ac_available ?? filters?.acAvailable,
+      );
+      if (acAvailable !== null) {
+        formData.append('ac_available', acAvailable);
+      }
       if (filters.valetParking)
         formData.append('valet_parking', filters.valetParking == 'Yes' ? 1 : 0);
       if (filters.alcoholAllowed)

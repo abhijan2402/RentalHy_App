@@ -36,6 +36,47 @@ const amenityIconRules = [
   {words: ['wifi'], icon: '📶'},
 ];
 
+const amenityIcons = {
+  ac_available: '❄️',
+  royalty_decoration: '🎀',
+  royalty_kitchen: '🍳',
+  generator_available: '⚡',
+  water_for_cooking: '🚰',
+  drinking_water_available: '💧',
+  provides_catering_persons: '👨‍🍳',
+  photographers_required: '📸',
+  children_games: '🧸',
+  alcohol_allowed: '🍸',
+  swimming_pool: '🏊',
+  food_available: '🍽️',
+  outside_food_allowed: '🥡',
+  cctv_available: '📹',
+  sound_system_available: '🔊',
+  sound_system_allowed: '🎵',
+  adult_games: '🎮',
+  kitchen_setup: '🍳',
+  free_cancellation: '↩️',
+  pay_later: '💳',
+  child_pool: '🛟',
+  security_guard: '🛡️',
+  pet_friendly: '🐾',
+  breakfast_included: '🥣',
+  restaurant: '🍽️',
+  cafeteria: '☕',
+  elevator: '🛗',
+  reception_24_hours: '🛎️',
+  gym_available: '🏋️',
+  tv_available: '📺',
+  meeting_room: '🤝',
+  free_wifi: '📶',
+  play_ground: '⚽',
+  kitchen: '🍳',
+  refrigerator: '🧊',
+  adult_pool: '🏊',
+  wellness_centre: '🧘',
+  wheel_chair_access: '♿',
+};
+
 const getFieldIcon = label => {
   const name = label.toLowerCase();
   return (
@@ -46,6 +87,12 @@ const getFieldIcon = label => {
 };
 
 const ConventionAmed = ({ AllData, propertyType }) => {
+  const normalizedPropertyType = String(propertyType || '').toLowerCase();
+  const isFarm = ['farm', 'farmhouse', 'farm_house', 'farm house'].includes(
+    normalizedPropertyType,
+  );
+  const isResort = normalizedPropertyType === 'resort';
+
   const parseDates = dates => {
     if (!dates) {
       return {};
@@ -164,11 +211,13 @@ const ConventionAmed = ({ AllData, propertyType }) => {
   const amenityFields = Object.entries(booleanFields)
     .filter(
       ([key]) =>
-        !['parking', 'parking_available', 'valet_parking'].includes(key),
+        !['parking', 'parking_available', 'valet_parking'].includes(key) &&
+        !(isFarm && key === 'food_available'),
     )
     .map(([key, label]) => ({
       key,
       label,
+      icon: amenityIcons[key],
     }));
 
   const priceFields = [
@@ -182,7 +231,12 @@ const ConventionAmed = ({ AllData, propertyType }) => {
     { key: 'corporate_outing', label: 'Corporate Outing Price' },
     { key: 'banquet_hall_charges', label: 'Banquet Hall Charges' },
     { key: 'occasion_charges', label: 'Occasion Charges' },
-    { key: 'other_charges', label: 'Other Charges' },
+    {
+      key: hasDisplayValue(AllData?.other_charges)
+        ? 'other_charges'
+        : 'any_other_price',
+      label: 'Any Other',
+    },
     { key: 'wedding_price', label: 'Wedding' },
     { key: 'wedding_anniversary_price', label: 'Wedding Anniversary' },
     { key: 'wedding_reception_price', label: 'Wedding Reception' },
@@ -295,11 +349,6 @@ const ConventionAmed = ({ AllData, propertyType }) => {
     ? 'parking'
     : 'parking_available';
 
-  const isFarm = ['farm', 'farmhouse', 'farm_house', 'farm house'].includes(
-    String(propertyType || '').toLowerCase(),
-  );
-  const isResort =
-    String(propertyType || '').toLowerCase() === 'resort';
   const capacityLabel =
     isFarm
       ? 'Farm max Capacity in Persons'
@@ -341,6 +390,42 @@ const ConventionAmed = ({ AllData, propertyType }) => {
     },
   ];
 
+  const foodFields = [
+    {
+      key: 'food_description',
+      label: 'Food Description',
+      icon: '🍽️',
+    },
+  ];
+
+  const firstDisplayKey = keys =>
+    keys.find(key => hasDisplayValue(AllData?.[key])) || keys[0];
+
+  const conventionDetailFields = [
+    {
+      key: firstDisplayKey([
+        'hall_decorator_name',
+        'hall_decorator_number',
+        'decoration_contact',
+      ]),
+      label: 'Decorator Details',
+      icon: '🎀',
+    },
+    {
+      key: firstDisplayKey([
+        'royalty_decoration_price',
+        'royalty_decoration_charges',
+      ]),
+      label: 'Royalty Decoration Price',
+      icon: '💳',
+    },
+    {
+      key: 'rules_and_regulations',
+      label: 'Rules and Regulations',
+      icon: '📋',
+    },
+  ];
+
   const renderTable = (title, fields) => {
     const isAmenityTable = title === 'Amenities';
     const isYesValue = value =>
@@ -363,7 +448,7 @@ const ConventionAmed = ({ AllData, propertyType }) => {
       return null;
     }
 
-    const data = validFields.map(({ key, label }) => {
+    const data = validFields.map(({ key, label, icon }) => {
       const value = formatValue(AllData?.[key]);
       const isPrice =
         title === 'Prices' ||
@@ -372,7 +457,7 @@ const ConventionAmed = ({ AllData, propertyType }) => {
       const isBoolean = Object.prototype.hasOwnProperty.call(booleanFields, key);
 
       return {
-        icon: getFieldIcon(label),
+        icon: icon || getFieldIcon(label),
         label,
         value: isBoolean
           ? isYesValue(value)
@@ -386,6 +471,8 @@ const ConventionAmed = ({ AllData, propertyType }) => {
 
     const sectionIcons = {
       Amenities: '✨',
+      'Food Details': '🍽️',
+      'Convention Details': '🏛️',
       Prices: '💳',
       Durations: '🕐',
       Availability: '👥',
@@ -529,6 +616,10 @@ const ConventionAmed = ({ AllData, propertyType }) => {
     <View>
       {isFarm && renderTable('Prices', priceFields)}
       {renderTable('Amenities', amenityFields)}
+      {isFarm && renderTable('Food Details', foodFields)}
+      {!isFarm &&
+        !isResort &&
+        renderTable('Convention Details', conventionDetailFields)}
       {renderOtherAmenities()}
       {renderAddOnServices()}
       {!isFarm && renderTable('Prices', priceFields)}
