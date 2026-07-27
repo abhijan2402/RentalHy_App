@@ -21,6 +21,8 @@ import PropertyCard from '../../../Components/PropertyCard';
 import { useApi } from '../../../Backend/Api';
 import RenderFilterOptions from '../../../Components/renderFilterOptions';
 import MultiModal from '../../../Components/MultiModal';
+import OptionSelector from '../Dashboard/OptionSelector';
+import { showPost } from '../../../Constants/Data';
 
 const HotelMain = ({ navigation }) => {
     const { getRequest } = useApi();
@@ -34,6 +36,7 @@ const HotelMain = ({ navigation }) => {
     const [appliedFilters, setAppliedFilters] = useState({});
     const [attendedFilter, setAttendedFilter] = useState([]);
     const [multiFilter, setMultiFilter] = useState(false);
+    const [isOptionSelectorCompact, setIsOptionSelectorCompact] = useState(false);
 
     const [properties, setProperties] = useState([]);
     const [page, setPage] = useState(1);
@@ -247,6 +250,13 @@ const HotelMain = ({ navigation }) => {
 
             <HomeHeader navigation={navigation} />
 
+            <OptionSelector
+                navigation={navigation}
+                defaultIndex={5}
+                data={showPost}
+                compact={isOptionSelectorCompact}
+            />
+
             {/* SEARCH BAR */}
             <View style={styles.searchContainer}>
                 <Image
@@ -331,6 +341,12 @@ const HotelMain = ({ navigation }) => {
             </View>
             {/* HOTEL LIST */}
             <FlatList
+                onScroll={event =>
+                    setIsOptionSelectorCompact(
+                        event.nativeEvent.contentOffset.y > 20,
+                    )
+                }
+                scrollEventThrottle={16}
                 data={properties}
                 renderItem={({ item }) => (
                     <PropertyCard

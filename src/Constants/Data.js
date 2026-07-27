@@ -27,6 +27,35 @@ export const showPost = [
         image: 'https://cdn-icons-png.flaticon.com/128/3033/3033239.png',
         title: 'Farm House',
     },
+    {
+        id: 5,
+        image: 'https://cdn-icons-png.flaticon.com/128/3009/3009489.png',
+        title: 'Hotel',
+    },
+    {
+        id: 6,
+        image: 'https://cdn-icons-png.flaticon.com/128/3588/3588294.png',
+        title: 'Upcoming',
+        upcoming: true,
+    },
+    {
+        id: 7,
+        image: 'https://cdn-icons-png.flaticon.com/128/3588/3588294.png',
+        title: 'Upcoming',
+        upcoming: true,
+    },
+    {
+        id: 8,
+        image: 'https://cdn-icons-png.flaticon.com/128/3588/3588294.png',
+        title: 'Upcoming',
+        upcoming: true,
+    },
+    {
+        id: 9,
+        image: 'https://cdn-icons-png.flaticon.com/128/3588/3588294.png',
+        title: 'Upcoming',
+        upcoming: true,
+    },
 ];
 
 

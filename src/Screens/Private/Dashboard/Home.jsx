@@ -57,6 +57,7 @@ const Home = ({ navigation }) => {
 
   const { currentStatus } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isOptionSelectorCompact, setIsOptionSelectorCompact] = useState(false);
 
   const { showToast } = useToast();
   const focus = useIsFocused();
@@ -465,6 +466,7 @@ const Home = ({ navigation }) => {
           navigation={navigation}
           defaultIndex={0}
           data={showPost}
+          compact={isOptionSelectorCompact}
           onSelect={(item, index) => {
             console.log('Selected:', item, index);
           }}
@@ -472,6 +474,10 @@ const Home = ({ navigation }) => {
       )}
       {showDemoCard && <DemoCard />}
       <ScrollView
+        onScroll={event =>
+          setIsOptionSelectorCompact(event.nativeEvent.contentOffset.y > 20)
+        }
+        scrollEventThrottle={16}
         refreshControl={<RefreshControl refreshing={false} onRefresh={() => {
 
           GetProperties(

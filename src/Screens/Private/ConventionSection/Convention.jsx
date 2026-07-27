@@ -544,6 +544,7 @@ const Convention = ({ navigation, route }) => {
   const [attendedFilter, setAttendedFilter] = useState([]);
   const [appliedFilters, setAppliedFilters] = useState([]);
   const [AppliedModalFilter, setAppliedModalFilter] = useState({});
+  const [isOptionSelectorCompact, setIsOptionSelectorCompact] = useState(false);
   const [avaialbleFilter, setavaialbleFilter] = useState([
     {
       id: 'priceRange',
@@ -1043,6 +1044,7 @@ const Convention = ({ navigation, route }) => {
           navigation={navigation}
           defaultIndex={defaultIndex}
           data={showPost}
+          compact={isOptionSelectorCompact}
           onSelect={(item, index) => {
             console.log(index, 'Indexxxx');
 
@@ -1079,7 +1081,7 @@ const Convention = ({ navigation, route }) => {
             }
 
             // Farmhouse
-            else {
+            else if (index == 4) {
               setActiveTab('farmhouse');
               setdefaultIndex(4);
 
@@ -1101,6 +1103,10 @@ const Convention = ({ navigation, route }) => {
         />
       )}
       <ScrollView
+        onScroll={event =>
+          setIsOptionSelectorCompact(event.nativeEvent.contentOffset.y > 20)
+        }
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
             refreshing={false}

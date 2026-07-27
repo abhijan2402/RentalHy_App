@@ -42,6 +42,7 @@ const Hostel = ({ navigation }) => {
   const [tabLoader, settabLoader] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isOptionSelectorCompact, setIsOptionSelectorCompact] = useState(false);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -318,13 +319,17 @@ const Hostel = ({ navigation }) => {
           navigation={navigation}
           defaultIndex={1}
           data={showPost}
+          compact={isOptionSelectorCompact}
           onSelect={(item, index) => {
             console.log('Selected:', item, index);
           }}
         />
       )}
       <ScrollView
-
+        onScroll={event =>
+          setIsOptionSelectorCompact(event.nativeEvent.contentOffset.y > 20)
+        }
+        scrollEventThrottle={16}
         refreshControl={<RefreshControl refreshing={false} onRefresh={() => {
 
           GetProperties(
@@ -554,4 +559,3 @@ const styles = StyleSheet.create({
   },
   filterIcon: { width: 22, height: 22, tintColor: COLOR.primary, marginLeft: 8 },
 });
-

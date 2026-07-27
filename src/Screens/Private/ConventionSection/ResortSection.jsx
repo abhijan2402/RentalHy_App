@@ -639,6 +639,7 @@ const ResortSection = ({ navigation, route }) => {
     const [attendedFilter, setAttendedFilter] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState([]);
     const [AppliedModalFilter, setAppliedModalFilter] = useState({});
+    const [isOptionSelectorCompact, setIsOptionSelectorCompact] = useState(false);
     const [avaialbleFilter, setavaialbleFilter] = useState([
         {
             id: 'priceRange',
@@ -994,6 +995,7 @@ const ResortSection = ({ navigation, route }) => {
                     navigation={navigation}
                     defaultIndex={defaultIndex}
                     data={showPost}
+                    compact={isOptionSelectorCompact}
                     onSelect={(item, index) => {
                         if (index == 2) {
                             setActiveTab('convention');
@@ -1011,7 +1013,7 @@ const ResortSection = ({ navigation, route }) => {
                             setSearchQuery('');
                             setSearchQuery('');
                             setAppliedModalFilter({});
-                        } else {
+                        } else if (index == 4) {
                             setActiveTab('farmhouse');
                             setdefaultIndex(3);
                             GetProperties(
@@ -1032,6 +1034,12 @@ const ResortSection = ({ navigation, route }) => {
                 />
             )}
             <ScrollView
+                onScroll={event =>
+                    setIsOptionSelectorCompact(
+                        event.nativeEvent.contentOffset.y > 20,
+                    )
+                }
+                scrollEventThrottle={16}
                 refreshControl={
                     <RefreshControl
                         refreshing={false}
