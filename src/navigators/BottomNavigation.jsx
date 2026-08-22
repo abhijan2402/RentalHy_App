@@ -7,12 +7,14 @@ import Account from '../Screens/Private/Account/Account';
 import { COLOR } from '../Constants/Colors';
 import HotelMain from '../Screens/Private/Hotel/HotelMain';
 import HomeStack from './HomeStack';
+import PropertyAssistant from '../Screens/Private/Dashboard/PropertyAssistant';
 
 const Tab = createBottomTabNavigator();
 
 const icons = {
   Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
   Hotels: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
+  Assistant: 'https://cdn-icons-png.flaticon.com/128/4712/4712109.png',
   Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
 };
 
@@ -107,6 +109,7 @@ const BottomNavigation = () => {
       })}>
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Hotels" component={HotelMain} />
+      <Tab.Screen name="Assistant" component={PropertyAssistant} />
       <Tab.Screen name="Profile" component={Account} />
     </Tab.Navigator>
   );
