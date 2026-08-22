@@ -86,6 +86,24 @@ const getFieldIcon = label => {
   );
 };
 
+const formatValue = value => {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean).join(', ');
+  }
+
+  return value;
+};
+
+const hasDisplayValue = value => {
+  const formattedValue = formatValue(value);
+
+  return (
+    formattedValue !== undefined &&
+    formattedValue !== null &&
+    String(formattedValue).trim() !== ''
+  );
+};
+
 const ConventionAmed = ({ AllData, propertyType }) => {
   const normalizedPropertyType = String(propertyType || '').toLowerCase();
   const isFarm = ['farm', 'farmhouse', 'farm_house', 'farm house'].includes(
@@ -305,14 +323,6 @@ const ConventionAmed = ({ AllData, propertyType }) => {
     { key: 'full_day_duration', label: 'Full Day Duration (hrs)' },
   ];
 
-  const formatValue = value => {
-    if (Array.isArray(value)) {
-      return value.filter(Boolean).join(', ');
-    }
-
-    return value;
-  };
-
   const normalizeList = value => {
     if (!value) {
       return [];
@@ -336,11 +346,6 @@ const ConventionAmed = ({ AllData, propertyType }) => {
 
     return [];
   };
-
-  const hasDisplayValue = value =>
-    formatValue(value) !== undefined &&
-    formatValue(value) !== null &&
-    String(formatValue(value)).trim() !== '';
 
   const areaKey = hasDisplayValue(AllData?.area_sq_ft)
     ? 'area_sq_ft'
