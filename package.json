@@ -43,6 +43,7 @@
     "react-native-render-html": "^6.3.4",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "^4.9.2",
+    "react-native-video": "^6.19.2",
     "rn-scratch-card": "^1.2.4"
   },
   "devDependencies": {

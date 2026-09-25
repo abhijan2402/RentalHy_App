@@ -485,7 +485,7 @@ export const BookingCard = ({
   );
 };
 
-const MyBooking = ({navigation}) => {
+const MyBooking = ({navigation, route}) => {
   const isFocus = navigation.isFocused();
   const {getRequest, postRequest, putRequest} = useApi();
   const [loader, setLoader] = useState(true);
@@ -794,7 +794,7 @@ const MyBooking = ({navigation}) => {
     <View style={styles.container}>
       <Header
         title={'My Bookings'}
-        showBack
+        showBack={route?.name !== 'My Bookings'}
         onBackPress={() => navigation.goBack()}
       />
       <FlatList

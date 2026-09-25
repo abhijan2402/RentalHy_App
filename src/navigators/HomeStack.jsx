@@ -30,6 +30,8 @@ import ChatList from '../Screens/Private/Account/ChatList';
 import HostelReviewManagement from '../Screens/Private/Account/HostelReviewManagement';
 import PostHotel from '../Screens/Private/Hotel/PostHotel';
 import VendorManagement from '../Screens/Private/Account/VendorManagement';
+import HotelMain from '../Screens/Private/Hotel/HotelMain';
+import PropertyAssistant from '../Screens/Private/Dashboard/PropertyAssistant';
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => {
@@ -41,6 +43,8 @@ const HomeStack = () => {
                     headerShown: false,
                 }}>
                 <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="Hotels" component={HotelMain} />
+                <Stack.Screen name="PropertyAssistant" component={PropertyAssistant} />
 
                 <Stack.Screen name="Cms" component={Cms} />
                 <Stack.Screen name="EditProfile" component={EditProfile} />

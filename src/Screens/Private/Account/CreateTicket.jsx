@@ -25,9 +25,13 @@ const CreateTicket = ({ navigation }) => {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
-    formData.append('user_id', user?.id);
-    formData.append('user_type', 'existing');
+    if(user){
+      formData.append('user_id', user?.id);
+    }
+    formData.append('user_type', user ? 'existing' : 'new');
     const response = await postRequest('public/api/support/issues', formData, true);
+    console.log(response,"Ress");
+    
     if (response?.data?.status == 'success') {
       showToast("Ticket Created Successfully", "success")
       setLoader(false);

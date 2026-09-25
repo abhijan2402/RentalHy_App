@@ -86,6 +86,7 @@ const OptionSelector = ({
 
   const renderOption = (item, index, isCompact = false) => {
     const isSelected = selectedIndex === index;
+    const isResort = String(item?.title || '').toLowerCase() === 'resort';
 
     return (
       <TouchableOpacity
@@ -113,6 +114,7 @@ const OptionSelector = ({
           <View
             style={[
               styles.iconContainer,
+              isResort && styles.resortIconContainer,
               isSelected && styles.selectedIconContainer,
             ]}>
             <Image
@@ -121,7 +123,7 @@ const OptionSelector = ({
                   ? {uri: item.image}
                   : item?.image
               }
-              style={styles.icon}
+              style={[styles.icon, isResort && styles.resortIcon]}
               resizeMode="contain"
             />
           </View>
@@ -266,6 +268,15 @@ const styles = StyleSheet.create({
   icon: {
     width: 19,
     height: 19,
+  },
+  resortIconContainer: {
+    width: 34,
+    height: 34,
+    marginBottom: 1,
+  },
+  resortIcon: {
+    width: 31,
+    height: 31,
   },
   title: {
     fontSize: 9,

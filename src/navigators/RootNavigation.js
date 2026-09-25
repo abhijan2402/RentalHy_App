@@ -37,6 +37,8 @@ import HotelBookings from '../Screens/Private/Account/HotelBookings';
 import Reward from '../Screens/Private/Account/Reward';
 import Management from '../Screens/Private/Account/Management';
 import VendorManagement from '../Screens/Private/Account/VendorManagement';
+import PropertyAssistant from '../Screens/Private/Dashboard/PropertyAssistant';
+import HotelMain from '../Screens/Private/Hotel/HotelMain';
 const Stack = createNativeStackNavigator();
 
 const RootNavigation = () => {
@@ -62,6 +64,8 @@ const RootNavigation = () => {
                 <Stack.Screen name="EditProfile" component={EditProfile} />
                 <Stack.Screen name="PostProperty" component={PostProperty} />
                 <Stack.Screen name="PropertyDetail" component={PropertyDetail} />
+                <Stack.Screen name="PropertyAssistant" component={PropertyAssistant} />
+                <Stack.Screen name="Hotels" component={HotelMain} />
                 <Stack.Screen name="Profile" component={Account} />
                 <Stack.Screen name="SupportList" component={SupportList} />
                 <Stack.Screen name="CreateTicket" component={CreateTicket} />

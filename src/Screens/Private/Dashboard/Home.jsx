@@ -457,6 +457,7 @@ const Home = ({ navigation }) => {
       <HomeHeader
         setLocationModalVisible={setLocationModalVisible}
         navigation={navigation}
+        showAssistant
       />
 
       {tabLoader ? (
@@ -826,7 +827,7 @@ export const DemoCard = ({
   );
 };
 
-export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
+export const HomeHeader = ({ navigation, setLocationModalVisible, showAssistant = false }) => {
   const { user, currentAddress } = useContext(AuthContext);
   const CityName = getCityFromAddress(currentAddress?.address);
 
@@ -868,6 +869,21 @@ export const HomeHeader = ({ navigation, setLocationModalVisible }) => {
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
+      {showAssistant ? (
+      <TouchableOpacity
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Open AI Assistant"
+        style={styles.headerActionButton}
+        onPress={() => navigation.navigate('PropertyAssistant')}>
+        <Image
+          source={{
+            uri: 'https://cdn-icons-png.flaticon.com/128/4712/4712109.png',
+          }}
+          style={styles.assistantIcon}
+        />
+      </TouchableOpacity>
+      ) : null}
       <TouchableOpacity
         activeOpacity={0.7}
         accessibilityRole="button"
@@ -1014,6 +1030,11 @@ const styles = StyleSheet.create({
   wishListIcon: {
     width: 18,
     height: 18,
+    tintColor: COLOR.primary,
+  },
+  assistantIcon: {
+    width: 19,
+    height: 19,
     tintColor: COLOR.primary,
   },
   giftIcon: {

@@ -393,6 +393,18 @@ const PropertyDetail = ({ navigation, route }) => {
     );
   };
 
+  const openPropertyAssistant = () => {
+    const category = semiType || type || 'property';
+    const params = {
+      propertyContext: {
+        item: AllData || propertyData,
+        category,
+        requestId: Date.now(),
+      },
+    };
+    navigation.navigate('PropertyAssistant', params);
+  };
+
   return (
     <View style={styles.container}>
       <Header
@@ -698,6 +710,11 @@ const PropertyDetail = ({ navigation, route }) => {
             ) : null}
           </View>
 
+          <CustomButton
+            style={{ marginBottom: 10 }}
+            title="Explain all details with AI Assistant"
+            onPress={openPropertyAssistant}
+          />
           <CustomButton
             style={{ marginBottom: 10 }}
             title={type === 'hotel' ? "Book Now" : 'Contact Landlord in Chat'}

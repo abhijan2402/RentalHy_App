@@ -1,20 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Account from '../Screens/Private/Account/Account';
 import { COLOR } from '../Constants/Colors';
-import HotelMain from '../Screens/Private/Hotel/HotelMain';
 import HomeStack from './HomeStack';
-import PropertyAssistant from '../Screens/Private/Dashboard/PropertyAssistant';
+import MyBooking from '../Screens/Private/ConventionSection/MyBooking';
+import ChatList from '../Screens/Private/Account/ChatList';
+import Chat from '../Screens/Private/Dashboard/Chat';
+import { AuthContext } from '../Backend/AuthContent';
+import CreateAccountModal from '../Modals/CreateAccountModal';
 
 const Tab = createBottomTabNavigator();
+const ChatStack = createNativeStackNavigator();
+
+const ChatStackScreen = () => (
+  <ChatStack.Navigator screenOptions={{headerShown: false}}>
+    <ChatStack.Screen name="ChatHome" component={ChatList} />
+    <ChatStack.Screen name="Chat" component={Chat} />
+  </ChatStack.Navigator>
+);
 
 const icons = {
   Home: 'https://cdn-icons-png.flaticon.com/128/1946/1946488.png',
-  Hotels: 'https://cdn-icons-png.flaticon.com/128/3619/3619368.png',
-  Assistant: 'https://cdn-icons-png.flaticon.com/128/4712/4712109.png',
+  'My Bookings': 'https://cdn-icons-png.flaticon.com/128/747/747310.png',
+  Chat: 'https://cdn-icons-png.flaticon.com/128/134/134914.png',
   Profile: 'https://cdn-icons-png.flaticon.com/128/456/456283.png',
 };
 
@@ -80,38 +92,62 @@ const AnimatedTabIcon = ({ focused, routeName }) => {
 const BottomNavigation = () => {
   const insets = useSafeAreaInsets();
   const safeBottom = insets.bottom;
+  const { currentStatus } = useContext(AuthContext);
+  const [accountModalVisible, setAccountModalVisible] = useState(false);
+
+  const handleProtectedTabPress = event => {
+    if (currentStatus === -1) {
+      event.preventDefault();
+      setAccountModalVisible(true);
+    }
+  };
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: COLOR.primary,
-        tabBarInactiveTintColor: '#8a9099',
-        tabBarStyle: [
-          styles.tabBar,
-          {
-            height: 62 + safeBottom,
-            paddingBottom: Math.max(5, safeBottom),
-          },
-        ],
-        tabBarItemStyle: styles.tabItem,
-        tabBarLabelStyle: styles.label,
-        tabBarIconStyle: styles.tabBarIcon,
-        tabBarIcon: ({ focused }) => (
-          <AnimatedTabIcon focused={focused} routeName={route.name} />
-        ),
-        tabBarLabel: ({ focused }) => (
-          <Text style={[styles.label, focused && styles.activeLabel]}>
-            {route.name}
-          </Text>
-        ),
-      })}>
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Hotels" component={HotelMain} />
-      <Tab.Screen name="Assistant" component={PropertyAssistant} />
-      <Tab.Screen name="Profile" component={Account} />
-    </Tab.Navigator>
+    <>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarHideOnKeyboard: true,
+          tabBarActiveTintColor: COLOR.primary,
+          tabBarInactiveTintColor: '#8a9099',
+          tabBarStyle: [
+            styles.tabBar,
+            {
+              height: 62 + safeBottom,
+              paddingBottom: Math.max(5, safeBottom),
+            },
+          ],
+          tabBarItemStyle: styles.tabItem,
+          tabBarLabelStyle: styles.label,
+          tabBarIconStyle: styles.tabBarIcon,
+          tabBarIcon: ({ focused }) => (
+            <AnimatedTabIcon focused={focused} routeName={route.name} />
+          ),
+          tabBarLabel: ({ focused }) => (
+            <Text style={[styles.label, focused && styles.activeLabel]}>
+              {route.name}
+            </Text>
+          ),
+        })}>
+        <Tab.Screen name="Home" component={HomeStack} />
+        <Tab.Screen
+          name="My Bookings"
+          component={MyBooking}
+          listeners={{ tabPress: handleProtectedTabPress }}
+        />
+        <Tab.Screen
+          name="Chat"
+          component={ChatStackScreen}
+          listeners={{ tabPress: handleProtectedTabPress }}
+        />
+        <Tab.Screen name="Profile" component={Account} />
+      </Tab.Navigator>
+      <CreateAccountModal
+        visible={accountModalVisible}
+        onCreateAccount={() => setAccountModalVisible(false)}
+        onCancel={() => setAccountModalVisible(false)}
+      />
+    </>
   );
 };
 

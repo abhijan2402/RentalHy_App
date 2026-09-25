@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   PermissionsAndroid,
   Platform,
+  StyleSheet,
+  View,
 } from 'react-native';
+import Video from 'react-native-video';
 import { LanguageProvider } from './src/localization/LanguageContext';
 import { AuthProvider } from './src/Backend/AuthContent';
 import { NavigationContainer } from '@react-navigation/native';
@@ -23,6 +26,8 @@ import {
 } from './src/service/notifeeService';
 
 const App = () => {
+  const [showLaunchVideo, setShowLaunchVideo] = useState(true);
+
   const requestUserPermission = async () => {
     if (Platform.OS === 'android' && Platform.Version >= 33) {
       await PermissionsAndroid.request(
@@ -86,6 +91,10 @@ const App = () => {
   };
 
   useEffect(() => {
+    if (showLaunchVideo) {
+      return;
+    }
+
     const initNotifications = async () => {
       await requestUserPermission();
       await requestNotifeePermission();
@@ -103,7 +112,29 @@ const App = () => {
       unsubscribeFirebase();
       unsubscribeNotifee();
     };
-  }, []);
+  }, [showLaunchVideo]);
+
+  if (showLaunchVideo) {
+    return (
+      <View style={styles.launchContainer}>
+        <Video
+          source={require('./src/assets/Applaunch.mp4')}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          controls={false}
+          repeat={false}
+          muted={false}
+          playInBackground={false}
+          playWhenInactive={false}
+          onEnd={() => setShowLaunchVideo(false)}
+          onError={error => {
+            console.warn('Unable to play launch video:', error);
+            setShowLaunchVideo(false);
+          }}
+        />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -119,5 +150,12 @@ const App = () => {
     </SafeAreaProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  launchContainer: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+});
 
 export default App;
