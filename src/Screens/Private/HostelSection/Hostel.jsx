@@ -476,6 +476,7 @@ const Hostel = ({ navigation }) => {
             navigation.navigate('PostHostel');
           }
         }}
+        assistantOnPress={() => navigation.navigate('PropertyAssistant')}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/648/648539.png'}
       />
       <MultiModal

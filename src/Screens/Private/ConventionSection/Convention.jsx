@@ -1231,6 +1231,7 @@ const Convention = ({ navigation, route }) => {
         onPress={() =>
           navigation.navigate('CreateConvention', { activeTabKey: activeTab })
         }
+        assistantOnPress={() => navigation.navigate('PropertyAssistant')}
         iconUrl={'https://cdn-icons-png.flaticon.com/128/3211/3211467.png'}
       />
       <SortModal

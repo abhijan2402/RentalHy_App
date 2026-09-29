@@ -673,6 +673,7 @@ const Home = ({ navigation }) => {
               navigation.navigate('PostProperty');
             }
           }}
+          assistantOnPress={() => navigation.navigate('PropertyAssistant')}
           iconUrl={'https://cdn-icons-png.flaticon.com/128/2163/2163350.png'}
         />
       )}
@@ -725,11 +726,19 @@ const Home = ({ navigation }) => {
 
 export default Home;
 
-export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) => {
+export const AnimatedButton = ({
+  onPress,
+  title = 'Post Property',
+  iconUrl,
+  assistantOnPress,
+}) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
+  const assistantPulseAnim = useRef(new Animated.Value(0)).current;
+  const showAssistantButton = Boolean(assistantOnPress);
+
   useEffect(() => {
-    Animated.loop(
+    const floatAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(floatAnim, {
           toValue: -10,
@@ -742,8 +751,38 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
           useNativeDriver: true,
         }),
       ]),
-    ).start();
-  }, []);
+    );
+    const assistantPulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(assistantPulseAnim, {
+          toValue: 1,
+          duration: 850,
+          useNativeDriver: true,
+        }),
+        Animated.timing(assistantPulseAnim, {
+          toValue: 0,
+          duration: 850,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    floatAnimation.start();
+    if (showAssistantButton) {
+      assistantPulseAnimation.start();
+    }
+
+    return () => {
+      floatAnimation.stop();
+      assistantPulseAnimation.stop();
+    };
+  }, [assistantPulseAnim, floatAnim, showAssistantButton]);
+
+  const assistantScale = assistantPulseAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.04],
+  });
+
   return (
     <Animated.View
       style={{
@@ -754,6 +793,7 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
         transform: [{ translateY: floatAnim }],
       }}>
       <TouchableOpacity
+        activeOpacity={0.8}
         style={{
           backgroundColor: COLOR.primary,
           paddingHorizontal: 16,
@@ -779,6 +819,53 @@ export const AnimatedButton = ({ onPress, title = 'Post Property', iconUrl }) =>
           {title}
         </Text>
       </TouchableOpacity>
+
+      {showAssistantButton ? (
+        <Animated.View
+          style={{
+            marginTop: 10,
+            transform: [{scale: assistantScale}],
+            shadowColor: '#7B61FF',
+            shadowOffset: {width: 0, height: 4},
+            shadowOpacity: 0.38,
+            shadowRadius: 8,
+            elevation: 7,
+          }}>
+          <TouchableOpacity
+            activeOpacity={0.82}
+            accessibilityRole="button"
+            accessibilityLabel="Open AI Assistant"
+            onPress={assistantOnPress}
+            style={{
+              alignSelf: 'flex-end',
+              minWidth: 118,
+              paddingHorizontal: 16,
+              paddingVertical: 11,
+              borderRadius: 22,
+              backgroundColor: '#6C4DFF',
+              borderWidth: 1,
+              borderColor: '#BEB2FF',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Image
+              source={{
+                uri: 'https://cdn-icons-png.flaticon.com/128/4712/4712109.png',
+              }}
+              style={{width: 24, height: 24}}
+            />
+            <Text
+              style={{
+                color: '#fff',
+                fontWeight: 'bold',
+                marginLeft: 9,
+              }}>
+              Ask AI
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      ) : null}
     </Animated.View>
   );
 };

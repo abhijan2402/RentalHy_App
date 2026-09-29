@@ -408,6 +408,7 @@ const HotelMain = ({ navigation }) => {
             <AnimatedButton
                 title={'Post Hotels'}
                 onPress={() => navigation.navigate('PostHotel')}
+                assistantOnPress={() => navigation.navigate('PropertyAssistant')}
                 iconUrl={'https://cdn-icons-png.flaticon.com/128/3009/3009489.png'}
             />
         </SafeAreaView>

@@ -48,7 +48,7 @@ const MultiModal = ({
       const max = initialSelected?.max_occupancy ?? 1000;
       setOccupancyRange([min, max]);
     }
-  }, [visible, initialSelected, filterValueData]);
+  }, [visible, initialSelected, filterValueData, maxPriceVal]);
 
   const toggleFilter = (filter, filterType, isBoolean = false) => {
     const currentFilters = selectedFilters[filterType] || [];
@@ -101,7 +101,7 @@ const MultiModal = ({
           {filterValueData?.type === 'price' && (
             <View style={{ marginBottom: 20 }}>
               <Text style={styles.sliderLabel}>
-                Price : ₹{formatPrice(priceRange[0])} - ₹{formatPrice(priceRange[1])}
+                Price Range
               </Text>
               <MultiSlider
                 values={priceRange}
@@ -111,10 +111,25 @@ const MultiModal = ({
                 step={1000}
                 allowOverlap={false}
                 snapped
+                enableLabel
                 selectedStyle={{ backgroundColor: COLOR.primary }}
                 markerStyle={{ backgroundColor: COLOR.primary, height: 20, width: 20 }}
                 trackStyle={{ height: 4 }}
               />
+              <View style={styles.priceValueRow}>
+                <View style={styles.priceValueBox}>
+                  <Text style={styles.priceValueCaption}>Minimum</Text>
+                  <Text style={styles.priceValueText}>
+                    ₹{formatPrice(priceRange[0])}
+                  </Text>
+                </View>
+                <View style={styles.priceValueBox}>
+                  <Text style={styles.priceValueCaption}>Maximum</Text>
+                  <Text style={styles.priceValueText}>
+                    ₹{formatPrice(priceRange[1])}
+                  </Text>
+                </View>
+              </View>
             </View>
           )}
 
@@ -221,7 +236,36 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
   },
   title: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: COLOR.black },
-  sliderLabel: { marginBottom: 10, fontSize: 16, fontWeight: '600' },
+  sliderLabel: {
+    marginBottom: 10,
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLOR.black,
+  },
+  priceValueRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  priceValueBox: {
+    minWidth: '45%',
+    borderWidth: 1,
+    borderColor: '#e1e3e8',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#f8f9fb',
+  },
+  priceValueCaption: {
+    fontSize: 11,
+    color: '#747b86',
+    marginBottom: 2,
+  },
+  priceValueText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLOR.black,
+  },
   optionRow: { marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap' },
   optionButton: {
     borderWidth: 1,

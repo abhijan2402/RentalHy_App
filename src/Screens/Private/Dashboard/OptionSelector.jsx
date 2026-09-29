@@ -11,33 +11,13 @@ import {
 import { COLOR } from '../../../Constants/Colors';
 
 const destinations = [
-  { tab: 'Home', screen: 'Home' },
-  { tab: 'Home', screen: 'Hostel' },
-  { tab: 'Home', screen: 'Convention', params: { type: 'conv' } },
-  { tab: 'Home', screen: 'Convention', params: { type: 'resort' } },
-  { tab: 'Home', screen: 'Convention', params: { type: 'farm' } },
-  { tab: 'Hotels' },
+  { screen: 'Home' },
+  { screen: 'Hostel' },
+  { screen: 'Convention', params: { type: 'conv' } },
+  { screen: 'Convention', params: { type: 'resort' } },
+  { screen: 'Convention', params: { type: 'farm' } },
+  { screen: 'Hotels' },
 ];
-
-const getTabNavigator = navigation => {
-  let currentNavigation = navigation;
-
-  while (currentNavigation) {
-    const routeNames = currentNavigation.getState?.()?.routeNames;
-
-    if (
-      routeNames?.includes('Home') &&
-      routeNames?.includes('Hotels') &&
-      routeNames?.includes('Profile')
-    ) {
-      return currentNavigation;
-    }
-
-    currentNavigation = currentNavigation.getParent?.();
-  }
-
-  return navigation;
-};
 
 const OptionSelector = ({
   data = [],
@@ -71,16 +51,7 @@ const OptionSelector = ({
 
     const destination = destinations[index];
     if (destination) {
-      const tabNavigation = getTabNavigator(navigation);
-
-      if (destination.screen) {
-        tabNavigation.navigate(destination.tab, {
-          screen: destination.screen,
-          params: destination.params,
-        });
-      } else {
-        tabNavigation.navigate(destination.tab);
-      }
+      navigation.navigate(destination.screen, destination.params);
     }
   };
 

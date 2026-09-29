@@ -17,6 +17,7 @@ import {AuthContext} from '../../../Backend/AuthContent';
 import {useApi} from '../../../Backend/Api';
 import {COLOR} from '../../../Constants/Colors';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import CreateAccountModal from '../../../Modals/CreateAccountModal';
 
 const CATEGORIES = [
   {key: 'property', label: 'Properties', aliases: ['property', 'properties', 'flat', 'house', 'room']},
@@ -36,6 +37,15 @@ const ENDPOINTS = {
   farm: {method: 'post', url: 'public/api/farm_listing'},
 };
 
+const ASSISTANT_SHORTCUTS = [
+  {key: 'wishlist', label: 'My wishlist', prompt: 'Show my wishlist'},
+  {key: 'bookings', label: 'My bookings', prompt: 'Show my bookings'},
+  {key: 'chats', label: 'My chats', prompt: 'Show my chats'},
+  {key: 'rewards', label: 'Rewards', prompt: 'Show my rewards'},
+  {key: 'post-property', label: 'Post property', prompt: 'Post a property'},
+  {key: 'support', label: 'Support', prompt: 'Open support'},
+];
+
 const DETAIL_ENDPOINTS = {
   property: id => `public/api/properties/${id}`,
   hostel: id => `public/api/hostels/${id}`,
@@ -52,11 +62,43 @@ const WELCOME_MESSAGE = {
 };
 
 const isBookingRequest = text =>
-  /\b(?:my\s+bookings?|show\s+(?:me\s+)?(?:my\s+)?bookings?|booking\s+(?:list|details?))\b/i.test(
-    text,
-  );
+  /\b(?:bookings?|reservations?)\b/i.test(text);
 
-const getCategory = text => {
+const isAllBookingsRequest = text =>
+  /\b(?:all|every)\s+(?:my\s+)?(?:bookings?|reservations?)\b/i.test(text);
+
+const getAppShortcut = text => {
+  if (/\b(?:manage|edit|view)\s+(?:my\s+)?(?:spaces?|listings?|properties)\b/i.test(text)) {
+    return {route: 'Management', protected: true};
+  }
+  if (/^\s*(?:manage(?:ment)?|vendor(?:\s+management)?)\s*$/i.test(text)) {
+    return {route: 'VendorManagement', protected: true};
+  }
+  if (/\bvendor\s+(?:dashboard|workspace|tools?)\b/i.test(text)) {
+    return {route: 'VendorManagement', protected: true};
+  }
+  if (/\b(?:my\s+)?(?:wishlist|wish\s+list|favou?rites?)\b/i.test(text)) {
+    return {route: 'Wishlist', protected: true};
+  }
+  if (/\b(?:my\s+)?chats?|conversations?\b/i.test(text)) {
+    return {route: 'ChatList', protected: true};
+  }
+  if (/\b(?:rewards?|reward points?)\b/i.test(text)) {
+    return {route: 'Reward', protected: true};
+  }
+  if (/\b(?:post|add|list)\s+(?:a\s+|my\s+)?propert(?:y|ies)\b/i.test(text)) {
+    return {route: 'PostProperty', protected: true};
+  }
+  if (/\b(?:support|help center|contact support)\b/i.test(text)) {
+    return {route: 'SupportList', protected: false};
+  }
+  return null;
+};
+
+const isNearbyRequest = text =>
+  /\b(?:near\s*by|around me|close to me)\b/i.test(text);
+
+const getCategory = (text, fallbackCategory = null) => {
   const normalized = text.toLowerCase();
   const matches = CATEGORIES.flatMap(category =>
     category.aliases
@@ -66,7 +108,7 @@ const getCategory = text => {
 
   if (!matches.length) {
     const genericPropertyRequest = /\b(?:show|find|search|nearby|around me|rent|rental|listing|available)\b/.test(normalized);
-    return genericPropertyRequest ? CATEGORIES[0] : null;
+    return genericPropertyRequest ? fallbackCategory || CATEGORIES[0] : null;
   }
 
   matches.sort((first, second) => second.matchLength - first.matchLength);
@@ -630,12 +672,18 @@ const PropertyAssistant = ({navigation, route}) => {
   const messageListRef = useRef(null);
   const chatSessionRef = useRef(0);
   const handledPropertyRef = useRef('');
-  const {currentAddress} = useContext(AuthContext);
+  const searchContextRef = useRef({
+    category: null,
+    filters: {},
+    nearby: false,
+  });
+  const {currentAddress, currentStatus} = useContext(AuthContext);
   const {getRequest, postRequest} = useApi();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [accountModalVisible, setAccountModalVisible] = useState(false);
   const [messages, setMessages] = useState([WELCOME_MESSAGE]);
 
   const scrollToLatest = useCallback((animated = true) => {
@@ -668,9 +716,8 @@ const PropertyAssistant = ({navigation, route}) => {
     };
   }, [insets.bottom, scrollToLatest]);
 
-  const fetchListings = useCallback(async (category, requestText, filters) => {
+  const fetchListings = useCallback(async (category, nearby, filters) => {
     const config = ENDPOINTS[category.key];
-    const nearby = /near\s*by|nearby|around me|close to me/i.test(requestText);
     const lat = currentAddress?.lat;
     const long = currentAddress?.lng;
 
@@ -699,10 +746,32 @@ const PropertyAssistant = ({navigation, route}) => {
     return postRequest(config.url, formData, true);
   }, [currentAddress, getRequest, postRequest]);
 
-  const fetchBookings = useCallback(
-    () => getRequest('public/api/payment_list?page=1'),
-    [getRequest],
-  );
+  const fetchBookings = useCallback(async includeAllPages => {
+    const firstResponse = await getRequest('public/api/payment_list?page=1');
+    const firstPageBookings = unpackBookings(firstResponse);
+    if (!includeAllPages || !firstResponse?.success) {
+      return {response: firstResponse, bookings: firstPageBookings};
+    }
+
+    const pagination = firstResponse?.data?.data?.last_page
+      ? firstResponse.data.data
+      : firstResponse?.data;
+    const lastPage = Number(pagination?.last_page || 1);
+    if (lastPage <= 1) {
+      return {response: firstResponse, bookings: firstPageBookings};
+    }
+
+    const remainingResponses = await Promise.all(
+      Array.from({length: lastPage - 1}, (_, index) =>
+        getRequest(`public/api/payment_list?page=${index + 2}`),
+      ),
+    );
+    const remainingBookings = remainingResponses.flatMap(unpackBookings);
+    return {
+      response: firstResponse,
+      bookings: [...firstPageBookings, ...remainingBookings],
+    };
+  }, [getRequest]);
 
   const showBookings = useCallback(async cleanText => {
     const requestSession = chatSessionRef.current;
@@ -713,11 +782,11 @@ const PropertyAssistant = ({navigation, route}) => {
     setInput('');
     setLoading(true);
     try {
-      const response = await fetchBookings();
+      const includeAllPages = isAllBookingsRequest(cleanText);
+      const {response, bookings} = await fetchBookings(includeAllPages);
       if (requestSession !== chatSessionRef.current) {
         return;
       }
-      const bookings = unpackBookings(response);
       setMessages(previous => [
         ...previous,
         {
@@ -797,12 +866,38 @@ const PropertyAssistant = ({navigation, route}) => {
     }
 
     if (isBookingRequest(cleanText)) {
+      if (currentStatus === -1) {
+        setAccountModalVisible(true);
+        return;
+      }
       await showBookings(cleanText);
       return;
     }
 
-    const category = getCategory(cleanText);
-    const filters = parseFilters(cleanText);
+    const appShortcut = getAppShortcut(cleanText);
+    if (appShortcut) {
+      if (appShortcut.protected && currentStatus === -1) {
+        setAccountModalVisible(true);
+        return;
+      }
+      Keyboard.dismiss();
+      navigation.navigate(appShortcut.route);
+      return;
+    }
+
+    const previousSearch = searchContextRef.current;
+    const requestedFilters = parseFilters(cleanText);
+    const hasFilterUpdates = Object.keys(requestedFilters).length > 0;
+    const category = getCategory(cleanText, previousSearch.category) ||
+      (hasFilterUpdates ? previousSearch.category : null);
+    const continuesCurrentCategory = Boolean(
+      category && previousSearch.category?.key === category.key,
+    );
+    const filters = continuesCurrentCategory
+      ? {...previousSearch.filters, ...requestedFilters}
+      : requestedFilters;
+    const nearby = isNearbyRequest(cleanText) ||
+      (continuesCurrentCategory && previousSearch.nearby);
     const requestSession = chatSessionRef.current;
     const userMessage = {id: `user-${Date.now()}`, sender: 'user', text: cleanText};
     setMessages(previous => [...previous, userMessage]);
@@ -821,15 +916,15 @@ const PropertyAssistant = ({navigation, route}) => {
       return;
     }
 
+    searchContextRef.current = {category, filters, nearby};
     setLoading(true);
 
     try {
-      const response = await fetchListings(category, cleanText, filters);
+      const response = await fetchListings(category, nearby, filters);
       if (requestSession !== chatSessionRef.current) {
         return;
       }
       const results = applyPriceFilter(unpackResults(response), filters);
-      const nearby = /near\s*by|nearby|around me|close to me/i.test(cleanText);
       const locationNote = nearby && !currentAddress?.lat
         ? ' I could not find your current location, so these are the latest listings.'
         : '';
@@ -854,10 +949,11 @@ const PropertyAssistant = ({navigation, route}) => {
         setLoading(false);
       }
     }
-  }, [currentAddress, fetchListings, loading, showBookings]);
+  }, [currentAddress, currentStatus, fetchListings, loading, navigation, showBookings]);
 
   const restartChat = () => {
     chatSessionRef.current += 1;
+    searchContextRef.current = {category: null, filters: {}, nearby: false};
     Keyboard.dismiss();
     setInput('');
     setLoading(false);
@@ -1042,15 +1138,13 @@ const PropertyAssistant = ({navigation, route}) => {
         <View style={styles.quickArea}>
           <FlatList
             horizontal
-            data={[{key: 'bookings', label: 'Show my bookings'}, ...CATEGORIES]}
+            data={[...ASSISTANT_SHORTCUTS, ...CATEGORIES]}
             keyExtractor={item => item.key}
             renderItem={({item}) => (
               <TouchableOpacity
                 style={styles.chip}
                 onPress={() => handleRequest(
-                  item.key === 'bookings'
-                    ? 'Show my bookings'
-                    : `Show me nearby ${item.label}`,
+                  item.prompt || `Show me nearby ${item.label}`,
                 )}>
                 <Text style={styles.chipText}>{item.label}</Text>
               </TouchableOpacity>
@@ -1078,6 +1172,12 @@ const PropertyAssistant = ({navigation, route}) => {
             {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.sendText}>➤</Text>}
           </TouchableOpacity>
         </View>
+
+        <CreateAccountModal
+          visible={accountModalVisible}
+          onCreateAccount={() => setAccountModalVisible(false)}
+          onCancel={() => setAccountModalVisible(false)}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
